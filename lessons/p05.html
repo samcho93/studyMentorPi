@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P05. 프런티어 자율 탐사와 다중 로봇 작업 할당 · studyMentorPi</title>
+<meta name="description" content="점유 격자에서 프런티어(미확인 경계)를 찾아 스스로 지도를 완성하는 탐사 로봇을 만들고, 여러 대에 탐사 목표를 경매·헝가리안 알고리즘으로 나눠 주며 지도를 병합합니다.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css?v=75126cd8">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=75126cd8">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=75126cd8">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js?v=75126cd8"></script>
+</head>
+<body class="lesson-page track-page-project">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim3d/index.html">3D 시뮬레이터</a><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a><a class="side-tool" href="../tools/urdf-viewer.html">URDF 뷰어</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="project">
+<div class="nav-track-title track-project">프로젝트 (중급·고급)</div>
+<div class="nav-part"><span class="nav-part-no">P-1</span>자율 이동 서비스 로봇</div>
+<ul>
+<li><a href="../lessons/p01.html" data-slug="p01"><span class="nav-no">P01</span>자율 순찰 경비 로봇</a></li>
+<li><a href="../lessons/p02.html" data-slug="p02"><span class="nav-no">P02</span>QR 지시형 실내 배송 로봇</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">P-2</span>지능형 주행</div>
+<ul>
+<li><a href="../lessons/p03.html" data-slug="p03"><span class="nav-no">P03</span>미니 시티 자율주행 챌린지</a></li>
+<li><a href="../lessons/p04.html" data-slug="p04"><span class="nav-no">P04</span>사람 추종 카트 (비전+라이다 융합)</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">P-3</span>고급: 자율성 알고리즘 직접 구현</div>
+<ul>
+<li><a href="../lessons/p05.html" class="active" data-slug="p05"><span class="nav-no">P05</span>프런티어 자율 탐사와 다중 로봇 작업 할당</a></li>
+<li><a href="../lessons/p06.html" data-slug="p06"><span class="nav-no">P06</span>스캔 매칭 오도메트리와 EKF 센서 융합 직접 구현</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">P-4</span>고급: 학습·의미 기반 지능</div>
+<ul>
+<li><a href="../lessons/p07.html" data-slug="p07"><span class="nav-no">P07</span>강화학습으로 배우는 라이다 주행 정책</a></li>
+<li><a href="../lessons/p08.html" data-slug="p08"><span class="nav-no">P08</span>시맨틱 지도와 자연어 명령 내비게이션</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="p05" data-track="project">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-project">프로젝트 (중급·고급)</span> P-3 고급: 자율성 알고리즘 직접 구현 &middot; 약 300분 &middot; 고급</div>
+    <h1><span class="lesson-no">P05</span>프런티어 자율 탐사와 다중 로봇 작업 할당</h1>
+    <p class="lede">점유 격자에서 프런티어(미확인 경계)를 찾아 스스로 지도를 완성하는 탐사 로봇을 만들고, 여러 대에 탐사 목표를 경매·헝가리안 알고리즘으로 나눠 주며 지도를 병합합니다.</p>
+    <div class="requires">선수 챕터: <a href="m09.html">M09</a> <a href="m12.html">M12</a> <a href="a12.html">A12</a> <a href="p01.html">P01</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      <a class="ghost-btn" href="../sim3d/index.html">3D 시뮬레이터</a><a class="ghost-btn" href="../sim/index.html">2D 시뮬레이터</a><a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>점유격자에서 <strong>프런티어</strong>(frontier, 빈칸과 미탐색 칸의 경계)를 정의대로 검출하고, BFS 연결 성분으로 군집화해 목표점·정보 이득·경로 비용을 계산합니다.</li><li>탐사 효용 <span class="math">U = G − λ·C</span>로 목표를 고르고, 재계획·블랙리스트·종료 조건을 갖춘 <strong>자율 탐사 루프</strong>를 직접 구현합니다.</li><li>여러 대의 로봇에 탐사 목표를 나누는 <strong>작업 할당</strong>(task allocation) 문제를 선형 할당 문제로 세우고, 탐욕·경매(CBBA 개념)·헝가리안 알고리즘의 차이를 수치로 보입니다.</li><li>초기 자세를 알 때의 <strong>지도 병합</strong>(map merging)을 구현하고, 모를 때 상관 탐색으로 상대 자세를 추정하는 원리를 설명합니다.</li><li>MentorPi <code>multi</code>·<code>slam</code> 패키지의 <code>HOST</code>·<code>MASTER</code> 네임스페이스와 <code>ROS_DOMAIN_ID</code>를 이용해 두 대 이상이 동시에 SLAM·탐사하는 시스템을 구성하고, 탐사 면적–시간 곡선으로 평가합니다.</li></ul>
+<h2 id="프로젝트-개요와-요구사항">프로젝트 개요와 요구사항<a class="anchor" href="#프로젝트-개요와-요구사항">#</a></h2>
+<p>처음 들어간 건물에서 사람이 조종하지 않아도 로봇이 <strong>스스로 지도를 완성</strong>하게 만드는 프로젝트입니다. M09에서는 사람이 키보드로 로봇을 몰며 slam_toolbox가 지도를 그렸습니다. 이번에는 "어디로 가야 새로운 것을 볼 수 있는가"를 로봇이 판단합니다. Yamauchi(1997)가 제안한 답은 간단합니다: <strong>아는 빈 공간과 모르는 공간의 경계로 가라.</strong> 그 경계에 서면 라이다가 모르는 공간을 보게 되고, 지도가 넓어지고, 경계는 더 멀리 밀려납니다. 경계가 사라지면 지도가 완성된 것입니다.</p>
+<p>두 번째 절반은 <strong>여러 대</strong>입니다. 로봇이 두세 대면 탐사 시간은 줄지만, 모두 같은 경계로 몰려가면 한 대보다 나을 게 없습니다. 누가 어느 경계로 갈지 나누는 일(작업 할당)과 각자 그린 지도를 하나로 합치는 일(지도 병합)이 필요합니다.</p>
+<p>이 장은 <strong>알고리즘을 직접 구현하는 연구형 프로젝트</strong>입니다. explore_lite 같은 기성 패키지를 켜는 것이 목표가 아니라, 같은 일을 하는 노드를 만들고 기성 패키지와 비교할 수 있어야 합니다.</p>
+<h3 id="팀-구성-4명-로봇-2대-기준">팀 구성 (4명, 로봇 2대 기준)<a class="anchor" href="#팀-구성-4명-로봇-2대-기준">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>역할</th><th>담당</th><th>산출물</th></tr></thead><tbody><tr><td>지도·프런티어</td><td>프런티어 검출·군집·효용, Playground 검증</td><td><code>frontier_goals()</code>와 단위 시험</td></tr><tr><td>주행·안전</td><td>경로 추종, 비상 정지, 속도 제한, 실물 시험</td><td><code>frontier_explorer.py</code></td></tr><tr><td>다중 로봇</td><td>네임스페이스·도메인 설정, 지도 병합, 헝가리안</td><td><code>task_allocator.py</code>, 설정 문서</td></tr><tr><td>실험·보고</td><td>탐사 면적–시간 기록, 비교 실험 설계, 발표</td><td>실험표, 그래프, 보고서</td></tr></tbody></table></div>
+<h3 id="기능-요구사항">기능 요구사항<a class="anchor" href="#기능-요구사항">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>ID</th><th>요구사항</th><th>확인 방법</th></tr></thead><tbody><tr><td>F1</td><td>slam_toolbox의 <code>/map</code>에서 프런티어 칸을 찾고 크기 5칸 이상 군집만 목표 후보로 쓴다</td><td>RViz에 후보 표시, 단위 시험</td></tr><tr><td>F2</td><td>효용 <span class="math">U = G − λ·C</span>가 최대인 <strong>도달 가능한</strong> 군집으로 이동하고, 1 s마다 다시 계획한다</td><td>로그의 목표 변화</td></tr><tr><td>F3</td><td>도달 가능한 프런티어가 3번 연속 없으면 탐사 완료를 알리고 정지한다</td><td>로그, 정지 확인</td></tr><tr><td>F4</td><td>로봇 2대가 서로 다른 프런티어를 배정받는다 (헝가리안)</td><td>allocator 로그</td></tr><tr><td>F5</td><td>초기 자세로 두 지도를 합친 <code>/merged_map</code>을 발행한다</td><td>RViz에서 벽이 겹침</td></tr><tr><td>F6</td><td>탐사 면적(알려진 칸 × 해상도²)을 1 s마다 기록한다</td><td>CSV, 그래프</td></tr></tbody></table></div>
+<h3 id="비기능-요구사항과-안전-한계">비기능 요구사항과 안전 한계<a class="anchor" href="#비기능-요구사항과-안전-한계">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>ID</th><th>항목</th><th>목표값</th><th>근거</th></tr></thead><tbody><tr><td>N1</td><td>계획 주기</td><td>1 Hz, 계획 1회 ≤ 200 ms (지도 400 × 400)</td><td>파이 5에서 SLAM과 함께 실행</td></tr><tr><td>N2</td><td>탐사 효율</td><td>단일 로봇 대비 2대의 90 % 탐사 시간 ≤ 65 %</td><td>다중 로봇의 의미</td></tr><tr><td>S1</td><td>선속도</td><td>탐사 ≤ 0.15 m/s (코드에서 <code>min(0.15, speed)</code>)</td><td>지도가 불완전한 곳을 달림, CLAUDE.md 0.2 m/s보다 보수적</td></tr><tr><td>S2</td><td>비상 정지</td><td>라이다 0.18 m 안에 물체가 있으면 즉시 0</td><td>팽창 0.25 m로 경로가 벽에서 떨어져 있음</td></tr><tr><td>S3</td><td>탐사 구역</td><td>계단·문턱·유리벽이 없는 닫힌 공간, 출입문은 닫거나 막음</td><td>프런티어는 "열린 문" 밖으로 무한히 이어짐</td></tr><tr><td>S4</td><td>감시</td><td>로봇마다 사람 한 명이 따라다니며 정지 수단 확보</td><td>자율 주행</td></tr></tbody></table></div>
+<div class="callout callout-info"><div class="callout-title">수업 시간 배분 (5교시 이상)</div><div class="callout-body"><p>1교시: 이론(프런티어·효용·할당) + Playground 실습 1·2 / 2교시: M1–M2 단일 로봇 탐사(실물) / 3교시: 실습 3·4 + M3 다중 로봇 설정 / 4교시: M4 할당·병합 통합 / 5교시: M5 비교 실험·발표. 확장 과제는 추가 시간.</p></div></div>
+<h2 id="이론">이론<a class="anchor" href="#이론">#</a></h2>
+<h3 id="점유격자와-세-가지-칸">점유격자와 세 가지 칸<a class="anchor" href="#점유격자와-세-가지-칸">#</a></h3>
+<p>slam_toolbox가 발행하는 <code>nav_msgs/OccupancyGrid</code>는 칸마다 −1(미탐색), 0~100(점유 확률 %)을 담습니다(M09). 내부적으로는 <strong>로그 오즈</strong>(log-odds) <span class="math">l = log(p / (1 − p))</span>를 누적합니다. 빔이 지나간 칸은 <span class="math">l ← l + l_{free}</span> (<span class="math">l_{free} &lt; 0</span>), 빔 끝 칸은 <span class="math">l ← l + l_{occ}</span>로 더하기만 하면 되므로 관측을 독립이라고 볼 때 베이즈 갱신과 같습니다. 탐사에서는 이것을 세 가지로 나눕니다.</p>
+<div class="table-wrap"><table><thead><tr><th>칸</th><th>OccupancyGrid 값</th><th>로그 오즈 (Playground)</th><th>의미</th></tr></thead><tbody><tr><td>빈칸 free</td><td>0 ≤ v &lt; 25</td><td><span class="math">l &lt; -0.2</span></td><td>지나갈 수 있음</td></tr><tr><td>점유 occupied</td><td>v ≥ 65</td><td><span class="math">l &gt; 0.4</span></td><td>벽·물체</td></tr><tr><td>미탐색 unknown</td><td>−1</td><td><span class="math">−0.1 &lt; l &lt; 0.1</span></td><td>아직 빔이 닿지 않음</td></tr></tbody></table></div>
+<p>25~65 사이는 "애매한 칸"으로, 지나가지도 목표로 삼지도 않습니다.</p>
+<h3 id="프런티어-검출">프런티어 검출<a class="anchor" href="#프런티어-검출">#</a></h3>
+<figure class="fig" id="fig-p05-frontier"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="프런티어 탐사 알고리즘: 점유격자에서 빈칸이면서 미탐색 칸과 맞닿은 프런티어 칸을 찾고, BFS로 군집을 묶어 중심 목표를 정한 뒤 이득에서 경로 비용을 뺀 효용이 가장 큰 목표로 간다">
+  <text class="tag" x="160" y="26" text-anchor="middle">점유격자와 프런티어 군집 (예)</text>
+  <rect x="20" y="40" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="40" y="40" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="60" y="40" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="80" y="40" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="100" y="40" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="120" y="40" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="140" y="40" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="160" y="40" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="180" y="40" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="200" y="40" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="220" y="40" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="240" y="40" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="260" y="40" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="280" y="40" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="20" y="60" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="40" y="60" width="20" height="20" style="fill:var(--accent);stroke:var(--bg);stroke-width:1"/>
+  <rect x="60" y="60" width="20" height="20" style="fill:var(--accent);stroke:var(--bg);stroke-width:1"/>
+  <rect x="80" y="60" width="20" height="20" style="fill:var(--accent);stroke:var(--bg);stroke-width:1"/>
+  <rect x="100" y="60" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="120" y="60" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="140" y="60" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="160" y="60" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="180" y="60" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="200" y="60" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="220" y="60" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="240" y="60" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="260" y="60" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="280" y="60" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="20" y="80" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="40" y="80" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="60" y="80" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="80" y="80" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="100" y="80" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="120" y="80" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="140" y="80" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="160" y="80" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="180" y="80" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="200" y="80" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="220" y="80" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="240" y="80" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="260" y="80" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="280" y="80" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="20" y="100" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="40" y="100" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="60" y="100" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="80" y="100" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="100" y="100" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="120" y="100" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="140" y="100" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="160" y="100" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="180" y="100" width="20" height="20" style="fill:var(--warn);stroke:var(--bg);stroke-width:1"/>
+  <rect x="200" y="100" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="220" y="100" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="240" y="100" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="260" y="100" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="280" y="100" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="20" y="120" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="40" y="120" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="60" y="120" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="80" y="120" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="100" y="120" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="120" y="120" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="140" y="120" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="160" y="120" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="180" y="120" width="20" height="20" style="fill:var(--warn);stroke:var(--bg);stroke-width:1"/>
+  <rect x="200" y="120" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="220" y="120" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="240" y="120" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="260" y="120" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="280" y="120" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="20" y="140" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="40" y="140" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="60" y="140" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="80" y="140" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="100" y="140" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="120" y="140" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="140" y="140" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="160" y="140" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="180" y="140" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="200" y="140" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="220" y="140" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="240" y="140" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="260" y="140" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="280" y="140" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="20" y="160" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="40" y="160" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="60" y="160" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="80" y="160" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="100" y="160" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="120" y="160" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="140" y="160" width="20" height="20" style="fill:var(--accent);stroke:var(--bg);stroke-width:1"/>
+  <rect x="160" y="160" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="180" y="160" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="200" y="160" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="220" y="160" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="240" y="160" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="260" y="160" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="280" y="160" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="20" y="180" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="40" y="180" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="60" y="180" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="80" y="180" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="100" y="180" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="120" y="180" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="140" y="180" width="20" height="20" style="fill:var(--accent);stroke:var(--bg);stroke-width:1"/>
+  <rect x="160" y="180" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="180" y="180" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="200" y="180" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="220" y="180" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="240" y="180" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="260" y="180" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="280" y="180" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="20" y="200" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="40" y="200" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="60" y="200" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="80" y="200" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="100" y="200" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="120" y="200" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="140" y="200" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="160" y="200" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="180" y="200" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="200" y="200" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="220" y="200" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="240" y="200" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="260" y="200" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="280" y="200" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <circle cx="70" cy="70" r="7" style="fill:none;stroke:var(--text);stroke-width:2"/>
+  <text class="lbl" x="81" y="75">F0</text>
+  <circle cx="190" cy="110" r="7" style="fill:none;stroke:var(--text);stroke-width:2"/>
+  <text class="lbl" x="201" y="115">F1</text>
+  <circle cx="150" cy="170" r="7" style="fill:none;stroke:var(--text);stroke-width:2"/>
+  <text class="lbl" x="161" y="175">F2</text>
+  <circle cx="70" cy="170" r="7" class="hi"/>
+  <rect x="20" y="232" width="12" height="12" style="fill:var(--bg-elev-2);stroke:var(--border)"/>
+  <text class="tag" x="36" y="242">빈칸</text>
+  <rect x="76" y="232" width="12" height="12" style="fill:var(--border)"/>
+  <text class="tag" x="92" y="242">미탐색</text>
+  <rect x="145" y="232" width="12" height="12" style="fill:var(--text-dim)"/>
+  <text class="tag" x="161" y="242">점유</text>
+  <rect x="201" y="232" width="12" height="12" style="fill:var(--accent)"/>
+  <text class="tag" x="217" y="242">프런티어</text>
+  <circle cx="25" cy="258" r="5" class="hi"/><text class="tag" x="34" y="262">로봇</text>
+  <circle cx="85" cy="258" r="5" style="fill:none;stroke:var(--text);stroke-width:2"/><text class="tag" x="95" y="262">군집 목표 (중심에 가장 가까운 칸)</text>
+  <text class="tag" x="330" y="26">탐사 루프</text>
+  <text class="lbl" x="330" y="58">① 점유격자 → 빈칸 · 점유 · 미탐색으로 3분류</text>
+  <text class="lbl" x="330" y="88">② 프런티어 칸 = 빈칸 ∧ 4-이웃에 미탐색</text>
+  <text class="lbl" x="330" y="118">③ BFS 연결 성분(8-연결)으로 군집, 작은 군집 버림</text>
+  <text class="lbl" x="330" y="148">④ 목표 g = 군집 중심에 가장 가까운 구성원</text>
+  <text class="lbl" x="330" y="178">⑤ 이득 G = g 주변 미탐색 면적, 비용 C = BFS 경로 길이</text>
+  <text class="lbl" x="330" y="208">⑥ 효용 U = G − λ·C 최대 목표로 이동</text>
+  <text class="lbl" x="330" y="238">⑦ 1 s마다 재계획, 도달 가능한 군집이 없으면 종료</text>
+  <path d="M322 238 L322 252 L700 252 L700 36 L690 36" class="ln" style="stroke-dasharray:4 3"/>
+  <text class="sub" x="510" y="272" text-anchor="middle">지도가 바뀌면 프런티어도 바뀐다 → 목표를 고정하지 말고 계속 다시 고른다</text>
+</svg><figcaption>프런티어 탐사 알고리즘. 빈칸이면서 미탐색 칸과 맞닿은 칸(색칠)이 프런티어이고, 연결된 것끼리 묶은 군집마다 하나의 목표(○)를 정합니다.</figcaption></figure>
+<p><strong>정의 (Yamauchi 1997).</strong> 칸 <span class="math">c</span>가 프런티어일 조건은 <span class="math">c</span>가 빈칸이고 4-이웃 <span class="math">N_4(c)</span> 가운데 미탐색 칸이 있는 것입니다. 배열 연산으로는 미탐색 마스크를 상하좌우로 한 칸씩 민 네 배열의 OR와 빈칸 마스크의 AND 한 번이면 됩니다(칸 수 <span class="math">n</span>에 대해 <span class="math">O(n)</span>).</p>
+<p><strong>군집화.</strong> 프런티어 칸 하나하나를 목표로 삼으면 후보가 수백 개가 되고, 잡음 한 칸에도 로봇이 끌려갑니다. 그래서 8-연결로 이어진 프런티어 칸을 <strong>연결 성분</strong>(connected component)으로 묶습니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">labels ← 0,  clusters ← []
+for 각 프런티어 칸 s (labels[s] = 0):
+    queue ← [s],  labels[s] ← k,  comp ← []
+    while queue:
+        c ← queue.pop_front();  comp.append(c)
+        for n in N8(c):  if n이 프런티어 ∧ labels[n] = 0:  labels[n] ← k; queue.push(n)
+    if |comp| ≥ n_min:  clusters.append(comp);  k ← k + 1</code></pre></div>
+<p>각 칸은 한 번만 큐에 들어가므로 <span class="math">O(n_f)</span>입니다. <code>cv2.connectedComponentsWithStats</code>도 같은 일을 하지만, 조건(도달 가능성 등)을 섞으려면 직접 짜는 편이 편합니다.</p>
+<p><strong>목표점.</strong> 군집의 산술 중심 <span class="math">c̄ = (1/|F_k|)·Σ c</span>는 L자로 꺾인 군집에서 벽 안이나 미탐색 칸에 떨어질 수 있습니다. 그래서 <strong>중심에 가장 가까운 구성원</strong> <span class="math">g_k = argmin_{c∈F_k} ‖c − c̄‖</span>을 목표로 씁니다. 목표가 항상 빈칸이라 경로가 존재합니다.</p>
+<h3 id="정보-이득과-경로-비용">정보 이득과 경로 비용<a class="anchor" href="#정보-이득과-경로-비용">#</a></h3>
+<p><strong>경로 비용</strong> <span class="math">C_k</span>: 로봇 칸에서 BFS(모든 이동 비용 1)로 빈칸만 따라가 <span class="math">g_k</span>에 닿는 칸 수 × 해상도. 장애물은 로봇 반경 + 여유만큼 <strong>팽창</strong>(inflation)시켜, 벽에 붙은 좁은 틈을 경로로 잡지 않게 합니다(M12의 코스트맵 팽창과 같은 이유). BFS 한 번으로 모든 목표의 비용이 동시에 나오고, BFS가 닿지 않는 군집은 <strong>도달 불가</strong>로 바로 걸러집니다.</p>
+<p><strong>정보 이득</strong> <span class="math">G_k</span>: 그 자리에 가면 새로 볼 것으로 기대되는 면적. 가장 간단한 근사는 <span class="math">g_k</span> 중심 반경 <span class="math">r</span>(라이다 유효 거리 정도, 여기서는 1 m) 창 안의 미탐색 칸 수 × 해상도²입니다. 더 정확하게는 가려짐까지 고려해 <span class="math">g_k</span>에서 레이 캐스팅을 하거나, 칸 확률 <span class="math">p</span>의 <strong>엔트로피</strong> <span class="math">H = −Σ [p·log p + (1 − p)·log(1 − p)]</span>가 관측으로 얼마나 줄지 기대값을 계산합니다(Stachniss 2005의 정보 이득 탐사).</p>
+<p><strong>효용.</strong> 두 값을 한 식으로 묶습니다.</p>
+<p><span class="math">U_k = G_k − λ·C_k</span>,   최적 목표 <span class="math">k̂ = argmax_k U_k</span></p>
+<p><span class="math">λ</span> [m²/m]는 "1 m 더 가는 대신 새 면적 몇 m²를 원하는가"입니다. <span class="math">λ = 0</span>이면 가장 큰 미지로, <span class="math">λ → ∞</span>이면 가장 가까운 프런티어로(Yamauchi의 원래 방법) 갑니다. 지수 할인 <span class="math">U = G·e^{−λC}</span>(González-Baños &amp; Latombe 2002)도 쓰입니다.</p>
+<h3 id="재계획과-종료">재계획과 종료<a class="anchor" href="#재계획과-종료">#</a></h3>
+<p>지도는 매 스캔 바뀌고, 로봇이 다가갈수록 목표 프런티어는 뒤로 밀리거나 사라집니다. 그래서 목표를 한 번 정하고 끝까지 가는 대신 <strong>주기적으로 다시 고릅니다</strong>(여기서는 1 s 또는 경로 소진 시).</p>
+<div class="table-wrap"><table><thead><tr><th>문제</th><th>증상</th><th>대책</th></tr></thead><tbody><tr><td>목표 진동</td><td>두 군집 효용이 비슷해 번갈아 선택</td><td>현재 목표에 가산점(히스테리시스): 새 목표의 <span class="math">U</span>가 현재보다 <span class="math">δ</span> 이상 클 때만 교체</td></tr><tr><td>도달 불가 목표</td><td>유리벽 너머·좁은 틈 프런티어로 계속 시도</td><td>같은 목표 N회 실패하면 <strong>블랙리스트</strong>(반경 0.3 m)</td></tr><tr><td>끝나지 않음</td><td>라이다 잡음으로 한두 칸짜리 프런티어가 계속 생김</td><td>최소 군집 크기 <span class="math">n_{min}</span>, "3회 연속 후보 없음"으로 종료</td></tr><tr><td>로봇 칸이 막힘</td><td>벽 가까이에서 팽창 영역 안에 로봇이 들어가 BFS 시작 불가</td><td>로봇 주변 팽창만 해제(코드의 <code>blk[ri-INFL:...] = occ[...]</code>)</td></tr></tbody></table></div>
+<p><strong>종료 조건</strong>: 도달 가능한 군집이 <span class="math">K</span>회 연속 없음(권장), 또는 탐사 면적 증가율이 <span class="math">T</span>초 동안 <span class="math">ε</span> 이하.</p>
+<h3 id="다중-로봇-작업-할당">다중 로봇 작업 할당<a class="anchor" href="#다중-로봇-작업-할당">#</a></h3>
+<p>로봇 <span class="math">i = 1..n</span>, 목표(프런티어) <span class="math">j = 1..m</span>, 비용 <span class="math">c_{ij} = λ·C_{ij} − G_j</span>라 하면, 로봇 한 대에 목표 하나씩 주는 문제는 <strong>선형 할당 문제</strong>입니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">minimize    Σ_i Σ_j c_ij · x_ij
+subject to  Σ_j x_ij = 1   (로봇마다 목표 하나)
+            Σ_i x_ij ≤ 1   (목표마다 로봇 하나 이하)
+            x_ij ∈ {0, 1}</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>방법</th><th>절차</th><th>복잡도</th><th>성질</th></tr></thead><tbody><tr><td>조정 없음</td><td>각자 <span class="math">argmin_j c_{ij}</span></td><td><span class="math">O(nm)</span></td><td>같은 목표에 몰림</td></tr><tr><td>탐욕 (greedy)</td><td>전체에서 가장 싼 <span class="math">(i,j)</span>부터 확정, 행·열 제거</td><td><span class="math">O(nm·log nm)</span></td><td>빠르지만 최적 아님. 최대 가중치 매칭으로 보면 최적의 1/2 이상 보장</td></tr><tr><td>순차 경매 (SSI)</td><td>라운드마다 남은 목표에 로봇이 입찰, 최저 입찰자 낙찰</td><td>라운드 × 통신</td><td>분산 구현 쉬움, 한 대 한 목표면 탐욕과 같음</td></tr><tr><td>CBBA</td><td>각 로봇이 목표 묶음(bundle)을 탐욕적으로 만들고, 이웃과 낙찰 정보를 합의(consensus)</td><td>분산, 수렴 보장</td><td>통신이 끊겨도 동작, 여러 목표를 순서대로 배정 (Choi 외 2009)</td></tr><tr><td>헝가리안</td><td>쌍대 변수 <span class="math">u_i, v_j</span>를 조정해 <span class="math">c_{ij} − u_i − v_j ≥ 0</span>을 유지하며 증가 경로로 매칭 확장</td><td><span class="math">O(n^2 m)</span></td><td><strong>전역 최적</strong>, 중앙 집중</td></tr></tbody></table></div>
+<p>Burgard 외(2005)의 조정 탐사는 한 로봇에 목표를 준 뒤 그 주변 목표의 이득을 깎아(다른 로봇이 볼 것이므로) 다음 로봇이 멀리 가게 합니다. 이득이 겹치는 효과를 반영하는 방법이고, 헝가리안은 이득이 독립이라고 가정한다는 차이가 있습니다. 로봇보다 목표가 적으면(<span class="math">m &lt; n</span>) 비용 0인 "대기" 열을 더해 정사각 행렬로 만듭니다.</p>
+<figure class="fig" id="fig-p05-alloc"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="로봇 3대와 프런티어 6개의 작업 할당: 탐욕 할당은 가장 싼 쌍을 먼저 잡아 합계 비용 −1.58, 헝가리안 알고리즘은 전체 최적 합계 −2.78">
+  <defs><marker id="arr-p05-alloc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker></defs>
+  <text class="lbl" x="180" y="24" text-anchor="middle">탐욕 (가장 싼 쌍부터) — 합계 -1.58</text>
+  <rect class="box" x="20" y="40" width="318" height="212" rx="4"/>
+  <rect x="36" y="104" width="10" height="10" class="wr"/>
+  <text class="tag" x="41" y="129" text-anchor="middle">F0</text>
+  <rect x="84" y="93" width="10" height="10" class="wr"/>
+  <text class="tag" x="89" y="118" text-anchor="middle">F1</text>
+  <rect x="312" y="210" width="10" height="10" class="wr"/>
+  <text class="tag" x="317" y="235" text-anchor="middle">F2</text>
+  <rect x="121" y="125" width="10" height="10" class="wr"/>
+  <text class="tag" x="126" y="150" text-anchor="middle">F3</text>
+  <rect x="132" y="173" width="10" height="10" class="wr"/>
+  <text class="tag" x="137" y="198" text-anchor="middle">F4</text>
+  <rect x="179" y="215" width="10" height="10" class="wr"/>
+  <text class="tag" x="184" y="240" text-anchor="middle">F5</text>
+  <path class="ln-hi" d="M147 98 L137 178" style="stroke-width:2" marker-end="url(#arr-p05-alloc)"/>
+  <text class="tag" x="156" y="140">① -1.29</text>
+  <path class="ln-hi" d="M57 215 L126 130" style="stroke-width:2" marker-end="url(#arr-p05-alloc)"/>
+  <text class="tag" x="99" y="190">② 0.06</text>
+  <path class="ln-hi" d="M296 188 L317 215" style="stroke-width:2" marker-end="url(#arr-p05-alloc)"/>
+  <text class="tag" x="316" y="196">③ -0.36</text>
+  <circle cx="57" cy="215" r="8" class="hi"/>
+  <text class="lbl mono" x="45" y="220" text-anchor="end">r1</text>
+  <circle cx="147" cy="98" r="8" class="hi"/>
+  <text class="lbl mono" x="135" y="103" text-anchor="end">r2</text>
+  <circle cx="296" cy="188" r="8" class="hi"/>
+  <text class="lbl mono" x="284" y="193" text-anchor="end">r3</text>
+  <text class="lbl" x="540" y="24" text-anchor="middle">헝가리안 (전체 최적) — 합계 -2.78</text>
+  <rect class="box" x="380" y="40" width="318" height="212" rx="4"/>
+  <rect x="396" y="104" width="10" height="10" class="wr"/>
+  <text class="tag" x="401" y="129" text-anchor="middle">F0</text>
+  <rect x="444" y="93" width="10" height="10" class="wr"/>
+  <text class="tag" x="449" y="118" text-anchor="middle">F1</text>
+  <rect x="672" y="210" width="10" height="10" class="wr"/>
+  <text class="tag" x="677" y="235" text-anchor="middle">F2</text>
+  <rect x="481" y="125" width="10" height="10" class="wr"/>
+  <text class="tag" x="486" y="150" text-anchor="middle">F3</text>
+  <rect x="492" y="173" width="10" height="10" class="wr"/>
+  <text class="tag" x="497" y="198" text-anchor="middle">F4</text>
+  <rect x="539" y="215" width="10" height="10" class="wr"/>
+  <text class="tag" x="544" y="240" text-anchor="middle">F5</text>
+  <path class="ln-hi" d="M417 215 L497 178" style="stroke-width:2" marker-end="url(#arr-p05-alloc)"/>
+  <text class="tag" x="459" y="215"> -1.14</text>
+  <path class="ln-hi" d="M507 98 L486 130" style="stroke-width:2" marker-end="url(#arr-p05-alloc)"/>
+  <text class="tag" x="509" y="124"> -1.28</text>
+  <path class="ln-hi" d="M656 188 L677 215" style="stroke-width:2" marker-end="url(#arr-p05-alloc)"/>
+  <text class="tag" x="676" y="196"> -0.36</text>
+  <circle cx="417" cy="215" r="8" class="hi"/>
+  <text class="lbl mono" x="405" y="220" text-anchor="end">r1</text>
+  <circle cx="507" cy="98" r="8" class="hi"/>
+  <text class="lbl mono" x="495" y="103" text-anchor="end">r2</text>
+  <circle cx="656" cy="188" r="8" class="hi"/>
+  <text class="lbl mono" x="644" y="193" text-anchor="end">r3</text>
+  <text class="sub" x="360" y="292" text-anchor="middle">비용 = λ·거리 − 이득. 탐욕은 r2→F4(−1.29)를 먼저 잡아 r1이 비싼 F3으로 밀린다</text>
+</svg><figcaption>실습 3의 할당 결과. 탐욕은 가장 싼 쌍(r2→F4)을 먼저 확정해 r1이 비싼 F3을 받고, 헝가리안은 r1→F4, r2→F3으로 합계를 1.2만큼 줄입니다.</figcaption></figure>
+<h3 id="지도-병합">지도 병합<a class="anchor" href="#지도-병합">#</a></h3>
+<p><strong>초기 자세를 알 때.</strong> 로봇 <span class="math">B</span>의 지도 좌표 <span class="math">p_B</span>를 로봇 <span class="math">A</span>의 지도 좌표로 옮기는 변환 <span class="math">T_{AB} = (x, y, θ)</span>를 알면</p>
+<p><span class="math">p_A = R(θ)·p_B + [x, y]^T</span></p>
+<p>로 <span class="math">B</span>의 모든 칸을 옮긴 뒤 <strong>로그 오즈를 더합니다</strong>. 두 로봇의 관측이 독립이라면 이것이 베이즈 결합입니다. slam_toolbox는 시작 자세를 지도 원점으로 삼으므로, 출발 전에 로봇들 사이의 상대 자세를 줄자로 재어 두면 <span class="math">T_{AB}</span>가 됩니다. 오차 <span class="math">δθ</span>는 거리 <span class="math">r</span>에서 <span class="math">r·δθ</span>만큼 벽을 어긋나게 하므로(10°면 3 m에서 0.5 m), 각도 측정이 특히 중요합니다.</p>
+<p><strong>모를 때.</strong> 두 지도가 겹치는 부분이 있으면 <span class="math">T_{AB}</span>를 <strong>탐색</strong>합니다. 후보 <span class="math">(x, y, θ)</span>마다 <span class="math">B</span>의 점유 칸을 <span class="math">A</span>로 옮겨 <span class="math">A</span>의 거리장에서 점수를 매기고(벽-벽 일치 +, 벽-빈칸 모순 −), 거친 격자 → 고운 격자로 좁힙니다. slam_toolbox의 스캔 매칭이 쓰는 상관 스캔 매칭(correlative scan matching, Olson 2009)과 같은 원리입니다. 대칭적인 방·복도는 여러 후보가 비슷한 점수를 내므로, 점수 1등과 2등의 차이가 작으면 병합을 보류해야 합니다. 그 밖에 특징점 매칭, 두 로봇이 서로를 보는 <strong>랑데부</strong>(rendezvous) 방법이 있습니다.</p>
+<h3 id="네임스페이스와-rosdomainid">네임스페이스와 ROS_DOMAIN_ID<a class="anchor" href="#네임스페이스와-rosdomainid">#</a></h3>
+<p>A12에서 보았듯 MentorPi는 <code>.typerc</code>의 <code>HOST</code>(내 이름)와 <code>MASTER</code>(마스터 이름)로 역할을 정합니다. <code>slam.launch.py</code>는 <code>robot_name = HOST</code>를 받아 <code>PushRosNamespace(robot_name)</code>으로 노드 전체를 감싸고, 프레임에도 <code>robot_1/</code> 접두사를 붙입니다.</p>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>단일 로봇</th><th><code>HOST=robot_1</code></th></tr></thead><tbody><tr><td>토픽</td><td><code>/map</code>, <code>/scan_raw</code>, <code>/controller/cmd_vel</code></td><td><code>/robot_1/map</code>, <code>/robot_1/scan_raw</code>, <code>/robot_1/controller/cmd_vel</code></td></tr><tr><td>TF 토픽</td><td><code>/tf</code></td><td><code>/robot_1/tf</code> (launch에서 <code>(&#x27;/tf&#x27;, &#x27;tf&#x27;)</code> 재매핑)</td></tr><tr><td>프레임</td><td><code>map</code>, <code>odom</code>, <code>base_footprint</code></td><td><code>robot_1/map</code>, <code>robot_1/odom</code>, <code>robot_1/base_footprint</code></td></tr><tr><td>slam_toolbox 파라미터</td><td><code>slam.yaml</code> 그대로</td><td><code>map_frame</code>·<code>odom_frame</code>·<code>base_frame</code>을 launch가 덮어씀</td></tr></tbody></table></div>
+<p><code>ROS_DOMAIN_ID</code>는 DDS 도메인 번호입니다. <strong>서로 통신해야 하는 로봇·PC는 같은 값</strong>이어야 하고, 한 교실에서 여러 팀이 실험할 때는 팀마다 다른 값(예: 팀 번호)을 써서 서로의 토픽이 섞이지 않게 합니다. 도메인이 같고 네임스페이스가 없으면 두 로봇이 <code>/controller/cmd_vel</code> 하나를 함께 받아 같이 움직입니다.</p>
+<h2 id="시스템-설계">시스템 설계<a class="anchor" href="#시스템-설계">#</a></h2>
+<figure class="fig" id="fig-p05-graph"><svg viewBox="0 0 720 356" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="다중 로봇 탐사의 ROS 2 그래프: 로봇마다 네임스페이스 안에서 robot.launch.py, slam_toolbox, frontier_explorer가 돌고, 중앙의 task_allocator가 각 로봇의 지도와 자세를 받아 병합하고 탐사 목표를 배정한다">
+  <defs>
+    <marker id="arr-p05-graph" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-p05-graph-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+
+  <!-- robot_1 namespace -->
+  <rect x="10" y="10" width="500" height="150" rx="10" style="fill:none;stroke:var(--border);stroke-dasharray:5 4"/>
+  <text class="tag mono" x="22" y="28">/robot_1  (HOST=robot_1, MASTER=robot_1)</text>
+  <text class="tag mono" x="179" y="47" text-anchor="middle">scan_raw, tf</text>
+  <text class="tag mono" x="343" y="47" text-anchor="middle">map</text>
+  <rect class="box" x="22" y="54" width="140" height="58" rx="6"/>
+  <text class="lbl mono" x="92" y="77" text-anchor="middle">robot.launch.py</text>
+  <text class="sub" x="92" y="95" text-anchor="middle">라이다·컨트롤러·EKF</text>
+  <rect class="box" x="196" y="54" width="130" height="58" rx="6"/>
+  <text class="lbl mono" x="261" y="77" text-anchor="middle">slam_toolbox</text>
+  <text class="sub" x="261" y="95" text-anchor="middle">TF map → odom</text>
+  <rect class="box-hi" x="360" y="54" width="140" height="58" rx="6"/>
+  <text class="lbl mono" x="430" y="77" text-anchor="middle">frontier_explorer</text>
+  <text class="sub" x="430" y="95" text-anchor="middle">BFS 경로 · 추종</text>
+  <path class="ln" d="M162 83 L194 83" marker-end="url(#arr-p05-graph)"/>
+  <path class="ln" d="M326 83 L358 83" marker-end="url(#arr-p05-graph)"/>
+  <path class="ln-hi" d="M430 112 L430 132 L92 132 L92 114" marker-end="url(#arr-p05-graph-hi)"/>
+  <text class="tag mono" x="261" y="150" text-anchor="middle">controller/cmd_vel (≤ 0.15 m/s)</text>
+
+  <!-- robot_2 namespace -->
+  <rect x="10" y="176" width="500" height="150" rx="10" style="fill:none;stroke:var(--border);stroke-dasharray:5 4"/>
+  <text class="tag mono" x="22" y="194">/robot_2  (HOST=robot_2, MASTER=robot_1)</text>
+  <text class="tag mono" x="179" y="213" text-anchor="middle">scan_raw, tf</text>
+  <text class="tag mono" x="343" y="213" text-anchor="middle">map</text>
+  <rect class="box" x="22" y="220" width="140" height="58" rx="6"/>
+  <text class="lbl mono" x="92" y="243" text-anchor="middle">robot.launch.py</text>
+  <text class="sub" x="92" y="261" text-anchor="middle">라이다·컨트롤러·EKF</text>
+  <rect class="box" x="196" y="220" width="130" height="58" rx="6"/>
+  <text class="lbl mono" x="261" y="243" text-anchor="middle">slam_toolbox</text>
+  <text class="sub" x="261" y="261" text-anchor="middle">TF map → odom</text>
+  <rect class="box-hi" x="360" y="220" width="140" height="58" rx="6"/>
+  <text class="lbl mono" x="430" y="243" text-anchor="middle">frontier_explorer</text>
+  <text class="sub" x="430" y="261" text-anchor="middle">BFS 경로 · 추종</text>
+  <path class="ln" d="M162 249 L194 249" marker-end="url(#arr-p05-graph)"/>
+  <path class="ln" d="M326 249 L358 249" marker-end="url(#arr-p05-graph)"/>
+  <path class="ln-hi" d="M430 278 L430 298 L92 298 L92 280" marker-end="url(#arr-p05-graph-hi)"/>
+  <text class="tag mono" x="261" y="316" text-anchor="middle">controller/cmd_vel (≤ 0.15 m/s)</text>
+
+  <!-- allocator -->
+  <text class="tag mono" x="639" y="104" text-anchor="middle">→ map, explore/pose</text>
+  <text class="tag mono hi" x="639" y="120" text-anchor="middle">← explore/goal</text>
+  <rect class="box-hi" x="566" y="130" width="146" height="96" rx="8"/>
+  <text class="lbl mono" x="639" y="154" text-anchor="middle">task_allocator</text>
+  <text class="sub" x="639" y="174" text-anchor="middle">지도 병합 (초기 자세)</text>
+  <text class="sub" x="639" y="192" text-anchor="middle">프런티어 · 비용 행렬</text>
+  <text class="sub" x="639" y="210" text-anchor="middle">헝가리안 배정</text>
+  <path class="ln" d="M500 70 L564 146" marker-end="url(#arr-p05-graph)"/>
+  <path class="ln-hi" d="M566 164 L502 100" marker-end="url(#arr-p05-graph-hi)"/>
+  <path class="ln" d="M500 264 L564 212" marker-end="url(#arr-p05-graph)"/>
+  <path class="ln-hi" d="M566 196 L502 236" marker-end="url(#arr-p05-graph-hi)"/>
+  <path class="ln" d="M639 226 L639 262" marker-end="url(#arr-p05-graph)"/>
+  <text class="tag mono" x="639" y="278" text-anchor="middle">/merged_map</text>
+  <text class="tag" x="639" y="294" text-anchor="middle">(RViz · 종료 판정)</text>
+
+  <text class="sub" x="360" y="348" text-anchor="middle">SLAM·경로 추종은 로봇마다(분산), 목표 배정만 중앙에서 — 모든 로봇은 같은 ROS_DOMAIN_ID</text>
+</svg><figcaption>다중 로봇 탐사의 ROS 2 그래프. 로봇마다 SLAM과 경로 추종을 하고(분산), 목표 배정과 지도 병합만 중앙 노드가 합니다.</figcaption></figure>
+<p><strong>왜 분산 + 중앙 배정인가.</strong> SLAM과 경로 추종은 10 Hz 이상 센서 데이터가 필요하므로 로봇 안에서 돌아야 Wi-Fi 지연·끊김에 강합니다. 배정은 2 s에 한 번이면 충분하고 전체 지도를 봐야 하므로 중앙에 둡니다. 배정이 끊겨도 각 로봇의 <code>frontier_explorer</code>는 <strong>자기 지도로 스스로 목표를 고르는 단일 모드</strong>로 계속 탐사합니다(성능 저하, 기능 유지).</p>
+<div class="table-wrap"><table><thead><tr><th>인터페이스</th><th>타입</th><th>발행</th><th>구독</th><th>비고</th></tr></thead><tbody><tr><td><code>/robot_i/map</code></td><td><code>nav_msgs/OccupancyGrid</code></td><td>slam_toolbox</td><td>explorer, allocator</td><td><strong>TRANSIENT_LOCAL</strong>, 0.05 m (<code>slam.yaml</code>의 <code>resolution</code>)</td></tr><tr><td><code>/robot_i/scan_raw</code></td><td><code>sensor_msgs/LaserScan</code></td><td>라이다 드라이버</td><td>slam_toolbox, explorer(비상 정지)</td><td><code>qos_profile_sensor_data</code></td></tr><tr><td>TF <code>robot_i/map → robot_i/base_footprint</code></td><td>tf2 (<code>/robot_i/tf</code>)</td><td>slam_toolbox + EKF</td><td>explorer</td><td>노드 실행 시 <code>-r /tf:=tf</code> 재매핑 필요</td></tr><tr><td><code>/robot_i/explore/pose</code></td><td><code>geometry_msgs/PoseStamped</code></td><td>explorer</td><td>allocator</td><td>1 Hz, 로봇 자기 map 좌표</td></tr><tr><td><code>/robot_i/explore/goal</code></td><td><code>geometry_msgs/PoseStamped</code></td><td>allocator</td><td>explorer</td><td>배정된 프런티어 (그 로봇의 map 좌표)</td></tr><tr><td><code>/robot_i/controller/cmd_vel</code></td><td><code>geometry_msgs/Twist</code></td><td>explorer</td><td>섀시 컨트롤러</td><td>≤ 0.15 m/s, 비상 정지 시 0</td></tr><tr><td><code>/merged_map</code></td><td><code>nav_msgs/OccupancyGrid</code></td><td>allocator</td><td>RViz</td><td>frame <code>robot_1/map</code></td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>파라미터</th><th>기본값</th><th>영향</th></tr></thead><tbody><tr><td><code>lam</code> (<span class="math">λ</span>)</td><td>1.0 m²/m</td><td>작으면 큰 미지로 멀리, 크면 가까운 곳부터</td></tr><tr><td><code>inflation</code></td><td>0.25 m</td><td>작으면 좁은 틈 통과·충돌 위험, 크면 문을 못 지나감 (MentorPi 문 폭 0.7 m 이상 권장)</td></tr><tr><td><code>min_size</code> (<span class="math">n_{min}</span>)</td><td>5칸 (0.25 m)</td><td>작으면 잡음 프런티어, 크면 좁은 입구를 놓침</td></tr><tr><td>이득 반경 <span class="math">r</span></td><td>1.0 m</td><td>라이다 유효 거리·방 크기에 맞춤</td></tr><tr><td>재계획 주기</td><td>1 s</td><td>짧으면 CPU·진동, 길면 이미 본 곳으로 감</td></tr></tbody></table></div>
+<h2 id="단계별-구현">단계별 구현<a class="anchor" href="#단계별-구현">#</a></h2>
+<h3 id="m1-프런티어와-효용-playground">M1. 프런티어와 효용 (Playground)<a class="anchor" href="#m1-프런티어와-효용-playground">#</a></h3>
+<div class="callout callout-task"><div class="callout-title">M1 — 검출·군집·효용 (40분)</div><div class="callout-body"><ol><li>실습 1을 실행하고 군집 표를 해석합니다. 7개 군집 중 5개만 남은 이유(크기 &lt; 5)를 확인합니다.</li><li><span class="math">λ</span>를 0, 1, 3으로 바꿨을 때 선택이 바뀌는 이유를 표의 <span class="math">G</span>, <span class="math">C</span>로 설명합니다.</li><li><code>frontier_goals()</code> 단위 시험: 손으로 만든 10 × 10 격자(방 하나, 문 하나)에서 군집 1개·목표가 문 안쪽 빈칸인지 확인합니다.</li></ol></div></div>
+<div class="callout callout-check"><div class="callout-title">M1 체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> 목표 칸이 항상 빈칸이고, 도달 불가 군집은 후보에서 빠진다.</label></li><li><label class="check-item"><input type="checkbox"> 계획 1회 시간을 쟀다(Playground <code>time.perf_counter()</code> 또는 실물 로그).</label></li></ul></div></div>
+<h3 id="m2-단일-로봇-자율-탐사">M2. 단일 로봇 자율 탐사<a class="anchor" href="#m2-단일-로봇-자율-탐사">#</a></h3>
+<div class="callout callout-task"><div class="callout-title">M2 — 시뮬레이션 → 실물 (60분)</div><div class="callout-body"><ol><li>실습 2로 탐사 루프를 확인합니다. 2D 재생에서 로봇이 프런티어를 따라 방을 도는지 봅니다.</li><li>실물에서 <code>slam.launch.py</code>를 켜고 <code>frontier_explorer.py</code>를 <strong>느린 속도</strong>(<code>speed:=0.08</code>)로 실행합니다. 한 사람은 로봇을 따라다닙니다.</li><li>RViz에 <code>/map</code>을 띄우고, 탐사 완료 로그가 나오면 지도를 저장합니다.</li></ol></div></div>
+<div class="callout callout-check"><div class="callout-title">M2 체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> 사람 개입 없이 방 하나를 탐사하고 "exploration complete"로 멈췄다.</label></li><li><label class="check-item"><input type="checkbox"> 비상 정지(발 앞 0.18 m)가 동작했다.</label></li></ul></div></div>
+<h3 id="m3-네임스페이스와-도메인">M3. 네임스페이스와 도메인<a class="anchor" href="#m3-네임스페이스와-도메인">#</a></h3>
+<div class="callout callout-task"><div class="callout-title">M3 — 두 로봇 동시 SLAM (40분)</div><div class="callout-body"><ol><li>두 로봇의 <code>.typerc</code>에서 <code>HOST</code>를 <code>robot_1</code>, <code>robot_2</code>로, <code>MASTER</code>를 <code>robot_1</code>로 둡니다. <code>ROS_DOMAIN_ID</code>는 둘 다 같은 팀 번호로 맞춥니다.</li><li>두 로봇에서 <code>slam.launch.py</code>를 켜고, 마스터에서 <code>ros2 topic list | grep map</code>으로 <code>/robot_1/map</code>, <code>/robot_2/map</code>이 모두 보이는지 확인합니다.</li><li>두 로봇의 출발 자세를 줄자·각도기로 재어 <code>ROBOTS</code> 딕셔너리에 적습니다.</li></ol></div></div>
+<div class="callout callout-check"><div class="callout-title">M3 체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> <code>ros2 topic echo /robot_2/map --once --field info</code>가 마스터에서 나온다.</label></li><li><label class="check-item"><input type="checkbox"> 한 로봇만 움직였을 때 다른 로봇이 따라 움직이지 않는다(네임스페이스 분리 확인).</label></li></ul></div></div>
+<h3 id="m4-할당과-병합">M4. 할당과 병합<a class="anchor" href="#m4-할당과-병합">#</a></h3>
+<div class="callout callout-task"><div class="callout-title">M4 — task_allocator 통합 (60분)</div><div class="callout-body"><ol><li>실습 3·4로 헝가리안과 병합을 확인합니다.</li><li>두 로봇에서 <code>frontier_explorer.py</code>를 <code>use_allocator:=true</code>로, 마스터에서 <code>task_allocator.py</code>를 실행합니다.</li><li>RViz에서 <code>/merged_map</code>을 보며 벽이 두 겹으로 보이지 않는지 확인합니다(보이면 초기 자세 측정 오류).</li></ol></div></div>
+<div class="callout callout-check"><div class="callout-title">M4 체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> 두 로봇이 서로 다른 프런티어로 간다(로그의 배정 결과).</label></li><li><label class="check-item"><input type="checkbox"> 한 로봇의 Wi-Fi를 끊어도 그 로봇은 단일 모드로 탐사를 계속한다.</label></li></ul></div></div>
+<h3 id="m5-비교-실험">M5. 비교 실험<a class="anchor" href="#m5-비교-실험">#</a></h3>
+<div class="callout callout-task"><div class="callout-title">M5 — 실험과 보고 (60분)</div><div class="callout-body"><p>아래 "실험과 평가"의 E1~E4를 수행하고, 탐사 면적–시간 그래프와 표를 보고서에 넣습니다.</p></div></div>
+<h2 id="실습-시뮬레이션">실습 (시뮬레이션)<a class="anchor" href="#실습-시뮬레이션">#</a></h2>
+<p>아래 코드는 모두 이 페이지에서 바로 실행됩니다. ▶ 실행을 누르면 오른쪽 결과 패널의 <strong>출력</strong> 탭에 로그가, <code>sim.plot()</code>을 쓴 코드는 <strong>그래프</strong> 탭에 곡선이 나오고, 가상 로봇을 쓰는 코드는 <strong>2D 재생</strong>(위에서 본 월드·라이다·궤적)과 <strong>3D 재생</strong>(MentorPi URDF) 탭에서 주행을 다시 볼 수 있습니다. 월드는 6 × 4 m 거실(<code>room</code>)이고, 탐사가 의미 있도록 <strong>라이다를 2 m까지만 쓴다</strong>고 가정합니다(LD19 실제 최대 12 m). 자세는 시뮬 전용 <code>sim.pose()</code>를 씁니다. 실물에서는 slam_toolbox가 보정한 TF <code>map → base_footprint</code>가 그 자리에 들어갑니다.</p>
+<h3 id="실습-1-프런티어-검출-군집-효용">실습 1. 프런티어 검출·군집·효용<a class="anchor" href="#실습-1-프런티어-검출-군집-효용">#</a></h3>
+<p>로봇을 거실 가운데 세워 스캔 10장으로 지도를 만들고, 프런티어 → BFS 군집 → 목표·이득·비용 → <span class="math">λ</span>별 선택을 표로 출력합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">from collections import deque
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import LaserScan
+import mentorpi_sim as sim                                    # 시뮬 전용
+sim.setup(world=&quot;room&quot;, duration=1.0, start=(-1.0, -0.6, 0.0))  # 시뮬 전용
+
+RES, X0, Y0, NX, NY, RMAX = 0.05, -3.0, -2.0, 120, 80, 2.0     # 거실 6×4 m, 라이다 2 m로 제한
+L = np.zeros((NY, NX))
+NB8 = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)]
+
+def integrate(scan, x, y, th):                                # 빔을 따라 빈칸 −, 끝점 +
+    r = np.array(scan.ranges); a = th + scan.angle_min + np.arange(len(r)) * scan.angle_increment
+    hit = np.isfinite(r) &amp; (r &lt; RMAX); r = np.where(hit, r, RMAX)
+    s = np.arange(0, RMAX, RES / 2)[None, :]; m = s &lt; r[:, None] - RES
+    fx = ((x + s * np.cos(a)[:, None] - X0) / RES).astype(int)[m]; fy = ((y + s * np.sin(a)[:, None] - Y0) / RES).astype(int)[m]
+    free = np.zeros_like(L, bool); free[fy.clip(0, NY - 1), fx.clip(0, NX - 1)] = True
+    L[free] = np.maximum(L[free] - 0.4, -4.0)
+    ex = ((x + r * np.cos(a) - X0) / RES).astype(int)[hit].clip(0, NX - 1); ey = ((y + r * np.sin(a) - Y0) / RES).astype(int)[hit].clip(0, NY - 1)
+    L[ey, ex] = np.minimum(L[ey, ex] + 0.9, 4.0)
+
+class Snapshot(Node):
+    def __init__(self):
+        super().__init__(&#x27;frontier_snapshot&#x27;)
+        self.create_subscription(LaserScan, &#x27;/scan&#x27;, self.on_scan, 10)
+    def on_scan(self, s):
+        integrate(s, *sim.pose())                             # 시뮬 전용: 실물은 /map (slam_toolbox)
+
+rclpy.init(); node = Snapshot()
+try:
+    rclpy.spin(node)                                          # 1 s 동안 스캔 10장 누적
+finally:
+    node.destroy_node(); rclpy.shutdown()
+
+free, unk = L &lt; -0.2, np.abs(L) &lt; 0.1
+nb_unk = np.zeros_like(unk)
+nb_unk[1:] |= unk[:-1]; nb_unk[:-1] |= unk[1:]; nb_unk[:, 1:] |= unk[:, :-1]; nb_unk[:, :-1] |= unk[:, 1:]
+front = free &amp; nb_unk                                         # ① 프런티어 칸 = 빈칸 ∧ 4-이웃 미탐색
+labels, clusters = np.zeros(L.shape, int), []
+for i0, j0 in zip(*np.nonzero(front)):                        # ② BFS 연결 성분 (8-연결)
+    if labels[i0, j0]: continue
+    q, comp = deque([(i0, j0)]), []; labels[i0, j0] = len(clusters) + 1
+    while q:
+        i, j = q.popleft(); comp.append((i, j))
+        for di, dj in NB8:
+            a, b = i + di, j + dj
+            if 0 &lt;= a &lt; NY and 0 &lt;= b &lt; NX and front[a, b] and not labels[a, b]:
+                labels[a, b] = len(clusters) + 1; q.append((a, b))
+    clusters.append(np.array(comp))
+x, y, _ = sim.pose()                                          # 시뮬 전용
+ri, rj = int((y - Y0) / RES), int((x - X0) / RES)
+dist = np.full(L.shape, -1); dist[ri, rj] = 0; q = deque([(ri, rj)])
+while q:                                                      # ③ 경로 비용 = 빈칸 위 BFS 거리
+    i, j = q.popleft()
+    for di, dj in NB8:
+        a, b = i + di, j + dj
+        if 0 &lt;= a &lt; NY and 0 &lt;= b &lt; NX and free[a, b] and dist[a, b] &lt; 0:
+            dist[a, b] = dist[i, j] + 1; q.append((a, b))
+print(&#x27;free %d, unknown %d, frontier cells %d, clusters %d&#x27; % (free.sum(), unk.sum(), front.sum(), len(clusters)))
+print(&#x27; id size  goal(m)        gain(m2) cost(m) | U(l=0)  U(l=1) U(l=3)&#x27;)
+rows = []
+for k, c in enumerate(clusters):
+    if len(c) &lt; 5: continue                                   # 잡음 프런티어 버림
+    g = c[np.argmin(((c - c.mean(0)) ** 2).sum(1))]           # 중심에 가장 가까운 구성원
+    w = unk[max(g[0] - 20, 0):g[0] + 20, max(g[1] - 20, 0):g[1] + 20]
+    gain, cost = w.sum() * RES ** 2, dist[g[0], g[1]] * RES   # ④ 이득 = 반경 1 m 미탐색 면적
+    cx, cy = X0 + (g[1] + .5) * RES, Y0 + (g[0] + .5) * RES
+    rows.append((k, len(c), cx, cy, gain, cost))
+for k, n, cx, cy, gain, cost in rows:
+    print(&#x27;%3d %4d (%5.2f,%5.2f) %8.2f %7.2f | %6.2f %6.2f %6.2f&#x27; % (k, n, cx, cy, gain, cost, gain, gain - cost, gain - 3 * cost))
+for lam in (0.0, 1.0, 3.0):
+    b = max(rows, key=lambda r: r[4] - lam * r[5])
+    print(&#x27;lambda=%.1f -&gt; goal cluster %d at (%.2f, %.2f)&#x27; % (lam, b[0], b[2], b[3]))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[sim] 시뮬레이션 시간 1.0 s 종료 (sim.setup(duration=...)으로 변경)
+free 3532, unknown 5922, frontier cells 178, clusters 7   (대략)
+ id size  goal(m)        gain(m2) cost(m) | U(l=0)  U(l=1) U(l=3)
+  0   44 (-2.08,-1.62)     1.12    1.05 |   1.12   0.07  -2.04
+  1   18 (-1.12,-1.52)     0.76    0.95 |   0.76  -0.19  -2.09
+  4   35 (-2.58, 0.48)     1.01    1.55 |   1.01  -0.54  -3.64
+  5   37 ( 0.73, 0.23)     2.77    1.75 |   2.77   1.02  -2.48
+  6   39 (-0.62, 1.28)     2.13    1.85 |   2.13   0.28  -3.42
+lambda=0.0 -&gt; goal cluster 5 at (0.73, 0.23)
+lambda=1.0 -&gt; goal cluster 5 at (0.73, 0.23)
+lambda=3.0 -&gt; goal cluster 0 at (-2.08, -1.62)</code></pre></div>
+<ul><li>프런티어 칸 178개가 군집 7개로 묶였고, 5칸 미만 2개가 버려졌습니다.</li><li><span class="math">λ = 0</span>, <span class="math">1</span>에서는 이득이 가장 큰 군집 5(방 오른쪽 문 쪽, 2.77 m²)가 뽑히지만, <span class="math">λ = 3</span>이면 비용이 가장 작은 군집 0(1.05 m)이 뽑힙니다. 같은 지도에서도 <span class="math">λ</span>가 탐사 전략(멀리 크게 vs 가까이 조금씩)을 바꿉니다.</li></ul>
+<h3 id="실습-2-자율-탐사-루프">실습 2. 자율 탐사 루프<a class="anchor" href="#실습-2-자율-탐사-루프">#</a></h3>
+<p>실습 1을 루프로 만든 것입니다. 1 s마다 재계획하고, BFS 부모를 따라 만든 경로를 0.25 m 앞의 점을 보며 따라갑니다. 메카넘 섀시라 몸을 돌리지 않고 평행 이동합니다(애커만이면 방향 제어가 필요 — 확장 과제). 탐사 면적 비율(알려진 칸 / 전체 칸)을 3 s마다 출력하고 그래프 탭에 곡선을 그립니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+from collections import deque
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist
+from sensor_msgs.msg import LaserScan
+import mentorpi_sim as sim                                    # 시뮬 전용
+sim.setup(world=&quot;room&quot;, duration=30.0, start=(-2.3, -1.3, 0.0))  # 시뮬 전용
+
+RES, X0, Y0, NX, NY, RMAX = 0.05, -3.0, -2.0, 120, 80, 2.0
+LAM, INFL, MIN_SIZE = 1.0, 4, 5                               # λ, 팽창 4칸(0.2 m), 최소 군집 크기
+L = np.zeros((NY, NX))
+NB = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)]
+
+def integrate(scan, x, y, th):
+    r = np.array(scan.ranges); a = th + scan.angle_min + np.arange(len(r)) * scan.angle_increment
+    hit = np.isfinite(r) &amp; (r &lt; RMAX); r = np.where(hit, r, RMAX)
+    s = np.arange(0, RMAX, RES / 2)[None, :]; m = s &lt; r[:, None] - RES
+    fx = ((x + s * np.cos(a)[:, None] - X0) / RES).astype(int)[m]; fy = ((y + s * np.sin(a)[:, None] - Y0) / RES).astype(int)[m]
+    free = np.zeros_like(L, bool); free[fy.clip(0, NY - 1), fx.clip(0, NX - 1)] = True
+    L[free] = np.maximum(L[free] - 0.4, -4.0)
+    ex = ((x + r * np.cos(a) - X0) / RES).astype(int)[hit].clip(0, NX - 1); ey = ((y + r * np.sin(a) - Y0) / RES).astype(int)[hit].clip(0, NY - 1)
+    L[ey, ex] = np.minimum(L[ey, ex] + 0.9, 4.0)
+
+def plan(ri, rj):                                             # 프런티어 → 효용 최대 목표와 경로
+    free, unk, occ = L &lt; -0.2, np.abs(L) &lt; 0.1, L &gt; 0.4
+    blk = occ.copy()                                          # ↓ 로봇 칸 주변은 팽창 해제
+    for _ in range(INFL):                                     # 장애물 팽창 (로봇 반경 0.13 m + 여유)
+        blk[1:] |= blk[:-1].copy(); blk[:-1] |= blk[1:].copy(); blk[:, 1:] |= blk[:, :-1].copy(); blk[:, :-1] |= blk[:, 1:].copy()
+    blk[ri - INFL:ri + INFL + 1, rj - INFL:rj + INFL + 1] = occ[ri - INFL:ri + INFL + 1, rj - INFL:rj + INFL + 1]
+    front = free &amp; ~blk &amp; (np.roll(unk, 1, 0) | np.roll(unk, -1, 0) | np.roll(unk, 1, 1) | np.roll(unk, -1, 1))
+    dist, par, q = np.full(L.shape, -1), {}, deque([(ri, rj)]); dist[ri, rj] = 0
+    while q:                                                  # BFS: 경로 비용과 부모
+        i, j = q.popleft()
+        for di, dj in NB:
+            a, b = i + di, j + dj
+            if 0 &lt;= a &lt; NY and 0 &lt;= b &lt; NX and dist[a, b] &lt; 0 and free[a, b] and not blk[a, b]:
+                dist[a, b] = dist[i, j] + 1; par[(a, b)] = (i, j); q.append((a, b))
+    seen, best = np.zeros(L.shape, bool), None
+    for i0, j0 in zip(*np.nonzero(front &amp; (dist &gt;= 0))):      # 도달 가능한 프런티어만 군집화
+        if seen[i0, j0]: continue
+        comp, q = [], deque([(i0, j0)]); seen[i0, j0] = True
+        while q:
+            i, j = q.popleft(); comp.append((i, j))
+            for di, dj in NB:
+                a, b = i + di, j + dj
+                if 0 &lt;= a &lt; NY and 0 &lt;= b &lt; NX and front[a, b] and not seen[a, b] and dist[a, b] &gt;= 0:
+                    seen[a, b] = True; q.append((a, b))
+        if len(comp) &lt; MIN_SIZE: continue
+        c = np.array(comp); g = tuple(c[np.argmin(((c - c.mean(0)) ** 2).sum(1))])
+        gain = unk[max(g[0] - 20, 0):g[0] + 20, max(g[1] - 20, 0):g[1] + 20].sum() * RES * RES
+        u = gain - LAM * dist[g] * RES                        # 효용 = 이득 − λ·경로 비용
+        if best is None or u &gt; best[0]: best = (u, g)
+    if best is None: return None, []
+    path, n = [], best[1]
+    while n != (ri, rj): path.append((X0 + (n[1] + .5) * RES, Y0 + (n[0] + .5) * RES)); n = par[n]
+    return best, path[::-1]
+
+class Explorer(Node):
+    def __init__(self):
+        super().__init__(&#x27;frontier_explorer&#x27;)
+        self.cmd = self.create_publisher(Twist, &#x27;/cmd_vel&#x27;, 10)
+        self.create_subscription(LaserScan, &#x27;/scan&#x27;, self.on_scan, 10)
+        self.path, self.n, self.empty, self.pose, self.hist = [], 0, 0, None, ([], []); self.create_timer(0.1, self.step)
+    def on_scan(self, s):
+        self.pose = x, y, _ = sim.pose()                      # 시뮬 전용: 실물은 TF map→base_footprint
+        integrate(s, *self.pose); self.n += 1
+        known = (np.abs(L) &gt;= 0.1).mean() * 100
+        self.hist[0].append(self.n / 10); self.hist[1].append(known)
+        if self.n % 30 == 0: self.get_logger().info(&#x27;t=%4.1f s  explored %5.1f %%&#x27; % (self.n / 10, known))
+        if self.n % 10 == 0 or not self.path:                 # 1 s마다(또는 경로 소진 시) 재계획
+            best, self.path = plan(int((y - Y0) / RES), int((x - X0) / RES))
+            self.empty = self.empty + 1 if best is None else 0
+            if self.empty == 3: self.get_logger().warn(&#x27;no reachable frontier for 3 plans -&gt; exploration done&#x27;)
+    def step(self):
+        t = Twist()
+        if self.pose and self.path and self.empty &lt; 3:
+            x, y, th = self.pose
+            while len(self.path) &gt; 1 and math.hypot(self.path[0][0] - x, self.path[0][1] - y) &lt; 0.25:
+                self.path.pop(0)                              # 0.25 m 앞의 경로점을 따라감
+            gx, gy = self.path[0]; d = max(math.hypot(gx - x, gy - y), 1e-6)
+            v = min(0.2, d)                                   # 메카넘: 몸을 돌리지 않고 평행 이동
+            ex, ey = (gx - x) / d, (gy - y) / d
+            t.linear.x, t.linear.y = v * (ex * math.cos(th) + ey * math.sin(th)), v * (ey * math.cos(th) - ex * math.sin(th))
+        self.cmd.publish(t)
+
+rclpy.init(); node = Explorer()
+try:
+    rclpy.spin(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    node.cmd.publish(Twist()); sim.plot(*node.hist, label=&#x27;explored %&#x27;)  # 시뮬 전용 그래프
+    node.destroy_node(); rclpy.shutdown()</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[INFO] [2.900] [frontier_explorer]: t= 3.0 s  explored  30.8 %   (대략)
+[INFO] [5.900] [frontier_explorer]: t= 6.0 s  explored  36.9 %
+[INFO] [8.900] [frontier_explorer]: t= 9.0 s  explored  43.4 %
+[INFO] [11.900] [frontier_explorer]: t=12.0 s  explored  50.1 %
+[INFO] [14.900] [frontier_explorer]: t=15.0 s  explored  56.3 %
+[INFO] [17.900] [frontier_explorer]: t=18.0 s  explored  64.0 %
+[INFO] [20.900] [frontier_explorer]: t=21.0 s  explored  78.1 %
+[INFO] [23.900] [frontier_explorer]: t=24.0 s  explored  83.8 %
+[INFO] [26.900] [frontier_explorer]: t=27.0 s  explored  86.1 %
+[INFO] [29.900] [frontier_explorer]: t=30.0 s  explored  88.5 %
+[sim] 시뮬레이션 시간 30.0 s 종료 (sim.setup(duration=...)으로 변경)</code></pre></div>
+<ul><li>첫 3 s에 30 %: 제자리에서 보이는 반경 2 m가 한꺼번에 채워집니다. 이후 0.2 m/s로 이동하며 초당 약 2 %씩 늘어납니다.</li><li>18~21 s 사이 급증(64 → 78 %)은 로봇이 벽 틈(문)을 지나 오른쪽 방을 처음 본 순간입니다. <strong>2D 재생</strong>에서 확인하세요.</li><li>30 s에 88.5 %: 나머지는 상자 내부·벽 뒤처럼 원래 보일 수 없는 칸과 오른쪽 방 구석입니다. <code>duration</code>을 늘리면(실행 시간 증가 주의) "exploration done"이 출력됩니다.</li></ul>
+<h3 id="실습-3-세-로봇-여섯-프런티어-탐욕-vs-헝가리안">실습 3. 세 로봇, 여섯 프런티어 — 탐욕 vs 헝가리안<a class="anchor" href="#실습-3-세-로봇-여섯-프런티어-탐욕-vs-헝가리안">#</a></h3>
+<p>시뮬레이터 없이 NumPy만 씁니다. 비용 = <span class="math">λ</span>·직선거리 − 이득이고, 네 방법의 배정과 합계를 비교합니다. 헝가리안 결과는 6P3 = 120가지 전수 탐색으로 검증합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import itertools
+import numpy as np
+
+ROBOTS = {&#x27;robot_1&#x27;: (-2.3, -1.3), &#x27;robot_2&#x27;: (-0.6, 0.9), &#x27;robot_3&#x27;: (2.2, -0.8)}
+FRONTIERS = [(-2.6, 0.7, 1.4), (-1.7, 0.9, 2.2), (2.6, -1.3, 1.0),   # (x, y, 이득 m²)
+             (-1.0, 0.3, 2.0), (-0.8, -0.6, 2.8), (0.1, -1.4, 1.5)]
+LAM = 1.0
+names = list(ROBOTS)
+R = np.array([ROBOTS[n] for n in names]); F = np.array(FRONTIERS)
+D = np.hypot(R[:, None, 0] - F[None, :, 0], R[:, None, 1] - F[None, :, 1])  # 실제로는 BFS/Nav2 경로 길이
+C = LAM * D - F[None, :, 2]                                   # 비용 = λ·거리 − 이득 (작을수록 좋음)
+np.set_printoptions(precision=2, suppress=True)
+print(&#x27;cost matrix C (rows robots, cols frontiers F0..F5)\n&#x27;, C)
+
+def total(assign): return sum(C[i, j] for i, j in enumerate(assign))
+def show(tag, assign):
+    pairs = &#x27;, &#x27;.join(&#x27;%s-&gt;F%d&#x27; % (names[i], j) for i, j in enumerate(assign))
+    print(&#x27;%-10s %s | total %.2f&#x27; % (tag, pairs, total(assign)))
+
+selfish = [int(np.argmin(C[i])) for i in range(len(R))]           # 각자 자기 최선 (조정 없음)
+show(&#x27;selfish&#x27;, selfish); print(&#x27;           -&gt; duplicates:&#x27;, len(selfish) - len(set(selfish)))
+
+greedy, used, rows = [None] * len(R), set(), set()           # 탐욕: 전체에서 가장 싼 쌍부터
+for k in np.argsort(C, axis=None):
+    i, j = divmod(int(k), C.shape[1])
+    if i not in rows and j not in used:
+        greedy[i] = j; rows.add(i); used.add(j)
+show(&#x27;greedy&#x27;, greedy)
+
+def hungarian(C):                                             # O(n²m) 쿤-먼크레스 (n ≤ m)
+    n, m = C.shape
+    u, v, p, way = np.zeros(n + 1), np.zeros(m + 1), np.zeros(m + 1, int), np.zeros(m + 1, int)
+    for i in range(1, n + 1):
+        p[0], j0 = i, 0
+        minv, used = np.full(m + 1, np.inf), np.zeros(m + 1, bool)
+        while True:
+            used[j0] = True; i0, delta, j1 = p[j0], np.inf, 0
+            for j in range(1, m + 1):
+                if not used[j]:
+                    cur = C[i0 - 1, j - 1] - u[i0] - v[j]
+                    if cur &lt; minv[j]: minv[j], way[j] = cur, j0
+                    if minv[j] &lt; delta: delta, j1 = minv[j], j
+            for j in range(m + 1):
+                if used[j]: u[p[j]] += delta; v[j] -= delta
+                else: minv[j] -= delta
+            j0 = j1
+            if p[j0] == 0: break
+        while j0:                                             # 증가 경로를 따라 배정 갱신
+            j1 = way[j0]; p[j0] = p[j1]; j0 = j1
+    a = [0] * n
+    for j in range(1, m + 1):
+        if p[j]: a[p[j] - 1] = j - 1
+    return a
+
+show(&#x27;hungarian&#x27;, hungarian(C))
+brute = min(itertools.permutations(range(len(F)), len(R)), key=total)
+show(&#x27;brute&#x27;, list(brute))                                    # 6P3 = 120가지 전수 확인</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">cost matrix C (rows robots, cols frontiers F0..F5)
+ [[ 0.62  0.08  3.9   0.06 -1.14  0.9 ]
+ [ 0.61 -1.1   2.88 -1.28 -1.29  0.9 ]
+ [ 3.63  2.05 -0.36  1.38  0.21  0.68]]
+selfish    robot_1-&gt;F4, robot_2-&gt;F4, robot_3-&gt;F2 | total -2.79
+           -&gt; duplicates: 1
+greedy     robot_1-&gt;F3, robot_2-&gt;F4, robot_3-&gt;F2 | total -1.58
+hungarian  robot_1-&gt;F4, robot_2-&gt;F3, robot_3-&gt;F2 | total -2.78
+brute      robot_1-&gt;F4, robot_2-&gt;F3, robot_3-&gt;F2 | total -2.78</code></pre></div>
+<ul><li><strong>조정 없음</strong>: robot_1과 robot_2가 모두 F4로 갑니다. 합계는 가장 낮아 보이지만 실제로는 F4를 두 번 세었고, 한 로봇이 헛걸음을 합니다.</li><li><strong>탐욕</strong>: 가장 싼 쌍 robot_2→F4(−1.29)를 먼저 잡는 바람에 robot_1이 F3(+0.06)을 받습니다. 합계 −1.58.</li><li><strong>헝가리안</strong>: robot_1→F4(−1.14), robot_2→F3(−1.28)로 바꿔 합계 −2.78 — 전수 탐색과 같습니다. 두 로봇 모두 "자기 최선"은 아니지만 팀 전체로는 1.2만큼 좋습니다.</li></ul>
+<h3 id="실습-4-지도-병합-초기-자세를-알-때와-모를-때">실습 4. 지도 병합 — 초기 자세를 알 때와 모를 때<a class="anchor" href="#실습-4-지도-병합-초기-자세를-알-때와-모를-때">#</a></h3>
+<p>로봇이 한 대뿐이라 같은 로봇이 두 역할을 합니다. 처음 1 s는 "로봇 A"로 출발점 기준 지도를, 옆으로 1.9 m 이동하고 90° 돈 뒤 마지막 1.5 s는 "로봇 B"로 <strong>자기 출발점 기준</strong> 지도를 만듭니다. 두 지도는 서로 다른 좌표계에 있습니다. 라이다는 3 m까지 씁니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+import numpy as np
+import cv2
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist
+from sensor_msgs.msg import LaserScan
+import mentorpi_sim as sim                                    # 시뮬 전용
+sim.setup(world=&quot;room&quot;, duration=15.5, start=(-2.3, -1.3, 0.0))  # 시뮬 전용
+
+RES, H, RMAX = 0.05, 4.0, 3.0                                  # 각 로봇의 지역 지도: 자기 출발점 중심 8×8 m
+N = int(2 * H / RES)
+maps = {&#x27;A&#x27;: np.zeros((N, N)), &#x27;B&#x27;: np.zeros((N, N))}
+def rel(p, o):                                                # 자세 p를 원점 o 기준으로 (o⁻¹·p)
+    dx, dy, c, s = p[0] - o[0], p[1] - o[1], math.cos(o[2]), math.sin(o[2])
+    return (c * dx + s * dy, -s * dx + c * dy, p[2] - o[2])
+def integrate(L, scan, x, y, th):
+    r = np.array(scan.ranges); a = th + scan.angle_min + np.arange(len(r)) * scan.angle_increment
+    hit = np.isfinite(r) &amp; (r &lt; RMAX); r = np.where(hit, r, RMAX)
+    s = np.arange(0, RMAX, RES / 2)[None, :]; m = s &lt; r[:, None] - RES
+    fx = ((x + s * np.cos(a)[:, None] + H) / RES).astype(int)[m]; fy = ((y + s * np.sin(a)[:, None] + H) / RES).astype(int)[m]
+    free = np.zeros((N, N), bool); free[fy, fx] = True; L[free] -= 0.4
+    L[((y + r * np.sin(a) + H) / RES).astype(int)[hit], ((x + r * np.cos(a) + H) / RES).astype(int)[hit]] += 0.9
+
+class TwoRobots(Node):                                        # 한 대로 &quot;로봇 A&quot;와 &quot;로봇 B&quot;를 차례로 흉내
+    def __init__(self):
+        super().__init__(&#x27;map_merge_demo&#x27;)
+        self.cmd = self.create_publisher(Twist, &#x27;/cmd_vel&#x27;, 10)
+        self.create_subscription(LaserScan, &#x27;/scan&#x27;, self.on_scan, 10)
+        self.t0, self.origin = None, {}
+    def on_scan(self, s):
+        t = self.get_clock().now().nanoseconds * 1e-9; p = sim.pose()   # 시뮬 전용: 실물은 각 로봇의 map 자세
+        who = &#x27;A&#x27; if t &lt; 1.0 else &#x27;B&#x27; if t &gt; 14.0 else None
+        if who:
+            self.origin.setdefault(who, p)                    # 기록 시작 자세 = 그 로봇 지도의 원점
+            integrate(maps[who], s, *rel(p, self.origin[who]))
+        tw = Twist()
+        if 1.0 &lt;= t &lt; 10.5: tw.linear.y = 0.2                 # 옆으로 1.9 m
+        elif 10.5 &lt;= t &lt; 13.6: tw.angular.z = 0.5             # 90° 회전
+        self.cmd.publish(tw)
+
+rclpy.init(); node = TwoRobots()
+try:
+    rclpy.spin(node)
+finally:
+    node.cmd.publish(Twist()); node.destroy_node(); rclpy.shutdown()
+
+A, B = maps[&#x27;A&#x27;], maps[&#x27;B&#x27;]
+true = rel(node.origin[&#x27;B&#x27;], node.origin[&#x27;A&#x27;])                # 로봇 B 원점의 A 좌표 (정답)
+def cells(L, lo, hi):
+    i, j = np.nonzero((L &gt; lo) &amp; (L &lt; hi)); return np.c_[(j + .5) * RES - H, (i + .5) * RES - H]
+def tf(P, x, y, th):
+    c, s = math.cos(th), math.sin(th); return np.c_[x + c * P[:, 0] - s * P[:, 1], y + s * P[:, 0] + c * P[:, 1]]
+occA = ((A &gt; 0.4) * 255).astype(np.uint8)
+DA = cv2.distanceTransform(255 - occA, cv2.DIST_L2, 3) * RES  # A의 벽까지 거리장
+PB, FB = cells(B, 0.4, 99)[::2], cells(B, -99, -1.0)[::9]          # B의 점유 칸, 빈칸(일부)
+def look(G, P, x, y, th, out):
+    Q = ((tf(P, x, y, th) + H) / RES).astype(int); ok = (Q &gt;= 0).all(1) &amp; (Q &lt; N).all(1)
+    v = np.full(len(P), out, float); v[ok] = G[Q[ok, 1], Q[ok, 0]]; return v
+def score(x, y, th):                                          # 벽-벽 일치 − 벽-빈칸 모순
+    d, la = look(DA, PB, x, y, th, 9.0), look(A, PB, x, y, th, 0.0)
+    hit = np.exp(-(d / 0.1) ** 2).mean()
+    clash = (la &lt; -1.0).mean() + (look(A, FB, x, y, th, 0.0) &gt; 0.4).mean()
+    return hit - clash
+def merge(x, y, th):                                          # 로그 오즈 합산 병합
+    M = A.copy()
+    for lo, hi in ((0.1, 99), (-99, -0.1)):
+        P = cells(B, lo, hi); Q = ((tf(P, x, y, th) + H) / RES).astype(int); ok = (Q &gt;= 0).all(1) &amp; (Q &lt; N).all(1)
+        i, j = np.nonzero((B &gt; lo) &amp; (B &lt; hi)); np.add.at(M, (Q[ok, 1], Q[ok, 0]), B[i[ok], j[ok]])
+    return M
+known = lambda L: (np.abs(L) &gt; 0.1).sum() * RES * RES
+print(&#x27;true T_AB = (%.2f m, %.2f m, %.0f deg)&#x27; % (true[0], true[1], math.degrees(true[2])))
+print(&#x27;known area  A %.2f m2 | B %.2f m2 | A+B %.2f m2&#x27; % (known(A), known(B), known(merge(*true))))
+for tag, T in ((&#x27;known pose&#x27;, true), (&#x27;pose err 0.2m/10deg&#x27;, (true[0] + .2, true[1], true[2] + math.radians(10)))):
+    print(&#x27;%-20s overlap score %.2f&#x27; % (tag, score(*T)))
+best = (-9, None)                                              # 모르는 경우: 거친 → 고운 전수 탐색
+for th in np.radians(np.arange(-180, 180, 15)):
+    for x in np.arange(-2.5, 2.51, 0.25):
+        for y in np.arange(-2.5, 2.51, 0.25):
+            sc = score(x, y, th); best = max(best, (sc, (x, y, th)), key=lambda b: b[0])
+x0, y0, t0 = best[1]
+for th in t0 + np.radians(np.arange(-12, 13, 3)):
+    for x in x0 + np.arange(-0.25, 0.26, 0.05):
+        for y in y0 + np.arange(-0.25, 0.26, 0.05):
+            sc = score(x, y, th); best = max(best, (sc, (x, y, th)), key=lambda b: b[0])
+x, y, th = best[1]
+print(&#x27;search found (%.2f m, %.2f m, %.0f deg) score %.2f&#x27; % (x, y, math.degrees(math.atan2(math.sin(th), math.cos(th))), best[0]))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[sim] 시뮬레이션 시간 15.5 s 종료 (sim.setup(duration=...)으로 변경)
+true T_AB = (-0.00 m, 1.81 m, 86 deg)   (대략)
+known area  A 10.13 m2 | B 11.63 m2 | A+B 13.16 m2
+known pose           overlap score 0.64
+pose err 0.2m/10deg  overlap score -0.27
+search found (-0.05 m, 1.80 m, 87 deg) score 0.64</code></pre></div>
+<ul><li>정답 변환(<span class="math">B</span> 원점이 <span class="math">A</span> 좌표로 (0, 1.81 m), 86°)으로 병합하면 알려진 면적이 10.1 m², 11.6 m² → 13.2 m²로 늘어납니다. 명령은 1.9 m·90°였지만 바퀴 미끄럼 때문에 실제 이동은 조금 짧습니다 — 실물에서 <strong>명령값이 아니라 측정값</strong>으로 초기 자세를 적어야 하는 이유입니다.</li><li>초기 자세에 0.2 m / 10° 오차를 넣으면 점수가 0.64 → −0.27로 떨어집니다(벽이 빈칸 위에 겹침).</li><li>초기 자세를 <strong>모른다고</strong> 하고 거친(15°, 0.25 m) → 고운(3°, 0.05 m) 전수 탐색을 하면 (−0.05, 1.80, 87°)를 찾습니다. 정답과 5 cm·1° 차이입니다.</li></ul>
+<h3 id="2d-3d-시뮬레이터로-확인">2D·3D 시뮬레이터로 확인<a class="anchor" href="#2d-3d-시뮬레이터로-확인">#</a></h3>
+<p class="cta-row"><a class="ghost-btn cta" href="../sim/index.html">2D 시뮬레이터 열기</a></p>
+<ol><li><strong>maze</strong> 월드에서 <strong>SLAM</strong> 모드를 켜고 직접 몰며 지도의 회색(미탐색)과 흰색(빈칸)의 경계를 관찰합니다. "지금 어느 경계로 가야 가장 많이 보일까"를 먼저 예측해 보고 가 봅니다.</li><li><strong>내비게이션</strong> 모드에서 경계 바로 안쪽 빈칸을 클릭해 A*로 가게 하면, 실습 2의 한 사이클을 손으로 한 것과 같습니다.</li></ol>
+<p class="cta-row"><a class="ghost-btn cta" href="../sim3d/index.html">3D 시뮬레이터 열기</a></p>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">안전 확인 (실물 실습 전 필수)</div><div class="callout-body"><ul><li>탐사 구역을 닫습니다: 문을 닫거나 상자로 막고, 계단·문턱·케이블·유리벽·거울을 치웁니다. 프런티어는 열린 문 밖으로 끝없이 이어집니다.</li><li>첫 실행은 <code>speed:=0.08</code>로, 로봇마다 한 사람이 따라다니며 멈출 준비를 합니다. 코드의 상한 0.15 m/s를 풀지 않습니다.</li><li>멈추는 방법: 탐사 노드 터미널 Ctrl+C(정지 Twist 발행), <code>ros2 topic pub --once /robot_1/controller/cmd_vel geometry_msgs/msg/Twist &quot;{}&quot;</code>, 전원 스위치.</li><li>비상 정지(0.18 m)는 라이다 평면(높이 약 0.16 m)만 봅니다. 그보다 낮은 물체·사람 발은 못 볼 수 있으니 바닥을 정리합니다.</li><li>두 로봇이 같은 좁은 통로로 들어가면 서로를 장애물로 보고 멈춥니다. 탐사 공간은 통로 폭 1 m 이상을 권장합니다.</li></ul></div></div>
+<h3 id="1-단일-로봇-slam-프런티어-탐사">1) 단일 로봇: SLAM + 프런티어 탐사<a class="anchor" href="#1-단일-로봇-slam-프런티어-탐사">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash"># 로봇 (컨테이너) — 앱 자동 실행 중지 후 SLAM
+~/.stop_ros.sh
+ros2 launch slam slam.launch.py
+
+# 가상머신 — 지도 보기
+ros2 launch slam rviz_slam.launch.py</code></pre></div>
+<p><code>slam.launch.py</code>는 <code>robot.launch.py</code>(컨트롤러·EKF·라이다)를 먼저 띄우고 10 s 뒤 slam_toolbox(<code>sync_slam_toolbox_node</code>, <code>slam.yaml</code>: 해상도 0.05 m, <code>scan_topic: scan_raw</code>, <code>minimum_travel_distance 0.1</code>)를 켭니다. 스캔 매칭이 한 번 돌 때까지 로봇을 살짝 움직여야 <code>/map</code>이 처음 발행됩니다.</p>
+<div class="code-block code-robot"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-robot">실물 전용</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">#!/usr/bin/env python3
+# frontier_explorer.py — slam.launch.py 위에서 실행. /map + TF로 프런티어 탐사 (Nav2 없이)
+import math
+from collections import deque
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from rclpy.time import Time
+from rclpy.qos import QoSProfile, DurabilityPolicy, ReliabilityPolicy, qos_profile_sensor_data
+from nav_msgs.msg import OccupancyGrid
+from sensor_msgs.msg import LaserScan
+from geometry_msgs.msg import Twist, PoseStamped
+from tf2_ros import Buffer, TransformListener, TransformException
+from tf_transformations import euler_from_quaternion
+
+NB = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1)]
+
+def frontier_goals(g, ri, rj, infl, min_size, lam, res):
+    &quot;&quot;&quot;g: int8 격자(-1 미탐색, 0~100 점유확률). 반환: [(효용, (i, j), 경로 칸 목록)] 효용 내림차순.&quot;&quot;&quot;
+    free, unk, occ = (g &gt;= 0) &amp; (g &lt; 25), g &lt; 0, g &gt;= 65
+    blk = occ.copy()
+    for _ in range(infl):
+        blk[1:] |= blk[:-1].copy(); blk[:-1] |= blk[1:].copy(); blk[:, 1:] |= blk[:, :-1].copy(); blk[:, :-1] |= blk[:, 1:].copy()
+    blk[ri - infl:ri + infl + 1, rj - infl:rj + infl + 1] = occ[ri - infl:ri + infl + 1, rj - infl:rj + infl + 1]
+    nu = np.zeros_like(unk); nu[1:] |= unk[:-1]; nu[:-1] |= unk[1:]; nu[:, 1:] |= unk[:, :-1]; nu[:, :-1] |= unk[:, 1:]
+    front = free &amp; ~blk &amp; nu
+    H, W = g.shape
+    dist, par, q = np.full(g.shape, -1), {}, deque([(ri, rj)]); dist[ri, rj] = 0
+    while q:
+        i, j = q.popleft()
+        for di, dj in NB:
+            a, b = i + di, j + dj
+            if 0 &lt;= a &lt; H and 0 &lt;= b &lt; W and dist[a, b] &lt; 0 and free[a, b] and not blk[a, b]:
+                dist[a, b] = dist[i, j] + 1; par[(a, b)] = (i, j); q.append((a, b))
+    seen, out = np.zeros(g.shape, bool), []
+    for i0, j0 in zip(*np.nonzero(front &amp; (dist &gt;= 0))):
+        if seen[i0, j0]: continue
+        comp, q = [], deque([(i0, j0)]); seen[i0, j0] = True
+        while q:
+            i, j = q.popleft(); comp.append((i, j))
+            for di, dj in NB:
+                a, b = i + di, j + dj
+                if 0 &lt;= a &lt; H and 0 &lt;= b &lt; W and front[a, b] and not seen[a, b] and dist[a, b] &gt;= 0:
+                    seen[a, b] = True; q.append((a, b))
+        if len(comp) &lt; min_size: continue
+        c = np.array(comp); gi = tuple(c[np.argmin(((c - c.mean(0)) ** 2).sum(1))])
+        k = int(1.0 / res)
+        gain = unk[max(gi[0] - k, 0):gi[0] + k, max(gi[1] - k, 0):gi[1] + k].sum() * res * res
+        path, n = [], gi
+        while n != (ri, rj): path.append(n); n = par[n]
+        out.append((gain - lam * dist[gi] * res, gi, path[::-1]))
+    return sorted(out, key=lambda o: -o[0])
+
+class FrontierExplorer(Node):
+    def __init__(self):
+        super().__init__(&#x27;frontier_explorer&#x27;)
+        self.prefix = self.declare_parameter(&#x27;frame_prefix&#x27;, &#x27;&#x27;).value     # 예: &#x27;robot_1/&#x27;
+        self.lam = self.declare_parameter(&#x27;lam&#x27;, 1.0).value
+        self.speed = min(0.15, self.declare_parameter(&#x27;speed&#x27;, 0.12).value)  # 안전 상한 0.15 m/s
+        self.infl_m = self.declare_parameter(&#x27;inflation&#x27;, 0.25).value
+        self.use_alloc = self.declare_parameter(&#x27;use_allocator&#x27;, False).value
+        latched = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL, reliability=ReliabilityPolicy.RELIABLE)
+        self.create_subscription(OccupancyGrid, &#x27;map&#x27;, self.on_map, latched)
+        self.create_subscription(LaserScan, &#x27;scan_raw&#x27;, self.on_scan, qos_profile_sensor_data)
+        self.create_subscription(PoseStamped, &#x27;explore/goal&#x27;, self.on_goal, 10)
+        self.cmd = self.create_publisher(Twist, &#x27;controller/cmd_vel&#x27;, 1)
+        self.pose_pub = self.create_publisher(PoseStamped, &#x27;explore/pose&#x27;, 10)
+        self.tf_buffer = Buffer(); self.tf_listener = TransformListener(self.tf_buffer, self)
+        self.map, self.path, self.goal, self.empty, self.blocked = None, [], None, 0, False
+        self.create_timer(1.0, self.replan)
+        self.create_timer(0.1, self.follow)
+    def on_map(self, m): self.map = m
+    def on_goal(self, p): self.goal = (p.pose.position.x, p.pose.position.y)
+    def on_scan(self, s):                                   # 0.18 m 안에 무엇이든 있으면 정지
+        r = np.array(s.ranges); self.blocked = bool(np.any(np.isfinite(r) &amp; (r &gt; s.range_min) &amp; (r &lt; 0.18)))
+    def pose(self):
+        try:
+            tf = self.tf_buffer.lookup_transform(self.prefix + &#x27;map&#x27;, self.prefix + &#x27;base_footprint&#x27;, Time())
+        except TransformException:
+            return None
+        t, q = tf.transform.translation, tf.transform.rotation
+        return t.x, t.y, euler_from_quaternion([q.x, q.y, q.z, q.w])[2]
+    def replan(self):
+        p = self.pose()
+        if p is None or self.map is None: return
+        ps = PoseStamped(); ps.header.frame_id = self.prefix + &#x27;map&#x27;; ps.header.stamp = self.get_clock().now().to_msg()
+        ps.pose.position.x, ps.pose.position.y = p[0], p[1]; self.pose_pub.publish(ps)
+        info = self.map.info; res, ox, oy = info.resolution, info.origin.position.x, info.origin.position.y
+        g = np.array(self.map.data, np.int8).reshape(info.height, info.width)
+        ri, rj = int((p[1] - oy) / res), int((p[0] - ox) / res)
+        goals = frontier_goals(g, ri, rj, int(round(self.infl_m / res)), 5, self.lam, res)
+        if self.use_alloc and self.goal and goals:           # 배정 목표에 가장 가까운 프런티어의 경로
+            gi = ((self.goal[1] - oy) / res, (self.goal[0] - ox) / res)
+            goals = [min(goals, key=lambda o: (o[1][0] - gi[0]) ** 2 + (o[1][1] - gi[1]) ** 2)]
+        self.empty = 0 if goals else self.empty + 1
+        self.path = [(ox + (j + .5) * res, oy + (i + .5) * res) for i, j in goals[0][2]] if goals else []
+        if self.empty == 3:
+            self.get_logger().warn(&#x27;no reachable frontier (3 plans) -&gt; exploration complete, save the map&#x27;)
+    def follow(self):
+        t, p = Twist(), self.pose()
+        if p and self.path and not self.blocked and self.empty &lt; 3:
+            x, y, th = p
+            while len(self.path) &gt; 1 and math.hypot(self.path[0][0] - x, self.path[0][1] - y) &lt; 0.25:
+                self.path.pop(0)
+            gx, gy = self.path[0]; d = max(math.hypot(gx - x, gy - y), 1e-6)
+            v = min(self.speed, d); ex, ey = (gx - x) / d, (gy - y) / d
+            t.linear.x = v * (ex * math.cos(th) + ey * math.sin(th))      # 메카넘 평행 이동
+            t.linear.y = v * (ey * math.cos(th) - ex * math.sin(th))
+        self.cmd.publish(t)
+
+def main():
+    rclpy.init()
+    node = FrontierExplorer()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.cmd.publish(Twist()); node.destroy_node(); rclpy.shutdown()
+
+if __name__ == &#x27;__main__&#x27;:
+    main()</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">python3 ~/frontier_explorer.py --ros-args -p speed:=0.08 -p lam:=1.0
+ros2 topic echo /controller/cmd_vel      # 새 터미널: 명령 확인</code></pre></div>
+<p>탐사가 끝나면 지도를 저장합니다(M09와 같은 명령).</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">cd ~/ros2_ws/src/slam/maps &amp;&amp; ros2 run nav2_map_server map_saver_cli -f &quot;explore_map&quot; --ros-args -p map_subscribe_transient_local:=true</code></pre></div>
+<h3 id="2-두-로봇-네임스페이스-도메인-설정">2) 두 로봇: 네임스페이스·도메인 설정<a class="anchor" href="#2-두-로봇-네임스페이스-도메인-설정">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash"># 각 로봇 (컨테이너)
+vim /home/ubuntu/ros2_ws/.typerc      # robot 1: HOST=robot_1, robot 2: HOST=robot_2, 둘 다 MASTER=robot_1
+source ~/.zshrc
+echo $HOST $MASTER $ROS_DOMAIN_ID     # 도메인은 두 로봇과 가상머신 모두 같은 값
+~/.stop_ros.sh
+ros2 launch slam slam.launch.py       # HOST가 네임스페이스·프레임 접두사가 됨</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash"># 마스터 또는 가상머신 — 두 지도 확인
+ros2 topic list | grep -E &quot;robot_[12]/(map|scan_raw)&quot;
+ros2 topic echo /robot_2/map --once --field info</code></pre></div>
+<h3 id="3-할당-노드와-함께-실행">3) 할당 노드와 함께 실행<a class="anchor" href="#3-할당-노드와-함께-실행">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash"># 각 로봇: 네임스페이스 안에서 실행, TF 토픽을 네임스페이스 쪽으로 재매핑
+python3 ~/frontier_explorer.py --ros-args -r __ns:=/robot_1 -r /tf:=tf -r /tf_static:=tf_static \
+  -p frame_prefix:=robot_1/ -p use_allocator:=true -p speed:=0.1
+python3 ~/frontier_explorer.py --ros-args -r __ns:=/robot_2 -r /tf:=tf -r /tf_static:=tf_static \
+  -p frame_prefix:=robot_2/ -p use_allocator:=true -p speed:=0.1
+
+# 마스터: 실습 3의 hungarian()을 `import numpy as np`와 함께 ~/hungarian.py로 저장한 뒤
+# (frontier_explorer.py, hungarian.py, task_allocator.py를 같은 폴더에)
+python3 ~/task_allocator.py</code></pre></div>
+<div class="code-block code-robot"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-robot">실물 전용</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">#!/usr/bin/env python3
+# task_allocator.py — 마스터에서 실행. 로봇별 지도를 초기 자세로 병합하고 프런티어를 헝가리안으로 배정
+import math
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from rclpy.qos import QoSProfile, DurabilityPolicy, ReliabilityPolicy
+from nav_msgs.msg import OccupancyGrid
+from geometry_msgs.msg import PoseStamped
+from frontier_explorer import frontier_goals              # 같은 폴더의 탐사 노드 함수 재사용
+from hungarian import hungarian                           # 실습 3의 hungarian()을 hungarian.py로 저장
+
+ROBOTS = {&#x27;robot_1&#x27;: (0.0, 0.0, 0.0), &#x27;robot_2&#x27;: (0.0, 1.0, 0.0)}   # 각 로봇 map 원점의 전역 자세 (줄자로 측정)
+RES, ORG, N = 0.05, -10.0, 400                            # 전역 격자 20 × 20 m
+
+class TaskAllocator(Node):
+    def __init__(self):
+        super().__init__(&#x27;task_allocator&#x27;)
+        latched = QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL, reliability=ReliabilityPolicy.RELIABLE)
+        self.maps, self.poses, self.goal_pub = {}, {}, {}
+        for r in ROBOTS:
+            self.create_subscription(OccupancyGrid, &#x27;/%s/map&#x27; % r, lambda m, r=r: self.maps.__setitem__(r, m), latched)
+            self.create_subscription(PoseStamped, &#x27;/%s/explore/pose&#x27; % r, lambda p, r=r: self.poses.__setitem__(r, p), 10)
+            self.goal_pub[r] = self.create_publisher(PoseStamped, &#x27;/%s/explore/goal&#x27; % r, 10)
+        self.merged_pub = self.create_publisher(OccupancyGrid, &#x27;/merged_map&#x27;, latched)
+        self.create_timer(2.0, self.allocate)
+    def to_global(self, r, x, y):
+        X, Y, T = ROBOTS[r]; c, s = math.cos(T), math.sin(T)
+        return X + c * x - s * y, Y + s * x + c * y
+    def merge(self):                                      # 로그 오즈처럼 합산: 점유 +2, 빈칸 −1
+        acc = np.zeros((N, N))
+        for r, m in self.maps.items():
+            g = np.array(m.data, np.int8).reshape(m.info.height, m.info.width)
+            i, j = np.nonzero(g &gt;= 0); res = m.info.resolution
+            x, y = self.to_global(r, m.info.origin.position.x + (j + .5) * res, m.info.origin.position.y + (i + .5) * res)
+            gi, gj = ((y - ORG) / RES).astype(int), ((x - ORG) / RES).astype(int); ok = (gi &gt;= 0) &amp; (gi &lt; N) &amp; (gj &gt;= 0) &amp; (gj &lt; N)
+            np.add.at(acc, (gi[ok], gj[ok]), np.where(g[i, j] &gt;= 65, 2.0, np.where(g[i, j] &lt; 25, -1.0, 0.0))[ok])
+        return np.where(acc &gt; 0.5, 100, np.where(acc &lt; -0.5, 0, -1)).astype(np.int8)
+    def allocate(self):
+        if len(self.maps) &lt; len(ROBOTS) or len(self.poses) &lt; len(ROBOTS): return
+        g = self.merge()
+        out = OccupancyGrid(); out.header.frame_id = &#x27;robot_1/map&#x27;; out.header.stamp = self.get_clock().now().to_msg()
+        out.info.resolution, out.info.width, out.info.height = RES, N, N
+        out.info.origin.position.x = out.info.origin.position.y = ORG; out.data = g.ravel().tolist()
+        self.merged_pub.publish(out)
+        names, util = list(ROBOTS), {}
+        for k, r in enumerate(names):                    # 로봇마다 BFS 비용이 다르다
+            p = self.poses[r].pose.position; x, y = self.to_global(r, p.x, p.y)
+            for u, gi, _ in frontier_goals(g, int((y - ORG) / RES), int((x - ORG) / RES), 5, 5, 1.0, RES):
+                util.setdefault(gi, [None] * len(names))[k] = u
+        if not util:
+            self.get_logger().info(&#x27;merged map has no frontier -&gt; team exploration complete&#x27;); return
+        cells = list(util)
+        C = np.array([[-(util[c][k]) if util[c][k] is not None else 1e3 for c in cells] for k in range(len(names))])
+        if C.shape[1] &lt; C.shape[0]: C = np.hstack([C, np.zeros((C.shape[0], C.shape[0] - C.shape[1]))])  # 빈 작업 = 대기
+        for k, j in enumerate(hungarian(C)):
+            if j &gt;= len(cells) or C[k, j] &gt;= 1e3: continue
+            gx, gy = ORG + (cells[j][1] + .5) * RES, ORG + (cells[j][0] + .5) * RES
+            X, Y, T = ROBOTS[names[k]]; c, s = math.cos(T), math.sin(T)   # 전역 → 그 로봇의 map 좌표
+            ps = PoseStamped(); ps.header.frame_id = names[k] + &#x27;/map&#x27;
+            ps.pose.position.x, ps.pose.position.y = c * (gx - X) + s * (gy - Y), -s * (gx - X) + c * (gy - Y)
+            self.goal_pub[names[k]].publish(ps)
+            self.get_logger().info(&#x27;%s -&gt; frontier (%.2f, %.2f) cost %.2f&#x27; % (names[k], gx, gy, C[k, j]))
+
+def main():
+    rclpy.init(); node = TaskAllocator()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node(); rclpy.shutdown()
+
+if __name__ == &#x27;__main__&#x27;:
+    main()</code></pre></div>
+<ul><li><code>ROBOTS</code>의 값은 "각 로봇의 slam 원점(출발 자세)이 robot_1 지도에서 어디인가"입니다. 두 로봇을 1 m 간격으로 나란히 같은 방향으로 세웠다면 <code>robot_2: (0.0, 1.0, 0.0)</code>입니다.</li><li>병합은 매 주기 전체를 다시 계산합니다. 각 SLAM이 루프 폐쇄로 자기 지도를 고쳐도 병합 지도에 바로 반영됩니다.</li><li><code>frontier_goals</code>가 만든 목표 칸은 병합 지도 좌표이므로, 발행 전에 그 로봇의 map 좌표로 되돌립니다(<span class="math">T^{-1}</span>).</li></ul>
+<h3 id="4-선택-기성-패키지와-비교">4) (선택) 기성 패키지와 비교<a class="anchor" href="#4-선택-기성-패키지와-비교">#</a></h3>
+<p>비교 기준선으로 explore_lite(m-explore-ros2)나 Nav2 기반 탐사를 쓸 수 있습니다. <strong>MentorPi 이미지에 기본 포함되어 있지 않으므로</strong> 인터넷이 되는 환경에서 워크스페이스에 직접 받아 빌드해야 하고, Nav2를 slam_toolbox와 함께(map_server·AMCL 없이) 띄우는 launch를 따로 구성해야 합니다. 원본 <code>navigation/launch/include/navigation_base.launch.py</code>는 Nav2 서버들을 <code>nav2_container</code>에 조립 노드로 올리는 구조라, 컨테이너를 띄우는 <code>bringup.launch.py</code>의 구성을 참고해 지도 서버 부분을 빼는 식으로 만듭니다. 이 작업은 확장 과제로 둡니다.</p>
+<h2 id="실험과-평가">실험과 평가<a class="anchor" href="#실험과-평가">#</a></h2>
+<p>모든 실험은 <strong>같은 공간·같은 출발점</strong>에서 3회 반복하고 평균과 범위를 적습니다. 탐사 면적은 <code>/map</code>(또는 <code>/merged_map</code>)에서 −1이 아닌 칸 수 × 0.05²로 1 s마다 CSV에 남깁니다.</p>
+<p><strong>E1. 탐사 면적–시간 곡선 (시뮬레이션 기준값).</strong> 실습 2의 출력입니다.</p>
+<div class="table-wrap"><table><thead><tr><th>시간 [s]</th><th>3</th><th>6</th><th>9</th><th>12</th><th>15</th><th>18</th><th>21</th><th>24</th><th>27</th><th>30</th></tr></thead><tbody><tr><td>탐사율 [%]</td><td>30.8</td><td>36.9</td><td>43.4</td><td>50.1</td><td>56.3</td><td>64.0</td><td>78.1</td><td>83.8</td><td>86.1</td><td>88.5</td></tr></tbody></table></div>
+<p><strong>E2. <span class="math">λ</span>의 영향 (시뮬레이션, room, 2 m 라이다).</strong> 실습 2에서 <code>LAM</code>만 바꾼 결과입니다.</p>
+<div class="table-wrap"><table><thead><tr><th><span class="math">λ</span></th><th>0</th><th>0.3</th><th>1</th><th>3</th><th>100 (≈ 가장 가까운 프런티어)</th></tr></thead><tbody><tr><td>15 s 탐사율 [%]</td><td>56.3</td><td>56.3</td><td>56.3</td><td>55.9</td><td>52.4</td></tr><tr><td>30 s 탐사율 [%]</td><td>88.2</td><td>88.5</td><td>88.5</td><td>85.6</td><td>84.6</td></tr></tbody></table></div>
+<p>열린 거실에서는 차이가 작습니다(3~4 %p). 같은 코드를 <code>maze</code> 월드로 바꾸면 세 <span class="math">λ</span> 모두 30 s에 40.2 %로 같았습니다 — 미로는 한 번에 보이는 프런티어가 하나뿐이라 고를 것이 없기 때문입니다. <strong><span class="math">λ</span>는 갈림길이 많은 공간에서만 의미가 있다</strong>는 것이 결론이며, 실물 실험 공간을 고를 때 참고합니다.</p>
+<p><strong>E3. 할당 방법 (실습 3).</strong> 합계 비용: 조정 없음 −2.79(중복 1), 탐욕 −1.58, 헝가리안 −2.78(= 전수 탐색). 실물에서는 아래 표를 채웁니다.</p>
+<div class="table-wrap"><table><thead><tr><th>구성</th><th>90 % 탐사 시간 [s]</th><th>총 주행 거리 [m]</th><th>중복 방문 면적 [m²]</th><th>비고</th></tr></thead><tbody><tr><td>1대, <span class="math">λ = 1</span></td><td></td><td></td><td>—</td><td>기준</td></tr><tr><td>2대, 조정 없음 (allocator 끔)</td><td></td><td></td><td></td><td></td></tr><tr><td>2대, 탐욕</td><td></td><td></td><td></td><td><code>hungarian</code> 대신 탐욕 함수</td></tr><tr><td>2대, 헝가리안</td><td></td><td></td><td></td><td></td></tr></tbody></table></div>
+<p>중복 방문 면적은 두 로봇 궤적(<code>explore/pose</code>)을 0.5 m 격자로 만들어 둘 다 지나간 칸 면적으로 셉니다.</p>
+<p><strong>E4. 지도 병합 품질.</strong> 병합 지도의 같은 벽이 두 겹으로 보이는 간격(RViz Measure 도구)을 측정하고, 초기 자세를 일부러 5 cm·2°, 20 cm·10° 틀리게 넣었을 때와 비교합니다. 시뮬레이션에서는 정답 자세의 점수 0.64, 0.2 m/10° 오차의 점수 −0.27이었습니다.</p>
+<h2 id="평가-기준">평가 기준<a class="anchor" href="#평가-기준">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>영역</th><th>항목</th><th>배점</th><th>만점 기준</th></tr></thead><tbody><tr><td>이론</td><td>프런티어·효용·할당 설명</td><td>10</td><td><span class="math">U = G − λ·C</span>와 헝가리안의 최적성을 예로 설명</td></tr><tr><td>구현</td><td>프런티어 검출·군집 (M1)</td><td>15</td><td>단위 시험 통과, 계획 1회 ≤ 200 ms</td></tr><tr><td>구현</td><td>단일 로봇 자율 탐사 (M2)</td><td>20</td><td>무개입 완주, 종료 조건 동작, 비상 정지 시연</td></tr><tr><td>구현</td><td>다중 로봇 설정·할당·병합 (M3·M4)</td><td>20</td><td>네임스페이스 분리, 서로 다른 목표, 병합 벽 겹침 ≤ 0.1 m</td></tr><tr><td>실험</td><td>E1~E4 표·그래프</td><td>20</td><td>3회 반복, 평균·범위, 1대 대비 2대 효율 수치</td></tr><tr><td>보고</td><td>한계와 개선안</td><td>10</td><td>실패 사례(도달 불가·진동 등)를 원인과 함께 제시</td></tr><tr><td>안전</td><td>절차 준수</td><td>5</td><td>속도 한계 유지, 정지 수단 시연</td></tr><tr><td><strong>합계</strong></td><td></td><td><strong>100</strong></td><td></td></tr></tbody></table></div>
+<p>감점: 속도 상한을 푼 경우 −10, 탐사 구역을 닫지 않고 실행 −5, 종료 시 정지하지 않는 경로 −5.</p>
+<h2 id="확장-과제">확장 과제<a class="anchor" href="#확장-과제">#</a></h2>
+<ul><li><strong>히스테리시스와 블랙리스트</strong>: 현재 목표 효용에 <span class="math">δ</span> 가산점을 주고, 같은 목표에 30 s 안에 도착하지 못하면 반경 0.3 m를 블랙리스트에 올립니다. 진동 횟수가 줄어드는지 셉니다.</li><li><strong>레이 캐스팅 이득</strong>: 목표점에서 36방향 레이를 쏘아 가려지지 않은 미탐색 칸만 세는 이득으로 바꾸고, 창 이득과 탐사 시간을 비교합니다.</li><li><strong>Burgard 조정 탐사</strong>: 헝가리안 대신 "한 로봇 배정 → 주변 이득 감소 → 다음 로봇" 순차 방식을 구현해 E3 표에 추가합니다.</li><li><strong>CBBA 분산 할당</strong>: allocator 없이 각 로봇이 입찰 표를 <code>explore/bids</code> 토픽으로 주고받아 합의하게 만듭니다. Wi-Fi를 끊었다 이었을 때 수렴 과정을 기록합니다.</li><li><strong>자세 모름 병합</strong>: 실습 4의 전수 탐색을 실물 <code>/robot_i/map</code>에 적용하고, 1등·2등 점수 차이가 작으면 병합을 보류하는 판정을 넣습니다.</li><li><strong>애커만 섀시</strong>: 평행 이동 대신 Pure Pursuit(M12)로 경로를 따라가게 바꾸고, 제자리 회전이 안 되는 차량에서 막다른 프런티어 처리 방법을 설계합니다.</li></ul>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td>시작하자마자 "exploration complete"</td><td>로봇 칸이 팽창 영역 안이라 BFS가 출발 못 함, 또는 빈칸 임계값이 너무 엄격</td><td>로봇 주변 팽창 해제(코드처럼), 빈칸 조건 <code>0 ≤ v &lt; 25</code> 확인, 로봇을 벽에서 떼고 시작</td></tr><tr><td><code>/map</code>을 못 받아 아무것도 안 함</td><td>QoS가 VOLATILE, 또는 slam_toolbox가 아직 지도를 안 냄</td><td>TRANSIENT_LOCAL 구독, 로봇을 조금 움직여 첫 스캔 매칭 유도</td></tr><tr><td><code>TransformException ... robot_1/map does not exist</code></td><td>네임스페이스에서 TF가 <code>/robot_1/tf</code>로 나가는데 노드는 <code>/tf</code>를 봄</td><td><code>-r /tf:=tf -r /tf_static:=tf_static</code>로 실행, <code>frame_prefix:=robot_1/</code></td></tr><tr><td>두 로봇이 같은 명령에 같이 움직임</td><td><code>HOST</code>가 비어 네임스페이스 없음</td><td><code>.typerc</code> 수정 후 새 터미널, <code>echo $HOST</code></td></tr><tr><td>마스터에서 <code>/robot_2/...</code> 토픽이 안 보임</td><td><code>ROS_DOMAIN_ID</code> 불일치, 다른 Wi-Fi</td><td>모든 기기 <code>echo $ROS_DOMAIN_ID</code> 비교, 같은 핫스팟</td></tr><tr><td>목표가 두 곳 사이를 계속 오감</td><td>효용이 비슷한 두 군집</td><td>히스테리시스 <span class="math">δ</span>, 재계획 주기 2 s</td></tr><tr><td>문 앞에서 멈추고 못 지나감</td><td>팽창 반경이 문 폭의 절반보다 큼</td><td><code>inflation</code>을 0.2 m로, 문 폭 확인</td></tr><tr><td>프런티어가 끝없이 생김</td><td>열린 문·유리·거울, 라이다 최대 거리 밖</td><td>구역 닫기, <code>min_size</code> 키우기, 반사면 가리기</td></tr><tr><td>벽 옆에서 비상 정지 후 영영 안 움직임</td><td>경로가 벽에 너무 붙음</td><td><code>inflation</code> 키우기(비상 거리 + 0.07 m 이상), 정지 시 뒤로 0.1 m 후진하는 복구 동작 추가</td></tr><tr><td>병합 지도의 벽이 두 겹</td><td>초기 자세 오차(특히 각도)</td><td>출발 자세 재측정, 실습 4 방식의 미세 탐색으로 보정</td></tr><tr><td>allocator가 한 로봇에만 목표를 줌</td><td>다른 로봇의 <code>explore/pose</code>가 안 들어옴</td><td><code>ros2 topic hz /robot_2/explore/pose</code>, explorer의 TF 재매핑 확인</td></tr><tr><td>계획이 느려 로봇이 끊기며 감</td><td>큰 지도에서 파이썬 BFS</td><td>지도를 로봇 주변 10 m로 잘라 계산, 재계획 주기를 늘림</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">기본 과제</div><div class="callout-body"><ol><li>실습 2에서 <code>INFL</code>(팽창 칸 수)을 2, 4, 6으로 바꿔 30 s 탐사율과 충돌 수를 표로 만들고, 로봇 반경 0.13 m와 연결해 설명합니다.</li><li>실물 단일 로봇으로 E1 곡선을 3회 측정하고 시뮬레이션 곡선과 한 그래프에 그립니다. 차이의 원인을 두 가지 이상 제시합니다.</li></ol></div></div>
+<div class="callout callout-task"><div class="callout-title">심화 과제</div><div class="callout-body"><ol><li>실습 3의 비용을 직선거리 대신 BFS 경로 길이로 바꾸고(실습 1의 <code>dist</code> 사용), 벽 때문에 배정이 달라지는 사례를 만들어 보입니다.</li><li>두 로봇으로 E3 표를 채우고, "2대의 90 % 탐사 시간 ≤ 1대의 65 %"(N2)를 달성했는지, 못 했다면 병목이 무엇인지(할당·통신·충돌 회피) 분석합니다.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>B. Yamauchi, "A frontier-based approach for autonomous exploration," <em>Proc. IEEE CIRA</em>, 1997.</li><li>W. Burgard, M. Moors, C. Stachniss, F. Schneider, "Coordinated multi-robot exploration," <em>IEEE Trans. Robotics</em>, 21(3), 2005.</li><li>H. H. González-Baños, J.-C. Latombe, "Navigation strategies for exploring indoor environments," <em>IJRR</em>, 21(10–11), 2002.</li><li>C. Stachniss, G. Grisetti, W. Burgard, "Information gain-based exploration using Rao-Blackwellized particle filters," <em>RSS</em>, 2005.</li><li>H.-L. Choi, L. Brunet, J. P. How, "Consensus-based decentralized auctions for robust task allocation," <em>IEEE Trans. Robotics</em>, 25(4), 2009.</li><li>H. W. Kuhn, "The Hungarian method for the assignment problem," <em>Naval Research Logistics Quarterly</em>, 2, 1955.</li><li>E. Olson, "Real-time correlative scan matching," <em>ICRA</em>, 2009.</li><li>S. Thrun, W. Burgard, D. Fox, <em>Probabilistic Robotics</em>, MIT Press, 2005 — 9장(점유격자), 17장(탐사).</li><li>원본 교재: <em>12. Mapping Lesson</em> — Lesson 4 slam_toolbox Mapping Algorithm, <em>18. Group Control</em> — 01 Configuration for Master-Slave Device and Environment Variable, 02 Group Control Startup</li><li>원본 소스: <code>src/slam/launch/slam.launch.py</code>, <code>src/slam/launch/include/slam_base.launch.py</code>, <code>src/slam/launch/include/robot.launch.py</code>, <code>src/slam/config/slam.yaml</code>, <code>src/multi/launch/multi_controller.launch.py</code>, <code>src/multi/launch/joy_control.launch.py</code>, <code>src/navigation/launch/include/navigation_base.launch.py</code></li><li>slam_toolbox: https://github.com/SteveMacenski/slam_toolbox</li><li>m-explore-ros2 (explore_lite, multirobot_map_merge): https://github.com/robo-friends/m-explore-ros2</li><li>ROS 2 Humble — ROS_DOMAIN_ID: https://docs.ros.org/en/humble/Concepts/Intermediate/About-Domain-ID.html</li><li>nav_msgs/OccupancyGrid: https://docs.ros2.org/latest/api/nav_msgs/msg/OccupancyGrid.html</li></ul>
+      <nav class="pager"><a class="pager-prev" href="p04.html"><span>이전 · P04</span>사람 추종 카트 (비전+라이다 융합)</a><a class="pager-next" href="p06.html"><span>다음 · P06</span>스캔 매칭 오도메트리와 EKF 센서 융합 직접 구현</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#프로젝트-개요와-요구사항">프로젝트 개요와 요구사항</a><a class="toc-l3" href="#팀-구성-4명-로봇-2대-기준">팀 구성 (4명, 로봇 2대 기준)</a><a class="toc-l3" href="#기능-요구사항">기능 요구사항</a><a class="toc-l3" href="#비기능-요구사항과-안전-한계">비기능 요구사항과 안전 한계</a><a class="toc-l2" href="#이론">이론</a><a class="toc-l3" href="#점유격자와-세-가지-칸">점유격자와 세 가지 칸</a><a class="toc-l3" href="#프런티어-검출">프런티어 검출</a><a class="toc-l3" href="#정보-이득과-경로-비용">정보 이득과 경로 비용</a><a class="toc-l3" href="#재계획과-종료">재계획과 종료</a><a class="toc-l3" href="#다중-로봇-작업-할당">다중 로봇 작업 할당</a><a class="toc-l3" href="#지도-병합">지도 병합</a><a class="toc-l3" href="#네임스페이스와-rosdomainid">네임스페이스와 ROS_DOMAIN_ID</a><a class="toc-l2" href="#시스템-설계">시스템 설계</a><a class="toc-l2" href="#단계별-구현">단계별 구현</a><a class="toc-l3" href="#m1-프런티어와-효용-playground">M1. 프런티어와 효용 (Playground)</a><a class="toc-l3" href="#m2-단일-로봇-자율-탐사">M2. 단일 로봇 자율 탐사</a><a class="toc-l3" href="#m3-네임스페이스와-도메인">M3. 네임스페이스와 도메인</a><a class="toc-l3" href="#m4-할당과-병합">M4. 할당과 병합</a><a class="toc-l3" href="#m5-비교-실험">M5. 비교 실험</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l3" href="#실습-1-프런티어-검출-군집-효용">실습 1. 프런티어 검출·군집·효용</a><a class="toc-l3" href="#실습-2-자율-탐사-루프">실습 2. 자율 탐사 루프</a><a class="toc-l3" href="#실습-3-세-로봇-여섯-프런티어-탐욕-vs-헝가리안">실습 3. 세 로봇, 여섯 프런티어 — 탐욕 vs 헝가리안</a><a class="toc-l3" href="#실습-4-지도-병합-초기-자세를-알-때와-모를-때">실습 4. 지도 병합 — 초기 자세를 알 때와 모를 때</a><a class="toc-l3" href="#2d-3d-시뮬레이터로-확인">2D·3D 시뮬레이터로 확인</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l3" href="#1-단일-로봇-slam-프런티어-탐사">1) 단일 로봇: SLAM + 프런티어 탐사</a><a class="toc-l3" href="#2-두-로봇-네임스페이스-도메인-설정">2) 두 로봇: 네임스페이스·도메인 설정</a><a class="toc-l3" href="#3-할당-노드와-함께-실행">3) 할당 노드와 함께 실행</a><a class="toc-l3" href="#4-선택-기성-패키지와-비교">4) (선택) 기성 패키지와 비교</a><a class="toc-l2" href="#실험과-평가">실험과 평가</a><a class="toc-l2" href="#평가-기준">평가 기준</a><a class="toc-l2" href="#확장-과제">확장 과제</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js?v=75126cd8"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=75126cd8"></script>
+</body>
+</html>

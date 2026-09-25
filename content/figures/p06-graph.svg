@@ -1,0 +1,69 @@
+<svg viewBox="0 0 720 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="스캔 매칭 오도메트리와 EKF 융합의 ROS 2 그래프: 라이다 스캔은 원본 rf2o와 팀의 icp_odometry로, 휠 오도메트리와 IMU는 원본 ekf_filter_node와 팀의 my_ekf로 들어가고, 모든 출력은 rosbag으로 기록해 ATE와 RPE로 비교한다">
+  <defs>
+    <marker id="arr-p06-graph" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-p06-graph-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <text class="tag" x="80" y="18" text-anchor="middle">센서 (원본 launch)</text>
+  <text class="tag" x="380" y="18" text-anchor="middle">원본 경로 (위) · 팀 구현 (아래)</text>
+  <text class="tag" x="650" y="18" text-anchor="middle">출력·평가</text>
+
+  <!-- sources -->
+  <rect class="box" x="10" y="36" width="140" height="50" rx="6"/>
+  <text class="lbl" x="80" y="57" text-anchor="middle">LD19 라이다</text>
+  <text class="sub mono" x="80" y="75" text-anchor="middle">/scan_raw 10 Hz</text>
+  <rect class="box" x="10" y="136" width="140" height="50" rx="6"/>
+  <text class="lbl mono" x="80" y="157" text-anchor="middle">odom_publisher</text>
+  <text class="sub mono" x="80" y="175" text-anchor="middle">/odom_raw (속도)</text>
+  <rect class="box" x="10" y="236" width="140" height="50" rx="6"/>
+  <text class="lbl mono" x="80" y="257" text-anchor="middle">imu_filter</text>
+  <text class="sub mono" x="80" y="275" text-anchor="middle">/imu (yaw, ω)</text>
+
+  <!-- original path -->
+  <rect class="box" x="200" y="36" width="150" height="50" rx="6"/>
+  <text class="lbl mono" x="275" y="57" text-anchor="middle">rf2o_laser_odometry</text>
+  <text class="sub mono" x="275" y="75" text-anchor="middle">/odom_rf2o</text>
+  <rect class="box" x="410" y="36" width="160" height="60" rx="6"/>
+  <text class="lbl mono" x="490" y="58" text-anchor="middle">ekf_filter_node</text>
+  <text class="sub" x="490" y="76" text-anchor="middle">robot_localization</text>
+  <text class="sub mono" x="490" y="90" text-anchor="middle">config/ekf.yaml</text>
+
+  <!-- team path -->
+  <rect class="box-hi" x="200" y="196" width="150" height="54" rx="6"/>
+  <text class="lbl mono" x="275" y="218" text-anchor="middle">icp_odometry</text>
+  <text class="sub" x="275" y="236" text-anchor="middle">점-선 ICP + 공분산</text>
+  <rect class="box-hi" x="410" y="196" width="160" height="54" rx="6"/>
+  <text class="lbl mono" x="490" y="218" text-anchor="middle">my_ekf</text>
+  <text class="sub" x="490" y="236" text-anchor="middle">[x, y, θ, v, ω] 직접 구현</text>
+
+  <!-- outputs -->
+  <rect class="box" x="600" y="40" width="110" height="50" rx="6"/>
+  <text class="lbl mono" x="655" y="61" text-anchor="middle">/odom</text>
+  <text class="sub" x="655" y="79" text-anchor="middle">+ TF odom→base</text>
+  <rect class="box-hi" x="600" y="198" width="110" height="50" rx="6"/>
+  <text class="lbl mono" x="655" y="219" text-anchor="middle">/odom_fused</text>
+  <text class="sub" x="655" y="237" text-anchor="middle">TF 발행 안 함</text>
+  <rect class="box" x="600" y="116" width="110" height="56" rx="6"/>
+  <text class="lbl mono" x="655" y="138" text-anchor="middle">ros2 bag</text>
+  <text class="sub" x="655" y="156" text-anchor="middle">ATE · RPE 비교</text>
+
+  <!-- edges: lidar -->
+  <path class="ln" d="M150 61 L198 61" marker-end="url(#arr-p06-graph)"/>
+  <path class="ln-hi" d="M150 76 L198 206" marker-end="url(#arr-p06-graph-hi)"/>
+  <!-- rf2o -> ekf ; icp -> my_ekf -->
+  <path class="ln" d="M350 61 L408 61" marker-end="url(#arr-p06-graph)"/>
+  <text class="tag" x="379" y="54" text-anchor="middle">odom1</text>
+  <path class="ln-hi" d="M350 223 L408 223" marker-end="url(#arr-p06-graph-hi)"/>
+  <text class="tag mono" x="379" y="216" text-anchor="middle">odom_icp</text>
+  <!-- odom_raw, imu to both EKFs -->
+  <path class="ln" d="M150 156 L392 156 L408 84" marker-end="url(#arr-p06-graph)"/>
+  <text class="tag" x="300" y="150" text-anchor="middle">odom0 · imu0</text>
+  <path class="ln" d="M150 266 L392 266 L408 92" marker-end="url(#arr-p06-graph)" style="stroke-dasharray:4 3"/>
+  <path class="ln-hi" d="M150 170 L180 170 L180 290 L490 290 L490 252" marker-end="url(#arr-p06-graph-hi)"/>
+  <path class="ln-hi" d="M150 276 L170 276 L170 298 L500 298 L500 252" marker-end="url(#arr-p06-graph-hi)"/>
+  <text class="tag" x="330" y="314" text-anchor="middle">예측: /odom_raw 속도 · 갱신: /imu ω, /odom_icp (v, ω)</text>
+  <!-- ekf outputs -->
+  <path class="ln" d="M570 66 L598 66" marker-end="url(#arr-p06-graph)"/>
+  <path class="ln-hi" d="M570 223 L598 223" marker-end="url(#arr-p06-graph-hi)"/>
+  <path class="ln" d="M655 90 L655 114" marker-end="url(#arr-p06-graph)"/>
+  <path class="ln" d="M655 198 L655 174" marker-end="url(#arr-p06-graph)"/>
+</svg>

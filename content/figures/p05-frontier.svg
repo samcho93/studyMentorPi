@@ -1,0 +1,156 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="프런티어 탐사 알고리즘: 점유격자에서 빈칸이면서 미탐색 칸과 맞닿은 프런티어 칸을 찾고, BFS로 군집을 묶어 중심 목표를 정한 뒤 이득에서 경로 비용을 뺀 효용이 가장 큰 목표로 간다">
+  <text class="tag" x="160" y="26" text-anchor="middle">점유격자와 프런티어 군집 (예)</text>
+  <rect x="20" y="40" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="40" y="40" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="60" y="40" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="80" y="40" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="100" y="40" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="120" y="40" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="140" y="40" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="160" y="40" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="180" y="40" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="200" y="40" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="220" y="40" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="240" y="40" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="260" y="40" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="280" y="40" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="20" y="60" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="40" y="60" width="20" height="20" style="fill:var(--accent);stroke:var(--bg);stroke-width:1"/>
+  <rect x="60" y="60" width="20" height="20" style="fill:var(--accent);stroke:var(--bg);stroke-width:1"/>
+  <rect x="80" y="60" width="20" height="20" style="fill:var(--accent);stroke:var(--bg);stroke-width:1"/>
+  <rect x="100" y="60" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="120" y="60" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="140" y="60" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="160" y="60" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="180" y="60" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="200" y="60" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="220" y="60" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="240" y="60" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="260" y="60" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="280" y="60" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="20" y="80" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="40" y="80" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="60" y="80" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="80" y="80" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="100" y="80" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="120" y="80" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="140" y="80" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="160" y="80" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="180" y="80" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="200" y="80" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="220" y="80" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="240" y="80" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="260" y="80" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="280" y="80" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="20" y="100" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="40" y="100" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="60" y="100" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="80" y="100" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="100" y="100" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="120" y="100" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="140" y="100" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="160" y="100" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="180" y="100" width="20" height="20" style="fill:var(--warn);stroke:var(--bg);stroke-width:1"/>
+  <rect x="200" y="100" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="220" y="100" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="240" y="100" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="260" y="100" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="280" y="100" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="20" y="120" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="40" y="120" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="60" y="120" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="80" y="120" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="100" y="120" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="120" y="120" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="140" y="120" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="160" y="120" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="180" y="120" width="20" height="20" style="fill:var(--warn);stroke:var(--bg);stroke-width:1"/>
+  <rect x="200" y="120" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="220" y="120" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="240" y="120" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="260" y="120" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="280" y="120" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="20" y="140" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="40" y="140" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="60" y="140" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="80" y="140" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="100" y="140" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="120" y="140" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="140" y="140" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="160" y="140" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="180" y="140" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="200" y="140" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="220" y="140" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="240" y="140" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="260" y="140" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="280" y="140" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="20" y="160" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="40" y="160" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="60" y="160" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="80" y="160" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="100" y="160" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="120" y="160" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="140" y="160" width="20" height="20" style="fill:var(--accent);stroke:var(--bg);stroke-width:1"/>
+  <rect x="160" y="160" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="180" y="160" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="200" y="160" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="220" y="160" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="240" y="160" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="260" y="160" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="280" y="160" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="20" y="180" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="40" y="180" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="60" y="180" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="80" y="180" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="100" y="180" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="120" y="180" width="20" height="20" style="fill:var(--bg-elev-2);stroke:var(--bg);stroke-width:1"/>
+  <rect x="140" y="180" width="20" height="20" style="fill:var(--accent);stroke:var(--bg);stroke-width:1"/>
+  <rect x="160" y="180" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="180" y="180" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="200" y="180" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="220" y="180" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="240" y="180" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="260" y="180" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="280" y="180" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="20" y="200" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="40" y="200" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="60" y="200" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="80" y="200" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="100" y="200" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="120" y="200" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="140" y="200" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="160" y="200" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="180" y="200" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="200" y="200" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="220" y="200" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <rect x="240" y="200" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="260" y="200" width="20" height="20" style="fill:var(--border);stroke:var(--bg);stroke-width:1"/>
+  <rect x="280" y="200" width="20" height="20" style="fill:var(--text-dim);stroke:var(--bg);stroke-width:1"/>
+  <circle cx="70" cy="70" r="7" style="fill:none;stroke:var(--text);stroke-width:2"/>
+  <text class="lbl" x="81" y="75">F0</text>
+  <circle cx="190" cy="110" r="7" style="fill:none;stroke:var(--text);stroke-width:2"/>
+  <text class="lbl" x="201" y="115">F1</text>
+  <circle cx="150" cy="170" r="7" style="fill:none;stroke:var(--text);stroke-width:2"/>
+  <text class="lbl" x="161" y="175">F2</text>
+  <circle cx="70" cy="170" r="7" class="hi"/>
+  <rect x="20" y="232" width="12" height="12" style="fill:var(--bg-elev-2);stroke:var(--border)"/>
+  <text class="tag" x="36" y="242">빈칸</text>
+  <rect x="76" y="232" width="12" height="12" style="fill:var(--border)"/>
+  <text class="tag" x="92" y="242">미탐색</text>
+  <rect x="145" y="232" width="12" height="12" style="fill:var(--text-dim)"/>
+  <text class="tag" x="161" y="242">점유</text>
+  <rect x="201" y="232" width="12" height="12" style="fill:var(--accent)"/>
+  <text class="tag" x="217" y="242">프런티어</text>
+  <circle cx="25" cy="258" r="5" class="hi"/><text class="tag" x="34" y="262">로봇</text>
+  <circle cx="85" cy="258" r="5" style="fill:none;stroke:var(--text);stroke-width:2"/><text class="tag" x="95" y="262">군집 목표 (중심에 가장 가까운 칸)</text>
+  <text class="tag" x="330" y="26">탐사 루프</text>
+  <text class="lbl" x="330" y="58">① 점유격자 → 빈칸 · 점유 · 미탐색으로 3분류</text>
+  <text class="lbl" x="330" y="88">② 프런티어 칸 = 빈칸 ∧ 4-이웃에 미탐색</text>
+  <text class="lbl" x="330" y="118">③ BFS 연결 성분(8-연결)으로 군집, 작은 군집 버림</text>
+  <text class="lbl" x="330" y="148">④ 목표 g = 군집 중심에 가장 가까운 구성원</text>
+  <text class="lbl" x="330" y="178">⑤ 이득 G = g 주변 미탐색 면적, 비용 C = BFS 경로 길이</text>
+  <text class="lbl" x="330" y="208">⑥ 효용 U = G − λ·C 최대 목표로 이동</text>
+  <text class="lbl" x="330" y="238">⑦ 1 s마다 재계획, 도달 가능한 군집이 없으면 종료</text>
+  <path d="M322 238 L322 252 L700 252 L700 36 L690 36" class="ln" style="stroke-dasharray:4 3"/>
+  <text class="sub" x="510" y="272" text-anchor="middle">지도가 바뀌면 프런티어도 바뀐다 → 목표를 고정하지 말고 계속 다시 고른다</text>
+</svg>

@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P06. 스캔 매칭 오도메트리와 EKF 센서 융합 직접 구현 · studyMentorPi</title>
+<meta name="description" content="ICP로 라이다 스캔 매칭 오도메트리를 만들고, 휠 오도메트리·IMU·ICP를 EKF로 융합해 드리프트를 줄입니다. robot_localization과 결과를 비교·튜닝합니다.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css?v=75126cd8">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=75126cd8">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=75126cd8">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js?v=75126cd8"></script>
+</head>
+<body class="lesson-page track-page-project">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim3d/index.html">3D 시뮬레이터</a><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a><a class="side-tool" href="../tools/urdf-viewer.html">URDF 뷰어</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="project">
+<div class="nav-track-title track-project">프로젝트 (중급·고급)</div>
+<div class="nav-part"><span class="nav-part-no">P-1</span>자율 이동 서비스 로봇</div>
+<ul>
+<li><a href="../lessons/p01.html" data-slug="p01"><span class="nav-no">P01</span>자율 순찰 경비 로봇</a></li>
+<li><a href="../lessons/p02.html" data-slug="p02"><span class="nav-no">P02</span>QR 지시형 실내 배송 로봇</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">P-2</span>지능형 주행</div>
+<ul>
+<li><a href="../lessons/p03.html" data-slug="p03"><span class="nav-no">P03</span>미니 시티 자율주행 챌린지</a></li>
+<li><a href="../lessons/p04.html" data-slug="p04"><span class="nav-no">P04</span>사람 추종 카트 (비전+라이다 융합)</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">P-3</span>고급: 자율성 알고리즘 직접 구현</div>
+<ul>
+<li><a href="../lessons/p05.html" data-slug="p05"><span class="nav-no">P05</span>프런티어 자율 탐사와 다중 로봇 작업 할당</a></li>
+<li><a href="../lessons/p06.html" class="active" data-slug="p06"><span class="nav-no">P06</span>스캔 매칭 오도메트리와 EKF 센서 융합 직접 구현</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">P-4</span>고급: 학습·의미 기반 지능</div>
+<ul>
+<li><a href="../lessons/p07.html" data-slug="p07"><span class="nav-no">P07</span>강화학습으로 배우는 라이다 주행 정책</a></li>
+<li><a href="../lessons/p08.html" data-slug="p08"><span class="nav-no">P08</span>시맨틱 지도와 자연어 명령 내비게이션</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="p06" data-track="project">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-project">프로젝트 (중급·고급)</span> P-3 고급: 자율성 알고리즘 직접 구현 &middot; 약 300분 &middot; 고급</div>
+    <h1><span class="lesson-no">P06</span>스캔 매칭 오도메트리와 EKF 센서 융합 직접 구현</h1>
+    <p class="lede">ICP로 라이다 스캔 매칭 오도메트리를 만들고, 휠 오도메트리·IMU·ICP를 EKF로 융합해 드리프트를 줄입니다. robot_localization과 결과를 비교·튜닝합니다.</p>
+    <div class="requires">선수 챕터: <a href="m03.html">M03</a> <a href="m05.html">M05</a> <a href="m09.html">M09</a> <a href="m11.html">M11</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      <a class="ghost-btn" href="../sim3d/index.html">3D 시뮬레이터</a><a class="ghost-btn" href="../sim/index.html">2D 시뮬레이터</a><a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>점-점 ICP(Iterative Closest Point)의 목적함수에서 SVD(Kabsch) 닫힌 해를 유도하고, 최근접 이웃·이상치 제거·수렴 판정을 갖춘 ICP를 NumPy로 구현합니다.</li><li>점-선(point-to-line) ICP를 가우스-뉴턴으로 풀고, 정보 행렬 <span class="math">H = JᵀJ</span>로 공분산과 <strong>퇴화</strong>(긴 복도)를 판정합니다.</li><li>연속 스캔 매칭을 합성해 <strong>스캔 매칭 오도메트리</strong>를 만들고, 휠 오도메트리·정답과 ATE/RPE로 비교합니다.</li><li>상태 <span class="math">[x, y, θ, v, ω]</span>의 EKF를 직접 구현해 휠 속도·IMU 각속도·ICP 속도를 다중 주기로 융합하고, NEES/NIS로 공분산 튜닝의 일관성을 검사합니다.</li><li>MentorPi의 <code>robot_localization</code> 설정(<code>controller/config/ekf.yaml</code>)과 rf2o 레이저 오도메트리를 읽고, 직접 만든 융합기와 실물에서 비교합니다.</li></ul>
+<h2 id="프로젝트-개요와-요구사항">프로젝트 개요와 요구사항<a class="anchor" href="#프로젝트-개요와-요구사항">#</a></h2>
+<p>M03에서 보았듯 MentorPi의 <code>/odom</code>은 휠 속도와 IMU를 <code>robot_localization</code>이 융합한 값입니다. 휠은 미끄러지면 모르고, 로봇이 벽에 막혀도 명령 속도를 적분하므로 거리가 계속 늘어납니다. 라이다는 <strong>주변이 어떻게 움직였는지</strong>를 직접 보므로 이런 오차를 잡을 수 있습니다. 원본에도 이 아이디어가 들어 있습니다: <code>ekf.yaml</code>의 <code>odom1: odom_rf2o</code>와 <code>controller/launch/rf2o_laser_odometry.launch.py</code>. 다만 기본 <code>controller.launch.py</code>는 rf2o를 켜지 않습니다.</p>
+<p>이 프로젝트에서는 그 부품들을 <strong>직접 만듭니다</strong>: 스캔 두 장의 상대 이동을 구하는 ICP, 그것을 이어 붙인 스캔 오도메트리, 여러 센서를 확률적으로 합치는 EKF. 그리고 원본의 <code>robot_localization</code> + rf2o와 같은 조건에서 비교해, 무엇이 왜 더 좋거나 나쁜지 수치로 설명합니다.</p>
+<h3 id="팀-구성-4명">팀 구성 (4명)<a class="anchor" href="#팀-구성-4명">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>역할</th><th>담당</th><th>산출물</th></tr></thead><tbody><tr><td>스캔 매칭</td><td>ICP(점-점·점-선), 이상치·수렴, 퇴화 검사</td><td><code>icp_odometry.py</code>, ICP 단위 시험</td></tr><tr><td>필터</td><td>EKF 모델·야코비안, 다중 주기 갱신, 게이팅</td><td><code>my_ekf.py</code></td></tr><tr><td>튜닝·평가</td><td>Q·R 측정, NEES/NIS, ATE/RPE 스크립트</td><td><code>odom_eval.py</code>, 튜닝 표</td></tr><tr><td>실험·안전</td><td>주행 시나리오·기준 표시, rosbag, 발표</td><td>실험 기록, 보고서</td></tr></tbody></table></div>
+<h3 id="기능-요구사항">기능 요구사항<a class="anchor" href="#기능-요구사항">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>ID</th><th>요구사항</th><th>확인 방법</th></tr></thead><tbody><tr><td>F1</td><td>연속 스캔 2장으로 상대 이동 <span class="math">(Δx, Δy, Δθ)</span>를 구하고 정보 행렬 <span class="math">H</span>를 함께 낸다</td><td>단위 시험 (시뮬 정답과 비교)</td></tr><tr><td>F2</td><td>스캔 오도메트리를 <code>/odom_icp</code>(<code>nav_msgs/Odometry</code>, twist + 공분산)로 10 Hz 발행한다</td><td><code>ros2 topic hz /odom_icp</code></td></tr><tr><td>F3</td><td>퇴화(조건수 &gt; 100)를 감지해 경고하고 그 방향 공분산을 키운다</td><td>복도 시험 로그</td></tr><tr><td>F4</td><td>EKF가 <code>/odom_raw</code> v, <code>/imu</code> ω, <code>/odom_icp</code> (v, ω)를 융합해 <code>/odom_fused</code>를 50 Hz 발행한다</td><td><code>ros2 topic hz</code></td></tr><tr><td>F5</td><td>마할라노비스 게이트(χ², 99.9 %)로 ICP 이상 측정을 버린다</td><td>로봇을 들어 올렸다 놓기 시험</td></tr><tr><td>F6</td><td>모든 오도메트리를 slam_toolbox 자세와 비교해 ATE/RPE를 출력한다</td><td><code>odom_eval.py</code> 결과</td></tr></tbody></table></div>
+<h3 id="비기능-요구사항과-안전-한계">비기능 요구사항과 안전 한계<a class="anchor" href="#비기능-요구사항과-안전-한계">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>ID</th><th>항목</th><th>목표값</th><th>근거</th></tr></thead><tbody><tr><td>N1</td><td>ICP 처리 시간</td><td>스캔당 ≤ 30 ms (파이 5, 약 225점)</td><td>10 Hz 라이다의 1/3 이내</td></tr><tr><td>N2</td><td>정확도</td><td>방 한 바퀴(약 8 m) ATE: <code>/odom_fused</code> ≤ <code>/odom</code>의 70 %</td><td>융합의 의미</td></tr><tr><td>N3</td><td>일관성</td><td>시뮬레이션 평균 NEES가 1~6 (3자유도 기댓값 3)</td><td>과신·과소신 방지</td></tr><tr><td>S1</td><td>주행 속도</td><td>텔레옵 ≤ 0.2 m/s, 0.5 rad/s (원본 앱 제한)</td><td>급가속은 바퀴 미끄럼·스캔 왜곡</td></tr><tr><td>S2</td><td>TF 충돌 금지</td><td>팀 노드는 <strong>TF를 발행하지 않는다</strong></td><td><code>ekf_filter_node</code>가 이미 <code>odom → base_footprint</code>를 냄</td></tr><tr><td>S3</td><td>로봇 들어 올리기 시험</td><td>모터 정지 상태에서만</td><td>바퀴 공회전 위험</td></tr></tbody></table></div>
+<div class="callout callout-info"><div class="callout-title">수업 시간 배분 (5교시 이상)</div><div class="callout-body"><p>1교시: 이론(ICP 유도·점-선·퇴화) + 실습 1·2 / 2교시: 이론(EKF·NEES) + 실습 3·4 / 3교시: M3 실물 ICP 노드 / 4교시: M4 EKF 노드·튜닝 / 5교시: M5 비교 실험·발표.</p></div></div>
+<h2 id="이론">이론<a class="anchor" href="#이론">#</a></h2>
+<h3 id="스캔-매칭과-se2">스캔 매칭과 SE(2)<a class="anchor" href="#스캔-매칭과-se2">#</a></h3>
+<p>2D 자세 <span class="math">T = (x, y, θ)</span>는 점 <span class="math">p</span>를 <span class="math">T(p) = R(θ)·p + t</span>로 옮깁니다(<span class="math">R(θ)</span>는 2 × 2 회전 행렬, <span class="math">t = [x, y]ᵀ</span>). 두 자세의 <strong>합성</strong> <span class="math">T_1 ⊕ T_2</span>는 "T₁ 좌표계에서 본 T₂"를 바깥 좌표로 옮기는 것입니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">(x1, y1, θ1) ⊕ (x2, y2, θ2) = (x1 + cosθ1·x2 − sinθ1·y2,  y1 + sinθ1·x2 + cosθ1·y2,  θ1 + θ2)</code></pre></div>
+<p>스캔 매칭은 이전 스캔 <span class="math">Q</span> 좌표계에서 본 현재 스캔 <span class="math">P</span>의 자세 <span class="math">Δ_k</span>를 찾는 문제이고, 스캔 오도메트리는 <span class="math">T_k = T_{k−1} ⊕ Δ_k</span>로 이어 붙입니다. 매 스캔의 작은 오차가 합성되며 쌓이므로 <strong>드리프트</strong>는 피할 수 없습니다. 이를 끊으려면 지도와 맞추거나(scan-to-map, slam_toolbox) 루프를 닫아야 합니다(M09).</p>
+<h3 id="점-점-icp와-svd-닫힌-해">점-점 ICP와 SVD 닫힌 해<a class="anchor" href="#점-점-icp와-svd-닫힌-해">#</a></h3>
+<p>Besl &amp; McKay(1992)의 ICP는 "대응을 모르는 정합"을 두 단계 반복으로 풉니다: ① 현재 추정으로 <span class="math">P</span>를 옮겨 각 점의 <strong>최근접 이웃</strong> <span class="math">q_{j(i)}</span>를 대응으로 삼고, ② 대응이 고정됐다고 보고 최소제곱 변환을 구합니다.</p>
+<p>② 단계의 목적함수는 <span class="math">E(R, t) = Σ_i ‖R·p_i + t − q_i‖²</span>입니다. <span class="math">t</span>로 미분해 0으로 두면 <span class="math">t = q̄ − R·p̄</span> (두 무게중심 <span class="math">p̄, q̄</span>)가 나오고, 중심을 뺀 <span class="math">p′_i = p_i − p̄</span>, <span class="math">q′_i = q_i − q̄</span>로 다시 쓰면</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">E(R) = Σ ‖R p′_i − q′_i‖² = Σ (‖p′_i‖² + ‖q′_i‖²) − 2 · trace(R · W),   W = Σ p′_i q′_iᵀ  (2×2 교차공분산)</code></pre></div>
+<p>이므로 <span class="math">trace(R·W)</span>를 최대화하면 됩니다. <span class="math">W = U Σ Vᵀ</span> (SVD)라 하면 <span class="math">trace(R U Σ Vᵀ) = trace(Vᵀ R U · Σ)</span>이고, 직교행렬 <span class="math">Vᵀ R U</span>의 대각 원소는 1 이하이므로 <span class="math">Vᵀ R U = I</span>일 때 최대, 즉 <strong><span class="math">R = V Uᵀ</span></strong>입니다. <span class="math">det(R) = −1</span>(반사)이 나오면 <span class="math">V</span>의 마지막 열 부호를 바꿉니다(Kabsch 1976, Arun 1987). 2D에서는 <span class="math">θ = atan2(W_{01} − W_{10}, W_{00} + W_{11})</span>로도 같습니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">T ← T0
+repeat (최대 N회):
+    P&#x27; ← T(P)
+    j(i) ← argmin_j ‖P&#x27;_i − Q_j‖                        # 최근접 이웃
+    keep ← d_i &lt; max(τ, 3·median(d))                    # 이상치 제거
+    (R, t) ← Kabsch(P&#x27;[keep], Q[j[keep]])               # 증분 변환
+    T ← (R, t) ∘ T
+until ‖t‖ &lt; ε_t and |∠R| &lt; ε_θ</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>요소</th><th>선택</th><th>이유</th></tr></thead><tbody><tr><td>최근접 이웃</td><td>전수 <span class="math">O(NM)</span> / k-d 트리 <span class="math">O(N log M)</span></td><td>라이다 360점은 전수도 수 ms. 3D 점군은 트리 필수</td></tr><tr><td>이상치</td><td>거리 게이트 τ, 중앙값 배수, Trimmed ICP(가까운 80 %만)</td><td>새로 보인 벽·움직이는 사람·가려짐</td></tr><tr><td>초기값</td><td>직전 이동(등속), 또는 휠 오도메트리</td><td>ICP는 <strong>국소 최적화</strong> — 멀리서 시작하면 틀린 극소</td></tr><tr><td>수렴</td><td>증분 &lt; ε, 최대 반복</td><td>잔차 감소가 멈추면 끝</td></tr></tbody></table></div>
+<h3 id="점-선-icp와-가우스-뉴턴">점-선 ICP와 가우스-뉴턴<a class="anchor" href="#점-선-icp와-가우스-뉴턴">#</a></h3>
+<p>라이다는 벽의 <strong>같은 점</strong>을 두 번 재지 않습니다. 1° 간격 빔이 로봇이 움직이면 벽의 다른 곳에 떨어지므로, 점-점 대응은 "빔끼리"의 거짓 대응이 되고 ICP는 제자리에 붙잡힙니다(<strong>표본화 편향</strong>, 실습 2에서 확인). 점-선 ICP(Chen &amp; Medioni 1991, Censi 2008 PL-ICP)는 대응점 <span class="math">q_i</span>에서의 벽 법선 <span class="math">n_i</span> 방향 거리만 벌합니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">r_i(ξ) = n_iᵀ (R(θ) p_i + t − q_i),    ξ = (x, y, θ)
+J_i   = ∂r_i/∂ξ = [ n_x,  n_y,  n_iᵀ S (p′_i − t) ],    S = [[0, −1], [1, 0]]  (90° 회전)
+(Σ J_iᵀ J_i) Δξ = −Σ J_iᵀ r_i          # 가우스-뉴턴 정규방정식,  H = Σ J_iᵀ J_i</code></pre></div>
+<p>법선은 스캔 순서의 이웃 두 점 차 <span class="math">q_{i+1} − q_{i−1}</span>에 수직인 단위벡터로 구하고, 이웃이 멀면(모서리·끊김) 그 점을 버립니다. 점-선은 벽을 따라 미끄러지는 방향을 벌하지 않으므로 표본화 편향이 없고 보통 3~6회에 수렴합니다.</p>
+<p><strong>공분산.</strong> 잔차가 독립 잡음 <span class="math">σ</span>를 가진다고 보면 추정 공분산은 <span class="math">Σ_ξ ≈ σ²·H⁻¹</span>입니다(Censi 2007은 대응 변화까지 고려한 더 정확한 식을 줍니다). 이 값을 EKF의 측정 공분산으로 넘깁니다.</p>
+<h3 id="퇴화-긴-복도-문제">퇴화: 긴 복도 문제<a class="anchor" href="#퇴화-긴-복도-문제">#</a></h3>
+<p><span class="math">H</span>의 병진 부분 <span class="math">H_{xy} = Σ n_i n_iᵀ</span>의 고윳값 <span class="math">λ_{min} ≤ λ_{max}</span>를 봅시다. 좌우 벽만 보이는 복도에서는 모든 법선이 ±y 방향이라 <span class="math">H_{xy} ≈ diag(0, N)</span> — <strong>x(복도 방향) 이동은 잔차를 바꾸지 않으므로 관측 불가능</strong>합니다. ICP는 그 방향으로 아무 값이나(보통 초기값 근처) 돌려줍니다.</p>
+<div class="table-wrap"><table><thead><tr><th>판정</th><th>식</th><th>쓰임</th></tr></thead><tbody><tr><td>조건수</td><td><span class="math">κ = λ_{max} / λ_{min}</span></td><td>κ &gt; 100이면 퇴화로 간주 (실습 4: 정상 8, 복도 44 이상)</td></tr><tr><td>퇴화 인자 (Zhang 2016)</td><td><span class="math">λ_{min}</span> 자체가 임계값 이하</td><td>점 수·잡음에 맞춰 임계값 조정</td></tr><tr><td>약한 방향</td><td><span class="math">λ_{min}</span>의 고유벡터</td><td>그 방향만 다른 센서(휠)에 맡김</td></tr></tbody></table></div>
+<p>대책은 ① 약한 방향 공분산을 크게 해서 EKF가 휠을 믿게 하기(<code>icp_odometry.py</code>), ② ICP 안에 휠 오도메트리 사전값 항 <span class="math">+λ_p‖e_{weak}ᵀ(ξ − ξ_{odom})‖²</span>를 넣기(실습 4), ③ 약한 방향 성분을 갱신에서 빼기(solution remapping)입니다.</p>
+<h3 id="확장-칼만-필터-ekf">확장 칼만 필터 (EKF)<a class="anchor" href="#확장-칼만-필터-ekf">#</a></h3>
+<p>상태 <span class="math">x = [x, y, θ, v, ω]ᵀ</span>(전진 속도 v, 각속도 ω)와 공분산 <span class="math">P</span>를 유지합니다. 등속 운동 모델과 야코비안은</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">f(x):  x&#x27; = x + v·cosθ·Δt,   y&#x27; = y + v·sinθ·Δt,   θ&#x27; = θ + ω·Δt,   v&#x27; = v,   ω&#x27; = ω
+F = ∂f/∂x = [[1, 0, −v·sinθ·Δt, cosθ·Δt, 0 ],
+             [0, 1,  v·cosθ·Δt, sinθ·Δt, 0 ],
+             [0, 0,  1,         0,       Δt],
+             [0, 0,  0,         1,       0 ],
+             [0, 0,  0,         0,       1 ]]
+예측:  x ← f(x),   P ← F P Fᵀ + Q·Δt
+갱신:  S = H P Hᵀ + R,   K = P Hᵀ S⁻¹,   x ← x + K (z − H x),   P ← (I − K H) P (I − K H)ᵀ + K R Kᵀ</code></pre></div>
+<p>측정은 모두 상태의 일부를 직접 봅니다(<span class="math">H</span>는 단위행렬의 행 선택).</p>
+<div class="table-wrap"><table><thead><tr><th>센서</th><th>주기</th><th>측정 z</th><th>H가 고르는 상태</th><th>R</th></tr></thead><tbody><tr><td>휠 <code>/odom_raw</code></td><td>50 Hz</td><td>v</td><td>4번째 (v)</td><td><span class="math">σ_v²</span>, 미끄럼 편향까지 고려해 넉넉히 (0.05 m/s)²</td></tr><tr><td>IMU <code>/imu</code></td><td>50 Hz</td><td>ω (자이로)</td><td>5번째 (ω)</td><td>정지 시 자이로 분산 측정 (0.01 rad/s)²</td></tr><tr><td>ICP <code>/odom_icp</code></td><td>10 Hz</td><td>(Δx/Δt, Δθ/Δt)</td><td>v, ω</td><td><span class="math">σ²H⁻¹/Δt²</span> + 바닥값</td></tr></tbody></table></div>
+<p>ICP 결과를 <strong>위치</strong>가 아니라 <strong>속도</strong>로 넣는 것은 robot_localization의 <code>differential</code> 모드와 같은 생각입니다. 두 위치 추정(ICP 누적, EKF)은 서로 다른 드리프트를 가지므로 위치끼리 섞으면 필터가 두 값 사이를 오가지만, 상대 이동은 독립 측정으로 다룰 수 있습니다. 센서마다 도착 시각이 다르므로 <strong>측정이 올 때마다 그 시각까지 예측한 뒤 갱신</strong>합니다(비동기 다중 주기).</p>
+<figure class="fig" id="fig-p06-ekf"><svg viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="다중 주기 EKF 타임라인: 50 Hz로 예측과 휠 속도 갱신, 50 Hz IMU 각속도 갱신, 10 Hz ICP 갱신이 들어오며 위치 불확실성이 예측에서 커지고 갱신에서 줄어든다">
+  <text class="tag" x="20" y="22">0.2 s 구간 (가로축 = 시간)</text>
+  <text class="tag" x="142" y="54" text-anchor="end">예측 (odom_raw 50 Hz)</text>
+  <path class="ln" d="M150 50 L700 50"/>
+  <path class="ln" d="M150 43 L150 57" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M205 43 L205 57" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M260 43 L260 57" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M315 43 L315 57" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M370 43 L370 57" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M425 43 L425 57" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M480 43 L480 57" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M535 43 L535 57" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M590 43 L590 57" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M645 43 L645 57" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M700 43 L700 57" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <text class="tag" x="142" y="84" text-anchor="end">휠 v 갱신 (50 Hz)</text>
+  <path class="ln" d="M150 80 L700 80"/>
+  <path class="ln" d="M150 73 L150 87" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M205 73 L205 87" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M260 73 L260 87" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M315 73 L315 87" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M370 73 L370 87" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M425 73 L425 87" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M480 73 L480 87" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M535 73 L535 87" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M590 73 L590 87" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M645 73 L645 87" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M700 73 L700 87" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <text class="tag" x="142" y="114" text-anchor="end">IMU ω 갱신 (50 Hz)</text>
+  <path class="ln" d="M150 110 L700 110"/>
+  <path class="ln" d="M150 103 L150 117" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M205 103 L205 117" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M260 103 L260 117" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M315 103 L315 117" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M370 103 L370 117" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M425 103 L425 117" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M480 103 L480 117" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M535 103 L535 117" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M590 103 L590 117" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M645 103 L645 117" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M700 103 L700 117" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <text class="tag" x="142" y="144" text-anchor="end">ICP v, ω 갱신 (10 Hz)</text>
+  <path class="ln" d="M150 140 L700 140"/>
+  <rect x="146" y="132" width="8" height="16" rx="2" class="hi"/>
+  <rect x="421" y="132" width="8" height="16" rx="2" class="hi"/>
+  <rect x="696" y="132" width="8" height="16" rx="2" class="hi"/>
+  <text class="tag" x="142" y="214" text-anchor="end">속도 불확실성 σ_v</text>
+  <path class="ln-hi" d="M150 228 L150 232 L205 227 L205 229 L260 224 L260 226 L315 221 L315 224 L370 219 L370 222 L425 217 L425 221 L425 232 L480 227 L480 229 L535 224 L535 226 L590 221 L590 224 L645 219 L645 222 L700 217 L700 221 L700 232" style="stroke-width:2"/>
+  <path class="ln" d="M150 240 L700 240"/>
+  <text class="sub" x="20" y="268">예측마다 커지고, 휠 갱신에서 조금·ICP 갱신에서 크게 줄어든다 — 위치 공분산은 이 σ_v만큼 자란다 (개념도)</text>
+</svg><figcaption>다중 주기 EKF의 한 구간. 예측마다 속도 불확실성이 커지고, 휠 갱신에서 조금, ICP 갱신에서 크게 줄어듭니다.</figcaption></figure>
+<h3 id="공분산-튜닝과-일관성-nees-nis">공분산 튜닝과 일관성 (NEES·NIS)<a class="anchor" href="#공분산-튜닝과-일관성-nees-nis">#</a></h3>
+<p><span class="math">Q</span>(모델을 얼마나 못 믿나)와 <span class="math">R</span>(센서를 얼마나 못 믿나)은 필터의 성격을 정합니다. 숫자가 "그럴듯한지"는 <strong>일관성 검사</strong>로 확인합니다.</p>
+<ul><li><strong>NEES</strong> (normalized estimation error squared): 정답이 있을 때(시뮬레이션) <span class="math">ε = eᵀ P⁻¹ e</span>, <span class="math">e = x_{true} − x̂</span>. 필터가 일관적이면 <span class="math">ε</span>은 자유도 n(위치·방향이면 3)의 χ² 분포를 따라 <strong>평균이 n</strong>입니다. 평균 ≫ n이면 과신(P가 너무 작음 → Q 증가), ≪ n이면 과소신(Q·R 감소).</li><li><strong>NIS</strong> (normalized innovation squared): 정답 없이 실물에서 <span class="math">ν = (z − Hx)ᵀ S⁻¹ (z − Hx)</span>의 평균이 측정 차원 m이어야 합니다. <code>my_ekf.py</code>가 종료할 때 센서별 평균 NIS를 출력하고, ICP 갱신은 <span class="math">ν &gt; χ²_{2, 0.999} = 13.8</span>이면 버립니다(게이팅).</li></ul>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>조정</th></tr></thead><tbody><tr><td>추정이 느리게 따라옴(회전 후 늦게 멈춤)</td><td>속도의 Q가 너무 작음</td><td><span class="math">Q_v, Q_ω</span> 증가</td></tr><tr><td>추정이 센서 잡음을 그대로 따라 떨림</td><td>R이 너무 작음</td><td>해당 센서 R 증가</td></tr><tr><td>NEES가 수십</td><td>편향(미끄럼)을 잡음으로 표현 못 함</td><td>편향 센서 R 증가, 또는 편향 상태 추가</td></tr><tr><td>두 센서 사이를 오감</td><td>서로 모순인데 둘 다 확신</td><td>한쪽은 위치, 다른 쪽은 속도로(differential)</td></tr></tbody></table></div>
+<h3 id="mentorpi의-robotlocalization-설정">MentorPi의 robot_localization 설정<a class="anchor" href="#mentorpi의-robotlocalization-설정">#</a></h3>
+<p><code>src/driver/controller/config/ekf.yaml</code>(M03)의 핵심입니다. 15칸 불리언 순서는 <code>x y z roll pitch yaw vx vy vz vroll vpitch vyaw ax ay az</code>입니다.</p>
+<div class="table-wrap"><table><thead><tr><th>입력</th><th>토픽</th><th>쓰는 값</th><th>옵션</th><th>우리 EKF와 비교</th></tr></thead><tbody><tr><td><code>odom0</code></td><td><code>odom_raw</code></td><td>vx, vy, vyaw</td><td>differential false</td><td>v만 사용 (vyaw는 원본도 공분산 1e3이라 사실상 무시)</td></tr><tr><td><code>odom1</code></td><td><code>odom_rf2o</code></td><td>x, y, yaw</td><td><strong>relative true</strong></td><td>우리는 ICP를 <strong>속도</strong>로 넣음</td></tr><tr><td><code>imu0</code></td><td><code>imu</code></td><td>yaw, vyaw</td><td>relative true</td><td>ω만 사용</td></tr><tr><td>공통</td><td><code>frequency: 100</code>, <code>two_d_mode: true</code>, <code>publish_tf: true</code></td><td>15차원 전방향 모델, <code>process_noise_covariance</code> 대각 (x, y 0.05, yaw 0.06, vx·vy 0.025, vyaw 0.02 …)</td><td></td><td>5차원 외발(unicycle) 모델 — <strong>메카넘 옆걸음 vy가 없음</strong></td></tr></tbody></table></div>
+<p><code>odom_publisher_node</code>는 <code>/odom_raw</code> twist 공분산을 vx·vy 1e-3, vyaw 1e3으로 보내므로, 원본 EKF에서 각속도는 IMU가, 선속도는 휠이 거의 전부를 맡습니다(M03). rf2o(Jaimez 외 2016)는 ICP가 아니라 연속 스캔의 <strong>거리 흐름</strong>(range flow) 방정식을 조밀하게 푸는 방법으로, 대응 탐색이 없어 매우 빠릅니다. 원본 launch는 <code>/scan_raw</code>를 받아 <code>/odom_rf2o</code>를 10 Hz로 내고 TF는 발행하지 않습니다(<code>publish_tf: False</code>).</p>
+<h2 id="시스템-설계">시스템 설계<a class="anchor" href="#시스템-설계">#</a></h2>
+<figure class="fig" id="fig-p06-graph"><svg viewBox="0 0 720 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="스캔 매칭 오도메트리와 EKF 융합의 ROS 2 그래프: 라이다 스캔은 원본 rf2o와 팀의 icp_odometry로, 휠 오도메트리와 IMU는 원본 ekf_filter_node와 팀의 my_ekf로 들어가고, 모든 출력은 rosbag으로 기록해 ATE와 RPE로 비교한다">
+  <defs>
+    <marker id="arr-p06-graph" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-p06-graph-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <text class="tag" x="80" y="18" text-anchor="middle">센서 (원본 launch)</text>
+  <text class="tag" x="380" y="18" text-anchor="middle">원본 경로 (위) · 팀 구현 (아래)</text>
+  <text class="tag" x="650" y="18" text-anchor="middle">출력·평가</text>
+
+  <!-- sources -->
+  <rect class="box" x="10" y="36" width="140" height="50" rx="6"/>
+  <text class="lbl" x="80" y="57" text-anchor="middle">LD19 라이다</text>
+  <text class="sub mono" x="80" y="75" text-anchor="middle">/scan_raw 10 Hz</text>
+  <rect class="box" x="10" y="136" width="140" height="50" rx="6"/>
+  <text class="lbl mono" x="80" y="157" text-anchor="middle">odom_publisher</text>
+  <text class="sub mono" x="80" y="175" text-anchor="middle">/odom_raw (속도)</text>
+  <rect class="box" x="10" y="236" width="140" height="50" rx="6"/>
+  <text class="lbl mono" x="80" y="257" text-anchor="middle">imu_filter</text>
+  <text class="sub mono" x="80" y="275" text-anchor="middle">/imu (yaw, ω)</text>
+
+  <!-- original path -->
+  <rect class="box" x="200" y="36" width="150" height="50" rx="6"/>
+  <text class="lbl mono" x="275" y="57" text-anchor="middle">rf2o_laser_odometry</text>
+  <text class="sub mono" x="275" y="75" text-anchor="middle">/odom_rf2o</text>
+  <rect class="box" x="410" y="36" width="160" height="60" rx="6"/>
+  <text class="lbl mono" x="490" y="58" text-anchor="middle">ekf_filter_node</text>
+  <text class="sub" x="490" y="76" text-anchor="middle">robot_localization</text>
+  <text class="sub mono" x="490" y="90" text-anchor="middle">config/ekf.yaml</text>
+
+  <!-- team path -->
+  <rect class="box-hi" x="200" y="196" width="150" height="54" rx="6"/>
+  <text class="lbl mono" x="275" y="218" text-anchor="middle">icp_odometry</text>
+  <text class="sub" x="275" y="236" text-anchor="middle">점-선 ICP + 공분산</text>
+  <rect class="box-hi" x="410" y="196" width="160" height="54" rx="6"/>
+  <text class="lbl mono" x="490" y="218" text-anchor="middle">my_ekf</text>
+  <text class="sub" x="490" y="236" text-anchor="middle">[x, y, θ, v, ω] 직접 구현</text>
+
+  <!-- outputs -->
+  <rect class="box" x="600" y="40" width="110" height="50" rx="6"/>
+  <text class="lbl mono" x="655" y="61" text-anchor="middle">/odom</text>
+  <text class="sub" x="655" y="79" text-anchor="middle">+ TF odom→base</text>
+  <rect class="box-hi" x="600" y="198" width="110" height="50" rx="6"/>
+  <text class="lbl mono" x="655" y="219" text-anchor="middle">/odom_fused</text>
+  <text class="sub" x="655" y="237" text-anchor="middle">TF 발행 안 함</text>
+  <rect class="box" x="600" y="116" width="110" height="56" rx="6"/>
+  <text class="lbl mono" x="655" y="138" text-anchor="middle">ros2 bag</text>
+  <text class="sub" x="655" y="156" text-anchor="middle">ATE · RPE 비교</text>
+
+  <!-- edges: lidar -->
+  <path class="ln" d="M150 61 L198 61" marker-end="url(#arr-p06-graph)"/>
+  <path class="ln-hi" d="M150 76 L198 206" marker-end="url(#arr-p06-graph-hi)"/>
+  <!-- rf2o -> ekf ; icp -> my_ekf -->
+  <path class="ln" d="M350 61 L408 61" marker-end="url(#arr-p06-graph)"/>
+  <text class="tag" x="379" y="54" text-anchor="middle">odom1</text>
+  <path class="ln-hi" d="M350 223 L408 223" marker-end="url(#arr-p06-graph-hi)"/>
+  <text class="tag mono" x="379" y="216" text-anchor="middle">odom_icp</text>
+  <!-- odom_raw, imu to both EKFs -->
+  <path class="ln" d="M150 156 L392 156 L408 84" marker-end="url(#arr-p06-graph)"/>
+  <text class="tag" x="300" y="150" text-anchor="middle">odom0 · imu0</text>
+  <path class="ln" d="M150 266 L392 266 L408 92" marker-end="url(#arr-p06-graph)" style="stroke-dasharray:4 3"/>
+  <path class="ln-hi" d="M150 170 L180 170 L180 290 L490 290 L490 252" marker-end="url(#arr-p06-graph-hi)"/>
+  <path class="ln-hi" d="M150 276 L170 276 L170 298 L500 298 L500 252" marker-end="url(#arr-p06-graph-hi)"/>
+  <text class="tag" x="330" y="314" text-anchor="middle">예측: /odom_raw 속도 · 갱신: /imu ω, /odom_icp (v, ω)</text>
+  <!-- ekf outputs -->
+  <path class="ln" d="M570 66 L598 66" marker-end="url(#arr-p06-graph)"/>
+  <path class="ln-hi" d="M570 223 L598 223" marker-end="url(#arr-p06-graph-hi)"/>
+  <path class="ln" d="M655 90 L655 114" marker-end="url(#arr-p06-graph)"/>
+  <path class="ln" d="M655 198 L655 174" marker-end="url(#arr-p06-graph)"/>
+</svg><figcaption>스캔 매칭 오도메트리와 EKF 융합의 ROS 2 그래프. 원본 경로(위)는 그대로 두고, 팀 노드(아래)는 TF를 발행하지 않는 별도 출력으로 만들어 같은 주행에서 비교합니다.</figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th>인터페이스</th><th>타입</th><th>발행</th><th>구독</th><th>비고</th></tr></thead><tbody><tr><td><code>/scan_raw</code></td><td><code>sensor_msgs/LaserScan</code></td><td>라이다 드라이버</td><td>icp_odometry, rf2o, slam_toolbox</td><td><code>qos_profile_sensor_data</code></td></tr><tr><td><code>/odom_raw</code></td><td><code>nav_msgs/Odometry</code></td><td>odom_publisher</td><td>ekf_filter_node, my_ekf</td><td>twist만 사용</td></tr><tr><td><code>/imu</code></td><td><code>sensor_msgs/Imu</code></td><td>imu_filter (complementary)</td><td>ekf_filter_node, my_ekf</td><td><code>imu_corrected</code> → <code>imu</code></td></tr><tr><td><code>/odom_icp</code></td><td><code>nav_msgs/Odometry</code></td><td>icp_odometry</td><td>my_ekf, odom_eval</td><td>twist = (Δx/Δt, Δy/Δt, Δθ/Δt), <code>twist.covariance</code> = <span class="math">σ²H⁻¹/Δt²</span></td></tr><tr><td><code>/odom_fused</code></td><td><code>nav_msgs/Odometry</code></td><td>my_ekf</td><td>odom_eval</td><td>pose covariance 포함, TF 없음</td></tr><tr><td><code>/odom</code> + TF</td><td><code>nav_msgs/Odometry</code></td><td>ekf_filter_node</td><td>Nav2, slam_toolbox</td><td>원본 (<code>odometry/filtered</code> → <code>odom</code> 재매핑)</td></tr><tr><td>TF <code>map → base_footprint</code></td><td>tf2</td><td>slam_toolbox + 원본 EKF</td><td>odom_eval</td><td>비교 기준(참값 대용)</td></tr></tbody></table></div>
+<figure class="fig" id="fig-p06-icp"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ICP 반복 구조: 현재 스캔 점을 추정 변환으로 옮기고, 이전 스캔에서 최근접 이웃을 찾아 이상치를 버린 뒤, 점-점은 SVD로 점-선은 가우스-뉴턴으로 변환을 갱신하고 수렴할 때까지 반복한다">
+  <text class="tag" x="150" y="22" text-anchor="middle">이전 스캔 Q(●)와 현재 스캔 P(○)의 대응</text>
+  <path class="ln" d="M40 44 L40 200 L270 200" style="stroke-width:2"/>
+  <path d="M78.3 38.0 L40.0 56.0" class="ln" style="stroke-dasharray:3 3"/>
+  <path d="M75.8 61.8 L40.0 56.0" class="ln" style="stroke-dasharray:3 3"/>
+  <path d="M73.3 85.7 L40.0 80.0" class="ln" style="stroke-dasharray:3 3"/>
+  <path d="M70.8 109.6 L40.0 104.0" class="ln" style="stroke-dasharray:3 3"/>
+  <path d="M68.2 133.4 L40.0 128.0" class="ln" style="stroke-dasharray:3 3"/>
+  <path d="M65.7 157.3 L40.0 152.0" class="ln" style="stroke-dasharray:3 3"/>
+  <path d="M87.1 183.7 L88.0 200.0" class="ln" style="stroke-dasharray:3 3"/>
+  <path d="M111.0 186.2 L112.0 200.0" class="ln" style="stroke-dasharray:3 3"/>
+  <path d="M134.8 188.7 L136.0 200.0" class="ln" style="stroke-dasharray:3 3"/>
+  <path d="M158.7 191.2 L160.0 200.0" class="ln" style="stroke-dasharray:3 3"/>
+  <path d="M182.6 193.7 L184.0 200.0" class="ln" style="stroke-dasharray:3 3"/>
+  <path d="M206.4 196.2 L208.0 200.0" class="ln" style="stroke-dasharray:3 3"/>
+  <path d="M230.3 198.7 L232.0 200.0" class="ln" style="stroke-dasharray:3 3"/>
+  <path d="M254.2 201.2 L256.0 200.0" class="ln" style="stroke-dasharray:3 3"/>
+  <path d="M278.0 203.7 L256.0 200.0" class="ln" style="stroke-dasharray:3 3"/>
+  <circle cx="40.0" cy="56.0" r="4" style="fill:var(--text-dim)"/>
+  <circle cx="40.0" cy="80.0" r="4" style="fill:var(--text-dim)"/>
+  <circle cx="40.0" cy="104.0" r="4" style="fill:var(--text-dim)"/>
+  <circle cx="40.0" cy="128.0" r="4" style="fill:var(--text-dim)"/>
+  <circle cx="40.0" cy="152.0" r="4" style="fill:var(--text-dim)"/>
+  <circle cx="40.0" cy="176.0" r="4" style="fill:var(--text-dim)"/>
+  <circle cx="64.0" cy="200.0" r="4" style="fill:var(--text-dim)"/>
+  <circle cx="88.0" cy="200.0" r="4" style="fill:var(--text-dim)"/>
+  <circle cx="112.0" cy="200.0" r="4" style="fill:var(--text-dim)"/>
+  <circle cx="136.0" cy="200.0" r="4" style="fill:var(--text-dim)"/>
+  <circle cx="160.0" cy="200.0" r="4" style="fill:var(--text-dim)"/>
+  <circle cx="184.0" cy="200.0" r="4" style="fill:var(--text-dim)"/>
+  <circle cx="208.0" cy="200.0" r="4" style="fill:var(--text-dim)"/>
+  <circle cx="232.0" cy="200.0" r="4" style="fill:var(--text-dim)"/>
+  <circle cx="256.0" cy="200.0" r="4" style="fill:var(--text-dim)"/>
+  <circle cx="78.3" cy="38.0" r="4" style="fill:var(--bg);stroke:var(--accent);stroke-width:1.6"/>
+  <circle cx="75.8" cy="61.8" r="4" style="fill:var(--bg);stroke:var(--accent);stroke-width:1.6"/>
+  <circle cx="73.3" cy="85.7" r="4" style="fill:var(--bg);stroke:var(--accent);stroke-width:1.6"/>
+  <circle cx="70.8" cy="109.6" r="4" style="fill:var(--bg);stroke:var(--accent);stroke-width:1.6"/>
+  <circle cx="68.2" cy="133.4" r="4" style="fill:var(--bg);stroke:var(--accent);stroke-width:1.6"/>
+  <circle cx="65.7" cy="157.3" r="4" style="fill:var(--bg);stroke:var(--accent);stroke-width:1.6"/>
+  <circle cx="87.1" cy="183.7" r="4" style="fill:var(--bg);stroke:var(--accent);stroke-width:1.6"/>
+  <circle cx="111.0" cy="186.2" r="4" style="fill:var(--bg);stroke:var(--accent);stroke-width:1.6"/>
+  <circle cx="134.8" cy="188.7" r="4" style="fill:var(--bg);stroke:var(--accent);stroke-width:1.6"/>
+  <circle cx="158.7" cy="191.2" r="4" style="fill:var(--bg);stroke:var(--accent);stroke-width:1.6"/>
+  <circle cx="182.6" cy="193.7" r="4" style="fill:var(--bg);stroke:var(--accent);stroke-width:1.6"/>
+  <circle cx="206.4" cy="196.2" r="4" style="fill:var(--bg);stroke:var(--accent);stroke-width:1.6"/>
+  <circle cx="230.3" cy="198.7" r="4" style="fill:var(--bg);stroke:var(--accent);stroke-width:1.6"/>
+  <circle cx="254.2" cy="201.2" r="4" style="fill:var(--bg);stroke:var(--accent);stroke-width:1.6"/>
+  <circle cx="278.0" cy="203.7" r="4" style="fill:var(--bg);stroke:var(--accent);stroke-width:1.6"/>
+  <text class="tag" x="20" y="232">점-점 잔차: ‖p′ − q‖ (대응 점까지)</text>
+  <text class="tag" x="20" y="250">점-선 잔차: n·(p′ − q) (벽 법선 방향 성분만)</text>
+  <text class="sub" x="20" y="272">점-선은 벽을 따라 미끄러지는 방향을 벌하지 않아</text>
+  <text class="sub" x="20" y="288">성긴 스캔에서도 편향이 적고 3~6회에 수렴합니다</text>
+  <text class="tag" x="330" y="22">ICP 반복</text>
+  <text class="lbl" x="330" y="50" xml:space="preserve">⓪ 초기값 T₀ (직전 이동 = 등속 가정)</text>
+  <text class="lbl" x="330" y="80" xml:space="preserve">① 변환: p′ = R(θ)·p + t</text>
+  <text class="lbl" x="330" y="110" xml:space="preserve">② 대응: 최근접 이웃 q (전수 / k-d 트리)</text>
+  <text class="lbl" x="330" y="140" xml:space="preserve">③ 이상치: d > max(τ, 3·중앙값) 버림</text>
+  <text class="lbl" x="330" y="170" xml:space="preserve">④ 갱신: 점-점 → SVD(Kabsch)</text>
+  <text class="lbl" x="330" y="200" xml:space="preserve">          점-선 → 가우스-뉴턴 (JᵀJ)Δ = −Jᵀr</text>
+  <text class="lbl" x="330" y="230" xml:space="preserve">⑤ |Δt|, |Δθ| < ε 이면 끝, 아니면 ①</text>
+  <text class="lbl hi" x="330" y="260" xml:space="preserve">출력: T, H = JᵀJ → 공분산 σ²H⁻¹, 퇴화 검사</text>
+  <path d="M322 226 L312 226 L312 76 L322 76" class="ln" style="stroke-dasharray:4 3"/>
+</svg><figcaption>ICP 반복 구조. 점-점과 점-선은 ④ 갱신 단계만 다르고, 점-선은 공분산·퇴화 검사에 쓰는 H를 함께 돌려줍니다.</figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th>파라미터</th><th>기본값</th><th>영향</th></tr></thead><tbody><tr><td><code>max_range</code></td><td>8 m</td><td>먼 점은 각도 오차에 민감하지만 퇴화를 막아 줌</td></tr><tr><td>표본화</td><td>2개 중 1개 (약 225점)</td><td>적을수록 빠르지만 H가 약해짐</td></tr><tr><td>대응 게이트 τ</td><td>0.2 m</td><td>10 Hz, 0.2 m/s면 스캔 간 이동 2 cm — 크게 둘 필요 없음</td></tr><tr><td><code>sigma</code></td><td>0.01 m</td><td>ICP 공분산 척도. NIS가 2보다 크면 키움</td></tr><tr><td><code>process_noise</code></td><td>[1e-5, 1e-5, 1e-5, 0.02, 0.5]</td><td>실습 3의 튜닝 결과</td></tr><tr><td><code>sigma_wheel_v</code>, <code>sigma_imu_w</code></td><td>0.05 m/s, 0.01 rad/s</td><td>휠은 미끄럼 편향까지 포함해 넉넉히</td></tr></tbody></table></div>
+<h2 id="단계별-구현">단계별 구현<a class="anchor" href="#단계별-구현">#</a></h2>
+<h3 id="m1-icp-단위-시험-playground">M1. ICP 단위 시험 (Playground)<a class="anchor" href="#m1-icp-단위-시험-playground">#</a></h3>
+<div class="callout callout-task"><div class="callout-title">M1 — 점-점 ICP (40분)</div><div class="callout-body"><ol><li>실습 1을 실행해 반복마다 RMSE·인라이어 수·증분이 줄어드는 것을 확인합니다.</li><li>이상치 제거를 끈 결과와 비교하고, 오차가 커지는 이유(새로 보인·사라진 벽의 거짓 대응)를 설명합니다.</li><li>두 스캔 간격을 1 s → 2 s로 늘려 수렴이 실패하는 지점을 찾습니다(국소 최적화의 한계).</li></ol></div></div>
+<div class="callout callout-check"><div class="callout-title">M1 체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> ICP 결과가 정답과 1 cm·0.5° 안으로 맞는다.</label></li><li><label class="check-item"><input type="checkbox"> Kabsch의 <span class="math">R = VUᵀ</span>와 반사 보정을 손으로 설명할 수 있다.</label></li></ul></div></div>
+<h3 id="m2-스캔-오도메트리">M2. 스캔 오도메트리<a class="anchor" href="#m2-스캔-오도메트리">#</a></h3>
+<div class="callout callout-task"><div class="callout-title">M2 — 점-점 vs 점-선 (40분)</div><div class="callout-body"><ol><li>실습 2로 세 오도메트리의 ATE를 비교합니다. 점-점이 10 Hz 연속 매칭에서 무너지는 이유를 표본화 편향으로 설명합니다.</li><li>그래프 탭에서 궤적을 겹쳐 보고, 휠 오도메트리가 원을 "크게" 그리는 이유(바퀴 미끄럼 5 %)를 확인합니다.</li></ol></div></div>
+<div class="callout callout-check"><div class="callout-title">M2 체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> 점-선 ICP 스캔 오도메트리의 ATE가 휠보다 작다.</label></li></ul></div></div>
+<h3 id="m3-실물-icp-노드">M3. 실물 ICP 노드<a class="anchor" href="#m3-실물-icp-노드">#</a></h3>
+<div class="callout callout-task"><div class="callout-title">M3 — icp_odometry (50분)</div><div class="callout-body"><ol><li><code>icp_odometry.py</code>를 실행하고 <code>ros2 topic hz /odom_icp</code>가 약 10 Hz인지, 처리 시간이 N1을 만족하는지 확인합니다.</li><li>로봇을 1 m 직선으로 밀고(모터 끔) <code>/odom_icp</code> 적분 거리와 줄자를 비교합니다.</li><li>긴 복도(또는 책상 두 줄 사이)에서 퇴화 경고가 나오는지 확인합니다.</li></ol></div></div>
+<div class="callout callout-check"><div class="callout-title">M3 체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> 1 m 밀기에서 오차 ≤ 3 cm, 제자리 360° 회전에서 오차 ≤ 3°.</label></li></ul></div></div>
+<h3 id="m4-ekf-노드와-튜닝">M4. EKF 노드와 튜닝<a class="anchor" href="#m4-ekf-노드와-튜닝">#</a></h3>
+<div class="callout callout-task"><div class="callout-title">M4 — my_ekf (60분)</div><div class="callout-body"><ol><li>실습 3으로 Q·R의 영향을 먼저 봅니다(아래 튜닝 표).</li><li>로봇을 5분 정지시켜 <code>/imu</code>의 <code>angular_velocity.z</code> 분산을 구해 <code>sigma_imu_w</code>로 넣습니다.</li><li><code>my_ekf.py</code>를 실행해 주행 후 Ctrl+C로 평균 NIS를 확인합니다. v 갱신은 1, ICP 갱신은 2 근처가 목표입니다.</li></ol></div></div>
+<div class="callout callout-check"><div class="callout-title">M4 체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> <code>/odom_fused</code>가 50 Hz로 나오고, 로봇을 들어 올렸다 놓을 때 ICP 갱신이 게이트로 거부된다.</label></li></ul></div></div>
+<h3 id="m5-비교-실험">M5. 비교 실험<a class="anchor" href="#m5-비교-실험">#</a></h3>
+<div class="callout callout-task"><div class="callout-title">M5 — robot_localization·rf2o와 비교 (60분)</div><div class="callout-body"><p>아래 "실험과 평가"의 E1~E4를 수행합니다. 모든 구성은 <strong>같은 rosbag</strong> 또는 같은 주행에서 동시에 비교합니다.</p></div></div>
+<h2 id="실습-시뮬레이션">실습 (시뮬레이션)<a class="anchor" href="#실습-시뮬레이션">#</a></h2>
+<p>아래 코드는 모두 이 페이지에서 바로 실행됩니다. ▶ 실행을 누르면 오른쪽 결과 패널의 <strong>출력</strong> 탭에 로그가, <code>sim.plot()</code>을 쓴 코드는 <strong>그래프</strong> 탭에 궤적·오차 곡선이 나오고, <strong>2D 재생</strong>(위에서 본 월드·라이다·궤적)과 <strong>3D 재생</strong>(MentorPi URDF) 탭에서 주행을 다시 볼 수 있습니다. <code>noise=True</code>에서 가상 로봇은 실제로 명령보다 선속도 5 %, 각속도 3 % 덜 움직이고(바퀴 미끄럼), <code>/odom</code>은 이를 모른 채 명령 속도를 적분합니다. <code>/imu</code> 각속도는 실제 회전을 봅니다. 정답 자세는 시뮬 전용 <code>sim.pose()</code>입니다.</p>
+<h3 id="실습-1-스캔-두-장의-점-점-icp">실습 1. 스캔 두 장의 점-점 ICP<a class="anchor" href="#실습-1-스캔-두-장의-점-점-icp">#</a></h3>
+<p>1 s 간격(전진 0.2 m/s + 좌회전 0.4 rad/s)의 스캔 두 장을 저장하고, SVD(Kabsch) ICP로 상대 이동을 구해 정답과 비교합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist
+from sensor_msgs.msg import LaserScan
+import mentorpi_sim as sim                                    # 시뮬 전용
+sim.setup(world=&quot;room&quot;, duration=3.05, start=(-1.7, -0.75, 0.0))  # 시뮬 전용
+
+def points(scan):                                             # LaserScan → 라이다 좌표계 점 (N×2)
+    r = np.array(scan.ranges); a = scan.angle_min + np.arange(len(r)) * scan.angle_increment
+    ok = np.isfinite(r) &amp; (r &lt; 8.0)
+    return np.c_[r[ok] * np.cos(a[ok]), r[ok] * np.sin(a[ok])]
+
+def kabsch(P, Q):                                             # min Σ‖R p + t − q‖² (SVD)
+    mp, mq = P.mean(0), Q.mean(0)
+    U, _, Vt = np.linalg.svd((P - mp).T @ (Q - mq))
+    R = Vt.T @ U.T
+    if np.linalg.det(R) &lt; 0: Vt[1] *= -1; R = Vt.T @ U.T      # 반사 방지
+    return R, mq - R @ mp
+
+def icp(P, Q, T0=(0.0, 0.0, 0.0), iters=30, reject=0.3, log=False):
+    x, y, th = T0
+    for k in range(iters):
+        c, s = math.cos(th), math.sin(th)
+        Pw = P @ np.array([[c, s], [-s, c]]) + (x, y)          # 현재 추정으로 P를 Q 좌표로
+        d2 = ((Pw[:, None, :] - Q[None, :, :]) ** 2).sum(2)
+        j = d2.argmin(1); d = np.sqrt(d2[np.arange(len(P)), j])  # 최근접 이웃 (전수 탐색)
+        keep = d &lt; max(reject, 3 * np.median(d)) if reject else np.ones(len(P), bool)
+        R, t = kabsch(Pw[keep], Q[j[keep]])                   # 증분 변환
+        x, y = R @ (x, y) + t; th += math.atan2(R[1, 0], R[0, 0])
+        if log and k % 4 == 0: print(&#x27;  iter %2d  rmse %.4f m  inliers %3d/%d  dT=(%.4f, %.4f, %.3f deg)&#x27; % (
+            k, np.sqrt((d[keep] ** 2).mean()), keep.sum(), len(P), t[0], t[1], math.degrees(math.atan2(R[1, 0], R[0, 0]))))
+        if np.hypot(*t) &lt; 1e-4 and abs(math.atan2(R[1, 0], R[0, 0])) &lt; 1e-4: break   # 수렴
+    return (x, y, th), np.sqrt((d[keep] ** 2).mean()), k + 1
+
+class Recorder(Node):
+    def __init__(self):
+        super().__init__(&#x27;icp_pair&#x27;)
+        self.cmd = self.create_publisher(Twist, &#x27;/cmd_vel&#x27;, 10)
+        self.create_subscription(LaserScan, &#x27;/scan&#x27;, self.on_scan, 10)
+        self.rec = {}
+        self.create_timer(0.1, self.drive)
+    def drive(self):
+        t = Twist(); t.linear.x, t.angular.z = 0.2, 0.4       # 전진하며 좌회전
+        self.cmd.publish(t)
+    def on_scan(self, s):
+        t = round(self.get_clock().now().nanoseconds * 1e-9, 1)
+        if t in (2.0, 3.0): self.rec[t] = (points(s), sim.pose())   # 시뮬 전용: 정답 자세
+rclpy.init(); node = Recorder()
+try:
+    rclpy.spin(node)
+finally:
+    node.cmd.publish(Twist()); node.destroy_node(); rclpy.shutdown()
+
+(Q, g0), (P, g1) = node.rec[2.0], node.rec[3.0]
+dx, dy = g1[0] - g0[0], g1[1] - g0[1]; c, s = math.cos(g0[2]), math.sin(g0[2])
+true = (c * dx + s * dy, -s * dx + c * dy, g1[2] - g0[2])    # 이전 스캔 좌표계에서 본 이동 (정답)
+print(&#x27;points: prev %d, curr %d&#x27; % (len(Q), len(P)))
+print(&#x27;true motion      dx %.3f  dy %.3f  dth %.2f deg&#x27; % (true[0], true[1], math.degrees(true[2])))
+T, e, n = icp(P, Q, log=True)
+print(&#x27;ICP (reject)     dx %.3f  dy %.3f  dth %.2f deg  rmse %.4f  %d iters&#x27; % (T[0], T[1], math.degrees(T[2]), e, n))
+T, e, n = icp(P, Q, reject=None)
+print(&#x27;ICP (no reject)  dx %.3f  dy %.3f  dth %.2f deg  rmse %.4f  %d iters&#x27; % (T[0], T[1], math.degrees(T[2]), e, n))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[sim] 시뮬레이션 시간 3.0 s 종료 (sim.setup(duration=...)으로 변경)
+points: prev 360, curr 360   (대략)
+true motion      dx 0.186  dy 0.037  dth 22.24 deg
+  iter  0  rmse 0.4163 m  inliers 348/360  dT=(0.1110, 0.0554, 3.747 deg)
+  iter  4  rmse 0.1588 m  inliers 330/360  dT=(0.0135, -0.0204, 2.122 deg)
+  iter  8  rmse 0.0713 m  inliers 345/360  dT=(-0.0016, -0.0086, 0.895 deg)
+  iter 12  rmse 0.0362 m  inliers 347/360  dT=(-0.0022, -0.0022, 0.244 deg)
+  iter 16  rmse 0.0340 m  inliers 348/360  dT=(0.0002, -0.0015, 0.134 deg)
+  iter 20  rmse 0.0330 m  inliers 348/360  dT=(-0.0000, -0.0001, 0.014 deg)
+ICP (reject)     dx 0.191  dy 0.033  dth 22.62 deg  rmse 0.0330  24 iters
+ICP (no reject)  dx 0.211  dy 0.006  dth 23.86 deg  rmse 0.0975  21 iters</code></pre></div>
+<ul><li>22° 회전·19 cm 이동을 24회 반복으로 찾았고, 정답과 5 mm·0.4° 차이입니다.</li><li>RMSE가 0.03 m에서 멈추는 것은 잡음(8 mm) 때문이 아니라 <strong>빔 간격</strong> 때문입니다: 두 스캔의 점은 벽의 같은 곳이 아닙니다.</li><li>이상치 제거를 끄면 1 s 사이 새로 보이거나 가려진 벽의 거짓 대응이 섞여 약 3 cm·1.6° 틀립니다.</li></ul>
+<h3 id="실습-2-스캔-매칭-오도메트리-점-점-vs-점-선">실습 2. 스캔 매칭 오도메트리 — 점-점 vs 점-선<a class="anchor" href="#실습-2-스캔-매칭-오도메트리-점-점-vs-점-선">#</a></h3>
+<p>반지름 0.8 m 원을 한 바퀴(25 s) 돌며 연속 스캔(10 Hz)을 매칭해 이어 붙입니다. 휠 오도메트리(<code>/odom</code>), 점-점 ICP, 점-선 ICP의 ATE(정답 궤적과의 위치 오차 RMS)를 비교하고 그래프 탭에 궤적을 그립니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
+from sensor_msgs.msg import LaserScan
+from tf_transformations import euler_from_quaternion
+import mentorpi_sim as sim                                    # 시뮬 전용
+START = (-1.7, -0.75, 0.0)
+sim.setup(world=&quot;room&quot;, duration=25.0, start=START, noise=True)  # 시뮬 전용: 바퀴 미끄럼 켬
+
+def points(scan):
+    r = np.array(scan.ranges); a = scan.angle_min + np.arange(len(r)) * scan.angle_increment
+    ok = np.isfinite(r) &amp; (r &lt; 8.0)
+    return np.c_[r[ok] * np.cos(a[ok]), r[ok] * np.sin(a[ok])][::2]   # 2°마다 180점 (속도)
+
+def icp(P, Q, T0, line=True, iters=20):                      # line=True: 점-선, False: 점-점(SVD)
+    t = np.roll(Q, -1, 0) - np.roll(Q, 1, 0); N = np.c_[-t[:, 1], t[:, 0]]
+    ln = np.hypot(*N.T); okn = (ln &gt; 1e-6) &amp; (ln &lt; 0.3); N = N / np.where(okn, ln, 1)[:, None]
+    x, y, th = T0
+    for _ in range(iters):
+        c, s = math.cos(th), math.sin(th); Pw = P @ np.array([[c, s], [-s, c]]) + (x, y)
+        d2 = ((Pw[:, None, :] - Q[None, :, :]) ** 2).sum(2); j = d2.argmin(1)
+        k = (np.sqrt(d2[np.arange(len(P)), j]) &lt; 0.2) &amp; (okn[j] | (not line))
+        if line:                                              # 가우스-뉴턴 한 걸음 (선형화)
+            n, e = N[j[k]], Pw[k] - Q[j[k]]
+            J = np.c_[n, n[:, 1] * (Pw[k, 0] - x) - n[:, 0] * (Pw[k, 1] - y)]
+            dx, dy, da = -np.linalg.solve(J.T @ J, J.T @ (n * e).sum(1))
+            x, y, th = x + dx, y + dy, th + da
+        else:                                                 # 닫힌 해 (Kabsch, SVD)
+            A, B = Pw[k], Q[j[k]]; U, _, Vt = np.linalg.svd((A - A.mean(0)).T @ (B - B.mean(0)))
+            R = Vt.T @ U.T; tt = B.mean(0) - R @ A.mean(0)
+            x, y = R @ (x, y) + tt; da = math.atan2(R[1, 0], R[0, 0]); th += da; dx, dy = tt
+        if max(abs(dx), abs(dy), abs(da)) &lt; 1e-5: break
+    return x, y, th
+
+def compose(p, d):                                            # p ⊕ d (SE(2) 합성)
+    c, s = math.cos(p[2]), math.sin(p[2])
+    return (p[0] + c * d[0] - s * d[1], p[1] + s * d[0] + c * d[1], p[2] + d[2])
+
+class ScanOdom(Node):
+    def __init__(self):
+        super().__init__(&#x27;scan_odometry&#x27;)
+        self.cmd = self.create_publisher(Twist, &#x27;/cmd_vel&#x27;, 10)
+        self.create_subscription(LaserScan, &#x27;/scan&#x27;, self.on_scan, 10)
+        self.create_subscription(Odometry, &#x27;/odom&#x27;, self.on_odom, 10)
+        self.prev, self.odom = None, START
+        self.est = {&#x27;icp_p2p&#x27;: [START, (0.0, 0.0, 0.0)], &#x27;icp_p2l&#x27;: [START, (0.0, 0.0, 0.0)]}  # [자세, 직전 이동]
+        self.log = {&#x27;gt&#x27;: [], &#x27;odom&#x27;: [], &#x27;icp_p2p&#x27;: [], &#x27;icp_p2l&#x27;: []}
+        self.create_timer(0.1, self.drive)
+    def drive(self):
+        t = Twist(); t.linear.x, t.angular.z = 0.2, 0.25      # 반지름 0.8 m 원 한 바퀴
+        self.cmd.publish(t)
+    def on_odom(self, m):                                     # /odom은 odom 프레임(시작=0) → 월드로
+        q = m.pose.pose.orientation
+        self.odom = compose(START, (m.pose.pose.position.x, m.pose.pose.position.y, euler_from_quaternion([q.x, q.y, q.z, q.w])[2]))
+    def on_scan(self, s):
+        P = points(s)
+        if self.prev is not None:
+            for k, e in self.est.items():
+                e[1] = icp(P, self.prev, e[1], line=(k == &#x27;icp_p2l&#x27;))   # 초기값 = 직전 이동 (등속 가정)
+                e[0] = compose(e[0], e[1])
+        self.prev = P
+        self.log[&#x27;gt&#x27;].append(sim.pose()); self.log[&#x27;odom&#x27;].append(self.odom)   # 시뮬 전용: gt
+        for k, e in self.est.items(): self.log[k].append(e[0])
+
+rclpy.init(); node = ScanOdom()
+try:
+    rclpy.spin(node)
+finally:
+    node.cmd.publish(Twist()); node.destroy_node(); rclpy.shutdown()
+
+G = np.array(node.log[&#x27;gt&#x27;])
+for k in (&#x27;odom&#x27;, &#x27;icp_p2p&#x27;, &#x27;icp_p2l&#x27;):
+    E = np.array(node.log[k]); e = np.hypot(*(E[:, :2] - G[:, :2]).T)
+    dth = math.degrees(math.atan2(math.sin(E[-1, 2] - G[-1, 2]), math.cos(E[-1, 2] - G[-1, 2])))
+    print(&#x27;%-8s ATE %.3f m | final %.3f m, %+6.1f deg | max %.3f m&#x27; % (k, np.sqrt((e ** 2).mean()), e[-1], dth, e.max()))
+    sim.plot(E[:, 0], E[:, 1], label=k)                       # 시뮬 전용 그래프
+sim.plot(G[:, 0], G[:, 1], label=&#x27;ground truth&#x27;)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[sim] 시뮬레이션 시간 25.0 s 종료 (sim.setup(duration=...)으로 변경)
+odom     ATE 0.080 m | final 0.138 m,  +10.4 deg | max 0.138 m   (대략)
+icp_p2p  ATE 1.519 m | final 2.656 m, +117.4 deg | max 2.714 m
+icp_p2l  ATE 0.033 m | final 0.067 m,   -0.2 deg | max 0.067 m</code></pre></div>
+<ul><li><strong>휠</strong>: 한 바퀴 뒤 14 cm·10° 틀립니다. 방향 오차 10.4°는 각속도 미끄럼 3 % × 360°와 맞습니다.</li><li><strong>점-점 ICP</strong>: 완전히 무너집니다(ATE 1.5 m). 스캔 간 이동(2 cm)이 빔 간격(1 m 거리에서 3.5 cm)보다 작아서 최근접 이웃이 "같은 번호의 빔"이 되고, ICP가 거의 움직이지 않은 쪽 극소에 붙잡힙니다. 실습 1(1 s 간격)에서는 잘 되던 것이 연속 매칭에서 안 되는 이유입니다.</li><li><strong>점-선 ICP</strong>: ATE 3.3 cm, 방향 오차 0.2°. 벽을 따라 미끄러지는 방향을 벌하지 않으므로 표본화 편향이 없습니다.</li></ul>
+<h3 id="실습-3-ekf-융합-휠-휠-imu-휠-imu-icp">실습 3. EKF 융합 — 휠, 휠+IMU, 휠+IMU+ICP<a class="anchor" href="#실습-3-ekf-융합-휠-휠-imu-휠-imu-icp">#</a></h3>
+<p>같은 주행에서 EKF 세 개를 동시에 돌립니다. <code>odom</code>은 휠 v·ω, <code>odom+imu</code>는 원본 MentorPi처럼 휠 v + IMU ω, <code>odom+imu+icp</code>는 여기에 ICP 속도를 더합니다. NEES 평균(3이면 이상적)도 함께 봅니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
+from sensor_msgs.msg import LaserScan, Imu
+import mentorpi_sim as sim                                    # 시뮬 전용
+START = (-1.7, -0.75, 0.0)
+sim.setup(world=&quot;room&quot;, duration=25.0, start=START, noise=True)  # 시뮬 전용
+
+def points(scan):
+    r = np.array(scan.ranges); a = scan.angle_min + np.arange(len(r)) * scan.angle_increment
+    ok = np.isfinite(r) &amp; (r &lt; 8.0)
+    return np.c_[r[ok] * np.cos(a[ok]), r[ok] * np.sin(a[ok])][::2]
+
+def icp(P, Q, T0, iters=15):                                  # 실습 2의 점-선 ICP (H도 돌려줌)
+    t = np.roll(Q, -1, 0) - np.roll(Q, 1, 0); N = np.c_[-t[:, 1], t[:, 0]]
+    ln = np.hypot(*N.T); okn = (ln &gt; 1e-6) &amp; (ln &lt; 0.3); N = N / np.where(okn, ln, 1)[:, None]
+    x, y, th = T0
+    for _ in range(iters):
+        c, s = math.cos(th), math.sin(th); Pw = P @ np.array([[c, s], [-s, c]]) + (x, y)
+        d2 = ((Pw[:, None, :] - Q[None, :, :]) ** 2).sum(2); j = d2.argmin(1)
+        k = okn[j] &amp; (np.sqrt(d2[np.arange(len(P)), j]) &lt; 0.2)
+        n, e = N[j[k]], Pw[k] - Q[j[k]]
+        J = np.c_[n, n[:, 1] * (Pw[k, 0] - x) - n[:, 0] * (Pw[k, 1] - y)]
+        H = J.T @ J; dx = -np.linalg.solve(H, J.T @ (n * e).sum(1))
+        x, y, th = x + dx[0], y + dx[1], th + dx[2]
+        if np.abs(dx).max() &lt; 1e-5: break
+    return (x, y, th), H
+
+Q_PROC = np.diag([1e-5, 1e-5, 1e-5, 0.02, 0.5])                # 공정 잡음 밀도 (튜닝 대상)
+SIG_ODOM_V = 0.05                                             # 휠 속도 표준편차 [m/s]
+class EKF:                                                    # 상태 [x, y, θ, v, ω]
+    def __init__(self, x0):
+        self.x = np.array([*x0, 0.0, 0.0]); self.P = np.diag([1e-6, 1e-6, 1e-6, 1e-2, 1e-2])
+    def predict(self, dt):
+        x, y, th, v, w = self.x; c, s = math.cos(th), math.sin(th)
+        self.x = np.array([x + v * c * dt, y + v * s * dt, th + w * dt, v, w])
+        F = np.eye(5); F[0, 2], F[0, 3], F[1, 2], F[1, 3], F[2, 4] = -v * s * dt, c * dt, v * c * dt, s * dt, dt
+        self.P = F @ self.P @ F.T + Q_PROC * dt
+    def update(self, z, idx, R):                              # z = H x + 잡음, H = 단위행렬의 행 선택
+        H = np.eye(5)[idx]; S = H @ self.P @ H.T + R; K = self.P @ H.T @ np.linalg.inv(S)
+        self.x = self.x + K @ (np.atleast_1d(z) - H @ self.x); self.P = (np.eye(5) - K @ H) @ self.P
+
+CFG = {&#x27;odom&#x27;: (&#x27;odom&#x27;,), &#x27;odom+imu&#x27;: (&#x27;odom_v&#x27;, &#x27;imu&#x27;), &#x27;odom+imu+icp&#x27;: (&#x27;odom_v&#x27;, &#x27;imu&#x27;, &#x27;icp&#x27;)}
+class Fusion(Node):
+    def __init__(self):
+        super().__init__(&#x27;ekf_fusion&#x27;)
+        self.cmd = self.create_publisher(Twist, &#x27;/cmd_vel&#x27;, 10)
+        self.create_subscription(Odometry, &#x27;/odom&#x27;, self.on_odom, 10)
+        self.create_subscription(Imu, &#x27;/imu&#x27;, self.on_imu, 10)
+        self.create_subscription(LaserScan, &#x27;/scan&#x27;, self.on_scan, 10)
+        self.f = {k: EKF(START) for k in CFG}; self.prev, self.delta = None, (0.0, 0.0, 0.0)
+        self.err = {k: [] for k in CFG}; self.nees = {k: [] for k in CFG}
+    def use(self, src): return [f for k, f in self.f.items() if src in CFG[k]]
+    def on_odom(self, m):
+        t = Twist(); t.linear.x, t.angular.z = 0.2, 0.25; self.cmd.publish(t)
+        v, w = m.twist.twist.linear.x, m.twist.twist.angular.z
+        for f in self.f.values(): f.predict(0.02)
+        for f in self.use(&#x27;odom&#x27;): f.update([v, w], [3, 4], np.diag([0.02 ** 2, 0.03 ** 2]))
+        for f in self.use(&#x27;odom_v&#x27;): f.update(v, [3], np.diag([SIG_ODOM_V ** 2]))
+    def on_imu(self, m):
+        for f in self.use(&#x27;imu&#x27;): f.update(m.angular_velocity.z, [4], np.diag([0.01 ** 2]))
+    def on_scan(self, s):
+        P = points(s)
+        if self.prev is not None:
+            self.delta, H = icp(P, self.prev, self.delta)
+            C = 0.01 ** 2 * np.linalg.inv(H)[np.ix_([0, 2], [0, 2])] / 0.1 ** 2 + np.diag([1e-4, 1e-4])
+            for f in self.use(&#x27;icp&#x27;): f.update(np.array([self.delta[0], self.delta[2]]) / 0.1, [3, 4], C)
+        self.prev = P
+        g = np.array(sim.pose())                              # 시뮬 전용: 정답과 비교
+        for k, f in self.f.items():
+            e = g - f.x[:3]; e[2] = math.atan2(math.sin(e[2]), math.cos(e[2]))
+            self.err[k].append(e); self.nees[k].append(e @ np.linalg.solve(f.P[:3, :3], e))
+
+rclpy.init(); node = Fusion()
+try:
+    rclpy.spin(node)
+finally:
+    node.cmd.publish(Twist()); node.destroy_node(); rclpy.shutdown()
+print(&#x27;config        ATE[m]  final[m]  yaw[deg]  mean NEES (ideal 3)&#x27;)
+for k in CFG:
+    E = np.array(node.err[k]); d = np.hypot(E[:, 0], E[:, 1])
+    print(&#x27;%-13s %.3f   %.3f    %+5.1f    %8.1f&#x27; % (k, np.sqrt((d ** 2).mean()), d[-1], math.degrees(E[-1, 2]), np.mean(node.nees[k])))
+    sim.plot(np.arange(len(d)) * 0.1, d, label=k + &#x27; |e| [m]&#x27;)  # 시뮬 전용 그래프</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[sim] 시뮬레이션 시간 25.0 s 종료 (sim.setup(duration=...)으로 변경)
+config        ATE[m]  final[m]  yaw[deg]  mean NEES (ideal 3)   (대략)
+odom          0.080   0.140    -10.4        39.8
+odom+imu      0.060   0.019     +0.4         7.7
+odom+imu+icp  0.024   0.021     +0.4         2.0</code></pre></div>
+<ul><li>IMU를 넣으면 방향 오차가 −10.4° → +0.4°로 사라집니다. 남는 오차는 선속도 미끄럼 5 %입니다. 원 궤적이라 한 바퀴 끝에서 되돌아와 끝점 오차는 작지만(1.9 cm), 도중 오차(ATE 6 cm)는 큽니다.</li><li>ICP 속도를 더하면 선속도 편향까지 잡혀 ATE가 2.4 cm로 줄고, NEES 평균 2.0으로 공분산도 현실적입니다.</li><li>휠만 쓴 필터의 NEES 39.8은 "10° 틀렸는데 1° 틀렸다고 믿는" 과신 상태입니다.</li></ul>
+<p><strong>튜닝 표.</strong> 위 코드에서 <code>Q_PROC</code>의 x·y·θ·v 항과 <code>SIG_ODOM_V</code>만 바꿔 실행한 결과입니다(ω 항 0.5 고정).</p>
+<div class="table-wrap"><table><thead><tr><th>Q (x, y, θ)</th><th>Q (v)</th><th>σ 휠 v</th><th>ATE odom+imu [m]</th><th>ATE +icp [m]</th><th>NEES odom+imu</th><th>NEES +icp</th></tr></thead><tbody><tr><td>1e-5</td><td>0.2</td><td>0.02</td><td>0.060</td><td>0.052</td><td>18.9</td><td>13.8</td></tr><tr><td>1e-5</td><td>0.2</td><td>0.05</td><td>0.060</td><td>0.040</td><td>7.7</td><td>4.2</td></tr><tr><td>1e-5</td><td>0.02</td><td>0.02</td><td>0.060</td><td>0.048</td><td>19.0</td><td>12.1</td></tr><tr><td><strong>1e-5</strong></td><td><strong>0.02</strong></td><td><strong>0.05</strong></td><td><strong>0.060</strong></td><td><strong>0.024</strong></td><td><strong>7.7</strong></td><td><strong>2.0</strong></td></tr><tr><td>1e-4</td><td>0.02</td><td>0.05</td><td>0.060</td><td>0.024</td><td>2.2</td><td>0.4</td></tr><tr><td>4e-4</td><td>0.02</td><td>0.05</td><td>0.060</td><td>0.024</td><td>0.7</td><td>0.2</td></tr></tbody></table></div>
+<ul><li>휠 v를 믿을수록(σ 0.02) 50 Hz 휠 갱신이 10 Hz ICP 갱신을 덮어써 ICP 효과가 사라집니다. 편향이 있는 센서는 <strong>잡음보다 크게</strong> 불신해야 합니다.</li><li>위치 Q를 키우면 ATE는 같은데 NEES만 작아집니다(과소신). 정확도(ATE)와 일관성(NEES)은 <strong>다른 질문</strong>입니다.</li></ul>
+<h3 id="실습-4-복도-퇴화와-오도메트리-사전값">실습 4. 복도 퇴화와 오도메트리 사전값<a class="anchor" href="#실습-4-복도-퇴화와-오도메트리-사전값">#</a></h3>
+<p>빈 방에 폭 1 m 복도를 만들고 2 s 동안 0.2 m/s로 직진하며 연속 ICP를 합산합니다. 라이다 전체 거리(복도 양 끝 벽이 보임)와 1.5 m로 자른 경우(긴 복도와 같음), 그리고 1.5 m + 휠 사전값을 비교합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
+from sensor_msgs.msg import LaserScan
+import mentorpi_sim as sim                                    # 시뮬 전용
+sim.setup(world=&quot;empty&quot;, duration=3.0, start=(-0.2, 0.0, 0.0))  # 시뮬 전용
+sim.add_box(0.0, 0.5, 5.6, 0.04); sim.add_box(0.0, -0.5, 5.6, 0.04)   # 시뮬 전용: 폭 1 m 복도
+
+def points(scan, rmax):
+    r = np.array(scan.ranges); a = scan.angle_min + np.arange(len(r)) * scan.angle_increment
+    ok = np.isfinite(r) &amp; (r &lt; rmax)
+    return np.c_[r[ok] * np.cos(a[ok]), r[ok] * np.sin(a[ok])]
+
+def icp(P, Q, T0=(0.0, 0.0, 0.0), iters=15, prior=None):     # 점-선 ICP (+ 선택: 오도메트리 사전값)
+    t = np.roll(Q, -3, 0) - np.roll(Q, 3, 0); N = np.c_[-t[:, 1], t[:, 0]]
+    ln = np.hypot(*N.T); okn = (ln &gt; 1e-6) &amp; (ln &lt; 0.5); N = N / np.where(okn, ln, 1)[:, None]
+    x = np.array(T0, float)
+    for _ in range(iters):
+        c, s = math.cos(x[2]), math.sin(x[2]); Pw = P @ np.array([[c, s], [-s, c]]) + x[:2]
+        d2 = ((Pw[:, None, :] - Q[None, :, :]) ** 2).sum(2); j = d2.argmin(1)
+        k = okn[j] &amp; (np.sqrt(d2[np.arange(len(P)), j]) &lt; 0.3)
+        n, e = N[j[k]], Pw[k] - Q[j[k]]
+        J = np.c_[n, n[:, 1] * (Pw[k, 0] - x[0]) - n[:, 0] * (Pw[k, 1] - x[1])]
+        H, g = J.T @ J, J.T @ (n * e).sum(1)
+        if prior is not None:                                 # 약한 방향만 오도메트리가 채우도록
+            H, g = H + prior[1], g + prior[1] @ (x - prior[0])
+        dx = -np.linalg.solve(H, g); x += dx
+        if np.abs(dx).max() &lt; 1e-5: break
+    return x, J.T @ J
+
+VARIANTS = {&#x27;full range&#x27;: (12.0, False), &#x27;range&lt;1.5 m&#x27;: (1.5, False), &#x27;range&lt;1.5 m + odom prior&#x27;: (1.5, True)}
+class Corridor(Node):
+    def __init__(self):
+        super().__init__(&#x27;degeneracy_check&#x27;)
+        self.cmd = self.create_publisher(Twist, &#x27;/cmd_vel&#x27;, 10)
+        self.create_subscription(LaserScan, &#x27;/scan&#x27;, self.on_scan, 10)
+        self.create_subscription(Odometry, &#x27;/odom&#x27;, lambda m: setattr(self, &#x27;ox&#x27;, m.pose.pose.position.x), 10)
+        self.prev, self.acc, self.eig, self.ox, self.px = None, {k: 0.0 for k in VARIANTS}, {}, 0.0, 0.0
+        self.g0 = self.o0 = None
+        self.create_timer(0.1, self.drive)
+    def drive(self):
+        t = Twist(); t.linear.x = 0.2 if 0.5 &lt; self.get_clock().now().nanoseconds * 1e-9 &lt; 2.5 else 0.0
+        self.cmd.publish(t)
+    def on_scan(self, s):
+        if self.g0 is None: self.g0, self.o0 = sim.pose()[0], self.ox        # 시뮬 전용: 정답 x
+        if self.prev is not None:
+            for k, (rmax, use_prior) in VARIANTS.items():
+                Q, P = points(self.prev, rmax), points(s, rmax)
+                pr = (np.array([self.ox - self.px, 0, 0]), np.diag([400.0, 0, 0])) if use_prior else None
+                x, H = icp(P, Q, prior=pr)
+                self.acc[k] += x[0]
+                w = np.linalg.eigvalsh(H[:2, :2]); self.eig[k] = (w[0], w[1], len(P))
+        self.prev, self.px = s, self.ox
+
+rclpy.init(); node = Corridor()
+try:
+    rclpy.spin(node)
+finally:
+    node.cmd.publish(Twist()); node.destroy_node(); rclpy.shutdown()
+
+print(&#x27;true forward motion %.3f m, wheel odom %.3f m&#x27; % (sim.pose()[0] - node.g0, node.ox - node.o0))   # 시뮬 전용
+for k in VARIANTS:
+    w0, w1, n = node.eig[k]
+    print(&#x27;%-25s pts %3d | eig(H_xy) %7.1f %7.1f  cond %8.0f | ICP forward %.3f m&#x27; % (k, n, w0, w1, w1 / max(w0, 1e-9), node.acc[k]))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[sim] 시뮬레이션 시간 3.0 s 종료 (sim.setup(duration=...)으로 변경)
+true forward motion 0.361 m, wheel odom 0.380 m   (대략)
+full range                pts 360 | eig(H_xy)    34.4   280.6  cond        8 | ICP forward 0.361 m
+range&lt;1.5 m               pts 286 | eig(H_xy)     6.1   266.9  cond       44 | ICP forward 0.094 m
+range&lt;1.5 m + odom prior  pts 286 | eig(H_xy)     5.6   268.4  cond       48 | ICP forward 0.380 m</code></pre></div>
+<ul><li>전체 거리: 조건수 8, ICP 36.1 cm로 정답과 같습니다.</li><li>1.5 m로 자르면 x 방향 고윳값이 34 → 6으로 줄고(조건수 44), ICP는 36 cm 중 9 cm만 봅니다. 벽만 보이는 방향은 "움직이지 않았다"는 초기값 쪽으로 끌려갑니다.</li><li>약한 방향에만 휠 사전값을 넣으면 38 cm — 휠의 5 % 과대 추정을 그대로 물려받지만, 적어도 멈춰 있다고 착각하지는 않습니다. EKF에서는 이 방향 ICP 공분산을 키워 같은 효과를 냅니다.</li></ul>
+<h3 id="2d-3d-시뮬레이터로-확인">2D·3D 시뮬레이터로 확인<a class="anchor" href="#2d-3d-시뮬레이터로-확인">#</a></h3>
+<p class="cta-row"><a class="ghost-btn cta" href="../sim/index.html">2D 시뮬레이터 열기</a></p>
+<ol><li><strong>오도메트리 오차 표시</strong>를 켜고 <strong>corridor</strong> 월드에서 직진·회전을 반복해 오도메트리 궤적이 실제와 벌어지는 모양을 봅니다.</li><li><strong>SLAM</strong> 모드를 켜면 스캔 매칭이 오도메트리 오차를 어떻게 흡수하는지 지도와 함께 볼 수 있습니다.</li></ol>
+<p class="cta-row"><a class="ghost-btn cta" href="../sim3d/index.html">3D 시뮬레이터 열기</a></p>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">안전 확인 (실물 실습 전 필수)</div><div class="callout-body"><ul><li>텔레옵 속도는 원본 제한(0.2 m/s, 0.5 rad/s) 안에서, 급출발·급정지 없이 운전합니다. 급가속은 바퀴 미끄럼을 키워 실험을 망치고 로봇을 넘어뜨릴 수 있습니다.</li><li>팀 노드는 <strong>TF를 발행하지 않습니다.</strong> 같은 <code>odom → base_footprint</code>를 두 노드가 내면 SLAM·내비게이션이 튀고 로봇이 엉뚱하게 움직일 수 있습니다.</li><li>로봇 들어 올리기(게이트 시험)는 모터 명령이 0인 상태에서만, 두 손으로 합니다.</li><li>실험 공간의 바닥을 정리하고, 복도 시험 중 사람이 라이다 높이를 가로막지 않게 합니다.</li><li>멈추는 방법: 텔레옵 창의 정지 키, <code>ros2 topic pub --once /controller/cmd_vel geometry_msgs/msg/Twist &quot;{}&quot;</code>, 전원 스위치.</li></ul></div></div>
+<h3 id="1-기준-구성-slam-텔레옵">1) 기준 구성: SLAM + 텔레옵<a class="anchor" href="#1-기준-구성-slam-텔레옵">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash"># 로봇 (컨테이너) — 앱 자동 실행 중지
+~/.stop_ros.sh
+ros2 launch slam slam.launch.py                       # 컨트롤러·EKF·라이다 + slam_toolbox (map→odom)
+
+# 새 터미널 — 키보드 텔레옵
+ros2 launch peripherals teleop_key_control.launch.py
+
+# 가상머신 — 지도·자세 확인
+ros2 launch slam rviz_slam.launch.py</code></pre></div>
+<p>slam_toolbox가 보정한 TF <code>map → base_footprint</code>를 <strong>참값 대용</strong>으로 씁니다. 방 하나 크기에서는 루프 폐쇄로 수 cm 수준이지만, 스캔 매칭 기반이라 우리 ICP와 완전히 독립은 아닙니다. 그래서 출발점에 테이프로 십자를 표시하고, 한 바퀴 돌아와 <strong>같은 십자에 멈췄을 때 각 오도메트리가 말하는 끝점 오차</strong>도 함께 기록합니다(외부 참값).</p>
+<h3 id="2-rf2o-켜-보기-원본-경로">2) rf2o 켜 보기 (원본 경로)<a class="anchor" href="#2-rf2o-켜-보기-원본-경로">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 pkg prefix rf2o_laser_odometry                   # 설치 확인 (없으면 이 단계 생략)
+ros2 launch controller rf2o_laser_odometry.launch.py  # /scan_raw → /odom_rf2o, 10 Hz, TF 없음
+ros2 topic hz /odom_rf2o</code></pre></div>
+<p><code>ekf.yaml</code>에 <code>odom1: odom_rf2o</code>가 이미 있으므로, rf2o를 켜는 순간부터 원본 <code>/odom</code>의 성격이 바뀝니다. 따라서 E2 비교는 <strong>rf2o 끔 / 켬 두 번 주행</strong>으로 합니다.</p>
+<h3 id="3-팀-노드-icp-오도메트리">3) 팀 노드: ICP 오도메트리<a class="anchor" href="#3-팀-노드-icp-오도메트리">#</a></h3>
+<div class="code-block code-robot"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-robot">실물 전용</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">#!/usr/bin/env python3
+# icp_odometry.py — /scan_raw → 점-선 ICP 스캔 매칭 오도메트리 → /odom_icp (TF 발행 안 함)
+import math
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
+from sensor_msgs.msg import LaserScan
+from nav_msgs.msg import Odometry
+from tf_transformations import quaternion_from_euler
+
+def points(scan, rmax):
+    r = np.array(scan.ranges, dtype=float); a = scan.angle_min + np.arange(len(r)) * scan.angle_increment
+    ok = np.isfinite(r) &amp; (r &gt; max(scan.range_min, 0.15)) &amp; (r &lt; rmax)   # 0.15 m 안(차체) 제외
+    return np.c_[r[ok] * np.cos(a[ok]), r[ok] * np.sin(a[ok])]
+
+def icp(P, Q, T0, iters=15, gate=0.2):
+    t = np.roll(Q, -1, 0) - np.roll(Q, 1, 0); N = np.c_[-t[:, 1], t[:, 0]]
+    ln = np.hypot(*N.T); okn = (ln &gt; 1e-6) &amp; (ln &lt; 0.3); N = N / np.where(okn, ln, 1)[:, None]
+    x = np.array(T0, float); H = np.eye(3); k = np.zeros(len(P), bool)
+    for _ in range(iters):
+        c, s = math.cos(x[2]), math.sin(x[2]); Pw = P @ np.array([[c, s], [-s, c]]) + x[:2]
+        d2 = ((Pw[:, None, :] - Q[None, :, :]) ** 2).sum(2); j = d2.argmin(1)   # 450×450: 파이 5에서 수 ms
+        k = okn[j] &amp; (np.sqrt(d2[np.arange(len(P)), j]) &lt; gate)
+        if k.sum() &lt; 30: return None, None, 0
+        n, e = N[j[k]], Pw[k] - Q[j[k]]
+        J = np.c_[n, n[:, 1] * (Pw[k, 0] - x[0]) - n[:, 0] * (Pw[k, 1] - x[1])]
+        H = J.T @ J; dx = -np.linalg.solve(H, J.T @ (n * e).sum(1)); x += dx
+        if np.abs(dx).max() &lt; 1e-5: break
+    return x, H, int(k.sum())
+
+class IcpOdometry(Node):
+    def __init__(self):
+        super().__init__(&#x27;icp_odometry&#x27;)
+        self.rmax = self.declare_parameter(&#x27;max_range&#x27;, 8.0).value
+        self.sigma = self.declare_parameter(&#x27;sigma&#x27;, 0.01).value      # 점-선 잔차 표준편차 [m]
+        self.create_subscription(LaserScan, &#x27;/scan_raw&#x27;, self.on_scan, qos_profile_sensor_data)
+        self.pub = self.create_publisher(Odometry, &#x27;/odom_icp&#x27;, 10)
+        self.prev, self.t_prev, self.delta = None, None, np.zeros(3)
+        self.pose = np.zeros(3)
+    def on_scan(self, s):
+        P = points(s, self.rmax)[::2]
+        t = s.header.stamp.sec + s.header.stamp.nanosec * 1e-9
+        if self.prev is not None and len(P) &gt; 50:
+            d, H, n = icp(P, self.prev, self.delta)
+            dt = t - self.t_prev
+            if d is None or not 0.01 &lt; dt &lt; 0.5:
+                self.get_logger().warn(&#x27;ICP failed (inliers &lt; 30) — keep previous estimate&#x27;, throttle_duration_sec=2.0)
+            else:
+                w = np.linalg.eigvalsh(H[:2, :2]); cov = self.sigma ** 2 * np.linalg.inv(H)
+                if w[1] / max(w[0], 1e-9) &gt; 100:                    # 퇴화(긴 복도): 약한 방향 불신
+                    cov[:2, :2] += np.eye(2) * 1.0
+                    self.get_logger().warn(&#x27;degenerate scan (cond %.0f)&#x27; % (w[1] / w[0]), throttle_duration_sec=2.0)
+                self.delta = d
+                c, sn = math.cos(self.pose[2]), math.sin(self.pose[2])
+                self.pose += (c * d[0] - sn * d[1], sn * d[0] + c * d[1], d[2])
+                self.publish(s.header.stamp, d / dt, cov / dt ** 2, n)
+        self.prev, self.t_prev = P, t
+    def publish(self, stamp, vel, cov, n):
+        o = Odometry(); o.header.stamp = stamp; o.header.frame_id = &#x27;odom&#x27;; o.child_frame_id = &#x27;base_footprint&#x27;
+        o.pose.pose.position.x, o.pose.pose.position.y = float(self.pose[0]), float(self.pose[1])
+        q = quaternion_from_euler(0.0, 0.0, float(self.pose[2]))
+        o.pose.pose.orientation.x, o.pose.pose.orientation.y, o.pose.pose.orientation.z, o.pose.pose.orientation.w = q
+        o.twist.twist.linear.x, o.twist.twist.linear.y, o.twist.twist.angular.z = (float(v) for v in vel)
+        tc = [0.0] * 36                                              # 6×6 (x y z r p y) 중 x, y, yaw
+        for a, i in enumerate((0, 1, 5)):
+            for b, j in enumerate((0, 1, 5)):
+                tc[i * 6 + j] = float(cov[a, b])
+        o.twist.covariance = tc
+        self.pub.publish(o)
+
+def main():
+    rclpy.init(); node = IcpOdometry()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node(); rclpy.shutdown()
+
+if __name__ == &#x27;__main__&#x27;:
+    main()</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">python3 ~/icp_odometry.py --ros-args -p max_range:=8.0 -p sigma:=0.01
+ros2 topic hz /odom_icp                               # 약 10 Hz
+ros2 topic echo /odom_icp --field twist.twist         # 정지 시 0 근처</code></pre></div>
+<h3 id="4-팀-노드-ekf">4) 팀 노드: EKF<a class="anchor" href="#4-팀-노드-ekf">#</a></h3>
+<div class="code-block code-robot"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-robot">실물 전용</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">#!/usr/bin/env python3
+# my_ekf.py — /odom_raw(v) + /imu(ω) + /odom_icp(v, ω) → EKF [x, y, θ, v, ω] → /odom_fused
+import math
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from nav_msgs.msg import Odometry
+from sensor_msgs.msg import Imu
+from tf_transformations import quaternion_from_euler
+
+class MyEkf(Node):
+    def __init__(self):
+        super().__init__(&#x27;my_ekf&#x27;)
+        q = self.declare_parameter(&#x27;process_noise&#x27;, [1e-5, 1e-5, 1e-5, 0.02, 0.5]).value
+        self.Q = np.diag(q)
+        self.sig_v = self.declare_parameter(&#x27;sigma_wheel_v&#x27;, 0.05).value
+        self.sig_w = self.declare_parameter(&#x27;sigma_imu_w&#x27;, 0.01).value
+        self.use_icp = self.declare_parameter(&#x27;use_icp&#x27;, True).value
+        self.x = np.zeros(5); self.P = np.diag([1e-6, 1e-6, 1e-6, 1e-2, 1e-2]); self.t = None
+        self.create_subscription(Odometry, &#x27;/odom_raw&#x27;, self.on_odom, 10)
+        self.create_subscription(Imu, &#x27;/imu&#x27;, self.on_imu, 10)
+        self.create_subscription(Odometry, &#x27;/odom_icp&#x27;, self.on_icp, 10)
+        self.pub = self.create_publisher(Odometry, &#x27;/odom_fused&#x27;, 10)
+        self.nis = {}                                                   # 센서별 NIS 기록
+    def predict(self):
+        now = self.get_clock().now().nanoseconds * 1e-9
+        dt = 0.0 if self.t is None else min(now - self.t, 0.1); self.t = now
+        x, y, th, v, w = self.x; c, s = math.cos(th), math.sin(th)
+        self.x = np.array([x + v * c * dt, y + v * s * dt, th + w * dt, v, w])
+        F = np.eye(5); F[0, 2], F[0, 3], F[1, 2], F[1, 3], F[2, 4] = -v * s * dt, c * dt, v * c * dt, s * dt, dt
+        self.P = F @ self.P @ F.T + self.Q * dt
+    def update(self, z, idx, R, gate=None):
+        H = np.eye(5)[idx]; r = np.atleast_1d(z) - H @ self.x; S = H @ self.P @ H.T + R
+        d2 = float(r @ np.linalg.solve(S, r))                           # NIS (마할라노비스 거리²)
+        if gate and d2 &gt; gate:
+            self.get_logger().warn(&#x27;reject %s (NIS %.1f)&#x27; % (idx, d2), throttle_duration_sec=1.0); return
+        K = self.P @ H.T @ np.linalg.inv(S); self.x = self.x + K @ r
+        I_KH = np.eye(5) - K @ H; self.P = I_KH @ self.P @ I_KH.T + K @ R @ K.T   # 조셉 형태 (대칭 유지)
+        self.nis.setdefault(str(idx), []).append(d2)
+    def on_odom(self, m):                                               # 50 Hz: 예측 + 휠 v 갱신
+        self.predict()
+        self.update(m.twist.twist.linear.x, [3], np.array([[self.sig_v ** 2]]))
+        self.publish(m.header.stamp)
+    def on_imu(self, m):
+        self.predict(); self.update(m.angular_velocity.z, [4], np.array([[self.sig_w ** 2]]))
+    def on_icp(self, m):                                                # 10 Hz: ICP v, ω (공분산 포함)
+        if not self.use_icp: return
+        c = np.array(m.twist.covariance).reshape(6, 6)[np.ix_([0, 5], [0, 5])] + np.diag([1e-4, 1e-4])
+        self.predict(); self.update([m.twist.twist.linear.x, m.twist.twist.angular.z], [3, 4], c, gate=13.8)  # χ²(2) 99.9 %
+    def publish(self, stamp):
+        o = Odometry(); o.header.stamp = stamp; o.header.frame_id = &#x27;odom&#x27;; o.child_frame_id = &#x27;base_footprint&#x27;
+        o.pose.pose.position.x, o.pose.pose.position.y = float(self.x[0]), float(self.x[1])
+        q = quaternion_from_euler(0.0, 0.0, float(self.x[2]))
+        o.pose.pose.orientation.x, o.pose.pose.orientation.y, o.pose.pose.orientation.z, o.pose.pose.orientation.w = q
+        o.twist.twist.linear.x, o.twist.twist.angular.z = float(self.x[3]), float(self.x[4])
+        pc = [0.0] * 36
+        for a, i in enumerate((0, 1, 5)):
+            for b, j in enumerate((0, 1, 5)):
+                pc[i * 6 + j] = float(self.P[a, b])
+        o.pose.covariance = pc
+        self.pub.publish(o)
+
+def main():
+    rclpy.init(); node = MyEkf()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        for key, v in node.nis.items():                                 # 기대값 = 측정 차원 수 (1 또는 2)
+            node.get_logger().info(&#x27;mean NIS %s %.2f over %d updates&#x27; % (key, np.mean(v), len(v)))
+        node.destroy_node(); rclpy.shutdown()
+
+if __name__ == &#x27;__main__&#x27;:
+    main()</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">python3 ~/my_ekf.py --ros-args -p sigma_wheel_v:=0.05 -p sigma_imu_w:=0.01
+python3 ~/my_ekf.py --ros-args -r /odom_fused:=/odom_fused_noicp -p use_icp:=false -r __node:=my_ekf_noicp   # 비교용 (ICP 없음)</code></pre></div>
+<h3 id="5-기록과-평가">5) 기록과 평가<a class="anchor" href="#5-기록과-평가">#</a></h3>
+<div class="code-block code-robot"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-robot">실물 전용</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">#!/usr/bin/env python3
+# odom_eval.py — 여러 오도메트리를 slam_toolbox 자세(map→base_footprint)와 비교: CSV 기록 + 종료 시 ATE/RPE
+import csv, math, os
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from rclpy.time import Time
+from nav_msgs.msg import Odometry
+from tf2_ros import Buffer, TransformListener, TransformException
+from tf_transformations import euler_from_quaternion
+
+SOURCES = [&#x27;/odom&#x27;, &#x27;/odom_raw&#x27;, &#x27;/odom_rf2o&#x27;, &#x27;/odom_icp&#x27;, &#x27;/odom_fused&#x27;]
+yaw = lambda q: euler_from_quaternion([q.x, q.y, q.z, q.w])[2]
+
+def align(E, G):                                           # 2D 강체 정렬 (Umeyama, 척도 없음)
+    me, mg = E.mean(0), G.mean(0)
+    U, _, Vt = np.linalg.svd((E - me).T @ (G - mg)); R = Vt.T @ U.T
+    if np.linalg.det(R) &lt; 0: Vt[1] *= -1; R = Vt.T @ U.T
+    return (E - me) @ R.T + mg
+
+def rpe(E, G, step=1.0):                                  # 주행 거리 step [m]마다 상대 이동 오차
+    s = np.r_[0, np.cumsum(np.hypot(*np.diff(G, axis=0).T))]; out, i = [], 0
+    for j in range(len(G)):
+        if s[j] - s[i] &gt;= step:
+            out.append(np.hypot(*((E[j] - E[i]) - (G[j] - G[i])))); i = j
+    return np.mean(out) if out else float(&#x27;nan&#x27;)
+
+class OdomEval(Node):
+    def __init__(self):
+        super().__init__(&#x27;odom_eval&#x27;)
+        self.last = {}
+        for t in SOURCES:
+            self.create_subscription(Odometry, t, lambda m, t=t: self.last.__setitem__(
+                t, (m.pose.pose.position.x, m.pose.pose.position.y, yaw(m.pose.pose.orientation))), 10)
+        self.tf_buffer = Buffer(); self.tf_listener = TransformListener(self.tf_buffer, self)
+        self.rows = []; self.create_timer(0.1, self.sample)
+        self.f = open(os.path.expanduser(&#x27;~/p06_run.csv&#x27;), &#x27;w&#x27;, newline=&#x27;&#x27;); self.w = csv.writer(self.f)
+        self.w.writerow([&#x27;t&#x27;, &#x27;ref_x&#x27;, &#x27;ref_y&#x27;, &#x27;ref_yaw&#x27;] + [&#x27;%s_%s&#x27; % (s, a) for s in SOURCES for a in &#x27;xyθ&#x27;])
+    def sample(self):
+        try:
+            tf = self.tf_buffer.lookup_transform(&#x27;map&#x27;, &#x27;base_footprint&#x27;, Time())
+        except TransformException:
+            return
+        ref = (tf.transform.translation.x, tf.transform.translation.y, yaw(tf.transform.rotation))
+        row = [self.get_clock().now().nanoseconds * 1e-9, *ref] + [v for s in SOURCES for v in self.last.get(s, (math.nan,) * 3)]
+        self.rows.append(row); self.w.writerow(row)
+    def report(self):
+        if len(self.rows) &lt; 20: print(&#x27;no reference pose (map-&gt;base_footprint) recorded&#x27;); return
+        A = np.array(self.rows); G = A[:, 1:3]
+        for k, s in enumerate(SOURCES):
+            E = A[:, 4 + 3 * k:6 + 3 * k]; ok = np.isfinite(E).all(1)
+            if ok.sum() &lt; 20: continue
+            e = np.hypot(*(align(E[ok], G[ok]) - G[ok]).T)
+            print(&#x27;%-12s ATE %.3f m  max %.3f m  RPE(1 m) %.3f m&#x27; % (s, np.sqrt((e ** 2).mean()), e.max(), rpe(align(E[ok], G[ok]), G[ok])))
+
+def main():
+    rclpy.init(); node = OdomEval()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.f.close(); node.report(); node.destroy_node(); rclpy.shutdown()
+
+if __name__ == &#x27;__main__&#x27;:
+    main()</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">python3 ~/odom_eval.py                                # 주행 후 Ctrl+C → ATE/RPE 출력, ~/p06_run.csv
+ros2 bag record -o p06_run1 /scan_raw /odom_raw /imu /odom /odom_rf2o /odom_icp /odom_fused /tf /tf_static</code></pre></div>
+<p>rosbag을 남겨 두면 파라미터를 바꾼 <code>my_ekf.py</code>를 같은 데이터로 다시 돌릴 수 있습니다(<code>ros2 bag play p06_run1</code> + 팀 노드만 실행, <code>/odom_icp</code>·<code>/odom_fused</code>는 기록에서 빼고 재생).</p>
+<h2 id="실험과-평가">실험과 평가<a class="anchor" href="#실험과-평가">#</a></h2>
+<p><strong>지표.</strong> ATE(Absolute Trajectory Error)는 추정 궤적을 기준 궤적에 강체 정렬한 뒤 위치 오차의 RMS, RPE(Relative Pose Error)는 주행 거리 1 m마다 상대 이동 오차의 평균입니다(Sturm 외 2012). ATE는 전체 일관성, RPE는 국소 드리프트율을 봅니다. 끝점 오차는 같은 표시로 돌아왔을 때의 위치 차이입니다.</p>
+<p><strong>E1. 시뮬레이션 기준값 (실습 2·3, 반지름 0.8 m 원 한 바퀴, 약 5 m).</strong></p>
+<div class="table-wrap"><table><thead><tr><th>방법</th><th>ATE [m]</th><th>끝점 [m]</th><th>끝 방향 [°]</th><th>NEES</th></tr></thead><tbody><tr><td>휠 오도메트리 <code>/odom</code></td><td>0.080</td><td>0.138</td><td>+10.4</td><td>39.8 (EKF)</td></tr><tr><td>점-점 ICP 스캔 오도메트리</td><td>1.519</td><td>2.656</td><td>+117.4</td><td>—</td></tr><tr><td>점-선 ICP 스캔 오도메트리</td><td>0.033</td><td>0.067</td><td>−0.2</td><td>—</td></tr><tr><td>EKF 휠 + IMU (원본 구성과 같은 입력)</td><td>0.060</td><td>0.019</td><td>+0.4</td><td>7.7</td></tr><tr><td>EKF 휠 + IMU + 점-선 ICP</td><td><strong>0.024</strong></td><td>0.021</td><td>+0.4</td><td>2.0</td></tr></tbody></table></div>
+<p><strong>E2. 실물 비교 (방 한 바퀴 × 3회, 같은 주행에서 동시 기록).</strong></p>
+<div class="table-wrap"><table><thead><tr><th>출력</th><th>구성</th><th>ATE [m]</th><th>RPE (1 m) [m]</th><th>끝점 [m]</th><th>평균 NIS</th></tr></thead><tbody><tr><td><code>/odom_raw</code></td><td>휠만 (자세 적분)</td><td></td><td></td><td></td><td>—</td></tr><tr><td><code>/odom</code></td><td>robot_localization, rf2o 끔</td><td></td><td></td><td></td><td>—</td></tr><tr><td><code>/odom</code></td><td>robot_localization, rf2o 켬</td><td></td><td></td><td></td><td>—</td></tr><tr><td><code>/odom_rf2o</code></td><td>rf2o 단독</td><td></td><td></td><td></td><td>—</td></tr><tr><td><code>/odom_icp</code></td><td>팀 ICP 단독</td><td></td><td></td><td></td><td>—</td></tr><tr><td><code>/odom_fused</code></td><td>팀 EKF (휠 + IMU + ICP)</td><td></td><td></td><td></td><td>v: , ICP:</td></tr></tbody></table></div>
+<p><strong>E3. 퇴화 시험.</strong> 폭 1 m 이하, 길이 3 m 이상의 통로(책상·상자로 구성)를 2회 왕복하며 <code>/odom_icp</code>의 통로 방향 이동 거리와 줄자 값을 비교합니다. 퇴화 경고 비율(경고 스캔 / 전체 스캔)과 <code>/odom_fused</code> 오차도 기록합니다.</p>
+<p><strong>E4. 처리 시간.</strong> <code>icp_odometry.py</code>에 <code>time.perf_counter()</code>를 넣어 스캔당 처리 시간 분포(평균, 95 백분위)를 기록하고, 표본화(1/1, 1/2, 1/4)에 따른 ATE와 시간의 교환 관계를 그립니다.</p>
+<h2 id="평가-기준">평가 기준<a class="anchor" href="#평가-기준">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>영역</th><th>항목</th><th>배점</th><th>만점 기준</th></tr></thead><tbody><tr><td>이론</td><td>Kabsch 유도·점-선 야코비안·EKF 식</td><td>15</td><td>보고서에 유도 과정과 기호 정의</td></tr><tr><td>구현</td><td>ICP (M1·M3)</td><td>20</td><td>단위 시험 통과, 10 Hz, 처리 시간 N1</td></tr><tr><td>구현</td><td>퇴화 검사</td><td>10</td><td>복도에서 경고·공분산 조정 동작</td></tr><tr><td>구현</td><td>EKF (M4)</td><td>20</td><td>다중 주기 비동기 갱신, 게이팅, 조셉 형태</td></tr><tr><td>실험</td><td>E1~E4</td><td>20</td><td>3회 반복, 원본 대비 개선율, 실패 사례 포함</td></tr><tr><td>분석</td><td>튜닝·일관성</td><td>10</td><td>NEES/NIS로 Q·R 선택 근거 제시</td></tr><tr><td>안전</td><td>절차 준수</td><td>5</td><td>TF 충돌 없음, 속도 제한</td></tr><tr><td><strong>합계</strong></td><td></td><td><strong>100</strong></td><td></td></tr></tbody></table></div>
+<p>감점: 팀 노드가 TF <code>odom → base_footprint</code>를 발행해 원본과 충돌 −10, 속도 제한 초과 −10.</p>
+<h2 id="확장-과제">확장 과제<a class="anchor" href="#확장-과제">#</a></h2>
+<ul><li><strong>메카넘 상태 확장</strong>: 상태에 옆 속도 <span class="math">v_y</span>를 넣은 <span class="math">[x, y, θ, v_x, v_y, ω]</span> EKF로 바꾸고 옆걸음 주행에서 비교합니다(ICP는 Δy를 이미 줍니다).</li><li><strong>scan-to-map 오도메트리</strong>: 연속 스캔 대신 최근 N장을 합친 국소 지도(키프레임)와 매칭해 드리프트를 줄입니다. 키프레임 교체 기준(이동 0.3 m 또는 회전 15°)을 실험합니다.</li><li><strong>k-d 트리</strong>: <code>scipy.spatial.cKDTree</code>(설치된 경우) 또는 격자 해시로 최근접 이웃을 바꾸고 처리 시간을 비교합니다.</li><li><strong>자이로 편향 상태</strong>: 상태에 IMU 편향 <span class="math">b_ω</span>를 추가하고, 정지 구간에서 편향이 수렴하는지 봅니다.</li><li><strong>UKF</strong>: 같은 모델로 무향 칼만 필터를 구현해 큰 회전 속도에서 EKF와 비교합니다(robot_localization의 <code>ukf_node</code>와도 비교).</li><li><strong>robot_localization에 팀 ICP 연결</strong>: <code>ekf.yaml</code>의 <code>odom1</code>을 <code>odom_icp</code>로 바꾸고 <code>odom1_config</code>를 속도(vx, vy, vyaw)로, <code>odom1_differential</code>을 검토해 원본 필터로 팀 ICP를 쓰는 구성을 만듭니다(원본 파일은 백업).</li></ul>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td>ICP가 거의 0만 내놓음 (움직였는데)</td><td>점-점 ICP의 표본화 편향, 또는 퇴화</td><td>점-선 ICP 사용, 조건수 확인, 초기값을 휠 오도메트리로</td></tr><tr><td>ICP가 가끔 크게 튐</td><td>대응 게이트가 너무 큼, 사람·문 움직임</td><td>τ 0.2 m, 인라이어 &lt; 30이면 실패 처리, EKF 게이팅</td></tr><tr><td>회전할 때 스캔 오도메트리 방향이 늦음</td><td>스캔 한 장 동안의 회전(모션 왜곡)</td><td>느린 회전(≤ 0.5 rad/s), 확장: 빔별 시각으로 왜곡 보정</td></tr><tr><td><code>np.linalg.LinAlgError: Singular matrix</code></td><td>인라이어 부족 또는 모든 법선이 같은 방향</td><td>인라이어 수 검사 후 건너뜀, H에 작은 대각값 더하기</td></tr><tr><td><code>/odom_icp</code>가 안 나옴</td><td><code>/scan_raw</code> QoS 불일치</td><td><code>qos_profile_sensor_data</code>로 구독</td></tr><tr><td>로봇 몸체가 점으로 잡혀 ICP가 제자리에 고정</td><td>라이다가 차체·케이블을 봄</td><td>0.15 m 안 점 제거(코드처럼), 원본 <code>lidar_filters_config_ld19.yaml</code> 확인</td></tr><tr><td>EKF 추정이 발산하거나 NaN</td><td>Δt가 음수·아주 큼(시계 문제), P 비대칭</td><td>Δt 상한(0.1 s), 조셉 형태 갱신</td></tr><tr><td>두 로봇·노드의 TF가 튐</td><td>팀 노드가 TF 발행</td><td>TF 발행 제거, <code>ros2 run tf2_tools view_frames</code>로 확인</td></tr><tr><td>평균 NIS가 수십</td><td>R이 너무 작음(과신) 또는 편향</td><td>해당 센서 R 증가, 정지 데이터로 분산 재측정</td></tr><tr><td>rf2o를 켰더니 <code>/odom</code>이 튄다</td><td><code>odom1_relative</code>, 공분산 설정과 rf2o 품질</td><td>rf2o 단독 궤적부터 확인, 원본 구성과 끈 구성 비교</td></tr><tr><td><code>ros2 launch controller rf2o_laser_odometry.launch.py</code>가 패키지 없음 오류</td><td>이미지에 rf2o 미설치</td><td>이 비교는 생략하고 팀 ICP로 대신</td></tr><tr><td><code>/odom_icp</code>의 v가 전진인데 음수, 또는 회전 방향이 반대</td><td>라이다 프레임이 <code>base_footprint</code>와 회전되어 장착</td><td><code>ros2 run tf2_ros tf2_echo base_footprint lidar_frame</code>으로 확인, ICP 결과 Δ를 그 회전만큼 base 좌표로 돌림</td></tr><tr><td><code>odom_eval</code>이 "no reference pose"</td><td>slam 미실행, map 프레임 없음</td><td><code>slam.launch.py</code>를 켜고 로봇을 조금 움직여 지도 생성</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">기본 과제</div><div class="callout-body"><ol><li>실습 1에서 스캔 간격(0.5, 1, 2, 3 s)을 바꾸며 ICP 수렴 여부와 오차를 표로 만들고, 수렴 반경을 회전 각도로 설명합니다.</li><li>실습 3의 튜닝 표에 한 줄을 추가합니다: IMU 잡음 <code>0.01 ** 2</code>을 <code>0.05 ** 2</code>로 바꿨을 때 ATE·NEES가 어떻게 되는지 예측하고 실행해 확인합니다.</li></ol></div></div>
+<div class="callout callout-task"><div class="callout-title">심화 과제</div><div class="callout-body"><ol><li>점-점 ICP에서 목표 스캔 <span class="math">Q</span>를 선형 보간으로 5배 조밀하게 만들면 실습 2의 표본화 편향이 줄어드는지 실험하고, 점-선 ICP와 비교합니다.</li><li>실물 E2 표를 채우고, 팀 EKF가 원본 <code>robot_localization</code>(rf2o 켬)보다 좋거나 나쁜 이유를 모델(15차원 vs 5차원), 입력 방식(위치 vs 속도), 공분산 설정으로 나눠 분석합니다.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>P. J. Besl, N. D. McKay, "A method for registration of 3-D shapes," <em>IEEE TPAMI</em>, 14(2), 1992.</li><li>Y. Chen, G. Medioni, "Object modeling by registration of multiple range images," <em>ICRA</em>, 1991.</li><li>K. S. Arun, T. S. Huang, S. D. Blostein, "Least-squares fitting of two 3-D point sets," <em>IEEE TPAMI</em>, 9(5), 1987.</li><li>A. Censi, "An ICP variant using a point-to-line metric," <em>ICRA</em>, 2008. / "An accurate closed-form estimate of ICP's covariance," <em>ICRA</em>, 2007.</li><li>J. Zhang, M. Kaess, S. Singh, "On degeneracy of optimization-based state estimation problems," <em>ICRA</em>, 2016.</li><li>M. Jaimez, J. G. Monroy, J. Gonzalez-Jimenez, "Planar odometry from a radial laser scanner. A range flow-based approach," <em>ICRA</em>, 2016 (rf2o).</li><li>S. Thrun, W. Burgard, D. Fox, <em>Probabilistic Robotics</em>, MIT Press, 2005 — 3장(칼만 필터·EKF), 5장(운동 모델).</li><li>Y. Bar-Shalom, X. R. Li, T. Kirubarajan, <em>Estimation with Applications to Tracking and Navigation</em>, Wiley, 2001 — NEES·NIS 일관성 검사.</li><li>J. Sturm 외, "A benchmark for the evaluation of RGB-D SLAM systems," <em>IROS</em>, 2012 — ATE·RPE 정의.</li><li>원본 교재: <em>9. Motion Control Lesson</em> — Lesson 4 Publish IMU and Odometer Data, <em>12. Mapping Lesson</em> — Lesson 4 slam_toolbox Mapping Algorithm</li><li>원본 소스: <code>src/driver/controller/config/ekf.yaml</code>, <code>src/driver/controller/launch/controller.launch.py</code>, <code>src/driver/controller/launch/rf2o_laser_odometry.launch.py</code>, <code>src/driver/controller/controller/odom_publisher_node.py</code>, <code>src/peripherals/launch/imu_filter.launch.py</code>, <code>src/slam/launch/slam.launch.py</code></li><li>robot_localization: https://docs.ros.org/en/humble/p/robot_localization/</li><li>rf2o_laser_odometry: https://github.com/MAPIRlab/rf2o_laser_odometry</li><li>evo (궤적 평가 도구): https://github.com/MichaelGrupp/evo</li></ul>
+      <nav class="pager"><a class="pager-prev" href="p05.html"><span>이전 · P05</span>프런티어 자율 탐사와 다중 로봇 작업 할당</a><a class="pager-next" href="p07.html"><span>다음 · P07</span>강화학습으로 배우는 라이다 주행 정책</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#프로젝트-개요와-요구사항">프로젝트 개요와 요구사항</a><a class="toc-l3" href="#팀-구성-4명">팀 구성 (4명)</a><a class="toc-l3" href="#기능-요구사항">기능 요구사항</a><a class="toc-l3" href="#비기능-요구사항과-안전-한계">비기능 요구사항과 안전 한계</a><a class="toc-l2" href="#이론">이론</a><a class="toc-l3" href="#스캔-매칭과-se2">스캔 매칭과 SE(2)</a><a class="toc-l3" href="#점-점-icp와-svd-닫힌-해">점-점 ICP와 SVD 닫힌 해</a><a class="toc-l3" href="#점-선-icp와-가우스-뉴턴">점-선 ICP와 가우스-뉴턴</a><a class="toc-l3" href="#퇴화-긴-복도-문제">퇴화: 긴 복도 문제</a><a class="toc-l3" href="#확장-칼만-필터-ekf">확장 칼만 필터 (EKF)</a><a class="toc-l3" href="#공분산-튜닝과-일관성-nees-nis">공분산 튜닝과 일관성 (NEES·NIS)</a><a class="toc-l3" href="#mentorpi의-robotlocalization-설정">MentorPi의 robot_localization 설정</a><a class="toc-l2" href="#시스템-설계">시스템 설계</a><a class="toc-l2" href="#단계별-구현">단계별 구현</a><a class="toc-l3" href="#m1-icp-단위-시험-playground">M1. ICP 단위 시험 (Playground)</a><a class="toc-l3" href="#m2-스캔-오도메트리">M2. 스캔 오도메트리</a><a class="toc-l3" href="#m3-실물-icp-노드">M3. 실물 ICP 노드</a><a class="toc-l3" href="#m4-ekf-노드와-튜닝">M4. EKF 노드와 튜닝</a><a class="toc-l3" href="#m5-비교-실험">M5. 비교 실험</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l3" href="#실습-1-스캔-두-장의-점-점-icp">실습 1. 스캔 두 장의 점-점 ICP</a><a class="toc-l3" href="#실습-2-스캔-매칭-오도메트리-점-점-vs-점-선">실습 2. 스캔 매칭 오도메트리 — 점-점 vs 점-선</a><a class="toc-l3" href="#실습-3-ekf-융합-휠-휠-imu-휠-imu-icp">실습 3. EKF 융합 — 휠, 휠+IMU, 휠+IMU+ICP</a><a class="toc-l3" href="#실습-4-복도-퇴화와-오도메트리-사전값">실습 4. 복도 퇴화와 오도메트리 사전값</a><a class="toc-l3" href="#2d-3d-시뮬레이터로-확인">2D·3D 시뮬레이터로 확인</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l3" href="#1-기준-구성-slam-텔레옵">1) 기준 구성: SLAM + 텔레옵</a><a class="toc-l3" href="#2-rf2o-켜-보기-원본-경로">2) rf2o 켜 보기 (원본 경로)</a><a class="toc-l3" href="#3-팀-노드-icp-오도메트리">3) 팀 노드: ICP 오도메트리</a><a class="toc-l3" href="#4-팀-노드-ekf">4) 팀 노드: EKF</a><a class="toc-l3" href="#5-기록과-평가">5) 기록과 평가</a><a class="toc-l2" href="#실험과-평가">실험과 평가</a><a class="toc-l2" href="#평가-기준">평가 기준</a><a class="toc-l2" href="#확장-과제">확장 과제</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js?v=75126cd8"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=75126cd8"></script>
+</body>
+</html>

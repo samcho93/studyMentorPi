@@ -1,0 +1,51 @@
+<svg viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="다중 주기 EKF 타임라인: 50 Hz로 예측과 휠 속도 갱신, 50 Hz IMU 각속도 갱신, 10 Hz ICP 갱신이 들어오며 위치 불확실성이 예측에서 커지고 갱신에서 줄어든다">
+  <text class="tag" x="20" y="22">0.2 s 구간 (가로축 = 시간)</text>
+  <text class="tag" x="142" y="54" text-anchor="end">예측 (odom_raw 50 Hz)</text>
+  <path class="ln" d="M150 50 L700 50"/>
+  <path class="ln" d="M150 43 L150 57" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M205 43 L205 57" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M260 43 L260 57" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M315 43 L315 57" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M370 43 L370 57" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M425 43 L425 57" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M480 43 L480 57" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M535 43 L535 57" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M590 43 L590 57" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M645 43 L645 57" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M700 43 L700 57" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <text class="tag" x="142" y="84" text-anchor="end">휠 v 갱신 (50 Hz)</text>
+  <path class="ln" d="M150 80 L700 80"/>
+  <path class="ln" d="M150 73 L150 87" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M205 73 L205 87" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M260 73 L260 87" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M315 73 L315 87" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M370 73 L370 87" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M425 73 L425 87" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M480 73 L480 87" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M535 73 L535 87" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M590 73 L590 87" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M645 73 L645 87" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M700 73 L700 87" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <text class="tag" x="142" y="114" text-anchor="end">IMU ω 갱신 (50 Hz)</text>
+  <path class="ln" d="M150 110 L700 110"/>
+  <path class="ln" d="M150 103 L150 117" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M205 103 L205 117" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M260 103 L260 117" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M315 103 L315 117" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M370 103 L370 117" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M425 103 L425 117" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M480 103 L480 117" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M535 103 L535 117" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M590 103 L590 117" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M645 103 L645 117" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <path class="ln" d="M700 103 L700 117" style="stroke-width:3;stroke:var(--text-faint)"/>
+  <text class="tag" x="142" y="144" text-anchor="end">ICP v, ω 갱신 (10 Hz)</text>
+  <path class="ln" d="M150 140 L700 140"/>
+  <rect x="146" y="132" width="8" height="16" rx="2" class="hi"/>
+  <rect x="421" y="132" width="8" height="16" rx="2" class="hi"/>
+  <rect x="696" y="132" width="8" height="16" rx="2" class="hi"/>
+  <text class="tag" x="142" y="214" text-anchor="end">속도 불확실성 σ_v</text>
+  <path class="ln-hi" d="M150 228 L150 232 L205 227 L205 229 L260 224 L260 226 L315 221 L315 224 L370 219 L370 222 L425 217 L425 221 L425 232 L480 227 L480 229 L535 224 L535 226 L590 221 L590 224 L645 219 L645 222 L700 217 L700 221 L700 232" style="stroke-width:2"/>
+  <path class="ln" d="M150 240 L700 240"/>
+  <text class="sub" x="20" y="268">예측마다 커지고, 휠 갱신에서 조금·ICP 갱신에서 크게 줄어든다 — 위치 공분산은 이 σ_v만큼 자란다 (개념도)</text>
+</svg>

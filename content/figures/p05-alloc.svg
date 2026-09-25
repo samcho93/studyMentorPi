@@ -1,0 +1,56 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="로봇 3대와 프런티어 6개의 작업 할당: 탐욕 할당은 가장 싼 쌍을 먼저 잡아 합계 비용 −1.58, 헝가리안 알고리즘은 전체 최적 합계 −2.78">
+  <defs><marker id="arr-p05-alloc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker></defs>
+  <text class="lbl" x="180" y="24" text-anchor="middle">탐욕 (가장 싼 쌍부터) — 합계 -1.58</text>
+  <rect class="box" x="20" y="40" width="318" height="212" rx="4"/>
+  <rect x="36" y="104" width="10" height="10" class="wr"/>
+  <text class="tag" x="41" y="129" text-anchor="middle">F0</text>
+  <rect x="84" y="93" width="10" height="10" class="wr"/>
+  <text class="tag" x="89" y="118" text-anchor="middle">F1</text>
+  <rect x="312" y="210" width="10" height="10" class="wr"/>
+  <text class="tag" x="317" y="235" text-anchor="middle">F2</text>
+  <rect x="121" y="125" width="10" height="10" class="wr"/>
+  <text class="tag" x="126" y="150" text-anchor="middle">F3</text>
+  <rect x="132" y="173" width="10" height="10" class="wr"/>
+  <text class="tag" x="137" y="198" text-anchor="middle">F4</text>
+  <rect x="179" y="215" width="10" height="10" class="wr"/>
+  <text class="tag" x="184" y="240" text-anchor="middle">F5</text>
+  <path class="ln-hi" d="M147 98 L137 178" style="stroke-width:2" marker-end="url(#arr-p05-alloc)"/>
+  <text class="tag" x="156" y="140">① -1.29</text>
+  <path class="ln-hi" d="M57 215 L126 130" style="stroke-width:2" marker-end="url(#arr-p05-alloc)"/>
+  <text class="tag" x="99" y="190">② 0.06</text>
+  <path class="ln-hi" d="M296 188 L317 215" style="stroke-width:2" marker-end="url(#arr-p05-alloc)"/>
+  <text class="tag" x="316" y="196">③ -0.36</text>
+  <circle cx="57" cy="215" r="8" class="hi"/>
+  <text class="lbl mono" x="45" y="220" text-anchor="end">r1</text>
+  <circle cx="147" cy="98" r="8" class="hi"/>
+  <text class="lbl mono" x="135" y="103" text-anchor="end">r2</text>
+  <circle cx="296" cy="188" r="8" class="hi"/>
+  <text class="lbl mono" x="284" y="193" text-anchor="end">r3</text>
+  <text class="lbl" x="540" y="24" text-anchor="middle">헝가리안 (전체 최적) — 합계 -2.78</text>
+  <rect class="box" x="380" y="40" width="318" height="212" rx="4"/>
+  <rect x="396" y="104" width="10" height="10" class="wr"/>
+  <text class="tag" x="401" y="129" text-anchor="middle">F0</text>
+  <rect x="444" y="93" width="10" height="10" class="wr"/>
+  <text class="tag" x="449" y="118" text-anchor="middle">F1</text>
+  <rect x="672" y="210" width="10" height="10" class="wr"/>
+  <text class="tag" x="677" y="235" text-anchor="middle">F2</text>
+  <rect x="481" y="125" width="10" height="10" class="wr"/>
+  <text class="tag" x="486" y="150" text-anchor="middle">F3</text>
+  <rect x="492" y="173" width="10" height="10" class="wr"/>
+  <text class="tag" x="497" y="198" text-anchor="middle">F4</text>
+  <rect x="539" y="215" width="10" height="10" class="wr"/>
+  <text class="tag" x="544" y="240" text-anchor="middle">F5</text>
+  <path class="ln-hi" d="M417 215 L497 178" style="stroke-width:2" marker-end="url(#arr-p05-alloc)"/>
+  <text class="tag" x="459" y="215"> -1.14</text>
+  <path class="ln-hi" d="M507 98 L486 130" style="stroke-width:2" marker-end="url(#arr-p05-alloc)"/>
+  <text class="tag" x="509" y="124"> -1.28</text>
+  <path class="ln-hi" d="M656 188 L677 215" style="stroke-width:2" marker-end="url(#arr-p05-alloc)"/>
+  <text class="tag" x="676" y="196"> -0.36</text>
+  <circle cx="417" cy="215" r="8" class="hi"/>
+  <text class="lbl mono" x="405" y="220" text-anchor="end">r1</text>
+  <circle cx="507" cy="98" r="8" class="hi"/>
+  <text class="lbl mono" x="495" y="103" text-anchor="end">r2</text>
+  <circle cx="656" cy="188" r="8" class="hi"/>
+  <text class="lbl mono" x="644" y="193" text-anchor="end">r3</text>
+  <text class="sub" x="360" y="292" text-anchor="middle">비용 = λ·거리 − 이득. 탐욕은 r2→F4(−1.29)를 먼저 잡아 r1이 비싼 F3으로 밀린다</text>
+</svg>

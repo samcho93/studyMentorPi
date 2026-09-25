@@ -1,0 +1,62 @@
+<svg viewBox="0 0 720 356" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="다중 로봇 탐사의 ROS 2 그래프: 로봇마다 네임스페이스 안에서 robot.launch.py, slam_toolbox, frontier_explorer가 돌고, 중앙의 task_allocator가 각 로봇의 지도와 자세를 받아 병합하고 탐사 목표를 배정한다">
+  <defs>
+    <marker id="arr-p05-graph" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-p05-graph-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+
+  <!-- robot_1 namespace -->
+  <rect x="10" y="10" width="500" height="150" rx="10" style="fill:none;stroke:var(--border);stroke-dasharray:5 4"/>
+  <text class="tag mono" x="22" y="28">/robot_1  (HOST=robot_1, MASTER=robot_1)</text>
+  <text class="tag mono" x="179" y="47" text-anchor="middle">scan_raw, tf</text>
+  <text class="tag mono" x="343" y="47" text-anchor="middle">map</text>
+  <rect class="box" x="22" y="54" width="140" height="58" rx="6"/>
+  <text class="lbl mono" x="92" y="77" text-anchor="middle">robot.launch.py</text>
+  <text class="sub" x="92" y="95" text-anchor="middle">라이다·컨트롤러·EKF</text>
+  <rect class="box" x="196" y="54" width="130" height="58" rx="6"/>
+  <text class="lbl mono" x="261" y="77" text-anchor="middle">slam_toolbox</text>
+  <text class="sub" x="261" y="95" text-anchor="middle">TF map → odom</text>
+  <rect class="box-hi" x="360" y="54" width="140" height="58" rx="6"/>
+  <text class="lbl mono" x="430" y="77" text-anchor="middle">frontier_explorer</text>
+  <text class="sub" x="430" y="95" text-anchor="middle">BFS 경로 · 추종</text>
+  <path class="ln" d="M162 83 L194 83" marker-end="url(#arr-p05-graph)"/>
+  <path class="ln" d="M326 83 L358 83" marker-end="url(#arr-p05-graph)"/>
+  <path class="ln-hi" d="M430 112 L430 132 L92 132 L92 114" marker-end="url(#arr-p05-graph-hi)"/>
+  <text class="tag mono" x="261" y="150" text-anchor="middle">controller/cmd_vel (≤ 0.15 m/s)</text>
+
+  <!-- robot_2 namespace -->
+  <rect x="10" y="176" width="500" height="150" rx="10" style="fill:none;stroke:var(--border);stroke-dasharray:5 4"/>
+  <text class="tag mono" x="22" y="194">/robot_2  (HOST=robot_2, MASTER=robot_1)</text>
+  <text class="tag mono" x="179" y="213" text-anchor="middle">scan_raw, tf</text>
+  <text class="tag mono" x="343" y="213" text-anchor="middle">map</text>
+  <rect class="box" x="22" y="220" width="140" height="58" rx="6"/>
+  <text class="lbl mono" x="92" y="243" text-anchor="middle">robot.launch.py</text>
+  <text class="sub" x="92" y="261" text-anchor="middle">라이다·컨트롤러·EKF</text>
+  <rect class="box" x="196" y="220" width="130" height="58" rx="6"/>
+  <text class="lbl mono" x="261" y="243" text-anchor="middle">slam_toolbox</text>
+  <text class="sub" x="261" y="261" text-anchor="middle">TF map → odom</text>
+  <rect class="box-hi" x="360" y="220" width="140" height="58" rx="6"/>
+  <text class="lbl mono" x="430" y="243" text-anchor="middle">frontier_explorer</text>
+  <text class="sub" x="430" y="261" text-anchor="middle">BFS 경로 · 추종</text>
+  <path class="ln" d="M162 249 L194 249" marker-end="url(#arr-p05-graph)"/>
+  <path class="ln" d="M326 249 L358 249" marker-end="url(#arr-p05-graph)"/>
+  <path class="ln-hi" d="M430 278 L430 298 L92 298 L92 280" marker-end="url(#arr-p05-graph-hi)"/>
+  <text class="tag mono" x="261" y="316" text-anchor="middle">controller/cmd_vel (≤ 0.15 m/s)</text>
+
+  <!-- allocator -->
+  <text class="tag mono" x="639" y="104" text-anchor="middle">→ map, explore/pose</text>
+  <text class="tag mono hi" x="639" y="120" text-anchor="middle">← explore/goal</text>
+  <rect class="box-hi" x="566" y="130" width="146" height="96" rx="8"/>
+  <text class="lbl mono" x="639" y="154" text-anchor="middle">task_allocator</text>
+  <text class="sub" x="639" y="174" text-anchor="middle">지도 병합 (초기 자세)</text>
+  <text class="sub" x="639" y="192" text-anchor="middle">프런티어 · 비용 행렬</text>
+  <text class="sub" x="639" y="210" text-anchor="middle">헝가리안 배정</text>
+  <path class="ln" d="M500 70 L564 146" marker-end="url(#arr-p05-graph)"/>
+  <path class="ln-hi" d="M566 164 L502 100" marker-end="url(#arr-p05-graph-hi)"/>
+  <path class="ln" d="M500 264 L564 212" marker-end="url(#arr-p05-graph)"/>
+  <path class="ln-hi" d="M566 196 L502 236" marker-end="url(#arr-p05-graph-hi)"/>
+  <path class="ln" d="M639 226 L639 262" marker-end="url(#arr-p05-graph)"/>
+  <text class="tag mono" x="639" y="278" text-anchor="middle">/merged_map</text>
+  <text class="tag" x="639" y="294" text-anchor="middle">(RViz · 종료 판정)</text>
+
+  <text class="sub" x="360" y="348" text-anchor="middle">SLAM·경로 추종은 로봇마다(분산), 목표 배정만 중앙에서 — 모든 로봇은 같은 ROS_DOMAIN_ID</text>
+</svg>
