@@ -6,12 +6,12 @@
 <title>M08. MentorPi URDF 모델 · studyMentorPi</title>
 <meta name="description" content="URDF 문법 복습, mentorpi_description의 xacro 구조(메카넘/애커만), base_footprint·lidar·imu 링크와 RViz 표시.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css?v=48f86b48">
-<link rel="stylesheet" href="../assets/css/mentorpi.css?v=48f86b48">
-<link rel="stylesheet" href="../assets/css/ml-theme.css?v=48f86b48">
+<link rel="stylesheet" href="../assets/css/main.css?v=bc59f349">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=bc59f349">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=bc59f349">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="../assets/js/theme.js?v=48f86b48"></script>
+<script src="../assets/js/theme.js?v=bc59f349"></script>
 </head>
 <body class="lesson-page track-page-mobile">
 <button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
@@ -276,7 +276,7 @@
 <p><span class="math">T = [R  t; 0 0 0 1]</span>,  <span class="math">R = Rz(yaw)·Ry(pitch)·Rx(roll)</span>, <span class="math">t = (x, y, z)</span></p>
 <p>체인을 따라 곱하면 멀리 떨어진 두 프레임 사이 변환이 됩니다: <span class="math">T(footprint→lidar) = T(footprint→base) · T(base→lidar)</span>. 아래 코드는 <code>mecanum.xacro</code>의 값으로 이 계산을 합니다.</p>
 <p class="cta-row"><a class="ghost-btn cta" href="../tools/urdf-viewer.html">URDF 뷰어 열기</a></p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import numpy as np
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><a class="pg-btn" href="../tools/playground.html#code=aW1wb3J0IG51bXB5IGFzIG5wCm5wLnNldF9wcmludG9wdGlvbnMoc3VwcHJlc3M9VHJ1ZSkKCmRlZiBUKHh5eiwgcnB5PSgwLjAsIDAuMCwgMC4wKSk6CiAgICAiIiJVUkRGIDxvcmlnaW4geHl6IHJweT4gLT4gNHg0IGhvbW9nZW5lb3VzIG1hdHJpeCAoUiA9IFJ6KHlhdykgUnkocGl0Y2gpIFJ4KHJvbGwpKS4iIiIKICAgIHIsIHAsIHkgPSBycHkKICAgIFJ4ID0gbnAuYXJyYXkoW1sxLCAwLCAwXSwgWzAsIG5wLmNvcyhyKSwgLW5wLnNpbihyKV0sIFswLCBucC5zaW4ociksIG5wLmNvcyhyKV1dKQogICAgUnkgPSBucC5hcnJheShbW25wLmNvcyhwKSwgMCwgbnAuc2luKHApXSwgWzAsIDEsIDBdLCBbLW5wLnNpbihwKSwgMCwgbnAuY29zKHApXV0pCiAgICBSeiA9IG5wLmFycmF5KFtbbnAuY29zKHkpLCAtbnAuc2luKHkpLCAwXSwgW25wLnNpbih5KSwgbnAuY29zKHkpLCAwXSwgWzAsIDAsIDFdXSkKICAgIE0gPSBucC5leWUoNCkKICAgIE1bOjMsIDozXSA9IFJ6IEAgUnkgQCBSeAogICAgTVs6MywgM10gPSB4eXoKICAgIHJldHVybiBNCgojIG1lY2FudW0ueGFjcm8gam9pbnQgb3JpZ2lucwpmcF9iYXNlID0gVCgoMCwgMCwgMC4wNykpICAgICAgICAgICAgICAgICAgICAgICAgICMgYmFzZV9mb290cHJpbnRfdG9fYmFzZV9saW5rCmJhc2VfbGlkYXIgPSBUKCgtMC4wMTIyNDIsIC04LjUzM2UtMDUsIDAuMDkyNTAxKSkgIyBsaWRhcl9Kb2ludApiYXNlX2NhbSA9IFQoKDAuMDYxMzc2LCAtMC4wMDAxMzQ2MywgMC4wNTExNTQpKSAgICMgY2FtX0pvaW50CmJhc2VfaW11ID0gVCgoMCwgMCwgMCksICgwLCAwLCAtMS41NykpICAgICAgICAgICAgIyBpbXVfam9pbnQKCmZwX2xpZGFyID0gZnBfYmFzZSBAIGJhc2VfbGlkYXIKcHJpbnQoImJhc2VfZm9vdHByaW50IC0-IGxpZGFyX2ZyYW1lIHh5ejoiLCBucC5yb3VuZChmcF9saWRhcls6MywgM10sIDQpKQpwcmludCgiYmFzZV9mb290cHJpbnQgLT4gZGVwdGhfY2FtICB4eXo6IiwgbnAucm91bmQoKGZwX2Jhc2UgQCBiYXNlX2NhbSlbOjMsIDNdLCA0KSkKCnBfbGlkYXIgPSBucC5hcnJheShbMS4wLCAwLjAsIDAuMCwgMS4wXSkgICAgICAgICAjIDEgbSBzdHJhaWdodCBhaGVhZCBvZiB0aGUgbGlkYXIKcHJpbnQoImxpZGFyIHBvaW50IGluIGJhc2VfZm9vdHByaW50ICAgOiIsIG5wLnJvdW5kKGZwX2xpZGFyIEAgcF9saWRhciwgNClbOjNdKQoKYV9pbXUgPSBucC5hcnJheShbMS4wLCAwLjAsIDAuMF0pICAgICAgICAgICAgICAgICMgSU1VIHgtYXhpcyBhY2NlbGVyYXRpb24KcHJpbnQoIklNVSB4LWF4aXMgaW4gYmFzZV9saW5rICAgICAgICAgOiIsIG5wLnJvdW5kKGJhc2VfaW11WzozLCA6M10gQCBhX2ltdSwgMykpCgp3aGVlbHMgPSB7ImxmIjogKDAuMDY3MDUyLCAwLjA3NTkxKSwgInJmIjogKDAuMDY3MDUyLCAtMC4wNzU5MSksCiAgICAgICAgICAibGIiOiAoLTAuMDY3NjQsIDAuMDc1OTEpLCAicmIiOiAoLTAuMDY3NjIxLCAtMC4wNzU5MSl9CndiID0gd2hlZWxzWyJsZiJdWzBdIC0gd2hlZWxzWyJsYiJdWzBdCnR3ID0gd2hlZWxzWyJsZiJdWzFdIC0gd2hlZWxzWyJyZiJdWzFdCnByaW50KCJVUkRGIHdoZWVsYmFzZSAlLjRmIG0sIHRyYWNrICUuNGYgbSIgJSAod2IsIHR3KSk" target="_blank" rel="noopener" title="Playground에서 열기 (새 탭)">Playground ↗</a><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import numpy as np
 np.set_printoptions(suppress=True)
 
 def T(xyz, rpy=(0.0, 0.0, 0.0)):
@@ -362,7 +362,7 @@ ros2 run tf2_tools view_frames                            # frames_*.pdf 로 TF 
 </article>
 
 </main>
-<script src="../assets/js/site.js?v=48f86b48"></script>
-<script type="module" src="../assets/js/lesson-runner.js?v=48f86b48"></script>
+<script src="../assets/js/site.js?v=bc59f349"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=bc59f349"></script>
 </body>
 </html>

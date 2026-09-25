@@ -6,12 +6,12 @@
 <title>M10. RTAB-Map 3D 비주얼 SLAM · studyMentorPi</title>
 <meta name="description" content="깊이 카메라 기반 RTAB-Map의 구조(메모리 관리·루프 클로저), 3D 지도 작성과 저장, 2D SLAM과의 비교.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css?v=48f86b48">
-<link rel="stylesheet" href="../assets/css/mentorpi.css?v=48f86b48">
-<link rel="stylesheet" href="../assets/css/ml-theme.css?v=48f86b48">
+<link rel="stylesheet" href="../assets/css/main.css?v=bc59f349">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=bc59f349">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=bc59f349">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="../assets/js/theme.js?v=48f86b48"></script>
+<script src="../assets/js/theme.js?v=bc59f349"></script>
 </head>
 <body class="lesson-page track-page-mobile">
 <button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
@@ -224,7 +224,7 @@
 <p>흔한 단어(모든 방에 있는 흰 벽 무늬)는 장소를 구별하는 데 도움이 안 되므로 <strong>TF-IDF</strong> 가중치로 깎습니다.</p>
 <p><span class="math">w(단어 k, 영상 i) = (영상 i에서 k의 비율) × log(전체 영상 수 / k가 나온 영상 수)</span></p>
 <p>아래 코드는 키프레임 다섯 개의 BoW 벡터와, 한 바퀴 돌아와 다시 찍은 영상의 유사도를 계산합니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import numpy as np
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><a class="pg-btn" href="../tools/playground.html#code=aW1wb3J0IG51bXB5IGFzIG5wCgojIOyLnOqwgSDri6jslrQodmlzdWFsIHdvcmQpIDjqsJzroZwg7J2066Oo7Ja07KeEIOyekeydgCDslrTtnJguIOqwgSDtgqTtlITroIjsnoQgPSDri6jslrQg7Lac7ZiEIO2an-yImChCb1cg67Kh7YSwKQpmcmFtZXMgPSB7CiAgICAiTjEgZW50cnkiOiAgIFs1LCAwLCAyLCAwLCAxLCAwLCAwLCAzXSwKICAgICJOMiBoYWxsIjogICAgWzAsIDQsIDAsIDMsIDAsIDIsIDAsIDBdLAogICAgIk4zIGtpdGNoZW4iOiBbMSwgMCwgMCwgMCwgNiwgMCwgNCwgMF0sCiAgICAiTjQgbGl2aW5nIjogIFswLCAxLCA1LCAwLCAwLCAwLCAxLCA0XSwKICAgICJONSBoYWxsLTIiOiAgWzAsIDMsIDEsIDQsIDAsIDIsIDAsIDBdLAp9Cm5ldyA9IG5wLmFycmF5KFs0LCAwLCAyLCAxLCAxLCAwLCAwLCAzXSwgZHR5cGU9ZmxvYXQpICAgIyDtlZwg67CU7YC0IOuPjOyVhOyZgCDri6Tsi5wg67O4IO2YhOq0gAoKbmFtZXMgPSBsaXN0KGZyYW1lcykKTSA9IG5wLmFycmF5KFtmcmFtZXNba10gZm9yIGsgaW4gbmFtZXNdLCBkdHlwZT1mbG9hdCkKZGYgPSAoTSA-IDApLnN1bShheGlzPTApICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICMg64uo7Ja06rCAIOuTseyepe2VnCDtgqTtlITroIjsnoQg7IiYCmlkZiA9IG5wLmxvZyhsZW4oTSkgLyBkZikgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAjIO2dlO2VnCDri6jslrTsnbzsiJjroZ0g6rCA7KSR7LmY4oaTCgpkZWYgdGZpZGYodik6CiAgICB3ID0gdiAvIHYuc3VtKCkgKiBpZGYKICAgIHJldHVybiB3IC8gbnAubGluYWxnLm5vcm0odykKCnNpbXMgPSBucC5hcnJheShbdGZpZGYobSkgQCB0ZmlkZihuZXcpIGZvciBtIGluIE1dKQpmb3IgbiwgcyBpbiB6aXAobmFtZXMsIHNpbXMpOgogICAgcHJpbnQoIiUtMTBzIHNpbWlsYXJpdHkgJS4zZiIgJSAobiwgcykpCmJlc3QgPSBpbnQobnAuYXJnbWF4KHNpbXMpKQpzZWNvbmQgPSBucC5zb3J0KHNpbXMpWy0yXQpwcmludCgiYmVzdDoiLCBuYW1lc1tiZXN0XSwgIiBtYXJnaW4gb3ZlciAybmQ6ICUuM2YiICUgKHNpbXNbYmVzdF0gLSBzZWNvbmQpKQpwcmludCgibG9vcCBjbG9zdXJlIGh5cG90aGVzaXMgYWNjZXB0ZWQ6IiwgYm9vbChzaW1zW2Jlc3RdID4gMC41IGFuZCBzaW1zW2Jlc3RdIC0gc2Vjb25kID4gMC4yKSk" target="_blank" rel="noopener" title="Playground에서 열기 (새 탭)">Playground ↗</a><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import numpy as np
 
 # 시각 단어(visual word) 8개로 이루어진 작은 어휘. 각 키프레임 = 단어 출현 횟수(BoW 벡터)
 frames = {
@@ -315,7 +315,7 @@ rtabmap-databaseViewer ~/.ros/rtabmap.db     # (GUI 도구가 설치돼 있으�
 </article>
 
 </main>
-<script src="../assets/js/site.js?v=48f86b48"></script>
-<script type="module" src="../assets/js/lesson-runner.js?v=48f86b48"></script>
+<script src="../assets/js/site.js?v=bc59f349"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=bc59f349"></script>
 </body>
 </html>

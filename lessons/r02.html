@@ -6,12 +6,12 @@
 <title>R02. 워크스페이스·패키지·노드 · studyMentorPi</title>
 <meta name="description" content="colcon 워크스페이스, ament_python 패키지 생성, rclpy Node 클래스와 타이머, 실행 진입점(entry_points)을 만듭니다.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css?v=48f86b48">
-<link rel="stylesheet" href="../assets/css/mentorpi.css?v=48f86b48">
-<link rel="stylesheet" href="../assets/css/ml-theme.css?v=48f86b48">
+<link rel="stylesheet" href="../assets/css/main.css?v=bc59f349">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=bc59f349">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=bc59f349">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="../assets/js/theme.js?v=48f86b48"></script>
+<script src="../assets/js/theme.js?v=bc59f349"></script>
 </head>
 <body class="lesson-page track-page-ros">
 <button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
@@ -279,7 +279,7 @@ data_files=[
 <p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
 <h3 id="타이머-두-개와-로그-레벨">① 타이머 두 개와 로그 레벨<a class="anchor" href="#타이머-두-개와-로그-레벨">#</a></h3>
 <p>타이머는 여러 개 만들 수 있고, 주기가 서로 달라도 실행기가 알아서 순서를 맞춥니다. <code>get_clock().now()</code>로 노드 시계를 읽는 법도 함께 봅니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><a class="pg-btn" href="../tools/playground.html#code=aW1wb3J0IHJjbHB5CmZyb20gcmNscHkubm9kZSBpbXBvcnQgTm9kZQppbXBvcnQgbWVudG9ycGlfc2ltIGFzIHNpbSAgICAgICAgICAgICAgICAgICAgICMg7Iuc666sIOyghOyaqQpzaW0uc2V0dXAod29ybGQ9ImVtcHR5IiwgZHVyYXRpb249My4yKSAgICAgICAgIyDsi5zrrqwg7KCE7JqpCgoKY2xhc3MgVHdvVGltZXJzKE5vZGUpOgogICAgZGVmIF9faW5pdF9fKHNlbGYpOgogICAgICAgIHN1cGVyKCkuX19pbml0X18oJ3R3b190aW1lcnMnKQogICAgICAgIHNlbGYuZmFzdCA9IDAKICAgICAgICBzZWxmLnNsb3cgPSAwCiAgICAgICAgc2VsZi50MCA9IHNlbGYuZ2V0X2Nsb2NrKCkubm93KCkubmFub3NlY29uZHMKICAgICAgICBzZWxmLmNyZWF0ZV90aW1lcigwLjIsIHNlbGYub25fZmFzdCkgICAgICMgNSBIegogICAgICAgIHNlbGYuY3JlYXRlX3RpbWVyKDEuMCwgc2VsZi5vbl9zbG93KSAgICAgIyAxIEh6CgogICAgZGVmIGVsYXBzZWQoc2VsZik6CiAgICAgICAgcmV0dXJuIChzZWxmLmdldF9jbG9jaygpLm5vdygpLm5hbm9zZWNvbmRzIC0gc2VsZi50MCkgLyAxZTkKCiAgICBkZWYgb25fZmFzdChzZWxmKToKICAgICAgICBzZWxmLmZhc3QgKz0gMQogICAgICAgIHNlbGYuZ2V0X2xvZ2dlcigpLmRlYnVnKCdmYXN0ICVkJyAlIHNlbGYuZmFzdCkgICAjIOq4sOuzuCDroIjrsqgoSU5GTynsl5DshJzripQg7JWIIOuztOyehAoKICAgIGRlZiBvbl9zbG93KHNlbGYpOgogICAgICAgIHNlbGYuc2xvdyArPSAxCiAgICAgICAgc2VsZi5nZXRfbG9nZ2VyKCkuaW5mbygndD0lLjFmIHMgIGZhc3Q9JWQgIHNsb3c9JWQnICUgKHNlbGYuZWxhcHNlZCgpLCBzZWxmLmZhc3QsIHNlbGYuc2xvdykpCiAgICAgICAgaWYgc2VsZi5mYXN0IDwgNCAqIHNlbGYuc2xvdzoKICAgICAgICAgICAgc2VsZi5nZXRfbG9nZ2VyKCkud2FybignZmFzdCDtg4DsnbTrqLjqsIAg67CA66as6rOgIOyeiOyKteuLiOuLpCcpCgoKcmNscHkuaW5pdCgpCm5vZGUgPSBUd29UaW1lcnMoKQp0cnk6CiAgICByY2xweS5zcGluKG5vZGUpCmV4Y2VwdCBLZXlib2FyZEludGVycnVwdDoKICAgIHBhc3MKZmluYWxseToKICAgIHByaW50KCftlanqs4Q6IGZhc3Q9JWQsIHNsb3c9JWQnICUgKG5vZGUuZmFzdCwgbm9kZS5zbG93KSkKICAgIG5vZGUuZGVzdHJveV9ub2RlKCkKICAgIHJjbHB5LnNodXRkb3duKCk" target="_blank" rel="noopener" title="Playground에서 열기 (새 탭)">Playground ↗</a><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
 from rclpy.node import Node
 import mentorpi_sim as sim                     # 시뮬 전용
 sim.setup(world=&quot;empty&quot;, duration=3.2)        # 시뮬 전용
@@ -326,7 +326,7 @@ finally:
 <p><code>debug</code> 로그는 보이지 않습니다. 실물에서는 <code>ros2 run hello_world_demo hello_world --ros-args --log-level debug</code>로 레벨을 낮추면 나타납니다.</p>
 <h3 id="블로킹-루프-실험-spin이-없으면-콜백도-없다">② 블로킹 루프 실험: spin이 없으면 콜백도 없다<a class="anchor" href="#블로킹-루프-실험-spin이-없으면-콜백도-없다">#</a></h3>
 <p>같은 3초 동안 <code>/odom</code>을 구독하면서, 앞 절반은 <code>time.sleep</code>만 하고 뒤 절반은 <code>spin_once</code>를 돌려 받은 메시지 수를 비교합니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import time
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><a class="pg-btn" href="../tools/playground.html#code=aW1wb3J0IHRpbWUKaW1wb3J0IHJjbHB5CmZyb20gcmNscHkubm9kZSBpbXBvcnQgTm9kZQpmcm9tIG5hdl9tc2dzLm1zZyBpbXBvcnQgT2RvbWV0cnkKaW1wb3J0IG1lbnRvcnBpX3NpbSBhcyBzaW0gICAgICAgICAgICAgICAgICAgICAjIOyLnOuurCDsoITsmqkKc2ltLnNldHVwKHdvcmxkPSJyb29tIiwgZHVyYXRpb249MTAuMCkgICAgICAgICMg7Iuc666sIOyghOyaqQoKcmNscHkuaW5pdCgpCm5vZGUgPSBOb2RlKCdibG9ja2luZ190ZXN0JykKZ290ID0geyduJzogMH0KCmRlZiBvbl9vZG9tKG1zZyk6CiAgICBnb3RbJ24nXSArPSAxCgpub2RlLmNyZWF0ZV9zdWJzY3JpcHRpb24oT2RvbWV0cnksICcvb2RvbScsIG9uX29kb20sIDEwKQoKIyAo6rCAKSBzbGVlcOunjCDtlZjripQg66Oo7ZSEIOKAlCDsm5Drs7ggaGVsbG9fd29ybGTsnZgg67Cp7IudCnQwID0gdGltZS50aW1lKCkKd2hpbGUgdGltZS50aW1lKCkgLSB0MCA8IDEuNToKICAgIHRpbWUuc2xlZXAoMC4xKQpwcmludCgnKOqwgCkgc2xlZXAg66Oo7ZSEIDEuNSBzIOuPmeyViCDrsJvsnYAgL29kb206JywgZ290WyduJ10pCgojICjrgpgpIHNwaW5fb25jZeulvCDrj4zrpqzripQg66Oo7ZSECmdvdFsnbiddID0gMAp0MCA9IHRpbWUudGltZSgpCndoaWxlIHRpbWUudGltZSgpIC0gdDAgPCAxLjU6CiAgICByY2xweS5zcGluX29uY2Uobm9kZSwgdGltZW91dF9zZWM9MC4xKQpwcmludCgnKOuCmCkgc3Bpbl9vbmNlIOujqO2UhCAxLjUgcyDrj5nslYgg67Cb7J2AIC9vZG9tOicsIGdvdFsnbiddKQoKbm9kZS5kZXN0cm95X25vZGUoKQpyY2xweS5zaHV0ZG93bigp" target="_blank" rel="noopener" title="Playground에서 열기 (새 탭)">Playground ↗</a><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import time
 import rclpy
 from rclpy.node import Node
 from nav_msgs.msg import Odometry
@@ -363,7 +363,7 @@ rclpy.shutdown()</code></pre></div>
 <p>(나)는 /odom이 50 Hz이므로 약 75~85개입니다(루프 경계에 따라 조금 다름). (가)에서 0이 나오는 것은 버그가 아니라 <strong>rclpy의 설계</strong>입니다. 콜백은 실행기가 호출할 때만 실행됩니다.</p>
 <h3 id="패키지-진입점-모양-그대로-쓰기">③ 패키지 진입점 모양 그대로 쓰기<a class="anchor" href="#패키지-진입점-모양-그대로-쓰기">#</a></h3>
 <p><code>ros2 run</code>이 부르는 것은 <code>setup.py</code>에 등록한 <code>main(args=None)</code> 함수입니다. 실물 패키지에 그대로 넣을 수 있는 모양으로 작성해 봅니다. 노드 이름을 인자로 받게 하면 같은 클래스로 여러 노드를 만들 수 있습니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><a class="pg-btn" href="../tools/playground.html#code=aW1wb3J0IHJjbHB5CmZyb20gcmNscHkubm9kZSBpbXBvcnQgTm9kZQppbXBvcnQgbWVudG9ycGlfc2ltIGFzIHNpbSAgICAgICAgICAgICAgICAgICAgICMg7Iuc666sIOyghOyaqQpzaW0uc2V0dXAod29ybGQ9ImVtcHR5IiwgZHVyYXRpb249Mi4yKSAgICAgICAgIyDsi5zrrqwg7KCE7JqpCgoKY2xhc3MgSGVsbG9Xb3JsZE5vZGUoTm9kZSk6CiAgICBkZWYgX19pbml0X18oc2VsZiwgbmFtZSk6CiAgICAgICAgc3VwZXIoKS5fX2luaXRfXyhuYW1lKQogICAgICAgIHNlbGYubiA9IDAKICAgICAgICBzZWxmLnRpbWVyID0gc2VsZi5jcmVhdGVfdGltZXIoMC41LCBzZWxmLnRpbWVyX2NhbGxiYWNrKQoKICAgIGRlZiB0aW1lcl9jYWxsYmFjayhzZWxmKToKICAgICAgICBzZWxmLm4gKz0gMQogICAgICAgIHNlbGYuZ2V0X2xvZ2dlcigpLmluZm8oJ0hlbGxvIFdvcmxkICglZCknICUgc2VsZi5uKQogICAgICAgIGlmIHNlbGYubiA9PSAzOgogICAgICAgICAgICBzZWxmLmdldF9sb2dnZXIoKS5pbmZvKCcz67KIIOy2nOugpe2WiOycvOuvgOuhnCDtg4DsnbTrqLjrpbwg66mI7Lal64uI64ukJykKICAgICAgICAgICAgc2VsZi50aW1lci5jYW5jZWwoKQoKCmRlZiBtYWluKGFyZ3M9Tm9uZSk6CiAgICByY2xweS5pbml0KGFyZ3M9YXJncykKICAgIG5vZGUgPSBIZWxsb1dvcmxkTm9kZSgnaGVsbG9fd29ybGRfZGVtbycpCiAgICB0cnk6CiAgICAgICAgcmNscHkuc3Bpbihub2RlKQogICAgZXhjZXB0IEtleWJvYXJkSW50ZXJydXB0OgogICAgICAgIHBhc3MKICAgIGZpbmFsbHk6CiAgICAgICAgbm9kZS5kZXN0cm95X25vZGUoKQogICAgICAgIHJjbHB5LnNodXRkb3duKCkKICAgICAgICBwcmludCgncmNscHkub2soKSA9JywgcmNscHkub2soKSkKCgppZiBfX25hbWVfXyA9PSAnX19tYWluX18nOgogICAgbWFpbigp" target="_blank" rel="noopener" title="Playground에서 열기 (새 탭)">Playground ↗</a><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
 from rclpy.node import Node
 import mentorpi_sim as sim                     # 시뮬 전용
 sim.setup(world=&quot;empty&quot;, duration=2.2)        # 시뮬 전용
@@ -439,7 +439,7 @@ ros2 pkg executables controller</code></pre></div>
 </article>
 
 </main>
-<script src="../assets/js/site.js?v=48f86b48"></script>
-<script type="module" src="../assets/js/lesson-runner.js?v=48f86b48"></script>
+<script src="../assets/js/site.js?v=bc59f349"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=bc59f349"></script>
 </body>
 </html>

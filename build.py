@@ -50,6 +50,11 @@ REQUIRED_SECTIONS = ["학습 목표", "자주 나는 오류와 해결", "참고�
 
 # ---------------------------------------------------------------- markdown
 
+def _b64url(text: str) -> str:
+    import base64
+    return base64.urlsafe_b64encode(text.encode("utf-8")).decode("ascii").rstrip("=")
+
+
 class MarkdownRenderer:
     """강의에 필요한 범위만 지원하는 소형 마크다운 렌더러."""
 
@@ -260,8 +265,9 @@ class MarkdownRenderer:
         if "run" in flags:
             badges = '<span class="code-badge badge-run">브라우저 실행</span>'
             buttons = ('<button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button>'
-                       '<button class="pg-btn" type="button" data-playground="%splayground" title="Playground에서 편집">Playground</button>'
-                       % self.rel)
+                       '<a class="pg-btn" href="%stools/playground.html#code=%s" target="_blank" rel="noopener" '
+                       'title="Playground에서 열기 (새 탭)">Playground ↗</a>'
+                       % (self.rel, _b64url(code)))
             cls = " code-run"
         return ('<div class="code-block%s">'
                 '<div class="code-head"><span class="code-lang">%s</span>%s'

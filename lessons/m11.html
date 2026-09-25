@@ -6,12 +6,12 @@
 <title>M11. Nav2 자율 내비게이션과 AMCL · studyMentorPi</title>
 <meta name="description" content="Nav2 구성(맵 서버·코스트맵·플래너·컨트롤러·BT), 파티클 필터 AMCL 위치추정, 초기 위치 지정과 목표 전송.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css?v=48f86b48">
-<link rel="stylesheet" href="../assets/css/mentorpi.css?v=48f86b48">
-<link rel="stylesheet" href="../assets/css/ml-theme.css?v=48f86b48">
+<link rel="stylesheet" href="../assets/css/main.css?v=bc59f349">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=bc59f349">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=bc59f349">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="../assets/js/theme.js?v=48f86b48"></script>
+<script src="../assets/js/theme.js?v=bc59f349"></script>
 </head>
 <body class="lesson-page track-page-mobile">
 <button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
@@ -290,7 +290,7 @@
 <h3 id="실습-1d-파티클-필터">실습: 1D 파티클 필터<a class="anchor" href="#실습-1d-파티클-필터">#</a></h3>
 <p>문 세 개(1.5, 4.0, 7.0 m)가 있는 10 m 복도에서, 로봇이 <strong>자기 위치를 전혀 모른 채</strong>(파티클을 복도 전체에 균일하게 뿌림) 0.5 m씩 이동하며 "문이 보인다/안 보인다"만으로 위치를 찾습니다. 순수 numpy 코드라 결과가 매번 같습니다.</p>
 <p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import numpy as np
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><a class="pg-btn" href="../tools/playground.html#code=aW1wb3J0IG51bXB5IGFzIG5wCgpybmcgPSBucC5yYW5kb20uZGVmYXVsdF9ybmcoMCkKRE9PUlMgPSBucC5hcnJheShbMS41LCA0LjAsIDcuMF0pICAgICAgICMg67O164-EKDB-MTAgbSnsnZgg66y4IOychOy5mCA9IOyngOuPhApOLCBTVEVQLCBTSUdfTU9WRSA9IDUwMCwgMC41LCAwLjEgICAgICAgICMg7YyM7Yuw7YG0IOyImCwg7ZWcIOuyiCDsnbTrj5nrn4ksIOydtOuPmSDsnqHsnYwKCmRlZiBuZWFyX2Rvb3IoeCk6ICAgICAgICAgICAgICAgICAgICAgICAgIyDrrLgg7JWeKMKxMC4zIG0p7J2066m0IFRydWUKICAgIHJldHVybiBucC5taW4obnAuYWJzKHhbOiwgTm9uZV0gLSBET09SU1tOb25lLCA6XSksIGF4aXM9MSkgPCAwLjMKCmRlZiBsaWtlbGlob29kKHosIHgpOiAgICAgICAgICAgICAgICAgICAgIyDshLzshJwg66qo6424IHAoeiB8IHgpOiDsoIHspJHrpaAgMC45CiAgICB3ID0gbnAud2hlcmUobmVhcl9kb29yKHgpID09IHosIDAuOSwgMC4xKQogICAgcmV0dXJuIG5wLndoZXJlKCh4IDwgMC4wKSB8ICh4ID4gMTAuMCksIDFlLTMsIHcpICAgIyDrs7Xrj4Qg67CWID0g7KeA64-E7IOBIOuyvQoKZGVmIGxvd192YXJpYW5jZV9yZXNhbXBsZShwLCB3KTogICAgICAgICAjIOyytOqzhOyggSjsoIDrtoTsgrApIOyerO2RnOuzuAogICAgdSA9IChybmcucmFuZG9tKCkgKyBucC5hcmFuZ2UoTikpIC8gTgogICAgaWR4ID0gbnAuc2VhcmNoc29ydGVkKG5wLmN1bXN1bSh3KSwgdSkKICAgIHJldHVybiBwW25wLm1pbmltdW0oaWR4LCBOIC0gMSldCgp0cnVlX3ggPSAwLjUKcCA9IHJuZy51bmlmb3JtKDAuMCwgMTAuMCwgTikgICAgICAgICAgICAjIOyghOyXrSDsnITsuZjstpTsoJU6IOuzteuPhCDsoITssrTsl5Ag6reg7J28IOu2hO2PrAp3ID0gbnAuZnVsbChOLCAxLjAgLyBOKQpwcmludCgic3RlcCB0cnVlICAgeiAgICAgIG1lYW4gICBzdGQgICBOX2VmZiIpCmZvciBrIGluIHJhbmdlKDE0KToKICAgICMgMSkg7JiI7LihOiDsnbTrj5kg66qF66C5IHUgPSArMC41IG3sl5Ag7J6h7J2M7J2EIOuNlO2VtCDrqqjrk6Ag7YyM7Yuw7YG07J2EIOyYruq5gAogICAgdHJ1ZV94ICs9IFNURVAKICAgIHAgPSBwICsgU1RFUCArIHJuZy5ub3JtYWwoMC4wLCBTSUdfTU9WRSwgTikKICAgICMgMikg6rCx7IugOiDqtIDsuKEgeijrrLgg67O07J6EPynsnZgg6rCA64ql64-E66GcIOqwgOykkey5mCDqs7HtlZjqs6Ag7KCV6rec7ZmUCiAgICB6ID0gYm9vbChuZWFyX2Rvb3IobnAuYXJyYXkoW3RydWVfeF0pKVswXSkKICAgIHcgPSB3ICogbGlrZWxpaG9vZCh6LCBwKQogICAgdyA9IHcgLyB3LnN1bSgpCiAgICBuX2VmZiA9IDEuMCAvIG5wLnN1bSh3ICoqIDIpCiAgICBtZWFuID0gbnAuc3VtKHcgKiBwKQogICAgc3RkID0gbnAuc3FydChucC5zdW0odyAqIChwIC0gbWVhbikgKiogMikpCiAgICBwcmludCgiJTRkICU1LjJmICAlLTVzICU2LjJmICU1LjJmICU2LjFmIiAlIChrICsgMSwgdHJ1ZV94LCB6LCBtZWFuLCBzdGQsIG5fZWZmKSkKICAgICMgMykg7J6s7ZGc67O4OiDsnKDtmqgg7YyM7Yuw7YG0IOyImOqwgCDsoIjrsJgg67CR7Jy866GcIOuWqOyWtOyngOuptAogICAgaWYgbl9lZmYgPCBOIC8gMjoKICAgICAgICBwID0gbG93X3ZhcmlhbmNlX3Jlc2FtcGxlKHAsIHcpCiAgICAgICAgdyA9IG5wLmZ1bGwoTiwgMS4wIC8gTik" target="_blank" rel="noopener" title="Playground에서 열기 (새 탭)">Playground ↗</a><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import numpy as np
 
 rng = np.random.default_rng(0)
 DOORS = np.array([1.5, 4.0, 7.0])       # 복도(0~10 m)의 문 위치 = 지도
@@ -402,7 +402,7 @@ ros2 param get /amcl max_particles       # 3000</code></pre></div>
 </article>
 
 </main>
-<script src="../assets/js/site.js?v=48f86b48"></script>
-<script type="module" src="../assets/js/lesson-runner.js?v=48f86b48"></script>
+<script src="../assets/js/site.js?v=bc59f349"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=bc59f349"></script>
 </body>
 </html>

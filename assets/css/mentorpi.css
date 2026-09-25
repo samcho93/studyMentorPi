@@ -124,6 +124,8 @@
   font-family: inherit; font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 5px; cursor: pointer;
   border: 1px solid var(--border); background: var(--bg); color: var(--text-dim);
 }
+.pg-btn { text-decoration: none; display: inline-block; }
+.pg-btn:hover { text-decoration: none; }
 .pg-btn:hover { color: var(--accent); border-color: var(--accent-dim); }
 .code-block.running { border-color: #15803d; box-shadow: 0 0 0 2px rgba(21, 128, 61, .25); }
 .runner {

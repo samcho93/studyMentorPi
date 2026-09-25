@@ -178,6 +178,7 @@ R('stop').addEventListener('click', () => {
   R('stop').disabled = true; R('run').disabled = false;
   out('■ 정지 — 다음 실행 때 Python을 다시 불러옵니다', 'err'); status('정지됨');
 });
+R('code').addEventListener('input', () => { R('pg').href = '../tools/playground.html#code=' + b64url(R('code').value); });
 R('code').addEventListener('keydown', (e) => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); run(R('code').value); }
   if (e.key === 'Tab') { e.preventDefault(); const t = e.target, s = t.selectionStart; t.setRangeText('    ', s, t.selectionEnd, 'end'); }

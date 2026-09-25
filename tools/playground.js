@@ -388,7 +388,6 @@ document.addEventListener('keydown', (e) => {
 });
 view.resize(); render();
 startWorker();
-if (fromLesson) run();
 
 editor = await createEditor($('editor'), { doc: doc0, onRun: run, onChange: (v) => lsSet(LS_CODE, v) });
 if (editor.loadError) out('코드 편집기(CodeMirror)를 불러오지 못해 기본 입력창을 씁니다.', 'info');
@@ -400,7 +399,14 @@ sel.innerHTML += groups.map((g) => `<optgroup label="${g}">` + EXAMPLES.filter((
 // the dropdown shows the example that is loaded in the editor
 const norm = (t) => t.replace(/\r\n/g, '\n').trim();
 const exFor = (code) => EXAMPLES.find((e) => norm(e.code) === norm(code));
-sel.value = (exFor(editor.getValue()) || { id: '' }).id;
+if (fromLesson && !exFor(editor.getValue())) {
+  // code handed over from a lesson: show it as its own entry, stage the first screen, wait for ▶
+  sel.insertAdjacentHTML('afterbegin', '<option value="__lesson">강의에서 가져온 코드</option>');
+  sel.value = '__lesson';
+  out('강의에서 가져온 코드를 불러왔습니다 — ▶ 실행을 누르세요.', 'info');
+} else {
+  sel.value = (exFor(editor.getValue()) || { id: '' }).id;
+}
 sel.addEventListener('change', () => {
   const ex = EXAMPLES.find((e) => e.id === sel.value);
   if (!ex) return;

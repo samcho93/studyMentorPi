@@ -6,12 +6,12 @@
 <title>M13. 다중 지점 내비게이션과 3D 내비게이션 · studyMentorPi</title>
 <meta name="description" content="단일·다중 목표 순회, 동적 장애물 회피, Python으로 목표 전송(Simple Commander), RTAB-Map 3D 내비게이션.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css?v=48f86b48">
-<link rel="stylesheet" href="../assets/css/mentorpi.css?v=48f86b48">
-<link rel="stylesheet" href="../assets/css/ml-theme.css?v=48f86b48">
+<link rel="stylesheet" href="../assets/css/main.css?v=bc59f349">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=bc59f349">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=bc59f349">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="../assets/js/theme.js?v=48f86b48"></script>
+<script src="../assets/js/theme.js?v=bc59f349"></script>
 </head>
 <body class="lesson-page track-page-mobile">
 <button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
@@ -262,7 +262,7 @@ if __name__ == &#x27;__main__&#x27;:
 <h2 id="실습-playground-경유점-추종기">실습: Playground 경유점 추종기<a class="anchor" href="#실습-playground-경유점-추종기">#</a></h2>
 <p>Playground에는 Nav2가 없으므로, <code>follow_waypoints</code>의 핵심 — "현재 점에 도착(허용오차 안)하면 다음 점으로" — 을 오도메트리로 직접 구현합니다. 메카넘 섀시는 옆으로도 움직일 수 있으므로 방향은 0 rad로 유지한 채 x·y 속도로 바로 이동합니다(횡이동을 쓰지 않는 DWB 설정과 다른 점). 속도는 안전 상한이 걸린 <code>/cmd_vel</code>로 보냅니다.</p>
 <p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><a class="pg-btn" href="../tools/playground.html#code=aW1wb3J0IG1hdGgKaW1wb3J0IHJjbHB5CmZyb20gcmNscHkubm9kZSBpbXBvcnQgTm9kZQpmcm9tIGdlb21ldHJ5X21zZ3MubXNnIGltcG9ydCBUd2lzdCwgUG9zZTJECmZyb20gbmF2X21zZ3MubXNnIGltcG9ydCBPZG9tZXRyeQpmcm9tIHRmX3RyYW5zZm9ybWF0aW9ucyBpbXBvcnQgZXVsZXJfZnJvbV9xdWF0ZXJuaW9uCmltcG9ydCBtZW50b3JwaV9zaW0gYXMgc2ltICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIyDsi5zrrqwg7KCE7JqpCnNpbS5zZXR1cChjaGFzc2lzPSJtZWNhbnVtIiwgd29ybGQ9ImVtcHR5IiwgZHVyYXRpb249MzAuMCwgc3RhcnQ9KDAuMCwgMC4wLCAwLjApKSAgIyDsi5zrrqwg7KCE7JqpCgpXQVlQT0lOVFMgPSBbKDEuMCwgMC4wKSwgKDEuMCwgMS4wKSwgKDAuMCwgMS4wKSwgKDAuMCwgMC4wKV0gICAgIyBvZG9tIOyijO2RnCBbbV0KS1AsIFZfTUFYLCBUT0wgPSAxLjIsIDAuMiwgMC4wNSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAjIFAg7J2065OdLCDsho3rj4Qg7IOB7ZWcLCDrj4TssKkg7ZeI7Jqp7Jik7LCoCgpjbGFzcyBXYXlwb2ludEZvbGxvd2VyKE5vZGUpOgogICAgZGVmIF9faW5pdF9fKHNlbGYpOgogICAgICAgIHN1cGVyKCkuX19pbml0X18oJ3dheXBvaW50X2ZvbGxvd2VyX2RlbW8nKQogICAgICAgIHNlbGYucG9zZSwgc2VsZi50cnV0aCwgc2VsZi5pZHgsIHNlbGYudDAgPSBOb25lLCBOb25lLCAwLCBOb25lCiAgICAgICAgc2VsZi5jcmVhdGVfc3Vic2NyaXB0aW9uKE9kb21ldHJ5LCAnL29kb20nLCBzZWxmLm9uX29kb20sIDEwKQogICAgICAgIHNlbGYuY3JlYXRlX3N1YnNjcmlwdGlvbihQb3NlMkQsICcvZ3JvdW5kX3RydXRoJywgc2VsZi5vbl90cnV0aCwgMTApICAgIyDsi5zrrqwg7KCE7JqpCiAgICAgICAgc2VsZi5wdWIgPSBzZWxmLmNyZWF0ZV9wdWJsaXNoZXIoVHdpc3QsICcvY21kX3ZlbCcsIDEwKQogICAgICAgIHNlbGYuY3JlYXRlX3RpbWVyKDAuMDUsIHNlbGYuY29udHJvbCkKICAgIGRlZiBvbl9vZG9tKHNlbGYsIG0pOgogICAgICAgIHEgPSBtLnBvc2UucG9zZS5vcmllbnRhdGlvbgogICAgICAgIHlhdyA9IGV1bGVyX2Zyb21fcXVhdGVybmlvbihbcS54LCBxLnksIHEueiwgcS53XSlbMl0KICAgICAgICBzZWxmLnBvc2UgPSAobS5wb3NlLnBvc2UucG9zaXRpb24ueCwgbS5wb3NlLnBvc2UucG9zaXRpb24ueSwgeWF3KQogICAgZGVmIG9uX3RydXRoKHNlbGYsIG0pOgogICAgICAgIHNlbGYudHJ1dGggPSAobS54LCBtLnkpCiAgICBkZWYgY29udHJvbChzZWxmKToKICAgICAgICBpZiBzZWxmLnBvc2UgaXMgTm9uZToKICAgICAgICAgICAgcmV0dXJuCiAgICAgICAgbm93ID0gc2VsZi5nZXRfY2xvY2soKS5ub3coKS5uYW5vc2Vjb25kcyAqIDFlLTkKICAgICAgICBzZWxmLnQwID0gbm93IGlmIHNlbGYudDAgaXMgTm9uZSBlbHNlIHNlbGYudDAKICAgICAgICBneCwgZ3kgPSBXQVlQT0lOVFNbc2VsZi5pZHhdCiAgICAgICAgeCwgeSwgeWF3ID0gc2VsZi5wb3NlCiAgICAgICAgZXgsIGV5ID0gZ3ggLSB4LCBneSAtIHkgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIyBvZG9tIOyijO2RnCDsmKTssKgKICAgICAgICBpZiBtYXRoLmh5cG90KGV4LCBleSkgPCBUT0w6CiAgICAgICAgICAgIGVyciA9IG1hdGguaHlwb3Qoc2VsZi50cnV0aFswXSAtIGd4LCBzZWxmLnRydXRoWzFdIC0gZ3kpIGlmIHNlbGYudHJ1dGggZWxzZSBmbG9hdCgnbmFuJykKICAgICAgICAgICAgc2VsZi5nZXRfbG9nZ2VyKCkuaW5mbygnV1AlZCAoJS4xZiwgJS4xZikgcmVhY2hlZCB0PSUuMWYgcyAgdHJ1ZSBlcnJvciAlLjNmIG0nICUgKAogICAgICAgICAgICAgICAgc2VsZi5pZHggKyAxLCBneCwgZ3ksIG5vdyAtIHNlbGYudDAsIGVycikpCiAgICAgICAgICAgIHNlbGYuaWR4ICs9IDEKICAgICAgICAgICAgaWYgc2VsZi5pZHggPT0gbGVuKFdBWVBPSU5UUyk6CiAgICAgICAgICAgICAgICBzZWxmLnB1Yi5wdWJsaXNoKFR3aXN0KCkpOyByY2xweS5zaHV0ZG93bigpCiAgICAgICAgICAgIHJldHVybgogICAgICAgIGJ4ID0gbWF0aC5jb3MoeWF3KSAqIGV4ICsgbWF0aC5zaW4oeWF3KSAqIGV5ICAgICAgICAgICAgICMgb2RvbSAtPiDroZzrtIcg7KKM7ZGcCiAgICAgICAgYnkgPSAtbWF0aC5zaW4oeWF3KSAqIGV4ICsgbWF0aC5jb3MoeWF3KSAqIGV5CiAgICAgICAgcyA9IG1pbigxLjAsIFZfTUFYIC8gbWF4KDFlLTYsIEtQICogbWF0aC5oeXBvdChieCwgYnkpKSkgICMg7IaN64-EIOuyoe2EsCDtgazquLAg7KCc7ZWcCiAgICAgICAgdCA9IFR3aXN0KCkKICAgICAgICB0LmxpbmVhci54LCB0LmxpbmVhci55ID0gS1AgKiBieCAqIHMsIEtQICogYnkgKiBzICAgICAgICAjIOuplOy5tOuEmDog7JiG7Jy866Gc64-EIOydtOuPmQogICAgICAgIHQuYW5ndWxhci56ID0gLTEuMCAqIHlhdyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICMg67Cp7Zal7J2AIDAgcmFkIOycoOyngAogICAgICAgIHNlbGYucHViLnB1Ymxpc2godCkKCnJjbHB5LmluaXQoKQpub2RlID0gV2F5cG9pbnRGb2xsb3dlcigpCnRyeToKICAgIHJjbHB5LnNwaW4obm9kZSkKZXhjZXB0IEtleWJvYXJkSW50ZXJydXB0OgogICAgcGFzcwpmaW5hbGx5OgogICAgaWYgcmNscHkub2soKTogbm9kZS5wdWIucHVibGlzaChUd2lzdCgpKQogICAgbm9kZS5kZXN0cm95X25vZGUoKQogICAgaWYgcmNscHkub2soKTogcmNscHkuc2h1dGRvd24oKQ" target="_blank" rel="noopener" title="Playground에서 열기 (새 탭)">Playground ↗</a><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist, Pose2D
@@ -371,7 +371,7 @@ ros2 launch navigation rviz_rtabmap_navigation.launch.py</code></pre></div>
 </article>
 
 </main>
-<script src="../assets/js/site.js?v=48f86b48"></script>
-<script type="module" src="../assets/js/lesson-runner.js?v=48f86b48"></script>
+<script src="../assets/js/site.js?v=bc59f349"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=bc59f349"></script>
 </body>
 </html>
