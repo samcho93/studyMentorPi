@@ -6,14 +6,14 @@
 <title>ROS 2 Playground — studyMentorPi</title>
 <meta name="description" content="브라우저에서 rclpy 코드로 가상 MentorPi를 움직이고 결과를 2D로 재생하는 ROS 2 Playground (Pyodide).">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css">
-<link rel="stylesheet" href="../assets/css/mentorpi.css">
-<link rel="stylesheet" href="../assets/css/sim.css">
-<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" href="../assets/css/main.css?v=ab95586f">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=ab95586f">
+<link rel="stylesheet" href="../assets/css/sim.css?v=ab95586f">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=ab95586f">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="../assets/js/theme.js"></script>
-<script src="../assets/js/file-guard.js"></script>
+<script src="../assets/js/theme.js?v=ab95586f"></script>
+<script src="../assets/js/file-guard.js?v=ab95586f"></script>
 <!-- CodeMirror +esm bundles pull slightly different versions of shared packages; pin one copy. -->
 <script type="importmap">
 {
@@ -117,12 +117,12 @@
   </section>
   <section class="pg-right">
     <div class="pg-tabs" role="tablist">
-      <button type="button" role="tab" data-pane="paneWorld" aria-selected="true">2D 재생</button>
-      <button type="button" role="tab" data-pane="pane3d" aria-selected="false">3D 재생</button>
+      <button type="button" role="tab" data-pane="pane3d" aria-selected="true">3D 시뮬레이터</button>
+      <button type="button" role="tab" data-pane="paneWorld" aria-selected="false">2D 보기</button>
       <button type="button" role="tab" data-pane="paneImgs" aria-selected="false">이미지<span class="badge" id="imgCount"></span></button>
       <button type="button" role="tab" data-pane="paneChart" aria-selected="false">그래프<span class="badge" id="plotCount"></span></button>
     </div>
-    <div class="pg-pane on" id="paneWorld">
+    <div class="pg-pane" id="paneWorld">
       <canvas id="world" aria-label="가상 MentorPi 2D 재생"></canvas>
       <div class="pg-legend" id="legend">
         <div><i style="background:var(--accent)"></i>실제 경로 (ground truth)</div>
@@ -138,7 +138,7 @@
         <select id="speed" aria-label="재생 속도"><option value="1">1×</option><option value="2" selected>2×</option><option value="4">4×</option></select>
       </div>
     </div>
-    <div class="pg-pane" id="pane3d"><iframe id="f3d" title="MentorPi 3D 재생" style="flex:1;border:0;width:100%" data-src="../sim3d/index.html?embed=replay"></iframe></div>
+    <div class="pg-pane on" id="pane3d"><iframe id="f3d" title="MentorPi 3D 시뮬레이터" style="flex:1;border:0;width:100%" src="../sim3d/index.html?embed=replay"></iframe></div>
     <div class="pg-pane" id="paneImgs"><div class="pg-imgs" id="imgs"><div class="pg-empty">코드에서 <code>cv2.imshow("이름", img)</code>를 부르면 여기에 표시됩니다.</div></div></div>
     <div class="pg-pane" id="paneChart"><canvas id="chart" aria-label="그래프"></canvas></div>
     <div class="pg-summary" id="summary">
@@ -147,6 +147,6 @@
     </div>
   </section>
 </main>
-<script type="module" src="playground.js"></script>
+<script type="module" src="playground.js?v=ab95586f"></script>
 </body>
 </html>

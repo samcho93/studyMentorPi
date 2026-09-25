@@ -52,16 +52,22 @@ function showPane(id) {
   if (id === 'pane3d') ensure3D();
 }
 // 3D replay of the last run in the URDF simulator (sim3d?embed=replay)
-let f3dReady = false, pending3d = null;
+let f3dReady = false, pending3d = null, pendingAutoplay = true;
 function ensure3D() { const f = $('f3d'); if (!f.src) f.src = f.dataset.src; }
-function send3D(res) {
+let prefPane = 'pane3d';                       // 3D first; 2D only when the user selects it
+function mainPane() { return prefPane; }
+function send3D(res, autoplay = true) {
   pending3d = res; ensure3D();
-  if (f3dReady) { $('f3d').contentWindow.postMessage({ type: 'mp-replay', result: res }, '*'); pending3d = null; }
+  pendingAutoplay = autoplay;
+  if (f3dReady) { $('f3d').contentWindow.postMessage({ type: 'mp-replay', result: res, autoplay }, '*'); pending3d = null; }
 }
 window.addEventListener('message', (ev) => {
-  if (ev.source === $('f3d').contentWindow && ev.data && ev.data.type === 'mp3d-ready') { f3dReady = true; if (pending3d) send3D(pending3d); }
+  if (ev.source === $('f3d').contentWindow && ev.data && ev.data.type === 'mp3d-ready') { f3dReady = true; if (pending3d) send3D(pending3d, pendingAutoplay); }
 });
-document.querySelectorAll('.pg-tabs button').forEach((b) => b.addEventListener('click', () => showPane(b.dataset.pane)));
+document.querySelectorAll('.pg-tabs button').forEach((b) => b.addEventListener('click', () => {
+  if (b.dataset.pane === 'pane3d' || b.dataset.pane === 'paneWorld') prefPane = b.dataset.pane;
+  showPane(b.dataset.pane);
+}));
 
 // ------------------------------------------------------------------ 2D replay
 const view = new View($('world'));
@@ -215,7 +221,7 @@ function startWorker() {
   slowTimer = setTimeout(() => {
     if (!ready) out('아직 준비 중입니다. 인터넷(cdn.jsdelivr.net) 접속이 느리거나 방화벽에서 막혀 있을 수 있습니다.', 'err');
   }, 40000);
-  worker = new Worker('playground-worker.js');
+  worker = new Worker('playground-worker.js' + (new URL(import.meta.url).search || ''));   // same ?v= as this module
   worker.onmessage = (ev) => {
     const m = ev.data;
     if (m.type === 'status') setStatus(m.text);
@@ -227,7 +233,7 @@ function startWorker() {
       $('btnRun').disabled = false;
       $('btnRun').innerHTML = '&#9654; 실행';
       out('✔ 파이썬 준비 완료 (' + ((performance.now() - loadT0) / 1000).toFixed(1) + ' s)', 'ok');
-      if (pendingRun) { pendingRun = false; run(); }
+      if (pendingRun) { pendingRun = false; run(); } else requestPreview();
     } else if (m.type === 'fatal') {
       clearTimeout(slowTimer);
       pendingRun = false;
@@ -237,6 +243,7 @@ function startWorker() {
     } else if (m.type === 'stdout') out(m.text);
     else if (m.type === 'stderr') out(m.text, 'err');
     else if (m.type === 'done' && m.runId === runId) finish(m);
+    else if (m.type === 'preview-done' && m.runId === previewId) showFirstScreen(m.result);
   };
   worker.onerror = (e) => { out('worker 오류: ' + (e.message || e), 'err'); };
   worker.postMessage({ type: 'init', base: LIB_BASE });
@@ -280,10 +287,10 @@ function finish(m) {
   $('seek').max = Math.max(0, res.frames.length - 1);
   if (res.summary.used_sim && res.frames.length > 1) {
     out(`■ ${m.status === 'ok' ? '완료' : '오류 전까지'} — 시뮬레이션 ${res.summary.t.toFixed(1)} s 기록 → 2D 재생`, m.status === 'ok' ? 'ok' : 'info');
-    showPane('paneWorld');
+    showPane(mainPane());
     setFrame(0);
     play(true);
-    send3D(res);
+    send3D(res, true);
   } else {
     if (m.status === 'ok') out('■ 완료', 'ok');
     render();
@@ -298,6 +305,25 @@ function stop() {
   out('■ 정지 — Python을 다시 시작합니다 (몇 초 걸립니다)', 'err');
   $('btnStop').disabled = true;
   startWorker();
+}
+
+// ------------------------------------------------------------------ first screen of an example (preview at t = 0)
+let previewId = 0;
+function requestPreview() {
+  if (!ready || running || !worker) return;
+  previewId = ++runId;
+  worker.postMessage({ type: 'preview', code: code(), runId: previewId });
+}
+function showFirstScreen(res) {
+  if (running || !res) return;
+  if (!res.summary.used_sim || !res.frames.length) return;      // plain Python / OpenCV: nothing to stage
+  result = res;
+  frameIdx = 0;
+  $('seek').max = 0; $('seek').value = 0;
+  $('playT').textContent = '대기 중';
+  render();
+  send3D(res, false);
+  $('summary').innerHTML = `대기 중 — 월드 <code>${res.world.title}</code> · 섀시 <code>${res.chassis}</code> · 시작 자세 <code>(${res.start.map((v) => (+v).toFixed(2)).join(', ')})</code>. <b>▶ 실행</b>을 누르면 3D 시뮬레이터에서 동작합니다.`;
 }
 
 // ------------------------------------------------------------------ idle state (after loading an example)
@@ -315,7 +341,7 @@ function resetView() {
   pending3d = null;
   const f = $('f3d');
   if (f3dReady && f.contentWindow) f.contentWindow.postMessage({ type: 'mp-reset' }, '*');
-  showPane('paneWorld');
+  showPane(mainPane());
   view.resize(); render(); drawChart();
   setStatus(ready ? '준비됨 — Ctrl+Enter로 실행' : '준비 중…', ready ? 'ok' : '');
 }
@@ -361,6 +387,7 @@ sel.addEventListener('change', () => {
   if (running) stop();
   editor.setValue(ex.code);
   resetView();
+  requestPreview();
   out(`예제 불러옴: ${ex.title}`, 'info');
   sel.value = ex.id;
 });

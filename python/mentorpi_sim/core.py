@@ -126,6 +126,7 @@ class Runtime:
 
     # ---------------------------------------------------------------- setup
     def reset(self, chassis="mecanum", world="room", duration=20.0, start=None, noise=True, seed=None):
+        self.preview = False
         if chassis not in CHASSIS:
             raise ValueError("chassis must be 'mecanum' or 'ackermann'")
         random.seed(seed if seed is not None else 7)
@@ -198,7 +199,8 @@ class Runtime:
         if self.t >= self.duration - 1e-9:
             if not self.timeup:
                 self.timeup = True
-                print("[sim] 시뮬레이션 시간 %.1f s 종료 (sim.setup(duration=...)으로 변경)" % self.duration)
+                if not self.preview:
+                    print("[sim] 시뮬레이션 시간 %.1f s 종료 (sim.setup(duration=...)으로 변경)" % self.duration)
             raise SimTimeUp()
 
     def advance(self, seconds, run_callbacks=False):
@@ -287,7 +289,8 @@ class Runtime:
             if self.t >= self.duration - 1e-9:
                 if not self.timeup:
                     self.timeup = True
-                    print("[sim] 시뮬레이션 시간 %.1f s 종료 (sim.setup(duration=...)으로 변경)" % self.duration)
+                    if not self.preview:
+                        print("[sim] 시뮬레이션 시간 %.1f s 종료 (sim.setup(duration=...)으로 변경)" % self.duration)
                 return
             self.run_ready()
             self._physics(DT)

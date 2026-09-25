@@ -26,8 +26,11 @@ _EPOCH = 1_750_000_000.0
 def setup(chassis="mecanum", world="room", duration=20.0, start=None, noise=True, seed=None):
     """Configure the virtual robot. Call before creating nodes."""
     subs, nodes = dict(RT.subs), list(RT.nodes)
-    inited = RT.inited
+    inited, preview = RT.inited, RT.preview
+    if preview:
+        duration = 0.0          # preview: build the scene, stop before the first time step
     RT.reset(chassis=chassis, world=world, duration=duration, start=start, noise=noise, seed=seed)
+    RT.preview = preview
     RT.subs.update(subs)          # keep subscriptions made before setup()
     RT.nodes.extend(nodes)
     RT.inited = inited
@@ -150,13 +153,19 @@ def install_cv2_hooks(cv2):
 
 
 # ---------------------------------------------------------------- run lifecycle
-def begin_run():
-    """Fresh state for a new Playground run."""
+def begin_run(preview=False):
+    """Fresh state for a new Playground run. preview=True: only build the initial scene
+    (simulated time is capped at 0 s) so the page can show the example's first screen."""
     RT.reset()
+    RT.preview = bool(preview)
+    if preview:
+        RT.duration = 0.0
     install_time_patch()
 
 
 def export_json():
+    if RT.preview and not RT.frames and (RT.inited or RT.configured):
+        RT._sensors()          # one scan + frame at t = 0 for the first screen
     data = RT.export()
     data["summary"]["used_sim"] = bool(RT.inited or RT.configured)
     data["images"] = RT.images

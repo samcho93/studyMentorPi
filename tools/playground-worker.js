@@ -25,10 +25,14 @@ import mentorpi_sim
 
 FILENAME = "main.py"
 
-def run(source):
+def run(source, preview=False):
     os.chdir(${JSON.stringify(WORK)})
-    mentorpi_sim.begin_run()
-    if "cv2" in source:
+    mentorpi_sim.begin_run(preview)
+    if preview:                      # first screen only: silence output, stop at t = 0
+        import io
+        _out, _err = sys.stdout, sys.stderr
+        sys.stdout = sys.stderr = io.StringIO()
+    if "cv2" in source and not preview:
         try:
             import cv2
             mentorpi_sim.install_cv2_hooks(cv2)
@@ -48,6 +52,8 @@ def run(source):
         lines += traceback.format_exception_only(type(exc), exc)
         sys.stderr.write("".join(lines))
         status = "error"
+    if preview:
+        sys.stdout, sys.stderr = _out, _err
     sys.stdout.flush()
     return json.dumps({"status": status, "result": json.loads(mentorpi_sim.export_json())})
 `;
@@ -105,8 +111,15 @@ async function run(msg) {
   post({ type: 'done', runId: msg.runId, status: res.status, result: res.result });
 }
 
+async function preview(msg) {
+  let res = null;
+  try { res = JSON.parse(runner(msg.code, true)); } catch (e) { res = null; }
+  post({ type: 'preview-done', runId: msg.runId, result: res && res.result });
+}
+
 self.onmessage = (ev) => {
   const m = ev.data || {};
   if (m.type === 'init') init(m.base).catch((e) => post({ type: 'fatal', error: String(e && e.message ? e.message : e) }));
   else if (m.type === 'run') run(m);
+  else if (m.type === 'preview') preview(m);
 };

@@ -421,11 +421,25 @@ def asset_version() -> str:
     if _VER is None:
         import hashlib
         h = hashlib.sha256()
-        for p in sorted((ROOT / "assets").rglob("*")):
-            if p.suffix in (".css", ".js"):
-                h.update(p.read_bytes())
+        for d in ("assets", "tools", "sim", "sim3d"):
+            for p in sorted((ROOT / d).rglob("*")):
+                if p.suffix in (".css", ".js"):
+                    h.update(p.read_bytes().replace(b"\r\n", b"\n"))
         _VER = h.hexdigest()[:8]
     return _VER
+
+
+def stamp_tool_pages() -> None:
+    """Add ?v=<asset hash> to local .js/.css references in the hand-written tool pages
+    (sim/, sim3d/, tools/) so browsers and GitHub Pages never serve stale scripts."""
+    pat = re.compile(r'((?:src|href)=")((?:\.\./|\./)?[\w./-]+\.(?:js|css))(?:\?v=[0-9a-f]+)?(")')
+    for page in [ROOT / "sim" / "index.html", ROOT / "sim3d" / "index.html", *sorted((ROOT / "tools").glob("*.html"))]:
+        if not page.exists():
+            continue
+        text = page.read_text(encoding="utf-8")
+        new = pat.sub(lambda m: "%s%s?v=%s%s" % (m.group(1), m.group(2), asset_version(), m.group(3)), text)
+        if new != text:
+            write_lf(page, new)
 
 
 def lesson_page(cur: dict, cid: str, meta: dict, body_md: str) -> str:
@@ -669,6 +683,7 @@ def main() -> int:
         built += 1
 
     write_lf(ROOT / "index.html", index_page(cur))
+    stamp_tool_pages()
     print("빌드 완료: 챕터 %d개 + index.html" % built)
     if missing:
         print("원고 없음: %s" % ", ".join(missing))

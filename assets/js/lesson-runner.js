@@ -5,7 +5,7 @@
 import { View, themeColors, drawWorld, drawRobot, drawScan, drawPath, drawMovers, odomToWorld } from './world2d.js';
 
 const LIB_BASE = new URL('../python/', location.href).href;
-const WORKER_URL = new URL('../tools/playground-worker.js', location.href).href;
+const WORKER_URL = new URL('../tools/playground-worker.js' + (new URL(import.meta.url).search || ''), location.href).href;
 const esc = (s) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
 
 // ------------------------------------------------------------------ panel DOM
@@ -19,8 +19,8 @@ panel.innerHTML = `
 </div>
 <div class="rn-tabs" role="tablist">
   <button type="button" data-pane="out" aria-selected="true">출력</button>
-  <button type="button" data-pane="world" aria-selected="false">2D 재생</button>
-  <button type="button" data-pane="w3d" aria-selected="false">3D 재생</button>
+  <button type="button" data-pane="w3d" aria-selected="false">3D 시뮬레이터</button>
+  <button type="button" data-pane="world" aria-selected="false">2D 보기</button>
   <button type="button" data-pane="imgs" aria-selected="false">이미지<span data-r="nimg"></span></button>
   <button type="button" data-pane="chart" aria-selected="false">그래프<span data-r="nplot"></span></button>
   <button type="button" data-pane="code" aria-selected="false">코드 수정</button>
@@ -124,7 +124,7 @@ function finish(m) {
     const s = res.summary;
     R('sum').innerHTML = `시뮬 <b>${s.t.toFixed(1)} s</b> · ${res.chassis} · ${esc(res.world.title)} · 이동 <b>${s.distance.toFixed(2)} m</b> · 충돌 <b>${s.collisions}</b>`;
     out(`■ 시뮬레이션 ${s.t.toFixed(1)} s 기록 → 2D 재생 탭`, 'ok');
-    showPane(panel.dataset.pref3d === '1' ? 'w3d' : 'world'); frame = 0; play(true);
+    showPane(panel.dataset.pref3d === '0' ? 'world' : 'w3d');   // 3D first, 2D only if chosen frame = 0; play(true);
     send3D(res);
   } else {
     if (m.status === 'ok') out('■ 완료', 'ok');

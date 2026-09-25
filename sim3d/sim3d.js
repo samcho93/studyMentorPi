@@ -482,8 +482,8 @@ function replayBar() {
   $('rpCam').addEventListener('change', () => { $('selCam').value = $('rpCam').value; });
   $('info').textContent = '코드를 실행하면 결과가 3D로 재생됩니다.';
 }
-async function loadReplay(res) {
-  rp.res = res; rp.i = 0; rp.t = 0; rp.playing = true;
+async function loadReplay(res, autoplay = true) {
+  rp.res = res; rp.i = 0; rp.t = 0; rp.playing = autoplay;
   const spec = { title: res.world.title, bounds: res.world.bounds, walls: res.world.walls || [], boxes: res.world.boxes || [],
     cylinders: res.world.cylinders || [], start: res.start };
   world = new World(spec, res.world.name || 'replay');
@@ -501,9 +501,10 @@ async function loadReplay(res) {
   $('selCam').value = $('rpCam').value;
   await setRobotModel(res.chassis);
   $('rpSeek').max = Math.max(0, res.frames.length - 1);
-  $('rpPlay').innerHTML = '&#10074;&#10074;';
-  $('info').textContent = `${res.world.title} · ${res.chassis} · ${res.frames.length} 프레임`;
+  $('rpPlay').innerHTML = autoplay ? '&#10074;&#10074;' : '&#9654;';
+  $('info').textContent = autoplay ? `${res.world.title} · ${res.chassis} · ${res.frames.length} 프레임` : `${res.world.title} · ${res.chassis} — 대기 중 (▶ 실행을 누르세요)`;
   setReplayFrame(0);
+  if (!autoplay) $('rpT').textContent = '대기 중';
 }
 function setReplayFrame(i) {
   const fr = rp.res.frames;
@@ -541,7 +542,7 @@ function replayTick(dt) {
 }
 window.addEventListener('message', (ev) => {
   const m = ev.data || {};
-  if (m.type === 'mp-replay' && m.result) loadReplay(m.result).catch((e) => { $('info').textContent = '재생 실패: ' + e.message; });
+  if (m.type === 'mp-replay' && m.result) loadReplay(m.result, m.autoplay !== false).catch((e) => { $('info').textContent = '재생 실패: ' + e.message; });
   if (m.type === 'mp-reset') {
     rp.res = null; rp.playing = false; rp.i = 0;
     ranges = new Array(N_RAYS).fill(Infinity); trail = []; if (world) world.movers = [];
