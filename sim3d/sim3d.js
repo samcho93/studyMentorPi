@@ -37,7 +37,25 @@ const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xdfe6ee);
 const camera = new THREE.PerspectiveCamera(50, 1, 0.01, 60);
 camera.up.set(0, 0, 1);
-const pipCam = new THREE.PerspectiveCamera(62, 4 / 3, 0.02, 20);
+const pipCam = new THREE.PerspectiveCamera(2 * Math.atan(240 / 474.2169) * 180 / Math.PI, 4 / 3, 0.02, 20);  // HP60C vertical FOV ≈ 53.7°
+// depth view of the robot camera: view-space z mapped with the turbo colour map, 0.15–4 m (HP60C-like range)
+const depthVisMat = new THREE.ShaderMaterial({
+  side: THREE.DoubleSide,
+  vertexShader: 'varying float vZ; void main(){ vec4 mv = modelViewMatrix * vec4(position,1.0); vZ = -mv.z; gl_Position = projectionMatrix * mv; }',
+  fragmentShader: `varying float vZ;
+    vec3 turbo(float t){ return clamp(vec3(
+      0.13572138 + t*(4.61539260 + t*(-42.66032258 + t*(132.13108234 + t*(-152.94239396 + t*59.28637943)))),
+      0.09140261 + t*(2.19418839 + t*(4.84296658 + t*(-14.18503333 + t*(4.27729857 + t*2.82956604)))),
+      0.10667330 + t*(12.64194608 + t*(-60.58204836 + t*(110.36276771 + t*(-89.90310912 + t*27.34824973))))), 0.0, 1.0); }
+    void main(){ if (vZ < 0.15 || vZ > 4.0) { gl_FragColor = vec4(0.0,0.0,0.0,1.0); return; }
+      gl_FragColor = vec4(turbo((vZ - 0.15) / 3.85), 1.0); }`,
+});
+let pipMode = 'rgb';
+document.querySelectorAll('[data-pip]').forEach((b) => b.addEventListener('click', () => {
+  pipMode = b.dataset.pip;
+  document.querySelectorAll('[data-pip]').forEach((x) => x.classList.toggle('on', x === b));
+  document.getElementById('pipCap').textContent = pipMode === 'depth' ? '깊이 0.15~4 m (파랑=가까움, 빨강=멂)' : '로봇 카메라 (depth_cam)';
+}));
 pipCam.up.set(0, 0, 1);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
@@ -402,7 +420,7 @@ function syncCameras() {
   }
   if (view !== 'top') syncCameras.topSet = false;
   // robot camera (depth_cam), pitched down for line following
-  const pitchDown = mode === 'line' || lineMask ? 0.5 : 0.15;
+  const pitchDown = mode === 'line' || lineMask ? 0.5 : (pipMode === 'depth' ? 0.0 : 0.15);   // real HP60C looks level
   pipCam.position.set(robot.x + CAM_POS[0] * c, robot.y + CAM_POS[0] * s, CAM_POS[2]);
   pipCam.lookAt(robot.x + (CAM_POS[0] + Math.cos(pitchDown)) * c, robot.y + (CAM_POS[0] + Math.cos(pitchDown)) * s, CAM_POS[2] - Math.sin(pitchDown));
 }
@@ -443,7 +461,11 @@ function render(dt = 0) {
   renderer.render(scene, camera);
   if (++frameNo % 2 === 0) {
     rayLines.visible = hitPts.visible = false; trailLine.visible = false;
-    pipRenderer.render(scene, pipCam);
+    if (pipMode === 'depth') {
+      const bg = scene.background; scene.background = new THREE.Color(0x000000); scene.overrideMaterial = depthVisMat;
+      pipRenderer.render(scene, pipCam);
+      scene.overrideMaterial = null; scene.background = bg;
+    } else pipRenderer.render(scene, pipCam);
     rayLines.visible = hitPts.visible = $('chkRays').checked; trailLine.visible = $('chkTrail').checked;
   }
 }

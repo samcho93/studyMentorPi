@@ -6,12 +6,12 @@
 <title>MentorPi 3D 시뮬레이터 — studyMentorPi</title>
 <meta name="description" content="MentorPi URDF(메카넘·애커만)를 3D 월드에서 주행시키며 라이다 회피·추종·경비, 라인 트레이싱, 목표 지점 내비게이션을 해 보는 three.js 시뮬레이터.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css?v=ef4e86f9">
-<link rel="stylesheet" href="../assets/css/mentorpi.css?v=ef4e86f9">
-<script src="../assets/js/theme.js?v=ef4e86f9"></script>
-<script src="../assets/js/file-guard.js?v=ef4e86f9"></script>
-<link rel="stylesheet" href="../assets/css/sim.css?v=ef4e86f9">
-<link rel="stylesheet" href="../assets/css/ml-theme.css?v=ef4e86f9">
+<link rel="stylesheet" href="../assets/css/main.css?v=5d0b572b">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=5d0b572b">
+<script src="../assets/js/theme.js?v=5d0b572b"></script>
+<script src="../assets/js/file-guard.js?v=5d0b572b"></script>
+<link rel="stylesheet" href="../assets/css/sim.css?v=5d0b572b">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=5d0b572b">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
 <script type="importmap">
@@ -35,6 +35,10 @@
   .hud { font: 12px/1.55 var(--mono); background: var(--overlay); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 10px; min-width: 230px; color: var(--text); }
   .hud b { color: var(--text-faint); font-weight: 600; display: inline-block; min-width: 50px; }
   .pip { background: var(--overlay); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px; font-size: 11px; color: var(--text-faint); }
+  .pip-bar { display: flex; align-items: center; gap: 4px; margin-top: 4px; }
+  .pip-bar span { margin-right: auto; }
+  .pip-bar button { font: inherit; font-size: 11px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg); color: var(--text-dim); cursor: pointer; }
+  .pip-bar button.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
   .pip canvas { display: block; width: 256px; height: 192px; border-radius: 6px; background: #222; }
   .info-box { font-size: 12.5px; background: var(--overlay); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px 10px; max-width: 460px; color: var(--text); }
   .keys { display: grid; grid-template-columns: repeat(3, 34px); gap: 4px; margin: 6px 0 10px; }
@@ -80,6 +84,7 @@
       <a class="sim-back" href="../sim/index.html">2D 시뮬레이터</a>
       <a class="sim-back" href="../tools/playground.html">Playground</a>
       <a class="sim-back" href="../tools/kinematics-lab.html">기구학 실험실</a>
+      <a class="sim-back" href="../tools/depth-lab.html">깊이 카메라 실험실</a>
       <a class="sim-back" href="../tools/urdf-viewer.html">URDF 뷰어</a>
     </nav>
     <button class="theme-btn" type="button" data-theme-toggle aria-label="테마 전환">테마</button>
@@ -90,7 +95,7 @@
     <div class="viewport" id="viewport"></div>
     <div class="no-gl" id="noGL" hidden></div>
     <div class="stage-overlay stage-tl"><div class="hud" id="hud"></div></div>
-    <div class="stage-overlay stage-tr"><div class="pip" id="pipBox"><canvas id="pip" width="320" height="240"></canvas><div id="pipCap">로봇 카메라 (depth_cam)</div></div></div>
+    <div class="stage-overlay stage-tr"><div class="pip" id="pipBox"><canvas id="pip" width="320" height="240"></canvas><div class="pip-bar"><span id="pipCap">로봇 카메라 (depth_cam)</span><button type="button" class="on" data-pip="rgb">RGB</button><button type="button" data-pip="depth">깊이</button></div></div></div>
     <div class="stage-overlay stage-br"><div class="info-box" id="info">W/S 전후 · A/D 회전 · Q/E 옆으로(메카넘) · Space 정지 · 마우스로 시점 회전</div></div>
   </section>
   <aside class="sim-panel">
