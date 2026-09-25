@@ -1,0 +1,48 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="통합 자율주행 유한 상태 기계">
+  <defs>
+    <marker id="arr-a11-fsm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <!-- LANE center -->
+  <rect class="box-hi" x="290" y="120" width="140" height="56" rx="28"/>
+  <text class="lbl" x="360" y="145" text-anchor="middle">LANE</text>
+  <text class="tag" x="360" y="162" text-anchor="middle">차선 유지 0.1 m/s</text>
+  <!-- SLOW -->
+  <rect class="box" x="60" y="30" width="130" height="50" rx="25"/>
+  <text class="lbl" x="125" y="52" text-anchor="middle">SLOW</text>
+  <text class="tag" x="125" y="68" text-anchor="middle">횡단보도 서행</text>
+  <!-- STOP -->
+  <rect class="box" x="60" y="210" width="130" height="50" rx="25"/>
+  <text class="lbl" x="125" y="232" text-anchor="middle">STOP</text>
+  <text class="tag" x="125" y="248" text-anchor="middle">빨간불 정지</text>
+  <!-- TURN -->
+  <rect class="box" x="300" y="20" width="120" height="50" rx="25"/>
+  <text class="lbl" x="360" y="42" text-anchor="middle">TURN</text>
+  <text class="tag" x="360" y="58" text-anchor="middle">급커브 회전</text>
+  <!-- APPROACH -->
+  <rect class="box" x="520" y="120" width="140" height="56" rx="28"/>
+  <text class="lbl" x="590" y="145" text-anchor="middle">APPROACH</text>
+  <text class="tag" x="590" y="162" text-anchor="middle">주차 표지 접근·서행</text>
+  <!-- PARK -->
+  <rect class="box" x="520" y="220" width="140" height="50" rx="25"/>
+  <text class="lbl" x="590" y="242" text-anchor="middle">PARK → DONE</text>
+  <text class="tag" x="590" y="258" text-anchor="middle">park_action() 후 정지</text>
+
+  <!-- transitions -->
+  <path class="ln" d="M300 128 L180 80" marker-end="url(#arr-a11-fsm)"/>
+  <text class="tag" x="248" y="92" text-anchor="middle">crosswalk</text>
+  <path class="ln" d="M190 62 L292 138" marker-end="url(#arr-a11-fsm)"/>
+  <text class="tag" x="266" y="112" text-anchor="start">passed</text>
+  <path class="ln" d="M110 80 L110 208" marker-end="url(#arr-a11-fsm)"/>
+  <text class="tag" x="104" y="150" text-anchor="end">red</text>
+  <path class="ln" d="M140 208 L140 82" marker-end="url(#arr-a11-fsm)"/>
+  <text class="tag" x="146" y="150">green</text>
+  <path class="ln" d="M345 120 L345 72" marker-end="url(#arr-a11-fsm)"/>
+  <text class="tag" x="340" y="100" text-anchor="end">curve</text>
+  <path class="ln" d="M375 72 L375 118" marker-end="url(#arr-a11-fsm)"/>
+  <text class="tag" x="380" y="100">straight</text>
+  <path class="ln" d="M430 148 L518 148" marker-end="url(#arr-a11-fsm)"/>
+  <text class="tag" x="474" y="140" text-anchor="middle">park_sign</text>
+  <path class="ln" d="M590 176 L590 218" marker-end="url(#arr-a11-fsm)"/>
+  <text class="tag" x="596" y="200">at_spot</text>
+  <text class="sub" x="360" y="292" text-anchor="middle">표에 없는 (상태, 사건) 조합은 무시 → 예: TURN 중 crosswalk</text>
+</svg>

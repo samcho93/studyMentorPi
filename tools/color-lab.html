@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HSV 색 실험실 — studyMentorPi</title>
+<meta name="description" content="OpenCV와 같은 HSV·LAB 범위로 색 마스크를 만들어 보고 cv2.inRange 코드를 얻는 색 임계값 조정 도구 (Hiwonder lab_tool의 웹 버전).">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/file-guard.js"></script>
+<link rel="stylesheet" href="../assets/css/sim.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<style>
+  .sim-page { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+  .views { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr auto; gap: 10px; padding: 12px; }
+  .views figure { margin: 0; display: flex; flex-direction: column; min-height: 0; background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .views canvas { flex: 1; min-height: 0; width: 100%; object-fit: contain; background: #111; cursor: crosshair; }
+  .views figcaption { font-size: 12px; padding: 5px 10px; color: var(--text-faint); border-top: 1px solid var(--border-soft); }
+  .code { grid-column: 1 / -1; font: 12px/1.5 var(--mono); background: #0f1419; color: #d7dde8; border-radius: var(--radius-sm); padding: 8px 12px; white-space: pre; overflow-x: auto; }
+  .tab-body select { font: inherit; font-size: 12.5px; padding: 6px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg); color: var(--text); width: 100%; }
+  .rng { display: grid; grid-template-columns: 52px 1fr 1fr; gap: 4px 8px; align-items: center; font-size: 12px; margin-bottom: 6px; }
+  .rng b { font: 600 12px var(--mono); color: var(--text-dim); }
+  .rng input { width: 100%; accent-color: var(--accent); }
+  .rng output { font: 11px var(--mono); color: var(--accent); }
+  .preset-row button.on { background: var(--accent); color: var(--on-accent); }
+  .swatch { display: inline-block; width: 22px; height: 22px; border-radius: 6px; border: 1px solid var(--border); vertical-align: middle; margin-right: 6px; }
+  .tool-nav { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tool-nav a[aria-current="page"] { color: var(--accent); border-color: var(--accent-dim); }
+  @media (max-width: 900px) {
+    .sim-page { height: auto; overflow: auto; }
+    .sim-layout { grid-template-columns: 1fr; }
+    .sim-stage { height: auto; min-height: 0; }
+    .views { position: static; grid-template-columns: 1fr; }
+    .views canvas { height: 240px; flex: none; }
+    .sim-top { flex-wrap: wrap; } .sim-top-actions { margin-left: 0; flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body class="sim-page">
+<header class="sim-top">
+  <a class="sim-back" href="../index.html">&larr; 강의</a>
+  <div class="sim-title"><strong>HSV 색 실험실</strong><span>cv2.inRange 임계값 조정</span></div>
+  <div class="sim-top-actions">
+    <nav class="tool-nav" aria-label="도구">
+      <a class="sim-back" href="../sim/index.html">2D 시뮬레이터</a>
+      <a class="sim-back" href="playground.html">Playground</a>
+      <a class="sim-back" href="kinematics-lab.html">기구학 실험실</a>
+      <a class="sim-back" href="color-lab.html" aria-current="page">HSV 색 실험실</a>
+      <a class="sim-back" href="urdf-viewer.html">URDF 뷰어</a>
+    </nav>
+    <button class="theme-btn" type="button" data-theme-toggle aria-label="테마 전환">테마</button>
+  </div>
+</header>
+<main class="sim-layout">
+  <section class="sim-stage">
+    <div class="views">
+      <figure><canvas id="src" aria-label="원본 이미지"></canvas><figcaption id="srcCap">원본 — 클릭하면 그 점의 색을 기준으로 범위를 잡습니다</figcaption></figure>
+      <figure><canvas id="dst" aria-label="마스크 결과"></canvas><figcaption id="dstCap">결과</figcaption></figure>
+      <div class="code" id="code"></div>
+    </div>
+  </section>
+  <aside class="sim-panel">
+    <div class="tab-body active" style="display:block">
+      <div class="sub-title">입력</div>
+      <select id="selImg">
+        <option value="colors.png">colors.png — 빨강·초록·파랑 블록</option>
+        <option value="shapes.png">shapes.png — 도형 4개</option>
+        <option value="scene.png">scene.png — 실내 장면</option>
+        <option value="track.png">track.png — 검은 선 트랙</option>
+        <option value="lane.png">lane.png — 차선</option>
+        <option value="coins.png">coins.png — 원형 물체</option>
+      </select>
+      <div class="panel-actions">
+        <label class="s-btn file-btn">사진 열기<input type="file" id="file" accept="image/*" hidden></label>
+        <button class="s-btn" id="btnCam" type="button">웹캠</button>
+      </div>
+      <div class="sub-title">색 공간</div>
+      <div class="preset-row" id="spaceRow"><button type="button" data-s="hsv" class="on">HSV (OpenCV)</button><button type="button" data-s="lab">LAB (lab_tool)</button></div>
+      <div class="sub-title">프리셋</div>
+      <div class="preset-row" id="presets"></div>
+      <div class="sub-title">범위 (최소 / 최대)</div>
+      <div id="ranges"></div>
+      <div class="sub-title">후처리</div>
+      <div class="field-grid two">
+        <label>열림(open) 커널 <output id="oK">3</output><input type="range" id="kern" min="1" max="15" step="2" value="3"></label>
+        <label>표시 <select id="view"><option value="overlay">원본+마스크</option><option value="mask">마스크(흑백)</option><option value="cut">색만 남기기</option></select></label>
+      </div>
+      <div class="kv" id="stats"></div>
+      <p class="hint">OpenCV의 8비트 HSV는 H가 <b>0~179</b>(도÷2), S·V가 0~255입니다. 빨강은 H가 0 근처와 179 근처로 나뉘어 있어 범위 두 개를 OR 해야 합니다. MentorPi의 <code>lab_tool</code>과 <code>color_detect</code>는 LAB 공간(L·a·b 모두 0~255)을 씁니다 — 조명 밝기에 덜 민감합니다.</p>
+    </div>
+  </aside>
+</main>
+<script type="module" src="color-lab.js"></script>
+</body>
+</html>

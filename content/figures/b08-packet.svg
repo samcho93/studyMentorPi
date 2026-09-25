@@ -1,0 +1,54 @@
+<svg viewBox="0 0 720 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="확장보드 SDK 패킷 형식과 수신 상태 기계">
+  <defs>
+    <marker id="arr-b08-packet" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <path d="M67 32 L67 26 L183 26 L183 32" style="stroke:var(--text-faint);fill:none" stroke-width="1.2"/>
+  <text class="tag" x="125" y="20" text-anchor="middle">헤더</text>
+  <path d="M187 32 L187 26 L573 26 L573 32" style="stroke:var(--accent);fill:none" stroke-width="1.4"/>
+  <text class="tag hi" x="380" y="20" text-anchor="middle">CRC8 계산 범위</text>
+  <rect class="box" x="65" y="36" width="60" height="38" rx="3"/>
+  <rect class="box" x="125" y="36" width="60" height="38" rx="3"/>
+  <rect class="box-hi" x="185" y="36" width="70" height="38" rx="3"/>
+  <rect class="box-hi" x="255" y="36" width="70" height="38" rx="3"/>
+  <rect class="box-hi" x="325" y="36" width="250" height="38" rx="3"/>
+  <rect class="box" x="575" y="36" width="80" height="38" rx="3"/>
+  <text class="lbl mono" x="95" y="60" text-anchor="middle">0xAA</text>
+  <text class="lbl mono" x="155" y="60" text-anchor="middle">0x55</text>
+  <text class="lbl" x="220" y="60" text-anchor="middle">기능</text>
+  <text class="lbl" x="290" y="60" text-anchor="middle">길이 n</text>
+  <text class="lbl" x="450" y="60" text-anchor="middle">데이터 n바이트 (하위명령·값)</text>
+  <text class="lbl" x="615" y="60" text-anchor="middle">CRC8</text>
+  <g class="tag mono" text-anchor="middle">
+    <text x="95" y="96">AA</text><text x="155" y="96">55</text><text x="220" y="96">0B</text><text x="290" y="96">0A</text>
+    <text x="450" y="96">01 02 00 FF 00 00 01 FF 00 00</text><text x="615" y="96">5A</text>
+  </g>
+  <text class="sub mono" x="360" y="116" text-anchor="middle">예: set_rgb([[1, 255, 0, 0], [2, 255, 0, 0]])  →  기능 11(RGB), 데이터 10바이트</text>
+
+  <g>
+    <rect class="box" x="20" y="150" width="74" height="30" rx="4"/>
+    <rect class="box" x="118" y="150" width="74" height="30" rx="4"/>
+    <rect class="box" x="216" y="150" width="74" height="30" rx="4"/>
+    <rect class="box" x="314" y="150" width="74" height="30" rx="4"/>
+    <rect class="box" x="412" y="150" width="74" height="30" rx="4"/>
+    <rect class="box-hi" x="510" y="150" width="74" height="30" rx="4"/>
+  </g>
+  <g class="tag mono" text-anchor="middle">
+    <text x="57" y="169">START1</text><text x="155" y="169">START2</text><text x="253" y="169">FUNC</text>
+    <text x="351" y="169">LEN</text><text x="449" y="169">DATA</text><text x="547" y="169">CHECK</text>
+  </g>
+  <g style="stroke:var(--text-faint);fill:none" stroke-width="1.4">
+    <path d="M94 165 L116 165" marker-end="url(#arr-b08-packet)"/>
+    <path d="M192 165 L214 165" marker-end="url(#arr-b08-packet)"/>
+    <path d="M290 165 L312 165" marker-end="url(#arr-b08-packet)"/>
+    <path d="M388 165 L410 165" marker-end="url(#arr-b08-packet)"/>
+    <path d="M486 165 L508 165" marker-end="url(#arr-b08-packet)"/>
+    <path d="M547 182 L547 210 L57 210 L57 184" marker-end="url(#arr-b08-packet)"/>
+  </g>
+  <g class="sub mono" text-anchor="middle">
+    <text x="105" y="145">AA</text><text x="203" y="145">55</text><text x="301" y="145">&lt;12</text>
+    <text x="399" y="145">n</text><text x="497" y="145">n개</text>
+  </g>
+  <text class="tag" x="596" y="160">일치 → 기능별 큐</text>
+  <text class="tag" x="596" y="178">불일치 → 버림</text>
+  <text class="sub" x="302" y="228" text-anchor="middle">헤더나 기능 코드가 맞지 않으면 START1로 돌아가 다음 0xAA를 기다림</text>
+</svg>

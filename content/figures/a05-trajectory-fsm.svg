@@ -1,0 +1,26 @@
+<svg viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="손끝 궤적 기록 상태 기계">
+  <defs>
+    <marker id="arr-a05-trajectory-fsm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-a05-trajectory-fsm-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <rect class="box" x="60" y="100" width="160" height="70" rx="35"/>
+  <text class="lbl" x="140" y="130" text-anchor="middle">NULL</text>
+  <text class="sub" x="140" y="150" text-anchor="middle">기록 안 함</text>
+
+  <rect class="box-hi" x="470" y="100" width="190" height="70" rx="35"/>
+  <text class="lbl" x="565" y="130" text-anchor="middle">TRACKING</text>
+  <text class="sub" x="565" y="150" text-anchor="middle">검지 끝(8번) 점 기록</text>
+
+  <path class="ln-hi" d="M220 120 L468 120" marker-end="url(#arr-a05-trajectory-fsm-hi)"/>
+  <text class="tag" x="344" y="110" text-anchor="middle">"one" 연속 6프레임 (count &gt; 5)</text>
+  <path class="ln" d="M468 155 L222 155" marker-end="url(#arr-a05-trajectory-fsm)"/>
+  <text class="tag" x="344" y="175" text-anchor="middle">"five" → points 발행 · 비우기</text>
+
+  <path class="ln" d="M100 100 C80 40 200 40 180 98" fill="none" marker-end="url(#arr-a05-trajectory-fsm)"/>
+  <text class="tag" x="140" y="36" text-anchor="middle">"one" 아닌 프레임 → count = 0</text>
+
+  <path class="ln" d="M520 170 C490 240 640 240 610 172" fill="none" marker-end="url(#arr-a05-trajectory-fsm)"/>
+  <text class="tag" x="565" y="252" text-anchor="middle">이동 ≥ 5 px → 점 추가</text>
+  <text class="tag" x="565" y="268" text-anchor="middle">&lt; 5 px 또는 "two" → 추가 안 함</text>
+  <text class="sub" x="140" y="220" text-anchor="middle">30 fps 기준 6프레임 ≈ 0.2 s</text>
+</svg>

@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>B08. GPIO·UART·I2C와 확장보드 입출력 · studyMentorPi</title>
+<meta name="description" content="gpiozero로 입력·출력·풀업/풀다운, UART·I2C 통신, RRC Lite 확장보드의 RGB LED·버튼·부저를 ros_robot_controller_sdk로 제어합니다.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-base">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" class="active" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="b08" data-track="base">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-base">기초·하드웨어</span> B-3 라즈베리파이 5와 확장보드 &middot; 약 90분 &middot; 초급</div>
+    <h1><span class="lesson-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</h1>
+    <p class="lede">gpiozero로 입력·출력·풀업/풀다운, UART·I2C 통신, RRC Lite 확장보드의 RGB LED·버튼·부저를 ros_robot_controller_sdk로 제어합니다.</p>
+    <div class="requires">선수 챕터: <a href="b07.html">B07</a> <a href="b06.html">B06</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>라즈베리파이 5의 GPIO로 디지털 입력·출력을 하고, 풀업/풀다운 저항이 왜 필요한지 전기적으로 설명합니다.</li><li>UART와 I2C의 신호 구조(시작·정지 비트, 주소·ACK)를 비교하고, 명령행 도구와 파이썬으로 통신을 시험합니다.</li><li>확장보드 SDK <code>ros_robot_controller_sdk.py</code>의 <strong>패킷 형식(0xAA 0x55 …)과 CRC8</strong>을 이해하고 패킷을 직접 만들어 검증합니다.</li><li><code>board.set_rgb()</code>, <code>set_buzzer()</code>, <code>set_led()</code>, 버튼 입력으로 RGB LED·부저·버튼을 제어하고, 같은 일을 ROS 2 토픽으로도 수행합니다.</li></ul>
+<h2 id="두-갈래의-입출력">두 갈래의 입출력<a class="anchor" href="#두-갈래의-입출력">#</a></h2>
+<p>MentorPi에서 "핀을 제어한다"는 말은 두 가지 경로를 뜻합니다.</p>
+<div class="table-wrap"><table><thead><tr><th>경로</th><th>누가 핀을 움직이나</th><th>예</th><th>도구</th></tr></thead><tbody><tr><td>① 라즈베리파이 GPIO 직접</td><td>리눅스 커널의 GPIO 드라이버</td><td>확장보드의 KEY1/KEY2 버튼 읽기, 팬 모듈 방향 제어</td><td><code>gpiod</code>, <code>gpiozero</code></td></tr><tr><td>② 확장보드(STM32) 경유</td><td>STM32 펌웨어</td><td>RGB LED, 부저, 사용자 LED, 모터, 서보, IMU</td><td><code>ros_robot_controller_sdk</code> (UART 패킷)</td></tr></tbody></table></div>
+<p>①은 리눅스 프로그램이 핀을 직접 올리고 내리므로 간단하지만 타이밍이 정확하지 않습니다. ②는 라즈베리파이가 "RGB를 빨강으로" 같은 <strong>명령 패킷</strong>만 보내고 실제 신호는 STM32가 만듭니다. 이 챕터에서 두 경로를 모두 다루고, B09에서 ②로 서보와 모터를 움직입니다.</p>
+<h2 id="gpio-기초">GPIO 기초<a class="anchor" href="#gpio-기초">#</a></h2>
+<figure class="fig" id="fig-b08-header"><svg viewBox="0 0 720 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="라즈베리파이 40핀 헤더에서 이 챕터가 쓰는 핀">
+  <rect x="40" y="88" width="648" height="64" rx="6" style="fill:none;stroke:var(--text-faint)" stroke-width="1.2"/>
+  <circle cx="60" cy="136" r="11" style="fill:var(--warn)"/>
+  <text class="mono" x="60" y="140" text-anchor="middle" font-size="10" style="fill:var(--bg,#fff)">1</text>
+  <circle cx="60" cy="104" r="11" style="fill:var(--warn)"/>
+  <text class="mono" x="60" y="108" text-anchor="middle" font-size="10" style="fill:var(--bg,#fff)">2</text>
+  <circle cx="92" cy="136" r="11" style="fill:var(--accent)"/>
+  <text class="mono" x="92" y="140" text-anchor="middle" font-size="10" style="fill:var(--bg,#fff)">3</text>
+  <circle cx="92" cy="104" r="11" style="fill:var(--warn)"/>
+  <text class="mono" x="92" y="108" text-anchor="middle" font-size="10" style="fill:var(--bg,#fff)">4</text>
+  <circle cx="124" cy="136" r="11" style="fill:var(--accent)"/>
+  <text class="mono" x="124" y="140" text-anchor="middle" font-size="10" style="fill:var(--bg,#fff)">5</text>
+  <circle cx="124" cy="104" r="11" style="fill:var(--text-faint)"/>
+  <text class="mono" x="124" y="108" text-anchor="middle" font-size="10" style="fill:var(--bg,#fff)">6</text>
+  <circle class="box" cx="156" cy="136" r="11"/>
+  <text class="mono" x="156" y="140" text-anchor="middle" font-size="10" style="fill:var(--text-faint)">7</text>
+  <circle cx="156" cy="104" r="11" style="fill:var(--accent)"/>
+  <text class="mono" x="156" y="108" text-anchor="middle" font-size="10" style="fill:var(--bg,#fff)">8</text>
+  <circle cx="188" cy="136" r="11" style="fill:var(--text-faint)"/>
+  <text class="mono" x="188" y="140" text-anchor="middle" font-size="10" style="fill:var(--bg,#fff)">9</text>
+  <circle cx="188" cy="104" r="11" style="fill:var(--accent)"/>
+  <text class="mono" x="188" y="108" text-anchor="middle" font-size="10" style="fill:var(--bg,#fff)">10</text>
+  <circle cx="220" cy="136" r="11" style="fill:var(--accent)"/>
+  <text class="mono" x="220" y="140" text-anchor="middle" font-size="10" style="fill:var(--bg,#fff)">11</text>
+  <circle class="box" cx="220" cy="104" r="11"/>
+  <text class="mono" x="220" y="108" text-anchor="middle" font-size="10" style="fill:var(--text-faint)">12</text>
+  <circle class="box" cx="252" cy="136" r="11"/>
+  <text class="mono" x="252" y="140" text-anchor="middle" font-size="10" style="fill:var(--text-faint)">13</text>
+  <circle cx="252" cy="104" r="11" style="fill:var(--text-faint)"/>
+  <text class="mono" x="252" y="108" text-anchor="middle" font-size="10" style="fill:var(--bg,#fff)">14</text>
+  <circle class="box" cx="284" cy="136" r="11"/>
+  <text class="mono" x="284" y="140" text-anchor="middle" font-size="10" style="fill:var(--text-faint)">15</text>
+  <circle cx="284" cy="104" r="11" style="fill:var(--accent)"/>
+  <text class="mono" x="284" y="108" text-anchor="middle" font-size="10" style="fill:var(--bg,#fff)">16</text>
+  <circle class="box" cx="316" cy="136" r="11"/>
+  <text class="mono" x="316" y="140" text-anchor="middle" font-size="10" style="fill:var(--text-faint)">17</text>
+  <circle class="box" cx="316" cy="104" r="11"/>
+  <text class="mono" x="316" y="108" text-anchor="middle" font-size="10" style="fill:var(--text-faint)">18</text>
+  <circle class="box" cx="348" cy="136" r="11"/>
+  <text class="mono" x="348" y="140" text-anchor="middle" font-size="10" style="fill:var(--text-faint)">19</text>
+  <circle class="box" cx="348" cy="104" r="11"/>
+  <text class="mono" x="348" y="108" text-anchor="middle" font-size="10" style="fill:var(--text-faint)">20</text>
+  <circle class="box" cx="380" cy="136" r="11"/>
+  <text class="mono" x="380" y="140" text-anchor="middle" font-size="10" style="fill:var(--text-faint)">21</text>
+  <circle class="box" cx="380" cy="104" r="11"/>
+  <text class="mono" x="380" y="108" text-anchor="middle" font-size="10" style="fill:var(--text-faint)">22</text>
+  <circle class="box" cx="412" cy="136" r="11"/>
+  <text class="mono" x="412" y="140" text-anchor="middle" font-size="10" style="fill:var(--text-faint)">23</text>
+  <circle cx="412" cy="104" r="11" style="fill:var(--accent)"/>
+  <text class="mono" x="412" y="108" text-anchor="middle" font-size="10" style="fill:var(--bg,#fff)">24</text>
+  <circle class="box" cx="444" cy="136" r="11"/>
+  <text class="mono" x="444" y="140" text-anchor="middle" font-size="10" style="fill:var(--text-faint)">25</text>
+  <circle cx="444" cy="104" r="11" style="fill:var(--accent)"/>
+  <text class="mono" x="444" y="108" text-anchor="middle" font-size="10" style="fill:var(--bg,#fff)">26</text>
+  <circle class="box" cx="476" cy="136" r="11"/>
+  <text class="mono" x="476" y="140" text-anchor="middle" font-size="10" style="fill:var(--text-faint)">27</text>
+  <circle class="box" cx="476" cy="104" r="11"/>
+  <text class="mono" x="476" y="108" text-anchor="middle" font-size="10" style="fill:var(--text-faint)">28</text>
+  <circle class="box" cx="508" cy="136" r="11"/>
+  <text class="mono" x="508" y="140" text-anchor="middle" font-size="10" style="fill:var(--text-faint)">29</text>
+  <circle class="box" cx="508" cy="104" r="11"/>
+  <text class="mono" x="508" y="108" text-anchor="middle" font-size="10" style="fill:var(--text-faint)">30</text>
+  <circle class="box" cx="540" cy="136" r="11"/>
+  <text class="mono" x="540" y="140" text-anchor="middle" font-size="10" style="fill:var(--text-faint)">31</text>
+  <circle class="box" cx="540" cy="104" r="11"/>
+  <text class="mono" x="540" y="108" text-anchor="middle" font-size="10" style="fill:var(--text-faint)">32</text>
+  <circle cx="572" cy="136" r="11" style="fill:var(--accent)"/>
+  <text class="mono" x="572" y="140" text-anchor="middle" font-size="10" style="fill:var(--bg,#fff)">33</text>
+  <circle class="box" cx="572" cy="104" r="11"/>
+  <text class="mono" x="572" y="108" text-anchor="middle" font-size="10" style="fill:var(--text-faint)">34</text>
+  <circle class="box" cx="604" cy="136" r="11"/>
+  <text class="mono" x="604" y="140" text-anchor="middle" font-size="10" style="fill:var(--text-faint)">35</text>
+  <circle class="box" cx="604" cy="104" r="11"/>
+  <text class="mono" x="604" y="108" text-anchor="middle" font-size="10" style="fill:var(--text-faint)">36</text>
+  <circle class="box" cx="636" cy="136" r="11"/>
+  <text class="mono" x="636" y="140" text-anchor="middle" font-size="10" style="fill:var(--text-faint)">37</text>
+  <circle class="box" cx="636" cy="104" r="11"/>
+  <text class="mono" x="636" y="108" text-anchor="middle" font-size="10" style="fill:var(--text-faint)">38</text>
+  <circle cx="668" cy="136" r="11" style="fill:var(--text-faint)"/>
+  <text class="mono" x="668" y="140" text-anchor="middle" font-size="10" style="fill:var(--bg,#fff)">39</text>
+  <circle class="box" cx="668" cy="104" r="11"/>
+  <text class="mono" x="668" y="108" text-anchor="middle" font-size="10" style="fill:var(--text-faint)">40</text>
+  <text class="tag mono" x="62" y="84" transform="rotate(-40 62 84)">5V</text>
+  <text class="tag mono" x="94" y="84" transform="rotate(-40 94 84)">5V</text>
+  <text class="tag mono" x="126" y="84" transform="rotate(-40 126 84)">GND</text>
+  <text class="tag mono" x="158" y="84" transform="rotate(-40 158 84)">GPIO14 TXD</text>
+  <text class="tag mono" x="190" y="84" transform="rotate(-40 190 84)">GPIO15 RXD</text>
+  <text class="tag mono" x="254" y="84" transform="rotate(-40 254 84)">GND</text>
+  <text class="tag mono" x="286" y="84" transform="rotate(-40 286 84)">GPIO23 KEY2</text>
+  <text class="tag mono" x="414" y="84" transform="rotate(-40 414 84)">GPIO8 팬</text>
+  <text class="tag mono" x="446" y="84" transform="rotate(-40 446 84)">GPIO7 팬</text>
+  <text class="tag mono" x="62" y="164" transform="rotate(40 62 164)">3.3V</text>
+  <text class="tag mono" x="94" y="164" transform="rotate(40 94 164)">GPIO2 SDA</text>
+  <text class="tag mono" x="126" y="164" transform="rotate(40 126 164)">GPIO3 SCL</text>
+  <text class="tag mono" x="190" y="164" transform="rotate(40 190 164)">GND</text>
+  <text class="tag mono" x="222" y="164" transform="rotate(40 222 164)">GPIO17 LED</text>
+  <text class="tag mono" x="574" y="164" transform="rotate(40 574 164)">GPIO13 KEY1</text>
+  <text class="tag mono" x="670" y="164" transform="rotate(40 670 164)">GND</text>
+  <text class="sub" x="34" y="108" text-anchor="end">짝수</text>
+  <text class="sub" x="34" y="140" text-anchor="end">홀수</text>
+  <circle cx="470" cy="228" r="6" style="fill:var(--accent)"/><text class="tag" x="480" y="232">GPIO(BCM 번호)</text>
+  <circle cx="590" cy="228" r="6" style="fill:var(--warn)"/><text class="tag" x="600" y="232">전원</text>
+  <circle cx="644" cy="228" r="6" style="fill:var(--text-faint)"/><text class="tag" x="654" y="232">GND</text>
+  <text class="sub" x="40" y="232">원 안 숫자 = 물리 핀 번호 · 신호는 3.3 V · 5 V를 GPIO에 넣지 말 것</text>
+</svg><figcaption>40핀 헤더에서 이 챕터가 쓰는 핀. 핀 번호(물리 위치)와 GPIO 번호(BCM, 칩 내부 번호)는 다릅니다.</figcaption></figure>
+<h3 id="핀-번호-두-가지">핀 번호 두 가지<a class="anchor" href="#핀-번호-두-가지">#</a></h3>
+<ul><li><strong>물리 핀 번호(board)</strong>: 헤더에서의 위치 1~40. 배선할 때 씀</li><li><strong>GPIO 번호(BCM)</strong>: 칩 내부 번호 GPIO0~27. 코드에서 씀. 예: 물리 11번 핀 = GPIO17</li></ul>
+<p>터미널의 <code>pinout</code> 명령이 두 번호를 함께 보여 줍니다. 헷갈리면 항상 이 표를 확인하세요.</p>
+<h3 id="출력과-입력">출력과 입력<a class="anchor" href="#출력과-입력">#</a></h3>
+<ul><li><strong>출력(output)</strong>: 핀을 1(3.3 V) 또는 0(0 V)으로 만든다. LED를 켤 때는 LED와 <strong>직렬 저항(220~330 Ω)</strong>을 넣어 전류를 제한합니다. GPIO 한 핀이 안전하게 낼 수 있는 전류는 수 mA 수준입니다.</li><li><strong>입력(input)</strong>: 핀 전압을 읽어 1/0으로 판단한다.</li></ul>
+<h3 id="풀업-풀다운이-필요한-이유">풀업·풀다운이 필요한 이유<a class="anchor" href="#풀업-풀다운이-필요한-이유">#</a></h3>
+<p>버튼을 핀과 GND 사이에 연결했다고 합시다. 버튼을 누르면 핀이 GND(0)에 연결되지만, <strong>떼면 핀이 아무 데도 연결되지 않은 떠 있는(floating)</strong> 상태가 됩니다. 이때 핀은 주변 잡음을 받아 0과 1 사이를 무작위로 오갑니다.</p>
+<ul><li><strong>풀업(pull-up)</strong>: 핀을 저항을 통해 3.3 V에 약하게 연결. 버튼을 떼면 1, 누르면 GND로 강하게 끌려 0 → <strong>"누르면 0"(active-low)</strong></li><li><strong>풀다운(pull-down)</strong>: 핀을 저항을 통해 GND에 연결. 버튼을 3.3 V 쪽에 달면 누를 때 1</li></ul>
+<p>라즈베리파이 칩 안에 이 저항이 내장되어 있어 코드로 켤 수 있습니다. 원본 확장보드 버튼 예제(<code>key.py</code>)가 <code>LINE_REQ_FLAG_BIAS_PULL_UP</code>을 쓰고 <code>if key1_state == 0:</code>으로 눌림을 판단하는 것이 바로 active-low 풀업 구조입니다. 원본 강의의 풀업 실험에서 입력 핀을 멀티미터로 재면 약 3.33 V가 나오는 것도 같은 원리입니다.</p>
+<h3 id="gpiod로-제어하기">gpiod로 제어하기<a class="anchor" href="#gpiod로-제어하기">#</a></h3>
+<p>원본은 리눅스 표준 GPIO 문자 장치 인터페이스를 쓰는 <strong>libgpiod</strong>(<code>gpiod</code> 모듈)를 사용합니다. 라즈베리파이 5에서는 40핀 GPIO가 RP1 칩에 있어서 원본 예제가 <code>gpiod.Chip(&quot;gpiochip4&quot;)</code>를 엽니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">gpiodetect          # GPIO 칩 목록 — pinctrl-rp1 이 40핀 헤더
+gpioinfo gpiochip4 | head   # 라인(핀)별 사용 상태
+pinout              # 핀 배치 그림</code></pre></div>
+<p>다음은 원본 <code>key.py</code>, <code>gpio_control.py</code>와 같은 <strong>libgpiod v1 API</strong> 스타일입니다.</p>
+<div class="code-block code-robot"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-robot">실물 전용</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import time
+import gpiod
+
+chip = gpiod.Chip(&quot;gpiochip4&quot;)                 # RP1 (40핀 헤더)
+
+# 출력: GPIO17 (물리 11번 핀) — LED + 330 Ω 저항
+led = chip.get_line(17)
+led.request(consumer=&quot;led&quot;, type=gpiod.LINE_REQ_DIR_OUT)
+
+# 입력: GPIO13 (확장보드 KEY1), 내부 풀업 → 누르면 0
+key1 = chip.get_line(13)
+key1.request(consumer=&quot;key1&quot;, type=gpiod.LINE_REQ_DIR_IN,
+             flags=gpiod.LINE_REQ_FLAG_BIAS_PULL_UP)
+
+try:
+    for _ in range(50):                        # 약 5초
+        pressed = (key1.get_value() == 0)
+        led.set_value(1 if pressed else 0)
+        print(&quot;\rKEY1:&quot;, &quot;pressed &quot; if pressed else &quot;released&quot;, end=&quot;&quot;, flush=True)
+        time.sleep(0.1)
+finally:
+    led.set_value(0)
+    led.release(); key1.release(); chip.close()
+    print()</code></pre></div>
+<div class="callout callout-info"><div class="callout-title">gpiod 버전 차이</div><div class="callout-body"><p>원본 예제는 Debian 패키지 <code>python3-libgpiod</code>(v1 API: <code>Chip.get_line</code>, <code>LINE_REQ_DIR_OUT</code>)를 기준으로 합니다. <code>pip install gpiod</code>로 설치되는 최신 2.x는 API가 다릅니다(<code>gpiod.request_lines(...)</code>, <code>LineSettings(direction=Direction.OUTPUT, bias=Bias.PULL_UP)</code>). <code>AttributeError: module &#x27;gpiod&#x27; has no attribute &#x27;LINE_REQ_DIR_OUT&#x27;</code>가 나면 2.x가 설치된 것입니다. 또 최신 커널에서는 RP1 칩이 <code>gpiochip0</code>로 번호가 바뀌었을 수 있으니 <code>gpiodetect</code>로 확인하세요.</p></div></div>
+<p>더 간단한 고수준 라이브러리로 <strong>gpiozero</strong>도 있습니다. 라즈베리파이 5에서도 동작하며, <code>Button</code>은 기본이 풀업입니다.</p>
+<div class="code-block code-robot"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-robot">실물 전용</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">from gpiozero import LED, Button
+from signal import pause
+
+led = LED(17)             # BCM 번호
+btn = Button(13)          # pull_up=True 기본 → 눌림 = GND 연결
+btn.when_pressed = led.on
+btn.when_released = led.off
+pause()                   # Ctrl+C 로 종료</code></pre></div>
+<div class="callout callout-warn"><div class="callout-title">확장보드 버튼은 서비스가 쓰고 있습니다</div><div class="callout-body"><p>KEY1(GPIO13)·KEY2(GPIO23)는 부팅 시 <code>hw_button_scan</code> 서비스가 점유합니다. 원본 절차대로 <strong>먼저 서비스를 멈추고</strong>, 실습 후 <strong>다시 켭니다.</strong> 멈추지 않으면 <code>key.py</code>가 "按键默认被 hw_button_scan 占用"(버튼이 hw_button_scan에 점유됨) 메시지를 출력합니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">sudo systemctl stop hw_button_scan.service
+python3 key.py
+sudo systemctl start hw_button_scan.service</code></pre></div></div></div>
+<h2 id="uart-비동기-직렬-통신">UART: 비동기 직렬 통신<a class="anchor" href="#uart-비동기-직렬-통신">#</a></h2>
+<p><strong>UART</strong>(Universal Asynchronous Receiver/Transmitter)는 TX(송신)와 RX(수신) <strong>두 선</strong>으로 바이트를 한 비트씩 보내는 방식입니다. 공통 클록선이 없어서(<strong>비동기</strong>) 양쪽이 <strong>같은 보레이트(baud rate, 초당 비트 수)</strong>를 미리 맞춰야 합니다.</p>
+<p>한 바이트 프레임(가장 흔한 8N1 설정):</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text"> idle(1) ─┐ start ┌ D0 D1 D2 D3 D4 D5 D6 D7 ┐ (parity) ┌ stop ─ idle(1)
+          └─ 0 ───┘      LSB 먼저 전송          └ 없음 ──┘   1</code></pre></div>
+<ul><li><strong>시작 비트</strong>: 평소 1(High)인 선을 한 비트 동안 0으로 내려 "시작"을 알림</li><li><strong>데이터</strong>: 5~8비트(보통 8), <strong>최하위 비트(LSB)부터</strong></li><li><strong>패리티(parity)</strong>: 선택. 1의 개수가 짝수/홀수인지로 간단한 오류 검출</li><li><strong>정지 비트</strong>: 1~2비트 동안 1</li></ul>
+<p>8N1이면 1바이트에 10비트가 필요하므로 전송 시간은 <code>10 / 보레이트</code>입니다. 115200 bps에서 약 86.8 µs, 확장보드 SDK가 쓰는 <strong>1,000,000 bps</strong>에서 10 µs입니다.</p>
+<h3 id="배선과-설정">배선과 설정<a class="anchor" href="#배선과-설정">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>라즈베리파이 5</th><th>USB-TTL 변환기</th></tr></thead><tbody><tr><td>8번 핀 TXD (GPIO14)</td><td>RXD</td></tr><tr><td>10번 핀 RXD (GPIO15)</td><td>TXD</td></tr><tr><td>6번 핀 GND</td><td>GND</td></tr></tbody></table></div>
+<p>TX와 RX는 <strong>엇갈려</strong> 연결하고 GND는 반드시 공유합니다. 변환기의 신호 전압은 3.3 V여야 합니다.</p>
+<ol><li><code>sudo apt-get install python3-serial</code></li><li>Raspberry Pi Configuration → Interfaces → <strong>Serial Port 켜기, Serial Console 끄기</strong>(콘솔이 켜져 있으면 리눅스 로그인 프롬프트가 같은 포트를 씀) → 재부팅</li><li><code>ls -l /dev/ttyAMA*</code>로 장치 확인</li></ol>
+<div class="callout callout-info"><div class="callout-title">원본의 config.txt 설정에 대해</div><div class="callout-body"><p>원본은 <code>config.txt</code>에 <code>dtoverlay=pi3-miniuart-bt</code>, <code>force_turbo=1</code>을 추가하라고 합니다. 이는 블루투스가 주 UART를 차지하던 <strong>라즈베리파이 3/4 시절의 설정</strong>입니다. 라즈베리파이 5는 40핀 UART0(GPIO14/15)가 블루투스와 분리되어 있어, <code>raspi-config</code>로 Serial Port를 켜면 <code>dtparam=uart0=on</code>이 추가되고 <code>/dev/ttyAMA0</code>로 나타납니다.</p></div></div>
+<div class="code-block code-robot"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-robot">실물 전용</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import serial, time
+
+ser = serial.Serial(&quot;/dev/ttyAMA0&quot;, 115200, timeout=0.5)   # 8N1 기본
+ser.write(b&quot;hello from MentorPi\r\n&quot;)
+t0 = time.time()
+while time.time() - t0 &lt; 10:                               # 10초 동안 수신
+    line = ser.readline()
+    if line:
+        print(&quot;PC says:&quot;, line.decode(errors=&quot;replace&quot;).strip())
+ser.close()</code></pre></div>
+<p>PC 쪽 시리얼 터미널(원본: Serial Port Utility, CH340 드라이버)을 115200 bps로 열면 문자열이 보이고, PC에서 보낸 글자가 라즈베리파이 터미널에 찍힙니다.</p>
+<h2 id="i2c-주소로-부르는-2선-버스">I2C: 주소로 부르는 2선 버스<a class="anchor" href="#i2c-주소로-부르는-2선-버스">#</a></h2>
+<p><strong>I2C</strong>(Inter-Integrated Circuit)는 <strong>SDA(데이터)와 SCL(클록)</strong> 두 선에 여러 장치를 병렬로 매다는 버스입니다. 마스터가 클록을 만들고, 각 장치(슬레이브)는 <strong>7비트 주소</strong>로 구분됩니다. 반이중(half-duplex)이며 원본 설명처럼 여러 마스터도 허용합니다.</p>
+<div class="table-wrap"><table><thead><tr><th>신호</th><th>정의</th></tr></thead><tbody><tr><td>시작(S)</td><td>SCL이 High일 때 SDA가 High → Low</td></tr><tr><td>정지(P)</td><td>SCL이 High일 때 SDA가 Low → High</td></tr><tr><td>주소 + R/W</td><td>시작 뒤 7비트 주소 + 방향 1비트(0 = 쓰기, 1 = 읽기)</td></tr><tr><td>ACK</td><td>매 바이트 뒤 9번째 클록에서 수신 측이 SDA를 Low로 당김. High면 NACK</td></tr><tr><td>규칙</td><td>시작·정지를 제외한 SDA 변화는 SCL이 Low일 때만</td></tr></tbody></table></div>
+<p>UART는 선이 1:1이지만, I2C는 선 두 개로 IMU·EEPROM·디스플레이 등 <strong>여러 장치</strong>를 연결할 수 있어 센서 확장에 많이 씁니다(RRC Lite의 IMU QMI8658도 STM32와 I2C로 연결).</p>
+<p>배선(원본 예: MPU6050 가속도·자이로 모듈): 3번 핀 SDA(GPIO2) ↔ SDA, 5번 핀 SCL(GPIO3) ↔ SCL, 6번 핀 GND ↔ GND, 모듈 VCC ↔ 1번 핀 3.3 V.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">sudo apt-get update &amp;&amp; sudo apt-get install -y i2c-tools
+sudo raspi-config                      # Interface Options → I2C → Yes
+sudo i2cdetect -l                      # I2C 버스 목록
+sudo i2cdetect -y 1                    # 1번 버스 스캔 → 0x68 에 장치 표시
+sudo i2cdump -y 1 0x68                 # 0x68 장치의 레지스터 전체
+sudo i2cget -y 1 0x68 0x6b             # 레지스터 0x6B (PWR_MGMT_1) 1바이트 읽기
+sudo i2ctransfer -f -y 1 w2@0x68 0x01 0x6b r16   # 16비트 주소 0x016B부터 16바이트(2바이트 주소 장치용)</code></pre></div>
+<p>파이썬에서는 <code>smbus2</code>로 같은 일을 합니다(<code>pip install smbus2</code> 또는 <code>sudo apt install python3-smbus2</code>).</p>
+<div class="code-block code-robot"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-robot">실물 전용</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">from smbus2 import SMBus
+
+with SMBus(1) as bus:
+    who = bus.read_byte_data(0x68, 0x75)      # MPU6050 WHO_AM_I 레지스터
+    print(&quot;WHO_AM_I = 0x%02X&quot; % who)          # 0x68 이면 정상
+    bus.write_byte_data(0x68, 0x6B, 0x00)     # 슬립 해제</code></pre></div>
+<h2 id="확장보드-sdk-패킷-통신">확장보드 SDK: 패킷 통신<a class="anchor" href="#확장보드-sdk-패킷-통신">#</a></h2>
+<h3 id="sdk-구조">SDK 구조<a class="anchor" href="#sdk-구조">#</a></h3>
+<p>원본 <code>board_demo/ros_robot_controller_sdk.py</code>는 라즈베리파이와 STM32 사이 직렬 통신을 감싼 클래스 <code>Board</code> 하나입니다.</p>
+<div class="table-wrap"><table><thead><tr><th>구성</th><th>역할</th></tr></thead><tbody><tr><td><code>Board(device, baudrate=1000000)</code></td><td>시리얼 포트 열기, 기능별 큐 생성, 수신 스레드 시작</td></tr><tr><td><code>buf_write(func, data)</code></td><td>패킷 조립 + CRC8 + 전송</td></tr><tr><td><code>set_*</code>, <code>pwm_servo_*</code>, <code>bus_servo_*</code></td><td>기능별 명령 → <code>buf_write</code> 호출</td></tr><tr><td><code>recv_task()</code></td><td>수신 스레드. 상태 기계로 패킷을 조립해 기능별 큐에 넣음</td></tr><tr><td><code>get_battery/imu/button/gamepad/sbus()</code></td><td>큐에서 최신 값을 꺼냄(없으면 <code>None</code>) — **<code>enable_reception()</code>을 먼저 호출해야 함**</td></tr></tbody></table></div>
+<p><code>PacketFunction</code> 번호: SYS 0, LED 1, BUZZER 2, MOTOR 3, PWM_SERVO 4, BUS_SERVO 5, KEY 6, IMU 7, GAMEPAD 8, SBUS 9, OLED 10, RGB 11.</p>
+<h3 id="패킷-형식과-crc8">패킷 형식과 CRC8<a class="anchor" href="#패킷-형식과-crc8">#</a></h3>
+<figure class="fig" id="fig-b08-packet"><svg viewBox="0 0 720 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="확장보드 SDK 패킷 형식과 수신 상태 기계">
+  <defs>
+    <marker id="arr-b08-packet" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <path d="M67 32 L67 26 L183 26 L183 32" style="stroke:var(--text-faint);fill:none" stroke-width="1.2"/>
+  <text class="tag" x="125" y="20" text-anchor="middle">헤더</text>
+  <path d="M187 32 L187 26 L573 26 L573 32" style="stroke:var(--accent);fill:none" stroke-width="1.4"/>
+  <text class="tag hi" x="380" y="20" text-anchor="middle">CRC8 계산 범위</text>
+  <rect class="box" x="65" y="36" width="60" height="38" rx="3"/>
+  <rect class="box" x="125" y="36" width="60" height="38" rx="3"/>
+  <rect class="box-hi" x="185" y="36" width="70" height="38" rx="3"/>
+  <rect class="box-hi" x="255" y="36" width="70" height="38" rx="3"/>
+  <rect class="box-hi" x="325" y="36" width="250" height="38" rx="3"/>
+  <rect class="box" x="575" y="36" width="80" height="38" rx="3"/>
+  <text class="lbl mono" x="95" y="60" text-anchor="middle">0xAA</text>
+  <text class="lbl mono" x="155" y="60" text-anchor="middle">0x55</text>
+  <text class="lbl" x="220" y="60" text-anchor="middle">기능</text>
+  <text class="lbl" x="290" y="60" text-anchor="middle">길이 n</text>
+  <text class="lbl" x="450" y="60" text-anchor="middle">데이터 n바이트 (하위명령·값)</text>
+  <text class="lbl" x="615" y="60" text-anchor="middle">CRC8</text>
+  <g class="tag mono" text-anchor="middle">
+    <text x="95" y="96">AA</text><text x="155" y="96">55</text><text x="220" y="96">0B</text><text x="290" y="96">0A</text>
+    <text x="450" y="96">01 02 00 FF 00 00 01 FF 00 00</text><text x="615" y="96">5A</text>
+  </g>
+  <text class="sub mono" x="360" y="116" text-anchor="middle">예: set_rgb([[1, 255, 0, 0], [2, 255, 0, 0]])  →  기능 11(RGB), 데이터 10바이트</text>
+
+  <g>
+    <rect class="box" x="20" y="150" width="74" height="30" rx="4"/>
+    <rect class="box" x="118" y="150" width="74" height="30" rx="4"/>
+    <rect class="box" x="216" y="150" width="74" height="30" rx="4"/>
+    <rect class="box" x="314" y="150" width="74" height="30" rx="4"/>
+    <rect class="box" x="412" y="150" width="74" height="30" rx="4"/>
+    <rect class="box-hi" x="510" y="150" width="74" height="30" rx="4"/>
+  </g>
+  <g class="tag mono" text-anchor="middle">
+    <text x="57" y="169">START1</text><text x="155" y="169">START2</text><text x="253" y="169">FUNC</text>
+    <text x="351" y="169">LEN</text><text x="449" y="169">DATA</text><text x="547" y="169">CHECK</text>
+  </g>
+  <g style="stroke:var(--text-faint);fill:none" stroke-width="1.4">
+    <path d="M94 165 L116 165" marker-end="url(#arr-b08-packet)"/>
+    <path d="M192 165 L214 165" marker-end="url(#arr-b08-packet)"/>
+    <path d="M290 165 L312 165" marker-end="url(#arr-b08-packet)"/>
+    <path d="M388 165 L410 165" marker-end="url(#arr-b08-packet)"/>
+    <path d="M486 165 L508 165" marker-end="url(#arr-b08-packet)"/>
+    <path d="M547 182 L547 210 L57 210 L57 184" marker-end="url(#arr-b08-packet)"/>
+  </g>
+  <g class="sub mono" text-anchor="middle">
+    <text x="105" y="145">AA</text><text x="203" y="145">55</text><text x="301" y="145">&lt;12</text>
+    <text x="399" y="145">n</text><text x="497" y="145">n개</text>
+  </g>
+  <text class="tag" x="596" y="160">일치 → 기능별 큐</text>
+  <text class="tag" x="596" y="178">불일치 → 버림</text>
+  <text class="sub" x="302" y="228" text-anchor="middle">헤더나 기능 코드가 맞지 않으면 START1로 돌아가 다음 0xAA를 기다림</text>
+</svg><figcaption>SDK가 보내는 패킷. CRC8은 기능 코드부터 데이터 끝까지 계산합니다.</figcaption></figure>
+<p>실제 <code>buf_write</code> 코드는 <code>[0xAA, 0x55, 기능, 길이, 데이터…, CRC8]</code> 순서로 바이트를 만듭니다. 원본 문서는 "0xAA 0x55 Length Function ID Data Checksum"이라고 적었지만, <strong>코드와 펌웨어의 실제 순서는 기능 → 길이</strong>이고 별도 ID 바이트는 데이터 안에 들어 있습니다.</p>
+<ul><li>**헤더 <code>0xAA 0x55</code>**: 바이트 흐름에서 패킷 시작을 찾는 표식. 두 바이트를 연속으로 요구해 우연히 일치할 확률을 줄임</li><li><strong>길이</strong>: 데이터 바이트 수. 수신 측이 어디까지 읽을지 앎</li><li><strong>CRC8</strong>: 전송 중 비트가 뒤집혔는지 검사. SDK는 256칸 표를 써서 <code>check = table[check ^ b]</code>를 반복합니다. 이 표는 <strong>Dallas/Maxim CRC-8</strong>(다항식 x⁸+x⁵+x⁴+1, 반사형 0x8C)과 같습니다.</li></ul>
+<p>아래 코드는 표를 직접 만들어 SDK 표와 같은지 확인하고, 네 가지 명령의 실제 바이트열을 계산합니다. 로직은 SDK와 같고, 시리얼 포트에 쓰는 대신 화면에 출력합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import struct
+
+def make_crc8_table():                 # Maxim/Dallas CRC-8, 반사 다항식 0x8C
+    table = []
+    for i in range(256):
+        crc = i
+        for _ in range(8):
+            crc = (crc &gt;&gt; 1) ^ 0x8C if crc &amp; 1 else crc &gt;&gt; 1
+        table.append(crc)
+    return table
+
+CRC8 = make_crc8_table()
+print(&quot;table[:6] =&quot;, CRC8[:6], &quot;  (SDK: 0, 94, 188, 226, 97, 63)&quot;)
+
+def checksum_crc8(data):               # SDK 함수와 동일
+    check = 0
+    for b in data:
+        check = CRC8[check ^ b]
+    return check &amp; 0xFF
+
+def buf_write(func, data):             # SDK Board.buf_write 의 바이트 순서
+    buf = [0xAA, 0x55, int(func), len(data)] + list(data)
+    buf.append(checksum_crc8(bytes(buf[2:])))
+    return bytes(buf)
+
+def hexs(b):
+    return &quot; &quot;.join(f&quot;{x:02X}&quot; for x in b)
+
+# board.set_rgb([[1, 255, 0, 0], [2, 255, 0, 0]])   RGB = 11
+data = [0x01, 2]
+for index, r, g, b in [[1, 255, 0, 0], [2, 255, 0, 0]]:
+    data += struct.pack(&quot;&lt;BBBB&quot;, index - 1, r, g, b)
+print(&quot;set_rgb    :&quot;, hexs(buf_write(11, data)))
+
+# board.set_buzzer(1900, 0.1, 0.9, 1)                BUZZER = 2
+print(&quot;set_buzzer :&quot;, hexs(buf_write(2, struct.pack(&quot;&lt;HHHH&quot;, 1900, 100, 900, 1))))
+
+# board.pwm_servo_set_position(1, [[1, 1500]])       PWM_SERVO = 4
+dur = int(1 * 1000)
+data = [0x01, dur &amp; 0xFF, 0xFF &amp; (dur &gt;&gt; 8), 1] + list(struct.pack(&quot;&lt;BH&quot;, 1, 1500))
+print(&quot;pwm_servo  :&quot;, hexs(buf_write(4, data)))
+
+# board.set_motor_speed([[1, 0.5]])                  MOTOR = 3
+data = [0x01, 1] + list(struct.pack(&quot;&lt;Bf&quot;, 1 - 1, 0.5))
+print(&quot;motor_speed:&quot;, hexs(buf_write(3, data)))
+
+# 전송 시간 (8N1: 1바이트 = 10비트)
+n = len(buf_write(11, [0x01, 2] + [0] * 8))
+for baud in (115200, 1000000):
+    print(f&quot;{n} bytes @ {baud} bps = {n * 10 / baud * 1e6:.0f} us&quot;)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">table[:6] = [0, 94, 188, 226, 97, 63]   (SDK: 0, 94, 188, 226, 97, 63)
+set_rgb    : AA 55 0B 0A 01 02 00 FF 00 00 01 FF 00 00 5A
+set_buzzer : AA 55 02 08 6C 07 64 00 84 03 01 00 5D
+pwm_servo  : AA 55 04 07 01 E8 03 01 01 DC 05 87
+motor_speed: AA 55 03 07 01 01 00 00 00 00 3F D0
+15 bytes @ 115200 bps = 1302 us
+15 bytes @ 1000000 bps = 150 us</code></pre></div>
+<p>읽는 법 — <code>set_rgb</code> 패킷 <code>AA 55 0B 0A 01 02 00 FF 00 00 01 FF 00 00 ..</code>: <code>0B</code>=RGB 기능(11), <code>0A</code>=데이터 10바이트, <code>01</code>=하위 명령, <code>02</code>=LED 2개, <code>00 FF 00 00</code>=LED 인덱스 0(사용자가 준 1에서 1을 뺌)·R 255·G 0·B 0, 이어서 인덱스 1의 값, 마지막이 CRC8입니다. 멀티바이트 수는 <code>struct</code>의 <code>&lt;</code>(리틀 엔디언)로 <strong>하위 바이트가 먼저</strong> 나갑니다: 1900 = 0x076C → <code>6C 07</code>.</p>
+<h3 id="수신-상태-기계">수신 상태 기계<a class="anchor" href="#수신-상태-기계">#</a></h3>
+<p>반대로 STM32가 보내는 배터리·IMU·버튼 데이터는 수신 스레드가 한 바이트씩 읽어 <strong>상태 기계(state machine)</strong>로 조립합니다. 중간에 쓰레기 바이트가 끼거나 CRC가 틀리면 버리고 다음 <code>0xAA</code>를 기다립니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import struct
+
+CRC8 = []
+for i in range(256):
+    c = i
+    for _ in range(8):
+        c = (c &gt;&gt; 1) ^ 0x8C if c &amp; 1 else c &gt;&gt; 1
+    CRC8.append(c)
+
+def crc8(data):
+    ck = 0
+    for b in data:
+        ck = CRC8[ck ^ b]
+    return ck
+
+def packet(func, data):
+    body = [func, len(data)] + list(data)
+    return [0xAA, 0x55] + body + [crc8(bytes(body))]
+
+# 배터리 보고(SYS=0, 하위 0x04, uint16 mV) + 잡음 + CRC 깨진 패킷 + IMU 보고(IMU=7, 6 float)
+battery = packet(0, [0x04] + list(struct.pack(&quot;&lt;H&quot;, 7650)))
+broken = packet(0, [0x04] + list(struct.pack(&quot;&lt;H&quot;, 7000))); broken[-1] ^= 0xFF
+imu = packet(7, struct.pack(&quot;&lt;6f&quot;, 0.0, 0.0, 9.8, 0.0, 0.0, 0.25))
+stream = [0x13, 0xAA, 0x00] + battery + [0x55] + broken + imu
+
+state, frame, count = &quot;START1&quot;, [], 0
+for dat in stream:                         # SDK recv_task 와 같은 순서의 상태 기계
+    if state == &quot;START1&quot;:
+        state = &quot;START2&quot; if dat == 0xAA else &quot;START1&quot;
+    elif state == &quot;START2&quot;:
+        state = &quot;FUNC&quot; if dat == 0x55 else &quot;START1&quot;
+    elif state == &quot;FUNC&quot;:
+        frame, state = ([dat, 0], &quot;LEN&quot;) if dat &lt; 12 else ([], &quot;START1&quot;)
+    elif state == &quot;LEN&quot;:
+        frame[1], count = dat, 0
+        state = &quot;DATA&quot; if dat else &quot;CHECK&quot;
+    elif state == &quot;DATA&quot;:
+        frame.append(dat); count += 1
+        if count &gt;= frame[1]:
+            state = &quot;CHECK&quot;
+    elif state == &quot;CHECK&quot;:
+        func, data = frame[0], bytes(frame[2:])
+        if crc8(bytes(frame)) != dat:
+            print(&quot;checksum failed -&gt; drop&quot;)
+        elif func == 0 and data[0] == 0x04:
+            print(&quot;battery:&quot;, struct.unpack(&quot;&lt;H&quot;, data[1:])[0], &quot;mV&quot;)
+        elif func == 7:
+            print(&quot;imu ax,ay,az,gx,gy,gz =&quot;, [round(v, 2) for v in struct.unpack(&quot;&lt;6f&quot;, data)])
+        state = &quot;START1&quot;</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">battery: 7650 mV
+checksum failed -&gt; drop
+imu ax,ay,az,gx,gy,gz = [0.0, 0.0, 9.8, 0.0, 0.0, 0.25]</code></pre></div>
+<div class="callout callout-tip"><div class="callout-title">원본 SDK를 읽을 때</div><div class="callout-body"><p>SDK 상태 기계의 enum 이름은 <code>…STARTBYTE1 → STARTBYTE2 → FUNCTION → LENGTH → DATA → CHECKSUM</code> 순으로 전이합니다(enum 정의의 번호 순서와 다르니 전이 코드를 따라 읽으세요). CRC가 틀리면 원본은 "校验失败"(검증 실패)를 출력합니다.</p></div></div>
+<h3 id="장치-파일과-선점-문제">장치 파일과 선점 문제<a class="anchor" href="#장치-파일과-선점-문제">#</a></h3>
+<ul><li>SDK의 기본 장치는 <code>board_demo</code> 버전이 <code>/dev/ttyAMA0</code>, 컨테이너 ROS 드라이버(<code>ros_robot_controller</code>)와 <code>RRCLite_demo</code> 버전이 **<code>/dev/rrc</code>**입니다. <code>/dev/rrc</code>는 확장보드 직렬 장치를 가리키는 고정 이름(심볼릭 링크)입니다. <code>ls -l /dev/rrc</code>로 실제 대상 장치를 확인하고, 예제가 포트를 못 열면 <code>rrc.Board(device=&quot;/dev/rrc&quot;)</code>처럼 지정합니다.</li><li>한 직렬 포트를 두 프로그램이 동시에 열면 바이트를 나눠 가져가 <strong>둘 다 오동작</strong>합니다. 자동 실행 중인 <code>ros_robot_controller</code> 노드가 포트를 쓰고 있으므로 SDK 예제를 직접 돌리기 전에는 <code>~/.stop_ros.sh</code>로 앱 서비스를 멈추는 것이 안전합니다.</li></ul>
+<h2 id="rgb-led-부저-버튼">RGB LED·부저·버튼<a class="anchor" href="#rgb-led-부저-버튼">#</a></h2>
+<h3 id="rgb-led-setrgbpixels">RGB LED: <code>set_rgb(pixels)</code><a class="anchor" href="#rgb-led-setrgbpixels">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">board.set_rgb([[1, 255, 0, 0], [2, 255, 0, 0]])   # [LED 번호, R, G, B] 목록</code></pre></div>
+<ul><li>LED 번호는 1, 2(보드의 RGB 두 개). 각 채널 0~255, <strong>값이 클수록 밝음</strong></li><li>여러 LED를 한 패킷에 담아 동시에 바꿈</li><li>색 섞기: 빨강 (255,0,0), 초록 (0,255,0), 파랑 (0,0,255), 노랑 (255,255,0), 끄기 (0,0,0)</li></ul>
+<p>원본 예제 두 개의 차이: <code>rgb_control_demo.py</code>는 빨강→초록→파랑→노랑을 1초씩 바꾸고, <code>rgb_flashing.py</code>는 각 색 사이에 <strong>끄기(0,0,0)</strong>를 0.5초씩 넣어 깜빡이게 합니다. 깜빡임 주기는 <code>time.sleep</code> 값으로 정해집니다.</p>
+<h3 id="부저-setbuzzerfreq-ontime-offtime-repeat">부저: <code>set_buzzer(freq, on_time, off_time, repeat)</code><a class="anchor" href="#부저-setbuzzerfreq-ontime-offtime-repeat">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>인자</th><th>의미</th><th>단위</th></tr></thead><tbody><tr><td><code>freq</code></td><td>소리 주파수(음 높이)</td><td>Hz</td></tr><tr><td><code>on_time</code>, <code>off_time</code></td><td>울림·쉼 시간</td><td>초(SDK가 ms로 변환해 전송)</td></tr><tr><td><code>repeat</code></td><td>반복 횟수, <strong>0 = 계속 반복</strong></td><td>회</td></tr></tbody></table></div>
+<p>원본 <code>buzzer_control_demo.py</code>:</p>
+<div class="code-block code-robot"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-robot">실물 전용</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import time
+import ros_robot_controller_sdk as rrc
+
+board = rrc.Board()
+board.set_buzzer(1900, 0.1, 0.9, 1)   # 1900 Hz, 0.1 s 울림 + 0.9 s 쉼, 1회
+time.sleep(2)
+board.set_buzzer(1000, 0.5, 0.5, 0)   # 1000 Hz, 0.5 s / 0.5 s, 계속 반복
+time.sleep(3)                         # → 약 3번 울림
+board.set_buzzer(1000, 0.0, 0.0, 1)   # 끄기</code></pre></div>
+<p>비슷하게 STM32의 사용자 LED는 <code>board.set_led(on_time, off_time, repeat=1, led_id=1)</code>로 깜빡입니다.</p>
+<h3 id="버튼-두-가지-방식">버튼 두 가지 방식<a class="anchor" href="#버튼-두-가지-방식">#</a></h3>
+<ol><li><strong>라즈베리파이 GPIO로 직접</strong>(원본 <code>key.py</code>): KEY1 = GPIO13, KEY2 = GPIO23, 풀업, 눌리면 0. 서비스 <code>hw_button_scan</code>을 멈춰야 함</li><li><strong>STM32 경유</strong>: <code>board.enable_reception()</code> 후 <code>board.get_button()</code>이 <code>(버튼 ID, 이벤트)</code> 또는 <code>None</code>을 반환. 펌웨어가 클릭·길게 누르기·더블 클릭 등을 판별해 보고(<code>PacketReportKeyEvents</code>)</li></ol>
+<h3 id="종합-예제-버튼으로-rgb-바꾸고-배터리-보기">종합 예제: 버튼으로 RGB 바꾸고 배터리 보기<a class="anchor" href="#종합-예제-버튼으로-rgb-바꾸고-배터리-보기">#</a></h3>
+<div class="code-block code-robot"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-robot">실물 전용</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import time
+import signal
+import gpiod
+import ros_robot_controller_sdk as rrc
+
+board = rrc.Board()                         # 포트 오류 시 rrc.Board(device=&quot;/dev/rrc&quot;)
+board.enable_reception()                    # get_battery() 등에 필요
+running = True
+
+def stop(signum, frame):
+    global running
+    running = False
+signal.signal(signal.SIGINT, stop)
+
+chip = gpiod.Chip(&quot;gpiochip4&quot;)
+keys = {}
+for name, pin in ((&quot;key1&quot;, 13), (&quot;key2&quot;, 23)):
+    line = chip.get_line(pin)
+    line.request(consumer=name, type=gpiod.LINE_REQ_DIR_IN,
+                 flags=gpiod.LINE_REQ_FLAG_BIAS_PULL_UP)
+    keys[name] = line
+
+try:
+    while running:
+        if keys[&quot;key1&quot;].get_value() == 0:
+            board.set_rgb([[1, 255, 0, 0], [2, 255, 0, 0]])     # 빨강
+            board.set_buzzer(1900, 0.05, 0.01, 1)
+        if keys[&quot;key2&quot;].get_value() == 0:
+            board.set_rgb([[1, 0, 0, 255], [2, 0, 0, 255]])     # 파랑
+        mv = board.get_battery()
+        if mv is not None:
+            print(f&quot;\rbattery {mv / 1000:.2f} V&quot;, end=&quot;&quot;, flush=True)
+        time.sleep(0.02)
+finally:
+    board.set_rgb([[1, 0, 0, 0], [2, 0, 0, 0]])                 # 끄기
+    for line in keys.values():
+        line.release()
+    chip.close()
+    print()</code></pre></div>
+<h3 id="같은-일을-ros-2-토픽으로">같은 일을 ROS 2 토픽으로<a class="anchor" href="#같은-일을-ros-2-토픽으로">#</a></h3>
+<p>자동 실행 서비스가 켜져 있으면 <code>ros_robot_controller</code> 노드가 이미 포트를 열고 <strong>토픽 인터페이스</strong>를 제공합니다. 컨테이너 안에서 다음처럼 명령합니다(메시지 정의: <code>ros_robot_controller_msgs</code>).</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 topic pub --once /ros_robot_controller/set_rgb ros_robot_controller_msgs/msg/RGBStates \
+  &quot;{states: [{index: 1, red: 0, green: 255, blue: 0}, {index: 2, red: 0, green: 255, blue: 0}]}&quot;
+
+ros2 topic pub --once /ros_robot_controller/set_buzzer ros_robot_controller_msgs/msg/BuzzerState \
+  &quot;{freq: 1900, on_time: 0.1, off_time: 0.9, repeat: 1}&quot;
+
+ros2 topic echo /ros_robot_controller/battery      # std_msgs/UInt16, mV
+ros2 topic echo /ros_robot_controller/button       # ButtonState</code></pre></div>
+<p>노드는 이 메시지를 받아 그대로 <code>board.set_rgb()</code>, <code>board.set_buzzer()</code>를 호출합니다. 즉 <strong>SDK = 하드웨어 계층, 노드 = ROS 2 어댑터</strong>입니다. 원본 <code>RRCLite_demo/rgb_controller_node.py</code>, <code>buzzer_control_node.py</code>는 이 토픽에 발행하는 rclpy 예제입니다(R03 이후 직접 작성).</p>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">안전 확인 (실물 실습 전 필수)</div><div class="callout-body"><ul><li>GPIO 배선은 <strong>라즈베리파이 전원을 끈 상태</strong>에서 합니다. 3.3 V와 GND를 직접 잇는 단락, 5 V 핀과 GPIO의 접촉을 조심합니다.</li><li>LED에는 반드시 220~330 Ω 저항을 직렬로 연결합니다.</li><li>MentorPi에서는 UART0(8·10번 핀)·I2C 핀이 다른 장치에 쓰이고 있을 수 있습니다. 외부 모듈 실험은 <strong>담당자 확인 후</strong> 하거나 별도 라즈베리파이에서 합니다.</li><li>SDK 예제 전에 <code>~/.stop_ros.sh</code>, 버튼 예제 전에 <code>sudo systemctl stop hw_button_scan.service</code>. 실습 후 두 서비스를 다시 켭니다.</li><li>부저를 <code>repeat=0</code>으로 켠 채 프로그램을 끝내면 계속 울립니다. <code>set_buzzer(1000, 0, 0, 1)</code>로 끕니다.</li></ul></div></div>
+<div class="callout callout-task"><div class="callout-title">따라 하기</div><div class="callout-body"><ol><li><code>gpiodetect</code>, <code>pinout</code>으로 칩 이름과 핀 배치를 확인합니다.</li><li><code>~/.stop_ros.sh</code> → <code>cd ~/board_demo</code> → <code>python3 rgb_control_demo.py</code>, <code>python3 rgb_flashing.py</code>를 실행하고 차이를 관찰합니다(Ctrl+C로 종료, 안 되면 반복).</li><li><code>python3 buzzer_control_demo.py</code> — 짧게 1번, 이어서 약 3번 울리고 끝나는지 확인합니다.</li><li><code>sudo systemctl stop hw_button_scan.service</code> → <code>python3 key.py</code> — KEY1 빨강, KEY2 파랑, 터미널에 <code>key1: 1 key2: 1</code>이 눌림에 따라 0으로 바뀌는지 봅니다 → <code>sudo systemctl start hw_button_scan.service</code></li><li>종합 예제를 <code>~/board_demo/my_keys.py</code>로 저장해 실행하고, 배터리 전압이 표시되는지 확인합니다.</li><li>앱 서비스를 다시 켠 뒤(<code>sudo systemctl restart start_node.service</code>, 호스트) 컨테이너에서 <code>ros2 topic pub</code>으로 RGB·부저를 제어합니다.</li></ol></div></div>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> 풀업 입력에서 "누르면 0"인 이유를 설명할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> <code>AA 55 02 08 6C 07 64 00 84 03 01 00 ..</code> 패킷이 어떤 명령인지 해석할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> SDK 예제와 ROS 노드가 같은 포트를 동시에 쓰면 안 되는 이유를 안다.</label></li><li><label class="check-item"><input type="checkbox"> <code>ros2 topic pub</code>으로 RGB를 바꿨다.</label></li></ul></div></div>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td><code>could not open port /dev/ttyAMA0</code></td><td>장치 이름이 다름, 권한 부족</td><td><code>ls -l /dev/rrc /dev/ttyAMA*</code> 확인 후 <code>Board(device=…)</code> 지정, 사용자를 <code>dialout</code> 그룹에 추가</td></tr><tr><td>명령이 가끔 무시되거나 "校验失败" 출력</td><td>다른 프로그램(ROS 노드)이 같은 포트 사용</td><td><code>~/.stop_ros.sh</code> 후 실행</td></tr><tr><td><code>get_battery()</code>가 항상 <code>None</code></td><td><code>enable_reception()</code> 미호출, 아직 보고가 안 옴</td><td>생성 직후 <code>board.enable_reception()</code>, 루프에서 여러 번 시도</td></tr><tr><td><code>key.py</code>가 "hw_button_scan 占用" 출력</td><td>버튼 핀을 서비스가 점유</td><td><code>sudo systemctl stop hw_button_scan.service</code></td></tr><tr><td><code>OSError: [Errno 16] Device or resource busy</code> (gpiod)</td><td>다른 프로세스가 그 라인을 요청 중</td><td>이전 프로그램 종료, <code>gpioinfo</code>로 consumer 확인</td></tr><tr><td><code>AttributeError: module &#x27;gpiod&#x27; has no attribute &#x27;Chip&#x27;</code>/<code>&#x27;LINE_REQ_DIR_OUT&#x27;</code></td><td>gpiod 2.x API</td><td><code>python3-libgpiod</code>(v1) 사용 또는 2.x API로 수정</td></tr><tr><td>버튼이 안 눌러도 가끔 눌린 것으로 읽힘</td><td>풀업 없음(플로팅), 채터링</td><td>풀업 플래그 설정, 소프트웨어 디바운스(연속 N회 확인)</td></tr><tr><td>UART로 깨진 글자 수신</td><td>보레이트 불일치, TX/RX 직결, GND 미연결</td><td>양쪽 115200 확인, TX↔RX 엇갈림, GND 공유</td></tr><tr><td><code>i2cdetect</code>에 장치가 안 보임</td><td>I2C 미활성, 배선(SDA/SCL 뒤바뀜), 전원 없음</td><td>raspi-config에서 I2C 켜기, 배선·VCC 확인</td></tr><tr><td>Ctrl+C로 프로그램이 안 끝남</td><td>시그널 핸들러가 플래그만 바꾸고 루프가 sleep 중</td><td>원본 안내대로 여러 번 누름, 루프 주기 확인</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">기본</div><div class="callout-body"><ol><li><code>set_rgb([[1, 0, 255, 255]])</code>와 <code>set_buzzer(2500, 0.05, 0.01, 1)</code>의 패킷을 run 블록 코드로 계산하고, 각 바이트의 의미를 표로 정리합니다.</li><li>KEY1을 누를 때마다 RGB 색이 빨강→초록→파랑→노랑 순으로 바뀌도록(한 번 누름 = 한 단계) 작성합니다. 누르고 있는 동안 계속 바뀌지 않게 <strong>눌림 시작(1→0 변화)</strong>만 감지하세요.</li></ol></div></div>
+<div class="callout callout-task"><div class="callout-title">심화</div><div class="callout-body"><ol><li>수신 상태 기계 예제에 "길이가 비정상적으로 큰(&gt; 64) 패킷은 버린다"는 방어 코드를 추가하고, 그런 쓰레기 스트림을 만들어 시험합니다.</li><li>배터리 전압을 1초마다 읽어 7.0 V 이상 초록, 6.4~7.0 V 노랑, 6.4 V 미만 빨강 + 부저 경고를 내는 "배터리 표시등" 프로그램을 SDK로 작성합니다. 같은 기능을 ROS 2 노드로 만들 때 구독·발행할 토픽을 적어 봅니다.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: 6. Raspberry Pi 5 &amp; Expansion Board / Raspberry Pi 5 Controller / 4. Hardware Control Course — <em>Lesson 1 Hardware Control Environment Setup</em>, <em>Lesson 2 GPIO Pin Input Read</em>, <em>Lesson 3 GPIO Pin Output Setting</em>, <em>Lesson 4 GPIO Pin Pull-up and Pull-down Setting</em>, <em>Lesson 5 UART Communication Configuration and Programming</em>, <em>Lesson 6 I2C Communication Tutorial</em></li><li>원본 교재: 2. Expansion Board Control Lesson — <em>Lesson 1 RGB Color Control</em>, <em>Lesson 2 RGB Light Flashing Control</em>, <em>Lesson 3 Button Control</em>, <em>Lesson 4 Buzzer Control</em>, <em>Appendix "board_demo" Analysis</em></li><li>원본 소스: <code>board_demo/ros_robot_controller_sdk.py</code>, <code>rgb_control_demo.py</code>, <code>rgb_flashing.py</code>, <code>key.py</code>, <code>buzzer_control_demo.py</code>, <code>gpio_control.py</code>; <code>Appendix/Source Code/RRCLite_demo/*_node.py</code></li><li>원본 부록: RRC Lite Controller — <em>Lesson 13 RRCLite Communication Protocol with the Host Computer Analysis</em></li><li>libgpiod: https://git.kernel.org/pub/scm/libs/libgpiod/libgpiod.git/about/</li><li>gpiozero 문서: https://gpiozero.readthedocs.io/</li><li>Raspberry Pi GPIO/UART 문서: https://www.raspberrypi.com/documentation/computers/raspberry-pi.html</li><li>pySerial: https://pyserial.readthedocs.io/</li></ul>
+      <nav class="pager"><a class="pager-prev" href="b07.html"><span>이전 · B07</span>라즈베리파이 5: 하드웨어와 시스템</a><a class="pager-next" href="b09.html"><span>다음 · B09</span>서보와 DC 모터 제어</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#두-갈래의-입출력">두 갈래의 입출력</a><a class="toc-l2" href="#gpio-기초">GPIO 기초</a><a class="toc-l3" href="#핀-번호-두-가지">핀 번호 두 가지</a><a class="toc-l3" href="#출력과-입력">출력과 입력</a><a class="toc-l3" href="#풀업-풀다운이-필요한-이유">풀업·풀다운이 필요한 이유</a><a class="toc-l3" href="#gpiod로-제어하기">gpiod로 제어하기</a><a class="toc-l2" href="#uart-비동기-직렬-통신">UART: 비동기 직렬 통신</a><a class="toc-l3" href="#배선과-설정">배선과 설정</a><a class="toc-l2" href="#i2c-주소로-부르는-2선-버스">I2C: 주소로 부르는 2선 버스</a><a class="toc-l2" href="#확장보드-sdk-패킷-통신">확장보드 SDK: 패킷 통신</a><a class="toc-l3" href="#sdk-구조">SDK 구조</a><a class="toc-l3" href="#패킷-형식과-crc8">패킷 형식과 CRC8</a><a class="toc-l3" href="#수신-상태-기계">수신 상태 기계</a><a class="toc-l3" href="#장치-파일과-선점-문제">장치 파일과 선점 문제</a><a class="toc-l2" href="#rgb-led-부저-버튼">RGB LED·부저·버튼</a><a class="toc-l3" href="#rgb-led-setrgbpixels">RGB LED: `set_rgb(pixels)`</a><a class="toc-l3" href="#부저-setbuzzerfreq-ontime-offtime-repeat">부저: `set_buzzer(freq, on_time, off_time, repeat)`</a><a class="toc-l3" href="#버튼-두-가지-방식">버튼 두 가지 방식</a><a class="toc-l3" href="#종합-예제-버튼으로-rgb-바꾸고-배터리-보기">종합 예제: 버튼으로 RGB 바꾸고 배터리 보기</a><a class="toc-l3" href="#같은-일을-ros-2-토픽으로">같은 일을 ROS 2 토픽으로</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

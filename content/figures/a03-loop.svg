@@ -1,0 +1,35 @@
+<svg viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="라인 트레이싱 제어 루프와 라이다 정지 조건">
+  <defs>
+    <marker id="arr-a03-loop" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-a03-loop-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <rect class="box" x="10" y="40" width="120" height="64" rx="6"/>
+  <text class="lbl" x="70" y="66" text-anchor="middle">카메라</text>
+  <text class="tag mono" x="70" y="86" text-anchor="middle">rgb0/image</text>
+  <rect class="box" x="150" y="40" width="140" height="64" rx="6"/>
+  <text class="lbl" x="220" y="66" text-anchor="middle">ROI 3개 중심</text>
+  <text class="tag mono" x="220" y="86" text-anchor="middle">Lab·inRange·minAreaRect</text>
+  <rect class="box" x="310" y="40" width="130" height="64" rx="6"/>
+  <text class="lbl" x="375" y="66" text-anchor="middle">편향각 θd</text>
+  <text class="tag mono" x="375" y="86" text-anchor="middle">−atan((c−w/2)/(h/2))</text>
+  <rect class="box-hi" x="460" y="40" width="110" height="64" rx="6"/>
+  <text class="lbl" x="515" y="66" text-anchor="middle">PID</text>
+  <text class="tag mono" x="515" y="86" text-anchor="middle">Kp 1.1</text>
+  <rect class="box" x="590" y="40" width="120" height="64" rx="6"/>
+  <text class="lbl" x="650" y="66" text-anchor="middle">섀시</text>
+  <text class="tag mono" x="650" y="86" text-anchor="middle">/controller/cmd_vel</text>
+  <path class="ln" d="M130 72 L146 72 M290 72 L306 72 M440 72 L456 72 M570 72 L586 72" stroke-width="1.6" marker-end="url(#arr-a03-loop)"/>
+  <path class="ln" d="M650 104 L650 150 L70 150 L70 108" stroke-width="1.4" fill="none" stroke-dasharray="6 4" marker-end="url(#arr-a03-loop)"/>
+  <text class="sub" x="360" y="143" text-anchor="middle">로봇이 움직이면 다음 프레임에서 선의 위치가 바뀜 (지연 포함)</text>
+  <rect class="box" x="150" y="190" width="140" height="64" rx="6"/>
+  <text class="lbl" x="220" y="216" text-anchor="middle">라이다</text>
+  <text class="tag mono" x="220" y="236" text-anchor="middle">/scan_raw</text>
+  <rect class="box" x="310" y="190" width="200" height="64" rx="6"/>
+  <text class="lbl" x="410" y="216" text-anchor="middle">전방 ±22.5° 최솟값</text>
+  <text class="tag mono" x="410" y="236" text-anchor="middle">&lt; 0.4 m → stop, 6회 연속 비면 해제</text>
+  <path class="ln" d="M290 222 L306 222" stroke-width="1.6" marker-end="url(#arr-a03-loop)"/>
+  <path class="ln-hi" d="M510 222 L620 222 L620 108" stroke-width="1.6" fill="none" marker-end="url(#arr-a03-loop-hi)"/>
+  <text class="sub" x="628" y="190">stop이면</text>
+  <text class="sub" x="628" y="208">Twist() 정지</text>
+  <text class="tag" x="515" y="122" text-anchor="middle">linear.x = 0.15</text>
+</svg>

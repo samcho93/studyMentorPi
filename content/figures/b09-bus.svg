@@ -1,0 +1,36 @@
+<svg viewBox="0 0 720 262" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="버스 서보 제어의 두 층 프로토콜: 라즈베리파이에서 STM32로, STM32에서 버스 서보로">
+  <defs>
+    <marker id="arr-b09-bus" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <rect class="box" x="16" y="50" width="150" height="80" rx="8"/>
+  <text class="lbl" x="91" y="80" text-anchor="middle">Raspberry Pi</text>
+  <text class="sub mono" x="91" y="100" text-anchor="middle">SDK Board</text>
+  <text class="sub" x="91" y="118" text-anchor="middle">func 5 (BUS_SERVO)</text>
+
+  <rect class="box-hi" x="286" y="50" width="150" height="80" rx="8"/>
+  <text class="lbl" x="361" y="80" text-anchor="middle">STM32 (RRC Lite)</text>
+  <text class="sub" x="361" y="100" text-anchor="middle">패킷 해석 → 번역</text>
+  <text class="sub" x="361" y="118" text-anchor="middle">응답을 큐로 보고</text>
+
+  <path d="M168 90 L284 90" style="stroke:var(--accent);fill:none" stroke-width="2" marker-start="url(#arr-b09-bus)" marker-end="url(#arr-b09-bus)"/>
+  <text class="tag mono" x="226" y="80" text-anchor="middle">UART 1 Mbps</text>
+  <text class="tag" x="226" y="108" text-anchor="middle">①</text>
+
+  <path d="M438 90 L506 90" style="stroke:var(--accent);fill:none" stroke-width="2" marker-start="url(#arr-b09-bus)" marker-end="url(#arr-b09-bus)"/>
+  <text class="tag" x="472" y="108" text-anchor="middle">②</text>
+  <text class="tag mono" x="472" y="80" text-anchor="middle">115200</text>
+  <path d="M508 90 L708 90" style="stroke:var(--text-faint);fill:none" stroke-width="2"/>
+  <circle class="box" cx="548" cy="90" r="24"/><text class="tag mono" x="548" y="94" text-anchor="middle">ID 1</text>
+  <circle class="box" cx="616" cy="90" r="24"/><text class="tag mono" x="616" y="94" text-anchor="middle">ID 2</text>
+  <circle class="box" cx="684" cy="90" r="24"/><text class="tag mono" x="684" y="94" text-anchor="middle">ID 3</text>
+  <text class="sub" x="616" y="138" text-anchor="middle">한 선에 직렬 연결(반이중)</text>
+
+  <text class="tag" x="16" y="176">① SDK 패킷  bus_servo_set_position(1, [[1, 500]])</text>
+  <text class="lbl mono" x="16" y="196">AA 55 | 05 | 07 | 01 E8 03 01 01 F4 01 | F5</text>
+  <text class="sub" x="16" y="212">헤더 · 기능 5 · 길이 7 · 데이터 · CRC8</text>
+  <text class="sub" x="16" y="228">데이터: 하위명령 01, 시간 1000 ms, 개수 1, ID 1, 위치 500</text>
+  <text class="tag" x="400" y="176">② 서보 프로토콜  SERVO_MOVE_TIME_WRITE</text>
+  <text class="lbl mono" x="400" y="196">55 55 | 01 | 07 | 01 | F4 01 E8 03 | 16</text>
+  <text class="sub" x="400" y="212">헤더 · ID · 길이 · 명령 · 위치·시간 · ~합</text>
+  <text class="sub" x="360" y="254" text-anchor="middle">같은 명령이라도 층마다 형식과 검사 방식(CRC8 / 합의 보수)이 다릅니다</text>
+</svg>

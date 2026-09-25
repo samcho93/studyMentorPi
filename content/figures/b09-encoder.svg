@@ -1,0 +1,26 @@
+<svg viewBox="0 0 720 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="엔코더 A상과 B상 쿼드러처 신호와 4체배 카운트">
+  <g style="stroke:var(--border);fill:none" stroke-width="1" stroke-dasharray="2 4">
+    <path d="M130 30 L130 190 M160 30 L160 190 M190 30 L190 190 M220 30 L220 190 M250 30 L250 190 M280 30 L280 190 M310 30 L310 190 M340 30 L340 190 M370 30 L370 190 M400 30 L400 190 M430 30 L430 190 M460 30 L460 190 M490 30 L490 190 M520 30 L520 190 M550 30 L550 190 M580 30 L580 190"/>
+  </g>
+  <path d="M100 80 L130 80 L130 40 L190 40 L190 80 L250 80 L250 40 L310 40 L310 80 L370 80 L370 40 L430 40 L430 80 L490 80 L490 40 L550 40 L550 80 L610 80" style="stroke:var(--accent);fill:none" stroke-width="2.2"/>
+  <path d="M100 150 L160 150 L160 110 L220 110 L220 150 L280 150 L280 110 L340 110 L340 150 L400 150 L400 110 L460 110 L460 150 L520 150 L520 110 L580 110 L580 150 L610 150" style="stroke:var(--text);fill:none" stroke-width="2.2"/>
+  <text class="lbl" x="20" y="66">A상</text>
+  <text class="lbl" x="20" y="136">B상</text>
+  <text class="lbl" x="20" y="186">카운트</text>
+  <path d="M130 24 L130 18 L250 18 L250 24" style="stroke:var(--accent);fill:none" stroke-width="1.4"/>
+  <text class="tag hi" x="190" y="13" text-anchor="middle">A 한 주기 = 4 카운트</text>
+  <path d="M160 100 L190 100" style="stroke:var(--text-faint);fill:none" stroke-width="1"/>
+  <text class="tag" x="196" y="104">90° 늦음</text>
+  <g class="tag mono" text-anchor="middle">
+    <text x="130" y="186">1</text><text x="160" y="186">2</text><text x="190" y="186">3</text><text x="220" y="186">4</text>
+    <text x="250" y="186">5</text><text x="280" y="186">6</text><text x="310" y="186">7</text><text x="340" y="186">8</text>
+    <text x="370" y="186">9</text><text x="400" y="186">10</text><text x="430" y="186">11</text><text x="460" y="186">12</text>
+    <text x="490" y="186">13</text><text x="520" y="186">14</text><text x="550" y="186">15</text><text x="580" y="186">16</text>
+  </g>
+  <text class="tag" x="630" y="66">A가 앞섬</text>
+  <text class="tag" x="630" y="82">→ 정회전 +</text>
+  <text class="tag" x="630" y="136">B가 앞서면</text>
+  <text class="tag" x="630" y="152">→ 역회전 −</text>
+  <text class="sub" x="360" y="218" text-anchor="middle">A·B의 상승·하강 모서리를 모두 세면(4체배) 모터축 1회전 = PPR × 4 카운트</text>
+  <text class="sub mono" x="360" y="238" text-anchor="middle">rps = Δcount / Δt / (PPR × 4 × 감속비)</text>
+</svg>

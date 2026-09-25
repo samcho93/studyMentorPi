@@ -1,0 +1,34 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AP 직접 연결 모드와 STA LAN 모드의 네트워크 구조 비교">
+  <rect x="10" y="10" width="340" height="280" rx="10" style="fill:none;stroke:var(--border)" stroke-dasharray="5 4"/>
+  <rect x="370" y="10" width="340" height="280" rx="10" style="fill:none;stroke:var(--border)" stroke-dasharray="5 4"/>
+  <text class="lbl" x="180" y="36" text-anchor="middle" font-weight="700">AP 직접 연결 모드 (기본)</text>
+  <text class="lbl" x="540" y="36" text-anchor="middle" font-weight="700">STA LAN 모드</text>
+
+  <rect class="box-hi" x="105" y="62" width="150" height="58" rx="8"/>
+  <text class="lbl" x="180" y="86" text-anchor="middle">MentorPi = 공유기</text>
+  <text class="sub mono" x="180" y="106" text-anchor="middle">192.168.149.1</text>
+  <text class="tag mono" x="180" y="142" text-anchor="middle">SSID HW-… · pw hiwonder</text>
+  <path d="M150 120 L95 198" style="stroke:var(--accent);fill:none" stroke-width="1.8" stroke-dasharray="6 4"/>
+  <path d="M210 120 L265 198" style="stroke:var(--accent);fill:none" stroke-width="1.8" stroke-dasharray="6 4"/>
+  <rect class="box" x="40" y="200" width="110" height="44" rx="6"/>
+  <text class="lbl" x="95" y="227" text-anchor="middle">휴대폰 앱</text>
+  <rect class="box" x="210" y="200" width="110" height="44" rx="6"/>
+  <text class="lbl" x="265" y="227" text-anchor="middle">PC (VNC)</text>
+  <text class="sub" x="180" y="274" text-anchor="middle">설정 없이 바로 연결 · 인터넷 없음</text>
+
+  <text class="tag" x="540" y="60" text-anchor="middle">인터넷</text>
+  <path d="M540 66 L540 76" style="stroke:var(--text-faint);fill:none" stroke-width="1.6"/>
+  <rect class="box" x="465" y="76" width="150" height="50" rx="8"/>
+  <text class="lbl" x="540" y="98" text-anchor="middle">공유기 / 핫스팟</text>
+  <text class="sub" x="540" y="116" text-anchor="middle">DHCP로 IP 할당</text>
+  <path d="M510 126 L435 198" style="stroke:var(--accent);fill:none" stroke-width="1.8" stroke-dasharray="6 4"/>
+  <path d="M540 126 L540 198" style="stroke:var(--accent);fill:none" stroke-width="1.8" stroke-dasharray="6 4"/>
+  <path d="M570 126 L650 198" style="stroke:var(--accent);fill:none" stroke-width="1.8" stroke-dasharray="6 4"/>
+  <rect class="box-hi" x="385" y="200" width="100" height="44" rx="6"/>
+  <text class="lbl" x="435" y="227" text-anchor="middle">MentorPi</text>
+  <rect class="box" x="495" y="200" width="90" height="44" rx="6"/>
+  <text class="lbl" x="540" y="227" text-anchor="middle">휴대폰 앱</text>
+  <rect class="box" x="595" y="200" width="105" height="44" rx="6"/>
+  <text class="lbl" x="647" y="227" text-anchor="middle">PC (VNC·SSH)</text>
+  <text class="sub" x="540" y="274" text-anchor="middle">인터넷·여러 장치 가능 · 3회 실패 시 AP로 복귀</text>
+</svg>

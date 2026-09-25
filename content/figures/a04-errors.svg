@@ -1,0 +1,30 @@
+<svg viewBox="0 0 720 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="영상에서 가로 오차와 크기 오차를 뽑아 회전과 전후진 명령으로 바꾸는 구조">
+  <defs>
+    <marker id="arr-a04-errors" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+    <marker id="arr-a04-errors-g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <rect class="box" x="20" y="20" width="320" height="240"/>
+  <path class="ln" d="M180 20 V260" stroke-width="1" stroke-dasharray="5 4"/>
+  <text class="tag mono" x="184" y="34">u_ref = W/2</text>
+  <circle cx="180" cy="170" r="5" style="fill:var(--text-faint)"/>
+  <text class="tag" x="120" y="190">기준점 (x_stop, y_stop)</text>
+  <circle cx="268" cy="110" r="34" style="fill:var(--danger);opacity:0.35"/>
+  <circle class="ln-hi" cx="268" cy="110" r="34" fill="none" stroke-width="2"/>
+  <circle class="hi" cx="268" cy="110" r="4"/>
+  <path class="ln-hi" d="M180 110 L262 110" stroke-width="2" marker-end="url(#arr-a04-errors)"/>
+  <text class="tag mono" x="220" y="102" text-anchor="middle">e_x</text>
+  <path class="ln" d="M268 110 L292 86" stroke-width="1.2"/>
+  <text class="tag mono" x="296" y="84">r</text>
+  <path class="ln" d="M300 170 L300 116" stroke-width="1.2" stroke-dasharray="3 3" marker-end="url(#arr-a04-errors-g)"/>
+  <text class="tag mono" x="306" y="150">e_v</text>
+  <text class="sub" x="180" y="280" text-anchor="middle">카메라 영상 (W × H)</text>
+  <text class="lbl" x="380" y="50">회전: e_x = u − u_ref</text>
+  <text class="sub mono" x="380" y="72">ω = −Kx · e_x   (|e_x| &gt; 불감대)</text>
+  <text class="sub" x="380" y="92">물체가 오른쪽 → ω &lt; 0 (시계 방향)</text>
+  <text class="lbl" x="380" y="134">전후진 (둘 중 하나)</text>
+  <text class="sub mono" x="380" y="156">면적: e_A = √A_ref − √A   (√A ∝ 1/d)</text>
+  <text class="sub mono" x="380" y="176">높이: e_v = v − y_stop    (바닥 물체)</text>
+  <text class="sub" x="380" y="196">v = Kd · e  → 멀면 전진, 가까우면 후진</text>
+  <text class="lbl" x="380" y="238">안전 장치</text>
+  <text class="sub" x="380" y="260">불감대 · 출력 제한 · 표적 상실 시 정지</text>
+</svg>

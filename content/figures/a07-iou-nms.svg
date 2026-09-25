@@ -1,0 +1,27 @@
+<svg viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="IoU 정의와 NMS 동작">
+  <!-- IoU -->
+  <text class="lbl" x="150" y="28" text-anchor="middle">IoU = 교집합 ÷ 합집합</text>
+  <rect class="box" x="60" y="60" width="120" height="120"/>
+  <rect class="box" x="120" y="120" width="120" height="120"/>
+  <rect class="hi" x="120" y="120" width="60" height="60" opacity="0.8"/>
+  <text class="tag" x="70" y="78">A</text>
+  <text class="tag" x="228" y="232" text-anchor="end">B</text>
+  <text class="tag" x="150" y="155" text-anchor="middle">A∩B</text>
+  <text class="sub" x="150" y="262" text-anchor="middle">반씩 어긋나면 2500 / 17500 = 0.143</text>
+
+  <line class="ln" x1="300" y1="30" x2="300" y2="260" stroke-dasharray="4 4"/>
+
+  <!-- NMS -->
+  <text class="lbl" x="510" y="28" text-anchor="middle">NMS (같은 클래스, IoU &gt; 0.4 제거)</text>
+  <rect style="fill:none;stroke:var(--accent)" x="350" y="70" width="110" height="110" stroke-width="3"/>
+  <text class="tag" x="352" y="64">right 0.92 ✔ 채택</text>
+  <rect style="fill:none;stroke:var(--danger)" x="361" y="76" width="104" height="115" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <text class="tag" x="522" y="205">right 0.85 ✘ (IoU 0.75)</text>
+  <rect style="fill:none;stroke:var(--ok)" x="405" y="125" width="110" height="110" stroke-width="2"/>
+  <text class="tag" x="518" y="238">right 0.60 ✔ (IoU 0.14)</text>
+  <rect style="fill:none;stroke:var(--warn)" x="560" y="70" width="60" height="70" stroke-width="2"/>
+  <text class="tag" x="590" y="60" text-anchor="middle">park 0.80 ✔</text>
+  <text class="tag" x="590" y="158" text-anchor="middle">(다른 클래스는</text>
+  <text class="tag" x="590" y="172" text-anchor="middle">겹쳐도 유지)</text>
+  <text class="sub" x="510" y="262" text-anchor="middle">① conf 필터 → ② 점수 정렬 → ③ 최고 채택 → ④ 겹침 제거 → 반복</text>
+</svg>

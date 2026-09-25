@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R11. 윤곽선·특징 매칭·코너 검출 · studyMentorPi</title>
+<meta name="description" content="findContours와 면적·중심·외접 도형, ORB/SIFT 특징점 매칭, Harris·Shi-Tomasi 코너.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-ros">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" class="active" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="r11" data-track="ros">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-ros">ROS 2·OpenCV 기초</span> R-3 OpenCV 영상 처리 &middot; 약 80분 &middot; 중급</div>
+    <h1><span class="lesson-no">R11</span>윤곽선·특징 매칭·코너 검출</h1>
+    <p class="lede">findContours와 면적·중심·외접 도형, ORB/SIFT 특징점 매칭, Harris·Shi-Tomasi 코너.</p>
+    <div class="requires">선수 챕터: <a href="r10.html">R10</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      <a class="ghost-btn" href="../tools/color-lab.html">HSV 색 실험실</a><a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li><code>findContours</code>의 검색 모드·근사 방법을 고르고, OpenCV 3/4 버전 차이를 흡수하는 코드를 작성합니다.</li><li>모멘트로 윤곽선의 면적·중심을 구하고, 외접 사각형·최소 회전 사각형·최소 외접원·볼록 껍질·다각형 근사로 물체를 설명합니다.</li><li>ORB/SIFT 특징점과 기술자(descriptor)를 이해하고, BF·FLANN 매칭과 비율 검사, RANSAC 호모그래피로 같은 물체를 찾습니다.</li><li>Harris·Shi-Tomasi 코너 검출의 원리(구조 텐서의 고윳값)를 설명하고 <code>goodFeaturesToTrack</code>으로 코너를 찾습니다.</li></ul>
+<h2 id="윤곽선-contour">윤곽선 (Contour)<a class="anchor" href="#윤곽선-contour">#</a></h2>
+<p>윤곽선은 <strong>같은 값(흰색) 영역의 경계를 따라 이은 점들의 목록</strong>입니다. 이진화(R10)로 물체를 흰색, 배경을 검은색으로 만든 뒤 <code>findContours</code>로 경계를 추적합니다. 색 인식(A01), 라인 트레이싱(A03), 색 추적(A04)이 모두 “마스크 → 가장 큰 윤곽선 → 중심·크기” 흐름을 씁니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">contours, hierarchy = cv2.findContours(binary, mode, method)       # OpenCV 4.x
+_, contours, hierarchy = cv2.findContours(binary, mode, method)    # OpenCV 3.x (원본 교재 예제)
+contours = cv2.findContours(binary, mode, method)[-2]              # 두 버전 모두 동작 (MentorPi 소스 방식)</code></pre></div>
+<p>원본 교재의 예제는 OpenCV 3 형식(반환값 3개)이라 OpenCV 4에서는 <code>ValueError: not enough values to unpack</code>이 납니다. MentorPi 소스처럼 <code>[-2]</code>로 받으면 두 버전 모두에서 동작합니다.</p>
+<div class="table-wrap"><table><thead><tr><th>인자</th><th>값</th><th>의미</th></tr></thead><tbody><tr><td>mode</td><td><code>RETR_EXTERNAL</code></td><td>가장 바깥 윤곽만 (물체 찾기에 가장 많이 씀)</td></tr><tr><td></td><td><code>RETR_LIST</code></td><td>모든 윤곽, 계층 없음</td></tr><tr><td></td><td><code>RETR_CCOMP</code></td><td>2단계 계층(바깥 / 구멍)</td></tr><tr><td></td><td><code>RETR_TREE</code></td><td>전체 포함 관계 트리</td></tr><tr><td>method</td><td><code>CHAIN_APPROX_NONE</code></td><td>경계의 모든 점 저장</td></tr><tr><td></td><td><code>CHAIN_APPROX_SIMPLE</code></td><td>직선 구간은 끝점만 (사각형은 점 4개)</td></tr><tr><td></td><td><code>CHAIN_APPROX_TC89_L1</code></td><td>Teh-Chin 근사 (MentorPi 라인·색 노드가 사용)</td></tr></tbody></table></div>
+<p><code>hierarchy[0][i]</code>는 <code>[다음, 이전, 첫 자식, 부모]</code> 인덱스이고 없으면 −1입니다. 부모가 있는 윤곽은 <strong>구멍</strong>의 경계입니다. 결과 표시는 <code>cv2.drawContours(img, contours, -1, color, thickness)</code>로 합니다(<code>-1</code>은 전부, <code>thickness=-1</code>은 채우기).</p>
+<h3 id="모멘트-면적과-중심">모멘트: 면적과 중심<a class="anchor" href="#모멘트-면적과-중심">#</a></h3>
+<p>영상 모멘트 <span class="math">m_{pq} = \sum x^p y^q I(x, y)</span>는 모양의 요약 통계입니다.</p>
+<div class="table-wrap"><table><thead><tr><th>값</th><th>의미</th><th>쓰임</th></tr></thead><tbody><tr><td><span class="math">m_{00}</span></td><td>면적(0차)</td><td>너무 작은 윤곽 걸러내기</td></tr><tr><td><span class="math">(c_x, c_y) = (m_{10}/m_{00},\ m_{01}/m_{00})</span></td><td>무게중심</td><td>로봇이 향할 목표점</td></tr><tr><td><span class="math">\mu_{20}, \mu_{11}, \mu_{02}</span></td><td>중심 모멘트(2차)</td><td>방향·길쭉함, 이동 불변</td></tr><tr><td><span class="math">\nu_{pq}</span>, Hu 모멘트</td><td>정규화 중심 모멘트</td><td>크기(·회전) 불변 모양 비교 <code>matchShapes</code></td></tr></tbody></table></div>
+<p><code>cv2.contourArea(cnt)</code>는 <span class="math">m_{00}</span>과 같은 면적을, <code>cv2.arcLength(cnt, True)</code>는 닫힌 둘레를 돌려줍니다. <span class="math">m_{00} = 0</span>(점이나 선처럼 납작한 윤곽)이면 중심 계산이 0으로 나누기가 되므로 <strong>반드시 먼저 검사</strong>합니다.</p>
+<h3 id="모양-근사와-분류">모양 근사와 분류<a class="anchor" href="#모양-근사와-분류">#</a></h3>
+<p><code>cv2.approxPolyDP(cnt, epsilon, True)</code>는 Douglas-Peucker 알고리즘으로 윤곽을 <strong>꼭짓점이 적은 다각형</strong>으로 줄입니다. <code>epsilon</code>은 원래 곡선과 근사선 사이 허용 거리이며, 보통 둘레의 1~4 %로 잡습니다. 꼭짓점 수로 삼각형(3)·사각형(4)·원(많음)을 구분할 수 있습니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+import numpy as np
+
+img = cv2.imread(&quot;shapes.png&quot;)
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+_, binary = cv2.threshold(gray, 240, 255, cv2.THRESH_BINARY_INV)   # 흰 배경 → 검정, 도형 → 흰색
+contours = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+contours = sorted(contours, key=lambda c: cv2.boundingRect(c)[0])  # 왼쪽부터
+
+for c in contours:
+    area = cv2.contourArea(c)
+    peri = cv2.arcLength(c, True)
+    m = cv2.moments(c)
+    cx, cy = m[&quot;m10&quot;] / m[&quot;m00&quot;], m[&quot;m01&quot;] / m[&quot;m00&quot;]
+    approx = cv2.approxPolyDP(c, 0.02 * peri, True)
+    n = len(approx)
+    circularity = 4 * np.pi * area / peri ** 2                 # 원이면 1
+    kind = {3: &quot;triangle&quot;, 4: &quot;rectangle&quot;}.get(n, &quot;circle&quot; if circularity &gt; 0.85 else &quot;ellipse/poly&quot;)
+    print(&quot;중심 (%3.0f,%3.0f) 면적 %6.0f 둘레 %5.0f 꼭짓점 %2d 원형도 %.2f → %s&quot;
+          % (cx, cy, area, peri, n, circularity, kind))
+    cv2.drawContours(img, [approx], -1, (0, 0, 0), 2)
+    cv2.putText(img, kind, (int(cx) - 30, int(cy)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1)
+cv2.imshow(&quot;shapes&quot;, img)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">중심 (140,150) 면적  15176 둘레   462 꼭짓점  8 원형도 0.90 → circle
+중심 (190,377) 면적   9100 둘레   458 꼭짓점  3 원형도 0.55 → triangle
+중심 (390,150) 면적  25200 둘레   640 꼭짓점  4 원형도 0.77 → rectangle
+중심 (470,360) 면적  20720 둘레   575 꼭짓점  8 원형도 0.79 → ellipse/poly</code></pre></div>
+<ul><li>원형도(circularity) <span class="math">4πA/P^2</span>는 이론상 원에서 1, 정사각형에서 0.785, 정삼각형에서 0.605입니다. 픽셀 윤곽은 계단 모양이라 둘레가 조금 길게 재져 원도 0.90 정도로 나옵니다. 꼭짓점 수만으로 원과 타원을 가르기 어려울 때 보조 기준이 됩니다.</li><li>사각형 면적이 <code>181 × 141</code>이 아니라 <code>180 × 140</code>인 것은 윤곽선이 <strong>경계 픽셀의 중심</strong>을 잇기 때문입니다.</li></ul>
+<h3 id="외접-도형과-볼록-껍질">외접 도형과 볼록 껍질<a class="anchor" href="#외접-도형과-볼록-껍질">#</a></h3>
+<figure class="fig" id="fig-r11-contour"><svg viewBox="0 0 720 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="윤곽 하나에 대한 외접 사각형, 최소 회전 사각형, 최소 외접원, 볼록 껍질">
+  <g transform="translate(20,20)">
+    <text class="lbl" x="75" y="0" text-anchor="middle">boundingRect</text>
+    <polygon class="box-hi" points="30,120 100,40 125,62 55,142"/>
+    <rect class="ln-hi" x="30" y="40" width="95" height="102" fill="none" stroke-width="2"/>
+    <text class="sub mono" x="75" y="175" text-anchor="middle">(x, y, w, h)</text>
+    <text class="sub" x="75" y="195" text-anchor="middle">축 정렬, 빈 곳 많음</text>
+  </g>
+  <g transform="translate(200,20)">
+    <text class="lbl" x="75" y="0" text-anchor="middle">minAreaRect</text>
+    <polygon class="box-hi" points="30,120 100,40 125,62 55,142"/>
+    <polygon class="ln-hi" points="30,120 100,40 125,62 55,142" fill="none" stroke-width="2"/>
+    <circle class="hi" cx="77" cy="91" r="4"/>
+    <text class="sub mono" x="75" y="175" text-anchor="middle">((cx,cy),(w,h),θ)</text>
+    <text class="sub" x="75" y="195" text-anchor="middle">기울기까지 표현</text>
+  </g>
+  <g transform="translate(380,20)">
+    <text class="lbl" x="75" y="0" text-anchor="middle">minEnclosingCircle</text>
+    <polygon class="box-hi" points="30,120 100,40 125,62 55,142"/>
+    <circle class="ln-hi" cx="77" cy="91" r="68" fill="none" stroke-width="2"/>
+    <text class="sub mono" x="75" y="175" text-anchor="middle">((cx,cy), r)</text>
+    <text class="sub" x="75" y="195" text-anchor="middle">공·원형 표식 크기</text>
+  </g>
+  <g transform="translate(560,20)">
+    <text class="lbl" x="75" y="0" text-anchor="middle">convexHull</text>
+    <polygon class="box-hi" points="20,40 130,40 130,150 100,150 100,70 20,70"/>
+    <polygon class="ln-hi" points="20,40 130,40 130,150 100,150 20,70" fill="none" stroke-width="2" stroke-dasharray="5 3"/>
+    <text class="sub mono" x="75" y="175" text-anchor="middle">solidity = A / A_hull</text>
+    <text class="sub" x="75" y="195" text-anchor="middle">오목한 부분 찾기</text>
+  </g>
+  <text class="sub" x="360" y="255" text-anchor="middle">채운 영역 = 윤곽선 내부 · 강조 선 = 각 함수가 돌려주는 도형</text>
+</svg><figcaption>한 윤곽을 설명하는 네 가지 도형: 외접 사각형, 최소 회전 사각형, 최소 외접원, 볼록 껍질</figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th>함수</th><th>반환</th><th>쓰임</th></tr></thead><tbody><tr><td><code>cv2.boundingRect(c)</code></td><td><code>(x, y, w, h)</code> 축 정렬 사각형</td><td>ROI 자르기, 간단한 박스</td></tr><tr><td><code>cv2.minAreaRect(c)</code></td><td><code>((cx, cy), (w, h), angle)</code></td><td>기울어진 선·블록의 <strong>각도</strong> (라인 트레이싱의 선 중심)</td></tr><tr><td><code>cv2.boxPoints(rect)</code></td><td>회전 사각형의 꼭짓점 4개</td><td><code>drawContours</code>로 그리기 (<code>np.intp</code>로 변환)</td></tr><tr><td><code>cv2.minEnclosingCircle(c)</code></td><td><code>((cx, cy), r)</code></td><td>공·원형 표식의 크기 (색 인식 결과)</td></tr><tr><td><code>cv2.convexHull(c)</code></td><td>볼록 다각형 점들</td><td>오목한 부분 찾기(손가락 사이), solidity = 면적 / 껍질 면적</td></tr><tr><td><code>cv2.fitEllipse(c)</code></td><td>회전 타원</td><td>기울기·장단축 (점 5개 이상 필요)</td></tr></tbody></table></div>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+import numpy as np
+
+mask = np.zeros((200, 300), np.uint8)
+box = cv2.boxPoints(((100, 100), (120, 40), 30)).astype(np.int32)   # 30° 기울어진 막대
+cv2.fillPoly(mask, [box], 255)
+cv2.fillPoly(mask, [np.array([[200, 40], [280, 40], [280, 160], [250, 160], [250, 70], [200, 70]], np.int32)], 255)  # ㄱ자
+
+view = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+for c in cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]:
+    x, y, w, h = cv2.boundingRect(c)
+    (rx, ry), (rw, rh), ang = cv2.minAreaRect(c)
+    (ex, ey), r = cv2.minEnclosingCircle(c)
+    hull = cv2.convexHull(c)
+    solidity = cv2.contourArea(c) / cv2.contourArea(hull)
+    print(&quot;boundingRect %s | minAreaRect %.0fx%.0f @ %.0f° | 외접원 r=%.1f | solidity %.2f&quot;
+          % ((x, y, w, h), max(rw, rh), min(rw, rh), ang, r, solidity))
+    cv2.rectangle(view, (x, y), (x + w, y + h), (0, 255, 0), 1)
+    cv2.drawContours(view, [np.intp(cv2.boxPoints(cv2.minAreaRect(c)))], -1, (0, 0, 255), 2)
+    cv2.circle(view, (int(ex), int(ey)), int(r), (255, 0, 0), 1)
+    cv2.polylines(view, [hull], True, (0, 255, 255), 1)
+cv2.imshow(&quot;fits&quot;, view)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">boundingRect (38, 52, 124, 96) | minAreaRect 120x41 @ -60° | 외접원 r=63.1 | solidity 0.98
+boundingRect (200, 40, 81, 121) | minAreaRect 120x80 @ -90° | 외접원 r=72.1 | solidity 0.69</code></pre></div>
+<p>기울어진 막대는 축 정렬 사각형(초록)이 실제보다 훨씬 크지만, 최소 회전 사각형(빨강)은 120×40 크기를 거의 그대로 돌려줍니다. 각도가 30°가 아니라 −60°로 나온 것은 <code>minAreaRect</code>가 <strong>어느 변을 기준으로 각도를 재는지</strong>가 너비·높이 순서와 OpenCV 버전에 따라 달라지기 때문입니다(−60°의 짧은 변 방향 = 30°의 긴 변 방향). 각도를 제어에 쓸 때는 <code>boxPoints</code>로 긴 변을 찾아 직접 계산하는 편이 안전합니다. ㄱ자는 오목하므로 solidity가 1보다 한참 작습니다.</p>
+<h2 id="특징-매칭-feature-matching">특징 매칭 (Feature Matching)<a class="anchor" href="#특징-매칭-feature-matching">#</a></h2>
+<p>윤곽선은 <strong>색이나 밝기로 분리되는 물체</strong>에 강하지만, 무늬가 있는 물체(포스터, 책 표지)를 다른 거리·각도에서 찾으려면 <strong>특징점(keypoint)</strong>이 필요합니다.</p>
+<ol><li><strong>검출(detect)</strong>: 코너처럼 어느 방향으로 움직여도 모양이 변하는, 다시 찾기 쉬운 점을 고릅니다.</li><li><strong>기술(describe)</strong>: 점 주변 패치를 숫자 벡터(기술자, descriptor)로 요약합니다. 회전·크기·밝기 변화에 덜 민감하게 만듭니다.</li><li><strong>매칭(match)</strong>: 두 영상의 기술자끼리 거리가 가장 가까운 짝을 찾습니다.</li></ol>
+<div class="table-wrap"><table><thead><tr><th>알고리즘</th><th>검출 / 기술</th><th>기술자</th><th>거리</th><th>특징</th></tr></thead><tbody><tr><td>ORB</td><td>FAST 코너 + 방향 보정 BRIEF</td><td>256비트 이진</td><td>해밍(Hamming, XOR 비트 수)</td><td>빠름, 특허 없음, 라즈베리파이에 적합</td></tr><tr><td>SIFT</td><td>DoG 극값 + 기울기 히스토그램</td><td>128차원 실수</td><td>유클리드 L2</td><td>크기·회전에 강함, 느림 (OpenCV 4.4+ 기본 포함)</td></tr><tr><td>AKAZE</td><td>비선형 스케일 공간</td><td>이진</td><td>해밍</td><td>ORB보다 정확, SIFT보다 빠름</td></tr></tbody></table></div>
+<h3 id="매처와-걸러내기">매처와 걸러내기<a class="anchor" href="#매처와-걸러내기">#</a></h3>
+<ul><li><strong>BFMatcher</strong>(brute-force): 모든 짝을 비교합니다. <code>cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)</code>는 “A의 최선이 B이고 B의 최선도 A”인 짝만 남깁니다.</li><li><strong>FlannBasedMatcher</strong>: 근사 최근접 이웃 탐색(FLANN)으로 큰 데이터에서 빠릅니다. ORB 같은 이진 기술자에는 LSH 인덱스(<code>algorithm=6</code>)를 씁니다.</li><li><strong>비율 검사(Lowe's ratio test)</strong>: <code>knnMatch(k=2)</code>로 가장 가까운 두 후보를 받아 <code>d1 &lt; 0.75 · d2</code>인 경우만 남깁니다. 1등과 2등이 비슷하면 모호한 짝이므로 버리는 것입니다.</li><li><strong>RANSAC 호모그래피</strong>: 남은 짝으로 <code>cv2.findHomography(src, dst, cv2.RANSAC, 5.0)</code>를 구하면, 잘못된 짝(outlier)을 무시하고 두 영상 사이의 원근 변환(R09)을 얻습니다. <code>mask</code>의 1 개수가 인라이어 수입니다.</li></ul>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+import numpy as np
+
+rng = np.random.default_rng(3)                               # 무늬가 많은 &quot;포스터&quot; 합성
+img1 = np.full((360, 480), 128, np.uint8)
+for i in range(60):
+    x, y = [int(v) for v in rng.integers(0, [480, 360])]
+    c, s = int(rng.integers(0, 256)), int(rng.integers(8, 40))
+    if i % 3 == 0:
+        cv2.circle(img1, (x, y), s // 2, c, -1)
+    else:
+        cv2.rectangle(img1, (x, y), (x + s, y + int(rng.integers(8, 40))), c, -1)
+h, w = img1.shape
+R = cv2.getRotationMatrix2D((w / 2, h / 2), 20, 0.8)          # 20° 회전 + 0.8배로 &quot;다른 시점&quot; 흉내
+img2 = cv2.warpAffine(img1, R, (w, h), borderValue=128)
+
+orb = cv2.ORB_create(nfeatures=500)
+kp1, des1 = orb.detectAndCompute(img1, None)
+kp2, des2 = orb.detectAndCompute(img2, None)
+print(&quot;특징점: img1 %d개, img2 %d개, 기술자 %s %s&quot; % (len(kp1), len(kp2), des1.shape, des1.dtype))
+
+bf = cv2.BFMatcher(cv2.NORM_HAMMING)
+good = [m for m, n in bf.knnMatch(des1, des2, k=2) if m.distance &lt; 0.75 * n.distance]
+print(&quot;비율 검사 통과 짝:&quot;, len(good))
+
+src = np.float32([kp1[m.queryIdx].pt for m in good]).reshape(-1, 1, 2)
+dst = np.float32([kp2[m.trainIdx].pt for m in good]).reshape(-1, 1, 2)
+H, inl = cv2.findHomography(src, dst, cv2.RANSAC, 5.0)
+angle = np.degrees(np.arctan2(-H[1, 0], H[0, 0]))
+scale = np.hypot(H[0, 0], H[1, 0])
+print(&quot;RANSAC 인라이어 %d / %d, 추정 회전 %.1f°, 배율 %.2f&quot; % (int(inl.sum()), len(good), angle, scale))
+vis = cv2.drawMatches(img1, kp1, img2, kp2, good[:30], None, flags=2)
+cv2.imshow(&quot;ORB matches&quot;, vis)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">특징점: img1 499개, img2 500개, 기술자 (499, 32) uint8
+비율 검사 통과 짝: 215
+RANSAC 인라이어 190 / 215, 추정 회전 20.0°, 배율 0.80</code></pre></div>
+<p>직접 만든 20°·0.8배 변환을 호모그래피가 거의 그대로 되찾습니다. 같은 코드를 무늬가 적은 <code>scene.png</code>에 돌리면 특징점이 수십 개뿐이고 추정 각도도 크게 틀립니다. 특징 매칭은 <strong>질감(texture)이 풍부한 물체</strong>에 쓰는 도구이고, 단색 물체는 색·윤곽선으로 찾는 편이 낫습니다. ORB 결과는 OpenCV 버전에 따라 개수가 조금 다를 수 있습니다. 실제 로봇에서는 기준 사진(img1)을 미리 찍어 두고, 카메라 프레임(img2)에서 같은 물체의 위치와 기울기를 이렇게 추정합니다.</p>
+<div class="callout callout-info"><div class="callout-title">원본 교재의 FLANN 예제</div><div class="callout-body"><p>원본 <code>flann_demo.py</code>는 ORB 기술자에 LSH 인덱스(<code>table_number=6, key_size=12, multi_probe_level=1</code>)와 <code>checks=50</code>을 씁니다. <code>knnMatch(k=2)</code> 결과를 모두 그리므로 잘못된 짝도 함께 보입니다. 위처럼 비율 검사를 더하면 훨씬 깔끔해집니다.</p></div></div>
+<h2 id="코너-검출-corner-detection">코너 검출 (Corner Detection)<a class="anchor" href="#코너-검출-corner-detection">#</a></h2>
+<p>작은 창을 영상 위에서 조금씩 움직여 본다고 생각해 봅시다.</p>
+<ul><li><strong>평탄한 곳</strong>: 어느 방향으로 움직여도 창 안 밝기가 거의 안 바뀝니다.</li><li><strong>엣지</strong>: 엣지를 <strong>가로지르는</strong> 방향으로만 크게 바뀝니다.</li><li><strong>코너</strong>: <strong>모든 방향</strong>으로 크게 바뀝니다.</li></ul>
+<p>이 변화량을 2차 형식으로 근사하면 2×2 <strong>구조 텐서</strong> <span class="math">M = \sum w(x,y) [I_x^2,\ I_xI_y;\ I_xI_y,\ I_y^2]</span>가 나오고, 두 고윳값 <span class="math">λ_1, λ_2</span>가 두 주방향의 변화량입니다.</p>
+<figure class="fig" id="fig-r11-harris"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="고윳값 lambda1, lambda2 평면에서 평탄, 엣지, 코너 영역">
+  <defs>
+    <marker id="arr-r11-harris" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <path class="box-hi" d="M170 60 L370 60 L370 200 L170 200 Z" style="opacity:0.35"/>
+  <path class="ln" d="M60 260 L60 30" stroke-width="1.4" marker-end="url(#arr-r11-harris)"/>
+  <path class="ln" d="M60 260 L400 260" stroke-width="1.4" marker-end="url(#arr-r11-harris)"/>
+  <text class="lbl mono" x="408" y="264">λ1</text>
+  <text class="lbl mono" x="52" y="26" text-anchor="end">λ2</text>
+  <path class="ln-hi" d="M170 260 L170 40 M60 200 L390 200" stroke-width="1.4" fill="none" stroke-dasharray="6 4"/>
+  <text class="lbl" x="115" y="235" text-anchor="middle">평탄</text>
+  <text class="sub" x="115" y="252" text-anchor="middle">λ1, λ2 작음</text>
+  <text class="lbl" x="270" y="235" text-anchor="middle">엣지</text>
+  <text class="sub" x="270" y="252" text-anchor="middle">λ1 ≫ λ2</text>
+  <text class="lbl" x="110" y="110" text-anchor="middle">엣지</text>
+  <text class="sub" x="110" y="128" text-anchor="middle">λ2 ≫ λ1</text>
+  <text class="lbl" x="270" y="125" text-anchor="middle">코너</text>
+  <text class="sub" x="270" y="143" text-anchor="middle">λ1, λ2 모두 큼</text>
+  <text class="lbl" x="460" y="80">Shi-Tomasi</text>
+  <text class="sub mono" x="460" y="100">R = min(λ1, λ2) &gt; 임계값</text>
+  <text class="sub" x="460" y="118">→ 점선 오른쪽 위 영역 (코너)</text>
+  <text class="lbl" x="460" y="160">Harris</text>
+  <text class="sub mono" x="460" y="180">R = λ1·λ2 − k(λ1+λ2)²</text>
+  <text class="sub" x="460" y="198">R &gt; 0 크면 코너, R &lt; 0 엣지</text>
+  <text class="sub" x="460" y="216">경계가 곡선 (k = 0.04~0.06)</text>
+</svg><figcaption>구조 텐서 고윳값 평면에서 평탄·엣지·코너 영역 (Harris와 Shi-Tomasi 경계)</figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th>방법</th><th>코너 점수</th><th>판정</th></tr></thead><tbody><tr><td>Harris (1988)</td><td><span class="math">R = \det M - k(\operatorname{tr} M)^2 = λ_1λ_2 - k(λ_1+λ_2)^2</span>, <span class="math">k</span> = 0.04~0.06</td><td><span class="math">R</span> 큼 → 코너, <span class="math">R &lt; 0</span> → 엣지, $</td><td>R</td><td>$ 작음 → 평탄</td></tr><tr><td>Shi-Tomasi (1994)</td><td><span class="math">R = \min(λ_1, λ_2)</span></td><td>두 방향 모두 변화가 커야 코너, 추적용으로 더 안정</td></tr></tbody></table></div>
+<p><code>cv2.cornerHarris(gray, blockSize, ksize, k)</code>는 픽셀마다 <span class="math">R</span> 값을 담은 <code>float32</code> 영상을 돌려줍니다. 원본 예제(<code>corners_demo.py</code>)는 이를 0~255로 정규화해 120보다 큰 픽셀에 원을 그립니다. 실전에서는 <strong>개수와 최소 간격을 지정</strong>할 수 있는 <code>cv2.goodFeaturesToTrack</code>(Shi-Tomasi)을 더 많이 씁니다. 광류(optical flow) 추적의 출발점이기도 합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+import numpy as np
+
+img = cv2.imread(&quot;shapes.png&quot;)
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+harris = cv2.cornerHarris(np.float32(gray), 2, 3, 0.04)
+print(&quot;Harris R: 최대 %.3g, 최소 %.3g (음수 = 엣지)&quot; % (harris.max(), harris.min()))
+strong = harris &gt; 0.05 * harris.max()
+print(&quot;R &gt; 5%% of max 인 픽셀: %d&quot; % np.count_nonzero(strong))
+
+corners = cv2.goodFeaturesToTrack(gray, maxCorners=20, qualityLevel=0.2, minDistance=15)
+pts = sorted(np.intp(corners).reshape(-1, 2).tolist())
+print(&quot;Shi-Tomasi 코너 %d개:&quot; % len(pts), pts)
+for x, y in pts:
+    cv2.circle(img, (x, y), 5, (0, 0, 0), 2)
+img[strong] = (0, 0, 255)
+cv2.imshow(&quot;corners&quot;, img)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">Harris R: 최대 2.56e+08, 최소 -1.04e+08 (음수 = 엣지)
+R &gt; 5% of max 인 픽셀: 28
+Shi-Tomasi 코너 7개: [[120, 420], [190, 290], [260, 420], [300, 80], [300, 220], [480, 80], [480, 220]]</code></pre></div>
+<p>사각형의 네 꼭짓점과 삼각형의 세 꼭짓점이 코너로 잡히고, 원과 타원의 매끈한 경계는 잡히지 않습니다. 찾은 좌표는 <code>shapes.png</code>를 그릴 때 쓴 꼭짓점(사각형 (300, 80)–(480, 220), 삼각형 (120, 420)·(260, 420)·(190, 290))과 일치합니다. 흐리거나 실제 카메라 영상에서는 한두 픽셀 어긋나므로, 더 정확히 하려면 <code>cv2.cornerSubPix</code>로 서브픽셀 보정을 합니다.</p>
+<h2 id="실습-시뮬레이션">실습 (시뮬레이션)<a class="anchor" href="#실습-시뮬레이션">#</a></h2>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
+<div class="callout callout-task"><div class="callout-title">Playground 실습</div><div class="callout-body"><ol><li>모양 분류 코드에서 <code>approxPolyDP</code>의 비율을 0.005, 0.02, 0.05로 바꿔 꼭짓점 수가 어떻게 변하는지 표로 정리합니다.</li><li><code>coins.png</code>의 동전을 윤곽선으로 찾아 <code>minEnclosingCircle</code>의 반지름으로 크기 순서를 매기고, 가장 큰 동전에 원을 그립니다.</li><li>ORB 예제의 회전 각도를 45°, 90°로 바꾸고 배율을 0.5로 줄여 인라이어 수가 어떻게 변하는지 봅니다. <code>cv2.SIFT_create()</code>로 바꾸면(거리 <code>NORM_L2</code>) 어떻게 달라지나요?</li><li>코너 예제의 <code>qualityLevel</code>을 0.1로 낮추면 원의 위·아래·좌·우 끝 네 점이 새로 잡힙니다. 매끈한 원인데 왜 코너가 생기는지(안티에일리어싱 없이 그린 원의 계단 모양) 확대해서 확인하고, <code>GaussianBlur((5, 5), 0)</code> 뒤에는 어떻게 되는지 비교합니다.</li></ol></div></div>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/color-lab.html">HSV 색 실험실 열기</a></p>
+<p>HSV 색 실험실의 <strong>윤곽선</strong> 표시를 켜면 마스크에서 찾은 가장 큰 윤곽선의 면적·중심·외접원이 표시됩니다. A01~A04에서 로봇이 쓰는 값이 바로 이 숫자들입니다.</p>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<p>로봇 카메라에 도형 카드(삼각형·사각형·원)를 비추고 실시간으로 모양을 분류합니다.</p>
+<div class="callout callout-safety"><div class="callout-title">실물 실습 전 확인</div><div class="callout-body"><ul><li>바퀴를 구동하지 않는 실습입니다. 로봇은 평평한 곳에 두고 카메라 앞에서 카드만 움직입니다.</li><li><code>~/.stop_ros.sh</code>로 앱 서비스를 끄고 실습하며, 끝나면 컨테이너 밖에서 <code>sudo systemctl restart start_node.service</code>를 실행합니다.</li></ul></div></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">~/.stop_ros.sh
+ros2 launch peripherals depth_camera.launch.py</code></pre></div>
+<div class="code-block code-robot"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-robot">실물 전용</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from cv_bridge import CvBridge
+from sensor_msgs.msg import Image
+
+
+class ShapeClassifier(Node):
+    def __init__(self):
+        super().__init__(&#x27;shape_classifier&#x27;)
+        self.bridge = CvBridge()
+        self.create_subscription(Image, &#x27;/ascamera/camera_publisher/rgb0/image&#x27;, self.on_image, 1)
+
+    def on_image(self, msg):
+        frame = cv2.resize(self.bridge.imgmsg_to_cv2(msg, &#x27;bgr8&#x27;), (320, 240))
+        gray = cv2.GaussianBlur(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), (5, 5), 0)
+        _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+        binary = cv2.morphologyEx(binary, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
+        for c in cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]:
+            area = cv2.contourArea(c)
+            if area &lt; 500:
+                continue
+            peri = cv2.arcLength(c, True)
+            n = len(cv2.approxPolyDP(c, 0.03 * peri, True))
+            kind = {3: &#x27;tri&#x27;, 4: &#x27;rect&#x27;}.get(n, &#x27;circle&#x27; if 4 * np.pi * area / peri ** 2 &gt; 0.8 else &#x27;?&#x27;)
+            x, y, w, h = cv2.boundingRect(c)
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            cv2.putText(frame, kind, (x, y - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+        cv2.imshow(&#x27;shapes&#x27;, frame)
+        if cv2.waitKey(1) &amp; 0xFF == ord(&#x27;q&#x27;):
+            raise KeyboardInterrupt
+
+
+def main():
+    rclpy.init()
+    node = ShapeClassifier()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        cv2.destroyAllWindows()
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == &#x27;__main__&#x27;:
+    main()</code></pre></div>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> 카드를 기울였을 때 사각형이 사다리꼴로 보여도 꼭짓점 4개로 분류되는지 확인했다.</label></li><li><label class="check-item"><input type="checkbox"> 면적 하한(500)을 없애면 잡음 윤곽이 얼마나 많이 생기는지 확인했다.</label></li></ul></div></div>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td><code>ValueError: not enough values to unpack (expected 3, got 2)</code></td><td>OpenCV 3 형식 코드를 OpenCV 4에서 실행</td><td><code>contours = cv2.findContours(...)[-2]</code></td></tr><tr><td>화면 테두리 전체가 윤곽 하나로 잡힘</td><td>물체가 검정·배경이 흰색</td><td><code>THRESH_BINARY_INV</code>로 뒤집기</td></tr><tr><td><code>ZeroDivisionError</code> (중심 계산)</td><td><code>m00 == 0</code>인 납작한 윤곽</td><td>면적 하한으로 거르거나 <code>if m[&quot;m00&quot;]:</code> 검사</td></tr><tr><td><code>drawContours</code> Assertion 오류</td><td>윤곽 하나를 리스트로 감싸지 않음, <code>float</code> 좌표</td><td><code>[cnt]</code>, <code>np.intp(box)</code></td></tr><tr><td>ORB 매칭이 엉뚱한 곳끼리 이어짐</td><td>거리 기준 없이 모든 짝 사용</td><td>비율 검사 + RANSAC, 무늬가 적은 물체는 특징 매칭 부적합</td></tr><tr><td><code>knnMatch</code> 결과 언팩 오류</td><td>어떤 점은 후보가 1개뿐</td><td><code>for pair in matches: if len(pair) == 2:</code></td></tr><tr><td><code>des</code>가 <code>None</code></td><td>특징점이 하나도 없음(무늬 없는 영상)</td><td><code>nfeatures</code>·<code>fastThreshold</code> 조정, 입력 확인</td></tr><tr><td><code>goodFeaturesToTrack</code>이 <code>None</code></td><td>조건을 만족하는 코너 없음</td><td><code>qualityLevel</code>을 낮추고 <code>None</code> 검사</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">기본 과제</div><div class="callout-body"><ol><li><code>shapes.png</code>의 각 도형에 대해 <code>fitEllipse</code>로 장축·단축 길이를 구해, 원과 타원을 장단축 비율로 구분하는 규칙을 만듭니다.</li><li><code>RETR_TREE</code>로 “구멍 뚫린 사각형(도넛)” 합성 영상의 계층을 출력하고 <code>hierarchy</code>의 네 값이 무엇을 가리키는지 설명합니다.</li></ol></div></div>
+<div class="callout callout-task"><div class="callout-title">심화 과제</div><div class="callout-body"><ol><li>Harris 점수 <span class="math">R</span>을 NumPy(Sobel + 가우시안 창)로 직접 계산해 <code>cv2.cornerHarris</code>와 비교합니다.</li><li>실물 카메라로 책 표지를 기준 사진으로 찍고, 이후 프레임에서 ORB + RANSAC으로 표지를 찾아 네 모서리를 <code>polylines</code>로 그리는 노드를 작성합니다(<code>cv2.perspectiveTransform</code>으로 기준 사진의 네 모서리를 옮김).</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>4. OpenCV Computer Vision Course</em> — Lesson 13 Image Processing---Contour Introduction and Feature, Lesson 14 Image Processing---Feature Matching, Lesson 15 Image Processing---Corner Detection (Routine Code: <code>contours_demo.py</code>, <code>moments_demo.py</code>, <code>approx_demo.py</code>, <code>hull_demo.py</code>, <code>rect_demo.py</code>, <code>bf_demo.py</code>, <code>flann_demo.py</code>, <code>corners_demo.py</code>)</li><li>MentorPi 소스: <code>src/app/app/line_following.py</code> (<code>minAreaRect</code>로 선 중심), <code>src/example/example/color_detect/color_detect_node.py</code> (<code>minEnclosingCircle</code>)</li><li>OpenCV — Contours: Getting Started / Contour Features: https://docs.opencv.org/4.x/dd/d49/tutorial_py_contour_features.html</li><li>OpenCV — Feature Matching: https://docs.opencv.org/4.x/dc/dc3/tutorial_py_matcher.html</li><li>OpenCV — ORB: https://docs.opencv.org/4.x/d1/d89/tutorial_py_orb.html</li><li>OpenCV — Harris Corner Detection: https://docs.opencv.org/4.x/dc/d0d/tutorial_py_features_harris.html</li><li>OpenCV — Shi-Tomasi Corner Detector: https://docs.opencv.org/4.x/d4/d8c/tutorial_py_shi_tomasi.html</li><li>D. Lowe, “Distinctive Image Features from Scale-Invariant Keypoints,” IJCV, 2004.</li></ul>
+      <nav class="pager"><a class="pager-prev" href="r10.html"><span>이전 · R10</span>엣지·모폴로지·임계값 처리</a><a class="pager-next" href="m01.html"><span>다음 · M01</span>메카넘 휠 섀시 기구학</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#윤곽선-contour">윤곽선 (Contour)</a><a class="toc-l3" href="#모멘트-면적과-중심">모멘트: 면적과 중심</a><a class="toc-l3" href="#모양-근사와-분류">모양 근사와 분류</a><a class="toc-l3" href="#외접-도형과-볼록-껍질">외접 도형과 볼록 껍질</a><a class="toc-l2" href="#특징-매칭-feature-matching">특징 매칭 (Feature Matching)</a><a class="toc-l3" href="#매처와-걸러내기">매처와 걸러내기</a><a class="toc-l2" href="#코너-검출-corner-detection">코너 검출 (Corner Detection)</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

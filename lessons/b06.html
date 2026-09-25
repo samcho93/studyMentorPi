@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>B06. 파이썬 심화: 클래스·예외·스레드·NumPy · studyMentorPi</title>
+<meta name="description" content="클래스와 파일 입출력, 예외 처리, 내장 함수, 멀티스레딩, pip, NumPy 배열 연산 — ROS 2 노드 작성의 발판.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-base">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" class="active" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="b06" data-track="base">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-base">기초·하드웨어</span> B-2 리눅스·파이썬 &middot; 약 90분 &middot; 초급</div>
+    <h1><span class="lesson-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</h1>
+    <p class="lede">클래스와 파일 입출력, 예외 처리, 내장 함수, 멀티스레딩, pip, NumPy 배열 연산 — ROS 2 노드 작성의 발판.</p>
+    <div class="requires">선수 챕터: <a href="b05.html">B05</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      <a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>클래스를 정의하고 인스턴스 속성·클래스 속성·메서드, 상속과 다형성을 이용해 <strong>섀시 모델</strong>을 코드로 표현합니다.</li><li><code>with open()</code>으로 텍스트·JSON 파일을 읽고 쓰며, 설정 파일(서보 편차 등)을 저장·복원합니다.</li><li><code>try/except/else/finally</code>와 <code>raise</code>로 센서·통신 오류를 처리하고, 자주 만나는 예외 종류를 구분합니다.</li><li>내장 함수(<code>enumerate</code>, <code>zip</code>, <code>map</code>, <code>sorted</code>, <code>any</code>, <code>int(x, 16)</code> …)로 데이터를 간결하게 다룹니다.</li><li><code>threading</code>으로 스레드를 만들고 <code>Lock</code>·<code>Queue</code>로 공유 데이터를 보호하며, 확장보드 SDK의 <strong>수신 스레드 + 큐</strong> 구조를 읽어 냅니다.</li><li><code>pip</code>으로 패키지를 관리하고, NumPy 배열로 라이다 데이터와 기구학 행렬 연산을 합니다.</li></ul>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
+<h2 id="클래스와-객체">클래스와 객체<a class="anchor" href="#클래스와-객체">#</a></h2>
+<h3 id="왜-클래스인가">왜 클래스인가<a class="anchor" href="#왜-클래스인가">#</a></h3>
+<p>B05의 함수만으로도 프로그램을 짤 수 있지만, 로봇 코드에는 <strong>데이터와 그 데이터를 다루는 동작이 짝</strong>을 이루는 것이 많습니다. 예를 들어 섀시는 <code>wheelbase</code>, <code>track_width</code>, <code>wheel_diameter</code>라는 데이터와 "속도 명령을 바퀴 회전수로 바꾸는" 동작을 가집니다. 이 둘을 묶은 설계도가 <strong>클래스(class)</strong>, 설계도로 찍어 낸 실체가 <strong>객체(object, 인스턴스)</strong>입니다.</p>
+<p>원본 <code>controller/mecanum.py</code>의 <code>MecanumChassis</code>, ROS 2의 모든 노드(<code>class MyNode(Node)</code>)가 이 구조입니다.</p>
+<div class="table-wrap"><table><thead><tr><th>용어</th><th>뜻</th><th>예</th></tr></thead><tbody><tr><td>클래스</td><td>설계도</td><td><code>class MecanumChassis:</code></td></tr><tr><td>인스턴스</td><td>설계도로 만든 객체</td><td><code>m = MecanumChassis()</code></td></tr><tr><td><code>__init__</code></td><td>생성자, 인스턴스 속성 초기화</td><td><code>self.wheel_diameter = 0.065</code></td></tr><tr><td><code>self</code></td><td>메서드가 호출된 인스턴스 자신</td><td><code>self.speed_covert(v)</code></td></tr><tr><td>인스턴스 속성</td><td>객체마다 다른 값</td><td>각 로봇의 바퀴 지름</td></tr><tr><td>클래스 속성</td><td>모든 인스턴스가 공유</td><td><code>gravity = 9.80665</code>(원본 <code>RosRobotController</code>)</td></tr><tr><td>상속</td><td>부모 클래스의 속성·메서드를 물려받음</td><td><code>class MyNode(Node)</code></td></tr><tr><td>다형성</td><td>같은 메서드 이름, 클래스마다 다른 동작</td><td>메카넘·애커만의 <code>set_velocity()</code></td></tr></tbody></table></div>
+<p>아래 코드는 원본 <code>mecanum.py</code>의 계산식을 그대로 옮긴 클래스입니다. 바퀴 순서와 부호(<code>[-m1, -m2, m3, m4]</code>)까지 원본과 같습니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+
+class Chassis:
+    wheel_count = 4                          # 클래스 속성
+
+    def __init__(self, name, wheel_diameter):
+        self.name = name                     # 인스턴스 속성
+        self.wheel_diameter = wheel_diameter
+
+    def speed_covert(self, speed):           # m/s -&gt; rps (원본 함수 이름 그대로)
+        return speed / (math.pi * self.wheel_diameter)
+
+    def describe(self):
+        return f&quot;{self.name}: d={self.wheel_diameter} m, wheels={self.wheel_count}&quot;
+
+class MecanumChassis(Chassis):
+    def __init__(self, wheelbase=0.1368, track_width=0.1446, wheel_diameter=0.065):
+        super().__init__(&quot;mecanum&quot;, wheel_diameter)
+        self.wheelbase, self.track_width = wheelbase, track_width
+
+    def set_velocity(self, vx, vy, wz):
+        k = (self.wheelbase + self.track_width) / 2
+        m1 = vx - vy - wz * k
+        m2 = vx + vy - wz * k
+        m3 = vx + vy + wz * k
+        m4 = vx - vy + wz * k
+        return [round(self.speed_covert(v), 3) for v in [-m1, -m2, m3, m4]]
+
+class AckermannChassis(Chassis):
+    def __init__(self, wheelbase=0.145, wheel_diameter=0.067):
+        super().__init__(&quot;ackermann&quot;, wheel_diameter)
+        self.wheelbase = wheelbase
+
+    def set_velocity(self, vx, vy, wz):      # vy 는 무시(옆으로 못 감)
+        if vx == 0 or wz == 0:
+            steer = 0.0
+        else:
+            steer = math.degrees(math.atan(self.wheelbase * wz / vx))
+        rps = round(self.speed_covert(vx), 3)
+        return {&quot;rear_rps&quot;: rps, &quot;steer_deg&quot;: round(steer, 1)}
+
+for ch in [MecanumChassis(), AckermannChassis()]:
+    print(ch.describe())
+    for cmd in [(0.2, 0, 0), (0, 0.2, 0), (0.2, 0, 0.5)]:
+        print(&quot;  cmd&quot;, cmd, &quot;-&gt;&quot;, ch.set_velocity(*cmd))    # 다형성
+print(isinstance(MecanumChassis(), Chassis), Chassis.wheel_count)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">mecanum: d=0.065 m, wheels=4
+  cmd (0.2, 0, 0) -&gt; [-0.979, -0.979, 0.979, 0.979]
+  cmd (0, 0.2, 0) -&gt; [0.979, -0.979, 0.979, -0.979]
+  cmd (0.2, 0, 0.5) -&gt; [-0.635, -0.635, 1.324, 1.324]
+ackermann: d=0.067 m, wheels=4
+  cmd (0.2, 0, 0) -&gt; {&#x27;rear_rps&#x27;: 0.95, &#x27;steer_deg&#x27;: 0.0}
+  cmd (0, 0.2, 0) -&gt; {&#x27;rear_rps&#x27;: 0.0, &#x27;steer_deg&#x27;: 0.0}
+  cmd (0.2, 0, 0.5) -&gt; {&#x27;rear_rps&#x27;: 0.95, &#x27;steer_deg&#x27;: 19.9}
+True 4</code></pre></div>
+<p>결과를 읽어 봅시다. 메카넘 전진(0.2, 0, 0)에서 M1·M2가 음수인 것은 <strong>왼쪽 모터가 반대 방향으로 장착</strong>되어 있어 부호를 뒤집었기 때문입니다. 좌측 평행이동(0, 0.2, 0)은 대각선 바퀴끼리 같은 방향으로 도는 전형적인 메카넘 패턴입니다(M01에서 유도).</p>
+<h2 id="파일-입출력">파일 입출력<a class="anchor" href="#파일-입출력">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>모드</th><th>의미</th></tr></thead><tbody><tr><td><code>&#x27;r&#x27;</code></td><td>읽기(기본값). 파일이 없으면 <code>FileNotFoundError</code></td></tr><tr><td><code>&#x27;w&#x27;</code></td><td>쓰기. <strong>기존 내용 삭제</strong> 후 새로 씀</td></tr><tr><td><code>&#x27;a&#x27;</code></td><td>이어 쓰기(append)</td></tr><tr><td><code>&#x27;b&#x27;</code> 추가</td><td>바이너리(<code>&#x27;rb&#x27;</code>, <code>&#x27;wb&#x27;</code>) — 이미지, 시리얼 바이트</td></tr><tr><td><code>encoding=&#x27;utf-8&#x27;</code></td><td>한글이 들어간 텍스트는 명시</td></tr></tbody></table></div>
+<p><code>with open(...) as f:</code> 블록을 쓰면 블록이 끝날 때(예외가 나도) <strong>파일이 자동으로 닫힙니다.</strong> 원본 <code>ros_robot_controller_node.py</code>가 서보 편차 YAML을 읽을 때도 이 형태입니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import json
+import os
+
+# 1) 주행 로그를 CSV 형식 텍스트로 저장
+rows = [(0.0, 0.00, 0.00), (0.5, 0.10, 0.00), (1.0, 0.20, 0.01)]
+with open(&quot;odom_log.csv&quot;, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+    f.write(&quot;t,x,y\n&quot;)
+    for t, x, y in rows:
+        f.write(f&quot;{t},{x},{y}\n&quot;)
+
+with open(&quot;odom_log.csv&quot;, encoding=&quot;utf-8&quot;) as f:
+    header = f.readline().strip()
+    data = [line.strip().split(&quot;,&quot;) for line in f]
+print(header, &quot;|&quot;, len(data), &quot;rows |&quot;, data[-1])
+
+# 2) 서보 편차 설정을 JSON 으로 저장/복원 (원본은 YAML: servo_config.yaml)
+offsets = {&quot;1&quot;: 0, &quot;2&quot;: -12, &quot;3&quot;: 45, &quot;4&quot;: 0}
+with open(&quot;servo_config.json&quot;, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+    json.dump(offsets, f, indent=2)
+
+with open(&quot;servo_config.json&quot;, encoding=&quot;utf-8&quot;) as f:
+    loaded = json.load(f)
+for sid in range(1, 5):
+    print(f&quot;servo {sid}: offset {loaded.get(str(sid), 0):+d}&quot;)
+
+print(os.path.exists(&quot;servo_config.json&quot;), os.path.getsize(&quot;odom_log.csv&quot;), &quot;bytes&quot;)
+os.remove(&quot;odom_log.csv&quot;); os.remove(&quot;servo_config.json&quot;)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">t,x,y | 3 rows | [&#x27;1.0&#x27;, &#x27;0.2&#x27;, &#x27;0.01&#x27;]
+servo 1: offset +0
+servo 2: offset -12
+servo 3: offset +45
+servo 4: offset +0
+True 47 bytes</code></pre></div>
+<div class="callout callout-info"><div class="callout-title">경로 표기</div><div class="callout-body"><p>리눅스 경로는 <code>/</code>로 구분하고, <code>os.path.join(&quot;~&quot;, &quot;ros2_ws&quot;)</code>처럼 조합하면 OS에 맞게 이어 줍니다. <code>~</code>는 셸이 해석하는 기호라 파이썬에서는 <code>os.path.expanduser(&quot;~/ros2_ws&quot;)</code>로 풀어야 합니다.</p></div></div>
+<h2 id="예외-처리">예외 처리<a class="anchor" href="#예외-처리">#</a></h2>
+<p><strong>오류(error)</strong> 중 실행 도중 발생해 처리할 수 있는 것을 <strong>예외(exception)</strong>라고 합니다. 처리하지 않으면 프로그램이 멈추고 트레이스백(traceback)을 출력합니다. 로봇에서는 센서 값이 비거나, 시리얼 포트가 없거나, 파일이 없을 때가 대표적입니다.</p>
+<div class="table-wrap"><table><thead><tr><th>예외</th><th>언제</th></tr></thead><tbody><tr><td><code>ZeroDivisionError</code></td><td>0으로 나눔(속도 0일 때 회전 반경 계산 등)</td></tr><tr><td><code>ValueError</code></td><td>형식은 맞는데 값이 부적절: <code>float(&quot;abc&quot;)</code></td></tr><tr><td><code>TypeError</code></td><td>자료형이 맞지 않음: <code>&quot;a&quot; + 1</code></td></tr><tr><td><code>KeyError</code>, <code>IndexError</code></td><td>딕셔너리 키, 리스트 인덱스 없음</td></tr><tr><td><code>FileNotFoundError</code></td><td>파일·장치 없음(<code>/dev/ttyAMA0</code> 미존재)</td></tr><tr><td><code>AttributeError</code></td><td>객체에 없는 속성·메서드</td></tr><tr><td><code>KeyboardInterrupt</code></td><td>Ctrl+C</td></tr><tr><td><code>ImportError</code>/<code>ModuleNotFoundError</code></td><td>모듈 없음</td></tr></tbody></table></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">try:
+    위험한 코드
+except 예외종류 as e:     # 여러 개 가능, 구체적인 것부터
+    처리
+else:
+    예외가 없을 때만
+finally:
+    항상 실행(정리: 모터 정지, 포트 닫기)</code></pre></div>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+
+def turning_radius(v, w):
+    return v / w                       # w == 0 이면 ZeroDivisionError
+
+def parse_reading(text):
+    value = float(text)                # 숫자가 아니면 ValueError
+    if value &lt; 0:
+        raise ValueError(f&quot;negative range: {value}&quot;)
+    return value
+
+for v, w in [(0.2, 0.5), (0.2, 0.0)]:
+    try:
+        r = turning_radius(v, w)
+    except ZeroDivisionError:
+        r = math.inf                   # 직진 = 회전 반경 무한대
+        print(&quot;w=0 -&gt; 직진, R = inf&quot;)
+    else:
+        print(f&quot;R = {r:.2f} m&quot;)
+
+for s in [&quot;1.25&quot;, &quot;abc&quot;, &quot;-0.3&quot;, &quot;0.8&quot;]:
+    try:
+        print(&quot;ok:&quot;, parse_reading(s))
+    except ValueError as e:
+        print(&quot;skip:&quot;, type(e).__name__, &quot;-&quot;, e)
+
+class MotorFault(Exception):
+    &quot;&quot;&quot;사용자 정의 예외&quot;&quot;&quot;
+
+def drive(battery_v):
+    try:
+        if battery_v &lt; 6.4:
+            raise MotorFault(f&quot;battery low ({battery_v} V)&quot;)
+        print(&quot;driving...&quot;)
+    finally:
+        print(&quot;finally: motors -&gt; 0&quot;)  # 성공·실패와 무관하게 정지
+
+for bv in [7.6, 6.2]:
+    try:
+        drive(bv)
+    except MotorFault as e:
+        print(&quot;MotorFault:&quot;, e)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">R = 0.40 m
+w=0 -&gt; 직진, R = inf
+ok: 1.25
+skip: ValueError - could not convert string to float: &#x27;abc&#x27;
+skip: ValueError - negative range: -0.3
+ok: 0.8
+driving...
+finally: motors -&gt; 0
+finally: motors -&gt; 0
+MotorFault: battery low (6.2 V)</code></pre></div>
+<div class="callout callout-warn"><div class="callout-title">except는 좁게</div><div class="callout-body"><p><code>except:</code> 또는 <code>except Exception:</code>으로 모든 예외를 삼키면 오타(<code>NameError</code>)까지 숨어 디버깅이 어려워집니다. 로봇 루프에서 Ctrl+C(<code>KeyboardInterrupt</code>)까지 잡아 버리면 프로그램이 멈추지 않을 수도 있습니다. <strong>예상한 예외만</strong> 잡고, 정리 작업은 <code>finally</code>에 둡니다. 원본 <code>bus_servos_read.py</code>도 <code>except KeyboardInterrupt:</code>만 따로 잡습니다.</p></div></div>
+<h2 id="내장-함수">내장 함수<a class="anchor" href="#내장-함수">#</a></h2>
+<p><code>import</code> 없이 바로 쓰는 함수들입니다. 원본은 용도별로 분류해 소개합니다(자료형 변환, 진법 변환, 수치 연산, 정렬, 시퀀스, 객체·속성 …).</p>
+<div class="table-wrap"><table><thead><tr><th>분류</th><th>함수</th></tr></thead><tbody><tr><td>자료형 변환</td><td><code>int() float() str() bool() list() tuple() dict() set() bytes()</code></td></tr><tr><td>진법</td><td><code>bin() oct() hex()</code>, <code>int(&#x27;ff&#x27;, 16)</code></td></tr><tr><td>수치</td><td><code>abs() round() min() max() sum() divmod() pow()</code></td></tr><tr><td>정렬·시퀀스</td><td><code>sorted() reversed() len() range() enumerate() zip()</code></td></tr><tr><td>함수형</td><td><code>map() filter() any() all()</code></td></tr><tr><td>객체·속성</td><td><code>type() isinstance() hasattr() getattr() setattr() dir() id()</code></td></tr><tr><td>입출력</td><td><code>print() input() open()</code></td></tr></tbody></table></div>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">ranges = [1.2, 0.35, 0.8, 0.28, 2.0]
+
+print(abs(-0.3), round(0.98, 1), round(1500 * 1.0075), divmod(3960, 1000))
+print(min(ranges), max(ranges), round(sum(ranges) / len(ranges), 3))
+print(sorted(ranges), sorted(ranges, reverse=True)[:2])
+
+# enumerate / zip
+for i, r in enumerate(ranges):
+    if r &lt; 0.4:
+        print(&quot;close point&quot;, i, r)
+names = [&quot;M1&quot;, &quot;M2&quot;, &quot;M3&quot;, &quot;M4&quot;]
+print(dict(zip(names, [-0.98, -0.98, 0.98, 0.98])))
+
+# map / filter / any / all
+print(list(map(lambda r: round(r * 100), ranges)))
+print(list(filter(lambda r: r &gt; 1.0, ranges)))
+print(any(r &lt; 0.3 for r in ranges), all(r &gt; 0.1 for r in ranges))
+
+# 진법 변환: 패킷 바이트 다루기 (B08)
+packet = [0xAA, 0x55, 11, 9]
+print([hex(b) for b in packet], bin(0x55), int(&quot;AA&quot;, 16), int(&quot;0b1010&quot;, 2))
+print(bytes(packet), list(bytes.fromhex(&quot;aa 55 0b&quot;)))
+
+# 객체와 속성
+class Servo:
+    def __init__(self):
+        self.pulse = 1500
+s = Servo()
+print(hasattr(s, &quot;pulse&quot;), getattr(s, &quot;offset&quot;, 0), type(s).__name__)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">0.3 1.0 1511 (3, 960)
+0.28 2.0 0.926
+[0.28, 0.35, 0.8, 1.2, 2.0] [2.0, 1.2]
+close point 1 0.35
+close point 3 0.28
+{&#x27;M1&#x27;: -0.98, &#x27;M2&#x27;: -0.98, &#x27;M3&#x27;: 0.98, &#x27;M4&#x27;: 0.98}
+[120, 35, 80, 28, 200]
+[1.2, 2.0]
+True True
+[&#x27;0xaa&#x27;, &#x27;0x55&#x27;, &#x27;0xb&#x27;, &#x27;0x9&#x27;] 0b1010101 170 10
+b&#x27;\xaaU\x0b\t&#x27; [170, 85, 11]
+True 0 Servo</code></pre></div>
+<h2 id="멀티스레딩">멀티스레딩<a class="anchor" href="#멀티스레딩">#</a></h2>
+<h3 id="프로세스와-스레드">프로세스와 스레드<a class="anchor" href="#프로세스와-스레드">#</a></h3>
+<ul><li><strong>프로세스(process)</strong>: 실행 중인 프로그램. 메모리 등 자원을 독립적으로 가짐. <code>python3 a.py</code>를 실행하면 프로세스 하나</li><li><strong>스레드(thread)</strong>: 프로세스 안의 실행 흐름. 같은 프로세스의 스레드들은 <strong>메모리를 공유</strong>합니다. 공장(프로세스)의 조립 라인(스레드)에 비유할 수 있습니다.</li></ul>
+<p>로봇 프로그램은 "시리얼로 들어오는 바이트를 계속 읽는 일"과 "메인 로직"을 동시에 해야 합니다. 원본 확장보드 SDK의 <code>Board.__init__</code>는 바로 이 목적의 스레드를 띄웁니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python"># ros_robot_controller_sdk.py (요약)
+self.imu_queue = queue.Queue(maxsize=1)          # 최신 값 1개만 보관
+threading.Thread(target=self.recv_task, daemon=True).start()   # 수신 전용 스레드
+
+def packet_report_imu(self, data):               # 수신 스레드가 호출
+    try:
+        self.imu_queue.put_nowait(data)
+    except queue.Full:
+        pass                                     # 아직 안 읽은 값이 있으면 새 값은 버림
+
+def get_imu(self):                               # 메인 스레드가 호출
+    return struct.unpack(&#x27;&lt;6f&#x27;, self.imu_queue.get(block=False))</code></pre></div>
+<ul><li><code>daemon=True</code>: 메인 프로그램이 끝나면 이 스레드도 함께 종료</li><li><code>Queue</code>: 스레드 간 데이터 전달용으로 <strong>내부에 잠금이 있어 안전</strong>합니다. <code>maxsize=1</code>로 두면 "가장 최근 값 하나"만 주고받는 우편함이 됩니다.</li><li>여러 스레드가 같은 장치에 명령-응답을 할 때는 <code>threading.Lock</code>으로 한 번에 하나만 들어가게 합니다(SDK의 <code>servo_read_lock</code>).</li></ul>
+<h3 id="thread-객체와-동기화">Thread 객체와 동기화<a class="anchor" href="#thread-객체와-동기화">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>설명</th></tr></thead><tbody><tr><td><code>Thread(target=f, args=(…), kwargs={…}, name=…, daemon=…)</code></td><td>함수로 스레드 만들기</td></tr><tr><td><code>class T(Thread): def run(self): …</code></td><td>상속으로 만들기(<code>run</code> 재정의)</td></tr><tr><td><code>start()</code> / <code>join(timeout)</code></td><td>시작 / 끝날 때까지 기다리기</td></tr><tr><td><code>is_alive()</code>, <code>name</code></td><td>상태, 이름</td></tr><tr><td><code>Lock</code></td><td><code>acquire()</code>/<code>release()</code> 또는 <code>with lock:</code> — 한 번에 한 스레드만</td></tr><tr><td><code>RLock</code></td><td>같은 스레드가 여러 번 획득 가능(재진입), 획득 횟수만큼 해제</td></tr></tbody></table></div>
+<p>여러 스레드가 같은 변수를 <code>counter += 1</code>처럼 고치면 "읽기 → 더하기 → 쓰기" 사이에 다른 스레드가 끼어들어 값이 사라질 수 있습니다(<strong>경쟁 조건, race condition</strong>). <code>Lock</code>으로 이 구간을 보호합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import threading
+import queue
+
+counter = 0
+lock = threading.Lock()
+
+def worker(n):
+    global counter
+    for _ in range(n):
+        with lock:                     # 임계 구역 보호
+            counter += 1
+
+threads = [threading.Thread(target=worker, args=(10000,), name=f&quot;T{i}&quot;) for i in range(4)]
+for t in threads:
+    t.start()
+for t in threads:
+    t.join()                           # 모두 끝날 때까지 대기
+print(&quot;counter =&quot;, counter, &quot;| alive:&quot;, any(t.is_alive() for t in threads))
+
+# 상속으로 만든 스레드
+class Summer(threading.Thread):
+    def __init__(self, values):
+        super().__init__()
+        self.values, self.result = values, None
+    def run(self):
+        self.result = sum(self.values)
+
+s = Summer(range(1, 101)); s.start(); s.join()
+print(&quot;sum 1..100 =&quot;, s.result)
+
+# SDK 방식의 maxsize=1 큐: 최신 값 하나만 보관
+q = queue.Queue(maxsize=1)
+for sample in [&quot;imu#1&quot;, &quot;imu#2&quot;, &quot;imu#3&quot;]:
+    try:
+        q.put_nowait(sample)
+    except queue.Full:
+        print(&quot;full -&gt; drop&quot;, sample)
+print(&quot;get:&quot;, q.get(block=False))
+try:
+    q.get(block=False)
+except queue.Empty:
+    print(&quot;empty -&gt; None 반환 (SDK get_imu 와 같은 처리)&quot;)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">counter = 40000 | alive: False
+sum 1..100 = 5050
+full -&gt; drop imu#2
+full -&gt; drop imu#3
+get: imu#1
+empty -&gt; None 반환 (SDK get_imu 와 같은 처리)</code></pre></div>
+<div class="callout callout-info"><div class="callout-title">파이썬 스레드와 GIL</div><div class="callout-body"><p>CPython에는 GIL(Global Interpreter Lock)이 있어 <strong>순수 파이썬 계산</strong>은 스레드를 늘려도 동시에 실행되지 않습니다. 대신 시리얼·네트워크·<code>sleep</code>처럼 <strong>기다리는 작업</strong>에서는 스레드가 효과적입니다. SDK의 수신 스레드가 딱 이 경우입니다. 무거운 계산을 병렬로 하려면 <code>multiprocessing</code>이나 NumPy(내부가 C)를 씁니다. (브라우저 Playground에서는 스레드가 순차 실행으로 흉내 내어지지만 결과는 같습니다.)</p></div></div>
+<h2 id="pip-패키지-관리">pip: 패키지 관리<a class="anchor" href="#pip-패키지-관리">#</a></h2>
+<p><code>pip</code>은 파이썬 패키지를 검색·설치·삭제하는 도구입니다(Python 3.4+ 기본 포함).</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">pip3 --version
+pip3 install numpy              # 설치
+pip3 install numpy==1.26.4      # 버전 고정
+pip3 show numpy                 # 정보(버전, 설치 위치)
+pip3 list                       # 설치 목록
+pip3 uninstall numpy            # 삭제</code></pre></div>
+<div class="callout callout-warn"><div class="callout-title">라즈베리파이 OS(bookworm)의 pip</div><div class="callout-body"><p>최신 Debian 계열은 시스템 파이썬에 <code>pip install</code>하면 <code>externally-managed-environment</code> 오류로 막습니다(시스템 패키지 보호). 이때는 (1) <code>sudo apt install python3-numpy</code>처럼 apt 패키지를 쓰거나, (2) <code>python3 -m venv ~/venv &amp;&amp; source ~/venv/bin/activate</code>로 가상환경을 만들어 그 안에서 <code>pip install</code>합니다. MentorPi의 ROS 2 코드는 <strong>컨테이너 안</strong>의 파이썬을 쓰므로 컨테이너에서 설치해야 노드가 인식합니다.</p></div></div>
+<h2 id="numpy-기초">NumPy 기초<a class="anchor" href="#numpy-기초">#</a></h2>
+<p>NumPy는 **같은 자료형의 다차원 배열(<code>ndarray</code>)<strong>과 그 위의 빠른 연산을 제공합니다. OpenCV 이미지는 NumPy 배열이고, 라이다 거리도 배열로 바꾸면 반복문 없이 한 번에 계산할 수 있습니다(</strong>벡터화, vectorization**).</p>
+<div class="table-wrap"><table><thead><tr><th>작업</th><th>함수</th></tr></thead><tbody><tr><td>만들기(고정값)</td><td><code>np.array</code>, <code>np.zeros</code>, <code>np.ones</code>, <code>np.full</code>, <code>np.eye</code></td></tr><tr><td>만들기(규칙)</td><td><code>np.arange(start, stop, step)</code>, <code>np.linspace(start, stop, num)</code></td></tr><tr><td>부분 선택</td><td>인덱스 <code>a[i, j]</code>, 슬라이스 <code>a[1:3, :]</code>, 팬시 인덱스 <code>a[[0, 2]]</code>, 불리언 마스크 <code>a[a &gt; 0.5]</code></td></tr><tr><td>모양 바꾸기</td><td><code>reshape</code>, <code>ravel</code>, <code>T</code>(전치)</td></tr><tr><td>합치기·나누기</td><td><code>np.concatenate</code>, <code>np.vstack</code>, <code>np.hstack</code>, <code>np.split</code></td></tr><tr><td>복사</td><td>슬라이스는 <strong>뷰(view, 원본 공유)</strong>, <code>.copy()</code>는 독립 복사본</td></tr></tbody></table></div>
+<figure class="fig" id="fig-b06-numpy"><svg viewBox="0 0 720 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="360개 라이다 거리 배열을 reshape(4, 90)으로 섹터로 나누고 axis=1 최솟값을 구하는 과정">
+  <defs>
+    <marker id="arr-b06-numpy" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <text class="tag mono" x="20" y="20">clean  shape (360,)</text>
+  <rect class="box" x="20" y="28" width="170" height="28"/>
+  <rect class="box" x="190" y="28" width="170" height="28"/>
+  <rect class="box" x="360" y="28" width="170" height="28"/>
+  <rect class="box" x="530" y="28" width="170" height="28"/>
+  <g class="tag mono" text-anchor="middle">
+    <text x="105" y="47">[0:90]  0–89°</text>
+    <text x="275" y="47">[90:180]  90–179°</text>
+    <text x="445" y="47">[180:270]  180–269°</text>
+    <text x="615" y="47">[270:360]  270–359°</text>
+  </g>
+  <path d="M310 60 L310 90" style="stroke:var(--accent);fill:none" stroke-width="1.8" marker-end="url(#arr-b06-numpy)"/>
+  <text class="tag mono hi" x="320" y="80">.reshape(4, 90)  → shape (4, 90)</text>
+
+  <g>
+    <rect class="box" x="150" y="96" width="320" height="26"/>
+    <rect class="box" x="150" y="124" width="320" height="26"/>
+    <rect class="box" x="150" y="152" width="320" height="26"/>
+    <rect class="box" x="150" y="180" width="320" height="26"/>
+  </g>
+  <g style="stroke:var(--border);fill:none" stroke-width="1">
+    <path d="M182 96 L182 206 M214 96 L214 206 M246 96 L246 206 M278 96 L278 206 M310 96 L310 206 M342 96 L342 206 M374 96 L374 206 M406 96 L406 206 M438 96 L438 206"/>
+  </g>
+  <g class="tag" text-anchor="end">
+    <text x="140" y="113">행 0 · 전방-좌</text>
+    <text x="140" y="141">행 1 · 좌-후방</text>
+    <text x="140" y="169">행 2 · 후방-우</text>
+    <text x="140" y="197">행 3 · 우-전방</text>
+  </g>
+  <path d="M150 226 L468 226" style="stroke:var(--accent);fill:none" stroke-width="1.6" marker-end="url(#arr-b06-numpy)"/>
+  <text class="tag mono" x="310" y="244" text-anchor="middle">axis=1 : 한 행(90개) 안에서 계산</text>
+
+  <path d="M476 151 L552 151" style="stroke:var(--accent);fill:none" stroke-width="1.8" marker-end="url(#arr-b06-numpy)"/>
+  <text class="tag mono hi" x="514" y="143" text-anchor="middle">.min(axis=1)</text>
+  <text class="tag mono" x="600" y="88" text-anchor="middle">shape (4,)</text>
+  <rect class="box-hi" x="560" y="96" width="80" height="26" rx="3"/>
+  <rect class="box" x="560" y="124" width="80" height="26" rx="3"/>
+  <rect class="box" x="560" y="152" width="80" height="26" rx="3"/>
+  <rect class="box-hi" x="560" y="180" width="80" height="26" rx="3"/>
+  <g class="lbl mono" text-anchor="middle">
+    <text x="600" y="114">0.45</text><text x="600" y="142">0.9</text><text x="600" y="170">2.0</text><text x="600" y="198">0.45</text>
+  </g>
+  <text class="sub" x="650" y="114">정면 물체</text>
+  <text class="sub" x="650" y="142">왼쪽 벽</text>
+</svg><figcaption><code>reshape(4, 90)</code>으로 360개 라이다 거리를 90°씩 4개 섹터로 나누고, <code>axis=1</code> 방향으로 최솟값을 구하면 섹터별 가장 가까운 거리가 나옵니다.</figcaption></figure>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import numpy as np
+
+a = np.arange(12)                     # 0..11
+print(a, a.ndim, a.shape)
+b = a.reshape(3, 4)
+print(b)
+print(&quot;b[1, 2] =&quot;, b[1, 2], &quot;| row 0:&quot;, b[0], &quot;| col 1:&quot;, b[:, 1])
+print(np.zeros(3), np.ones((2, 2)).tolist(), np.full(2, 1500))
+print(np.linspace(0, 1, 5), np.round(np.linspace(-np.pi, np.pi, 5), 3))
+
+# 불리언 마스크와 팬시 인덱스
+r = np.array([1.2, 0.35, np.inf, 0.8, 0.28, 0.0])
+valid = r[np.isfinite(r) &amp; (r &gt; 0)]
+print(&quot;valid:&quot;, valid, &quot;| near idx:&quot;, np.where((r &gt; 0) &amp; (r &lt; 0.4))[0])
+print(r[[0, 3]])
+
+# 뷰와 복사
+v = a[:3]; v[0] = 99
+c = a[3:6].copy(); c[0] = -1
+print(a[:6])
+
+# 합치기와 나누기
+x = np.array([1, 2]); y = np.array([3, 4])
+print(np.concatenate([x, y]), np.vstack([x, y]).tolist(), np.hstack([x, y]))
+print([p.tolist() for p in np.split(np.arange(6), 3)])</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[ 0  1  2  3  4  5  6  7  8  9 10 11] 1 (12,)
+[[ 0  1  2  3]
+ [ 4  5  6  7]
+ [ 8  9 10 11]]
+b[1, 2] = 6 | row 0: [0 1 2 3] | col 1: [1 5 9]
+[0. 0. 0.] [[1.0, 1.0], [1.0, 1.0]] [1500 1500]
+[0.   0.25 0.5  0.75 1.  ] [-3.142 -1.571  0.     1.571  3.142]
+valid: [1.2  0.35 0.8  0.28] | near idx: [1 4]
+[1.2 0.8]
+[99  1  2  3  4  5]
+[1 2 3 4] [[1, 2], [3, 4]] [1 2 3 4]
+[[0, 1], [2, 3], [4, 5]]</code></pre></div>
+<h3 id="로봇-데이터에-적용하기">로봇 데이터에 적용하기<a class="anchor" href="#로봇-데이터에-적용하기">#</a></h3>
+<p>아래는 두 가지 전형적인 계산입니다. (1) 360개 라이다 거리를 섹터로 나눠 최솟값 구하기(M06의 회피 알고리즘 바탕), (2) 메카넘 기구학을 <strong>행렬 곱</strong> 한 번으로 계산하기(M01).</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import numpy as np
+
+# (1) 가상의 360° 스캔: 1도 간격, 0번 = 전방, 반시계 +
+angles = np.arange(360)
+ranges = np.full(360, 2.0)
+ranges[350:360] = 0.45; ranges[0:10] = 0.45      # 정면에 물체
+ranges[80:100] = 0.9                               # 왼쪽 벽
+ranges[200] = np.inf                               # 반사 없음
+
+clean = np.where(np.isfinite(ranges), ranges, 12.0)   # inf -&gt; 최대 거리
+front = np.concatenate([clean[315:], clean[:45]])      # -45..+45도
+sectors = clean.reshape(4, 90).min(axis=1)             # 0-89,90-179,...
+print(&quot;front min:&quot;, front.min(), &quot;| sector mins:&quot;, sectors)
+print(&quot;closest angle:&quot;, int(angles[np.argmin(clean)]), &quot;deg&quot;)
+
+# 극좌표 -&gt; 직교 좌표 (라이다 점을 로봇 좌표로)
+th = np.radians([0, 90, 180])
+d = clean[[0, 90, 180]]
+print(np.round(np.c_[d * np.cos(th), d * np.sin(th)], 3))
+
+# (2) 메카넘 역기구학: rps = M @ [vx, vy, wz]
+a, b, D = 0.1368, 0.1446, 0.065
+k = (a + b) / 2
+M = np.array([[1, -1, -k],
+              [1,  1, -k],
+              [1,  1,  k],
+              [1, -1,  k]]) / (np.pi * D)
+sign = np.array([-1, -1, 1, 1])                        # 원본의 [-m1,-m2,m3,m4]
+for cmd in ([0.2, 0, 0], [0, 0.2, 0], [0, 0, 0.5]):
+    print(cmd, &quot;-&gt;&quot;, np.round(sign * (M @ cmd), 3))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">front min: 0.45 | sector mins: [0.45 0.9  2.   0.45]
+closest angle: 0 deg
+[[ 0.45  0.  ]
+ [ 0.    0.9 ]
+ [-2.    0.  ]]
+[0.2, 0, 0] -&gt; [-0.979 -0.979  0.979  0.979]
+[0, 0.2, 0] -&gt; [ 0.979 -0.979  0.979 -0.979]
+[0, 0, 0.5] -&gt; [0.345 0.345 0.345 0.345]</code></pre></div>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">안전 확인 (실물 실습 전 필수)</div><div class="callout-body"><ul><li>이 챕터 실습은 모터를 움직이지 않습니다. 확장보드 SDK를 쓰는 코드는 B08부터 다룹니다.</li><li>로봇 위에서 스레드 예제를 돌릴 때는 무한 루프를 만들지 말고, 항상 <code>join()</code>이나 종료 조건을 둡니다(CPU 100 %로 발열·전압 강하 유발).</li><li>패키지는 컨테이너나 가상환경에 설치하고, 시스템 파이썬을 <code>sudo pip</code>으로 바꾸지 않습니다.</li></ul></div></div>
+<div class="callout callout-task"><div class="callout-title">따라 하기</div><div class="callout-body"><ol><li>로봇 컨테이너에서 <code>python3 -c &quot;import numpy; print(numpy.__version__)&quot;</code>로 NumPy 버전을 확인합니다.</li><li><code>~/py_lab/chassis.py</code>에 위 <code>MecanumChassis</code> 클래스를 저장하고, 원본 <code>~/ros2_ws/src/driver/controller/controller/mecanum.py</code>와 나란히 열어 계산식·부호가 같은지 비교합니다.</li><li><code>~/py_lab/config_io.py</code>로 서보 편차 딕셔너리를 JSON으로 저장·읽기 하고, 파일이 없을 때 <code>FileNotFoundError</code>를 잡아 기본값(모두 0)을 쓰도록 만듭니다.</li><li>원본 SDK(<code>~/board_demo/ros_robot_controller_sdk.py</code>)를 열어 <code>threading.Thread</code>, <code>queue.Queue</code>, <code>threading.Lock</code>이 쓰인 줄을 찾아(<code>grep -n &quot;Thread\|Queue\|Lock&quot;</code>) 각각의 역할을 주석으로 적습니다.</li></ol></div></div>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> <code>self</code>가 무엇을 가리키는지 설명할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> <code>with open(...)</code>이 파일을 자동으로 닫는 시점을 안다.</label></li><li><label class="check-item"><input type="checkbox"> <code>finally</code>에 모터 정지 코드를 두는 이유를 말할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> SDK가 수신 스레드와 <code>maxsize=1</code> 큐를 쓰는 이유를 설명할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> <code>reshape(4, 90).min(axis=1)</code>의 결과 모양이 <code>(4,)</code>인 이유를 안다.</label></li></ul></div></div>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상(오류 메시지)</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td><code>TypeError: __init__() missing 1 required positional argument</code></td><td>생성자 인자 누락</td><td>기본값을 주거나 인자 전달</td></tr><tr><td><code>TypeError: set_velocity() takes 3 positional arguments but 4 were given</code></td><td>메서드 정의에 <code>self</code> 빠짐</td><td>첫 매개변수로 <code>self</code></td></tr><tr><td><code>AttributeError: &#x27;MecanumChassis&#x27; object has no attribute &#x27;wheel_diameter&#x27;</code></td><td>자식 <code>__init__</code>에서 <code>super().__init__()</code> 호출 누락</td><td>부모 생성자 호출</td></tr><tr><td><code>FileNotFoundError</code></td><td>상대 경로 기준(현재 폴더)이 예상과 다름, <code>~</code> 미확장</td><td><code>os.getcwd()</code> 확인, <code>os.path.expanduser</code></td></tr><tr><td>파일 내용이 사라짐</td><td><code>&#x27;w&#x27;</code> 모드로 열면 기존 내용 삭제</td><td>추가는 <code>&#x27;a&#x27;</code></td></tr><tr><td><code>UnicodeDecodeError</code></td><td>인코딩 불일치</td><td><code>encoding=&#x27;utf-8&#x27;</code> 명시</td></tr><tr><td>스레드 결과 합계가 가끔 틀림</td><td>경쟁 조건</td><td><code>Lock</code>으로 임계 구역 보호</td></tr><tr><td>프로그램이 끝나지 않음</td><td>non-daemon 스레드가 무한 루프</td><td>종료 플래그 + <code>join()</code>, 또는 <code>daemon=True</code></td></tr><tr><td><code>error: externally-managed-environment</code></td><td>시스템 파이썬 보호(bookworm)</td><td>apt 패키지 또는 venv 사용</td></tr><tr><td><code>ValueError: cannot reshape array of size 360 into shape (4,100)</code></td><td>원소 수 불일치</td><td>곱이 원소 수와 같게(4×90)</td></tr><tr><td>배열을 고쳤더니 원본도 바뀜</td><td>슬라이스는 뷰</td><td><code>.copy()</code></td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">기본</div><div class="callout-body"><ol><li><code>Chassis</code>를 상속한 <code>DiffDriveChassis</code>(두 바퀴 차동 구동, 바퀴 간격 <code>track</code>)를 만들어 <code>set_velocity(vx, vy, wz)</code>가 왼쪽·오른쪽 rps를 반환하게 합니다(<span class="math">v_L = v_x − ω·track/2</span>, <span class="math">v_R = v_x + ω·track/2</span>).</li><li>라이다 문자열 목록 <code>[&quot;0.5&quot;, &quot;&quot;, &quot;inf&quot;, &quot;abc&quot;, &quot;1.2&quot;]</code>을 <code>float</code>로 바꾸되 실패하는 항목은 건너뛰고, 건너뛴 개수를 함께 출력합니다.</li></ol></div></div>
+<div class="callout callout-task"><div class="callout-title">심화</div><div class="callout-body"><ol><li>두 스레드가 각각 "센서 생산자"(0.01 s마다 값 생성)와 "소비자"(0.05 s마다 최신 값만 사용) 역할을 하도록 <code>Queue(maxsize=1)</code>로 구현하고, 버려진 샘플 수를 셉니다(로봇이나 PC에서 실행).</li><li>NumPy로 360개 스캔을 8개 섹터(45°)로 나누고, 가장 <strong>먼</strong>(열린) 섹터의 중심 각도를 반환하는 함수를 작성합니다. 이 방향으로 도는 것이 가장 단순한 회피 전략입니다.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: 3. Python Basic Lesson — <em>Lesson 8 Python Class and File Operation</em>, <em>Lesson 9 Python Exception Handling</em>, <em>Lesson 10 Python Built-in Function</em>, <em>Lesson 11 Python Multithreading</em>, <em>Lesson 12 Usage of Python PiP</em>, <em>Lesson 13 Python Numpy Basic Operation</em></li><li>원본 소스: <code>src/driver/controller/controller/mecanum.py</code>, <code>Appendix/Source Code/RRCLite_demo/ros_robot_controller_sdk.py</code>(수신 스레드·큐)</li><li>Python 튜토리얼 — 클래스: https://docs.python.org/ko/3/tutorial/classes.html</li><li>Python <code>threading</code> 문서: https://docs.python.org/3/library/threading.html</li><li>NumPy 입문(absolute beginners): https://numpy.org/doc/stable/user/absolute_beginners.html</li></ul>
+      <nav class="pager"><a class="pager-prev" href="b05.html"><span>이전 · B05</span>파이썬 기초: 문법·제어문·함수</a><a class="pager-next" href="b07.html"><span>다음 · B07</span>라즈베리파이 5: 하드웨어와 시스템</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#클래스와-객체">클래스와 객체</a><a class="toc-l3" href="#왜-클래스인가">왜 클래스인가</a><a class="toc-l2" href="#파일-입출력">파일 입출력</a><a class="toc-l2" href="#예외-처리">예외 처리</a><a class="toc-l2" href="#내장-함수">내장 함수</a><a class="toc-l2" href="#멀티스레딩">멀티스레딩</a><a class="toc-l3" href="#프로세스와-스레드">프로세스와 스레드</a><a class="toc-l3" href="#thread-객체와-동기화">Thread 객체와 동기화</a><a class="toc-l2" href="#pip-패키지-관리">pip: 패키지 관리</a><a class="toc-l2" href="#numpy-기초">NumPy 기초</a><a class="toc-l3" href="#로봇-데이터에-적용하기">로봇 데이터에 적용하기</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

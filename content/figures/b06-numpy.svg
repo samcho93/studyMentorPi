@@ -1,0 +1,49 @@
+<svg viewBox="0 0 720 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="360개 라이다 거리 배열을 reshape(4, 90)으로 섹터로 나누고 axis=1 최솟값을 구하는 과정">
+  <defs>
+    <marker id="arr-b06-numpy" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <text class="tag mono" x="20" y="20">clean  shape (360,)</text>
+  <rect class="box" x="20" y="28" width="170" height="28"/>
+  <rect class="box" x="190" y="28" width="170" height="28"/>
+  <rect class="box" x="360" y="28" width="170" height="28"/>
+  <rect class="box" x="530" y="28" width="170" height="28"/>
+  <g class="tag mono" text-anchor="middle">
+    <text x="105" y="47">[0:90]  0–89°</text>
+    <text x="275" y="47">[90:180]  90–179°</text>
+    <text x="445" y="47">[180:270]  180–269°</text>
+    <text x="615" y="47">[270:360]  270–359°</text>
+  </g>
+  <path d="M310 60 L310 90" style="stroke:var(--accent);fill:none" stroke-width="1.8" marker-end="url(#arr-b06-numpy)"/>
+  <text class="tag mono hi" x="320" y="80">.reshape(4, 90)  → shape (4, 90)</text>
+
+  <g>
+    <rect class="box" x="150" y="96" width="320" height="26"/>
+    <rect class="box" x="150" y="124" width="320" height="26"/>
+    <rect class="box" x="150" y="152" width="320" height="26"/>
+    <rect class="box" x="150" y="180" width="320" height="26"/>
+  </g>
+  <g style="stroke:var(--border);fill:none" stroke-width="1">
+    <path d="M182 96 L182 206 M214 96 L214 206 M246 96 L246 206 M278 96 L278 206 M310 96 L310 206 M342 96 L342 206 M374 96 L374 206 M406 96 L406 206 M438 96 L438 206"/>
+  </g>
+  <g class="tag" text-anchor="end">
+    <text x="140" y="113">행 0 · 전방-좌</text>
+    <text x="140" y="141">행 1 · 좌-후방</text>
+    <text x="140" y="169">행 2 · 후방-우</text>
+    <text x="140" y="197">행 3 · 우-전방</text>
+  </g>
+  <path d="M150 226 L468 226" style="stroke:var(--accent);fill:none" stroke-width="1.6" marker-end="url(#arr-b06-numpy)"/>
+  <text class="tag mono" x="310" y="244" text-anchor="middle">axis=1 : 한 행(90개) 안에서 계산</text>
+
+  <path d="M476 151 L552 151" style="stroke:var(--accent);fill:none" stroke-width="1.8" marker-end="url(#arr-b06-numpy)"/>
+  <text class="tag mono hi" x="514" y="143" text-anchor="middle">.min(axis=1)</text>
+  <text class="tag mono" x="600" y="88" text-anchor="middle">shape (4,)</text>
+  <rect class="box-hi" x="560" y="96" width="80" height="26" rx="3"/>
+  <rect class="box" x="560" y="124" width="80" height="26" rx="3"/>
+  <rect class="box" x="560" y="152" width="80" height="26" rx="3"/>
+  <rect class="box-hi" x="560" y="180" width="80" height="26" rx="3"/>
+  <g class="lbl mono" text-anchor="middle">
+    <text x="600" y="114">0.45</text><text x="600" y="142">0.9</text><text x="600" y="170">2.0</text><text x="600" y="198">0.45</text>
+  </g>
+  <text class="sub" x="650" y="114">정면 물체</text>
+  <text class="sub" x="650" y="142">왼쪽 벽</text>
+</svg>

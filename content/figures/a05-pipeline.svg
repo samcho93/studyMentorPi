@@ -1,0 +1,35 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="MediaPipe Hands 파이프라인: 손바닥 검출, 랜드마크 모델, 추적 루프">
+  <defs>
+    <marker id="arr-a05-pipeline" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-a05-pipeline-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <rect class="box" x="20" y="100" width="110" height="60" rx="6"/>
+  <text class="lbl" x="75" y="126" text-anchor="middle">카메라 프레임</text>
+  <text class="sub" x="75" y="146" text-anchor="middle">flip → RGB</text>
+
+  <rect class="box" x="170" y="40" width="150" height="70" rx="6"/>
+  <text class="lbl" x="245" y="66" text-anchor="middle">① 손바닥 검출기</text>
+  <text class="sub" x="245" y="86" text-anchor="middle">BlazePalm, 영상 전체</text>
+  <text class="tag" x="245" y="102" text-anchor="middle">무거움 · 가끔만 실행</text>
+
+  <rect class="box-hi" x="380" y="100" width="160" height="70" rx="6"/>
+  <text class="lbl" x="460" y="126" text-anchor="middle">② 랜드마크 모델</text>
+  <text class="sub" x="460" y="146" text-anchor="middle">회전 보정 ROI → 21점 (x,y,z)</text>
+  <text class="tag" x="460" y="162" text-anchor="middle">+ 존재 점수, 왼/오른손</text>
+
+  <rect class="box" x="590" y="100" width="110" height="70" rx="6"/>
+  <text class="lbl" x="645" y="126" text-anchor="middle">결과</text>
+  <text class="sub" x="645" y="146" text-anchor="middle">multi_hand_</text>
+  <text class="sub" x="645" y="162" text-anchor="middle">landmarks</text>
+
+  <path class="ln" d="M130 120 L168 84" marker-end="url(#arr-a05-pipeline)"/>
+  <text class="tag" x="118" y="92" text-anchor="middle">추적 실패 시</text>
+  <path class="ln" d="M320 80 L380 120" marker-end="url(#arr-a05-pipeline)"/>
+  <text class="tag" x="360" y="88" text-anchor="start">손 상자 + 회전각</text>
+  <path class="ln" d="M540 135 L588 135" marker-end="url(#arr-a05-pipeline)"/>
+
+  <path class="ln-hi" d="M460 170 L460 230 L100 230 L100 162" fill="none" marker-end="url(#arr-a05-pipeline-hi)"/>
+  <text class="tag" x="280" y="222" text-anchor="middle">③ 추적 루프: 이번 랜드마크로 다음 프레임 ROI 예측 (검출기 생략)</text>
+  <text class="sub" x="360" y="262" text-anchor="middle">존재 점수 &lt; min_tracking_confidence(0.05) 일 때만 ①을 다시 실행</text>
+  <text class="sub" x="360" y="282" text-anchor="middle">손바닥 검출 채택 기준 = min_detection_confidence(0.6)</text>
+</svg>

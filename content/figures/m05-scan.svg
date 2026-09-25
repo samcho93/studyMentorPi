@@ -1,0 +1,46 @@
+<svg viewBox="0 0 720 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="LaserScan 기하: 각도 angle_min부터 angle_increment씩 반시계로 증가하는 빔과 극좌표-직교좌표 변환">
+  <defs>
+    <marker id="arr-m05-scan" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+    <marker id="arr-m05-scan-f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <!-- range circle -->
+  <circle cx="200" cy="170" r="120" style="fill:none;stroke:var(--border)" stroke-width="1.2" stroke-dasharray="4 5"/>
+  <!-- beams every 30 deg -->
+  <g style="stroke:var(--border)" stroke-width="1">
+    <path d="M200 170 L320 170 M200 170 L304 110 M200 170 L260 66 M200 170 L200 50 M200 170 L140 66 M200 170 L96 110 M200 170 L80 170 M200 170 L96 230 M200 170 L140 274 M200 170 L200 290 M200 170 L260 274 M200 170 L304 230"/>
+  </g>
+  <!-- scan direction arc (CCW from back) -->
+  <path class="ln-hi" d="M110 196 A94 94 0 0 0 290 196" stroke-width="1.8" marker-end="url(#arr-m05-scan)"/>
+  <text class="tag" x="200" y="252" text-anchor="middle">반시계로 i 증가</text>
+  <!-- robot -->
+  <rect class="box-hi" x="182" y="156" width="36" height="28" rx="5"/>
+  <path d="M200 170 L240 170" style="stroke:var(--text)" stroke-width="2" marker-end="url(#arr-m05-scan-f)"/>
+  <!-- angle labels -->
+  <text class="sub mono" x="326" y="166" text-anchor="start">0 전방</text>
+  <text class="sub mono" x="326" y="182" text-anchor="start">i = 180</text>
+  <text class="sub mono" x="200" y="40" text-anchor="middle">+π/2 왼쪽 · i = 270</text>
+  <text class="sub mono" x="200" y="308" text-anchor="middle">−π/2 오른쪽 · i = 90</text>
+  <text class="sub mono" x="86" y="160" text-anchor="start">±π</text>
+  <text class="sub mono" x="30" y="190" text-anchor="start">i = 0</text>
+  <!-- sample point -->
+  <path class="ln-hi" d="M200 170 L290 107" stroke-width="2.4"/>
+  <circle cx="290" cy="107" r="5" class="hi"/>
+  <path d="M290 107 L290 170" style="stroke:var(--text-faint)" stroke-width="1" stroke-dasharray="3 3"/>
+  <text class="lbl mono hi" x="296" y="100">P</text>
+  <text class="lbl mono hi" x="244" y="132" text-anchor="middle">r</text>
+  <path class="ln-hi" d="M236 170 A36 36 0 0 0 229.5 149.4" stroke-width="1.4"/>
+  <text class="tag mono" x="246" y="162">θ</text>
+  <!-- panel -->
+  <rect class="box" x="370" y="24" width="340" height="282" rx="8"/>
+  <text class="lbl" x="386" y="50">sensor_msgs/LaserScan 핵심 필드</text>
+  <text class="sub mono" x="386" y="74">angle_min, angle_max    [rad]</text>
+  <text class="sub mono" x="386" y="94">angle_increment Δθ      [rad]</text>
+  <text class="sub mono" x="386" y="114">ranges[i]  [m] (측정 없음 = inf)</text>
+  <text class="sub mono" x="386" y="134">range_min, range_max    [m]</text>
+  <text class="lbl mono hi" x="386" y="166">θ_i = angle_min + i·Δθ</text>
+  <text class="lbl mono" x="386" y="190">x = r·cos θ ,  y = r·sin θ</text>
+  <text class="lbl" x="386" y="224">이 사이트 시뮬레이터 /scan</text>
+  <text class="sub" x="386" y="244">angle_min = −π, 360개 → 전방은 가운데(i = 180)</text>
+  <text class="lbl" x="386" y="272">원본 lidar_controller.py 가정 (LD19)</text>
+  <text class="sub" x="386" y="292">ranges[0] = 전방, 인덱스는 반시계로 증가</text>
+</svg>

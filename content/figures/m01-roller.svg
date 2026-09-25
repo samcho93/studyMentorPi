@@ -1,0 +1,43 @@
+<svg viewBox="0 0 720 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="메카넘 바퀴 접지점 속도를 바퀴 구동 성분과 롤러 자유 성분으로 분해하는 그림">
+  <defs>
+    <marker id="arr-m01-roller" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+    <marker id="arr-m01-roller-t" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text)"/></marker>
+    <marker id="arr-m01-roller-f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <!-- wheel footprint -->
+  <rect class="box" x="110" y="222" width="80" height="36" rx="8"/>
+  <text class="tag" x="150" y="276" text-anchor="middle">바퀴 (구동 방향 = x)</text>
+  <!-- roller axis (dashed) through O=(150,240) at 45 deg -->
+  <path d="M95 295 L320 70" style="stroke:var(--text-faint)" stroke-width="1.4" stroke-dasharray="6 5"/>
+  <text class="sub" x="310" y="62" text-anchor="end">롤러 축 û (α = 45°, 자유 회전)</text>
+  <!-- parallelogram helpers -->
+  <path d="M150 240 L250 140 L410 140" style="stroke:var(--border)" stroke-width="1.2" stroke-dasharray="3 4" fill="none"/>
+  <!-- v_w -->
+  <path d="M150 240 L306 240" style="stroke:var(--text)" stroke-width="2.4" marker-end="url(#arr-m01-roller-t)"/>
+  <text class="lbl mono" x="236" y="232" text-anchor="middle">v_w</text>
+  <!-- v_r -->
+  <path d="M310 240 L407 143" style="stroke:var(--text)" stroke-width="2.4" marker-end="url(#arr-m01-roller-t)"/>
+  <text class="lbl mono" x="366" y="202" text-anchor="start">v_r</text>
+  <!-- v_p -->
+  <path class="ln-hi" d="M150 240 L405 142" stroke-width="3" marker-end="url(#arr-m01-roller)"/>
+  <text class="lbl mono hi" x="404" y="128" text-anchor="end">v_p 접지점 속도</text>
+  <circle cx="150" cy="240" r="4" style="fill:var(--text)"/>
+  <text class="tag" x="140" y="236" text-anchor="end">접지점</text>
+  <!-- axes key -->
+  <path d="M30 300 L80 300" style="stroke:var(--text-faint)" stroke-width="1.4" marker-end="url(#arr-m01-roller-f)"/>
+  <path d="M30 300 L30 250" style="stroke:var(--text-faint)" stroke-width="1.4" marker-end="url(#arr-m01-roller-f)"/>
+  <text class="tag" x="84" y="304">x</text>
+  <text class="tag" x="36" y="252">y</text>
+  <!-- derivation panel -->
+  <rect class="box" x="440" y="30" width="270" height="262" rx="8"/>
+  <text class="lbl" x="454" y="56">롤러 구속 조건</text>
+  <text class="lbl mono" x="454" y="82">v_p = v_w·x̂ + v_r·û</text>
+  <text class="lbl mono" x="454" y="106">v_px = v_w + v_r·cos α</text>
+  <text class="lbl mono" x="454" y="128">v_py = v_r·sin α</text>
+  <text class="lbl mono hi" x="454" y="156">v_w = v_px − v_py·cot α</text>
+  <text class="sub" x="454" y="178">α = +45° → v_w = v_px − v_py</text>
+  <text class="sub" x="454" y="196">α = −45° → v_w = v_px + v_py</text>
+  <text class="lbl" x="454" y="226">바퀴 위치 (r_x, r_y)의 접지점</text>
+  <text class="lbl mono" x="454" y="250">v_px = vx − ωz·r_y</text>
+  <text class="lbl mono" x="454" y="272">v_py = vy + ωz·r_x</text>
+</svg>

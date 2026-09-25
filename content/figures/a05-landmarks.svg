@@ -1,0 +1,94 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="21개 손 랜드마크 번호와 손가락 각도 벡터">
+  <defs><marker id="arr-a05-landmarks" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker></defs>
+  <path class="ln" d="M170 260 L130 235"/>
+  <path class="ln" d="M130 235 L100 205"/>
+  <path class="ln" d="M100 205 L80 175"/>
+  <path class="ln" d="M80 175 L65 145"/>
+  <path class="ln" d="M170 260 L140 160"/>
+  <path class="ln" d="M140 160 L135 115"/>
+  <path class="ln" d="M135 115 L132 85"/>
+  <path class="ln" d="M132 85 L130 55"/>
+  <path class="ln" d="M140 160 L170 155"/>
+  <path class="ln" d="M170 155 L170 105"/>
+  <path class="ln" d="M170 105 L170 72"/>
+  <path class="ln" d="M170 72 L170 40"/>
+  <path class="ln" d="M170 155 L200 162"/>
+  <path class="ln" d="M200 162 L205 117"/>
+  <path class="ln" d="M205 117 L208 88"/>
+  <path class="ln" d="M208 88 L210 60"/>
+  <path class="ln" d="M200 162 L228 178"/>
+  <path class="ln" d="M170 260 L228 178"/>
+  <path class="ln" d="M228 178 L238 143"/>
+  <path class="ln" d="M238 143 L244 122"/>
+  <path class="ln" d="M244 122 L250 100"/>
+  <circle class="box" cx="170" cy="260" r="5"/>
+  <text class="tag mono" x="180" y="264" text-anchor="start">0</text>
+  <circle class="box" cx="130" cy="235" r="5"/>
+  <text class="tag mono" x="122" y="239" text-anchor="end">1</text>
+  <circle class="box" cx="100" cy="205" r="5"/>
+  <text class="tag mono" x="92" y="209" text-anchor="end">2</text>
+  <circle class="box" cx="80" cy="175" r="5"/>
+  <text class="tag mono" x="72" y="179" text-anchor="end">3</text>
+  <circle class="hi" cx="65" cy="145" r="5"/>
+  <text class="tag mono" x="57" y="149" text-anchor="end">4</text>
+  <circle class="box" cx="140" cy="160" r="5"/>
+  <text class="tag mono" x="132" y="164" text-anchor="end">5</text>
+  <circle class="box" cx="135" cy="115" r="5"/>
+  <text class="tag mono" x="127" y="119" text-anchor="end">6</text>
+  <circle class="box" cx="132" cy="85" r="5"/>
+  <text class="tag mono" x="124" y="89" text-anchor="end">7</text>
+  <circle class="hi" cx="130" cy="55" r="5"/>
+  <text class="tag mono" x="122" y="59" text-anchor="end">8</text>
+  <circle class="box" cx="170" cy="155" r="5"/>
+  <text class="tag mono" x="178" y="159" text-anchor="start">9</text>
+  <circle class="box" cx="170" cy="105" r="5"/>
+  <text class="tag mono" x="178" y="109" text-anchor="start">10</text>
+  <circle class="box" cx="170" cy="72" r="5"/>
+  <text class="tag mono" x="178" y="76" text-anchor="start">11</text>
+  <circle class="hi" cx="170" cy="40" r="5"/>
+  <text class="tag mono" x="178" y="44" text-anchor="start">12</text>
+  <circle class="box" cx="200" cy="162" r="5"/>
+  <text class="tag mono" x="210" y="166" text-anchor="start">13</text>
+  <circle class="box" cx="205" cy="117" r="5"/>
+  <text class="tag mono" x="215" y="121" text-anchor="start">14</text>
+  <circle class="box" cx="208" cy="88" r="5"/>
+  <text class="tag mono" x="218" y="92" text-anchor="start">15</text>
+  <circle class="hi" cx="210" cy="60" r="5"/>
+  <text class="tag mono" x="220" y="64" text-anchor="start">16</text>
+  <circle class="box" cx="228" cy="178" r="5"/>
+  <text class="tag mono" x="238" y="182" text-anchor="start">17</text>
+  <circle class="box" cx="238" cy="143" r="5"/>
+  <text class="tag mono" x="248" y="147" text-anchor="start">18</text>
+  <circle class="box" cx="244" cy="122" r="5"/>
+  <text class="tag mono" x="254" y="126" text-anchor="start">19</text>
+  <circle class="hi" cx="250" cy="100" r="5"/>
+  <text class="tag mono" x="260" y="104" text-anchor="start">20</text>
+  <text class="sub" x="160" y="285" text-anchor="middle">FIVE 예제 좌표 (주황 = 손끝 4·8·12·16·20)</text>
+  <text class="lbl" x="330" y="40">검지 각도 = ∠(v1, v2)</text>
+  <text class="sub mono" x="330" y="60">v1 = lm[0] − lm[6]   (PIP → 손목)</text>
+  <text class="sub mono" x="330" y="78">v2 = lm[7] − lm[8]   (TIP → DIP)</text>
+  <text class="lbl" x="390" y="110">펴짐</text>
+  <path class="ln" d="M400 270 L400 190 L400 160 L400 135"/>
+  <circle class="box" cx="400" cy="270" r="4"/>
+  <circle class="box" cx="400" cy="190" r="4"/>
+  <circle class="box" cx="400" cy="160" r="4"/>
+  <circle class="box" cx="400" cy="135" r="4"/>
+  <path class="ln-hi" d="M412 190 L412 262" stroke-width="2" marker-end="url(#arr-a05-landmarks)"/>
+  <path class="ln-hi" d="M388 135 L388 158" stroke-width="2" marker-end="url(#arr-a05-landmarks)"/>
+  <text class="tag" x="418" y="232">v1</text>
+  <text class="tag" x="382" y="150" text-anchor="end">v2</text>
+  <text class="sub" x="400" y="290" text-anchor="middle">같은 방향 → 약 0°</text>
+  <text class="lbl" x="570" y="110">접힘</text>
+  <path class="ln" d="M580 270 L580 190 L600 170 L602 195"/>
+  <circle class="box" cx="580" cy="270" r="4"/>
+  <circle class="box" cx="580" cy="190" r="4"/>
+  <circle class="box" cx="600" cy="170" r="4"/>
+  <circle class="box" cx="602" cy="195" r="4"/>
+  <path class="ln-hi" d="M568 190 L568 262" stroke-width="2" marker-end="url(#arr-a05-landmarks)"/>
+  <path class="ln-hi" d="M614 197 L612 174" stroke-width="2" marker-end="url(#arr-a05-landmarks)"/>
+  <text class="tag" x="562" y="232" text-anchor="end">v1</text>
+  <text class="tag" x="620" y="190">v2</text>
+  <text class="sub" x="580" y="290" text-anchor="middle">반대 방향 → 180°에 가까움</text>
+  <text class="tag" x="630" y="60" text-anchor="middle">&lt; 49° 펴짐</text>
+  <text class="tag" x="630" y="78" text-anchor="middle">&gt; 65° 접힘</text>
+</svg>

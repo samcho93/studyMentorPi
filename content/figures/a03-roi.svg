@@ -1,0 +1,29 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="카메라 영상의 아래쪽 세 ROI 띠와 가중 중심, 편향각">
+  <rect class="box" x="30" y="20" width="320" height="240"/>
+  <path d="M175 260 L175 188 Q182 150 215 110 Q250 70 330 50" style="fill:none;stroke:var(--text);stroke-width:14;stroke-linecap:round"/>
+  <rect x="30" y="236" width="320" height="12" style="fill:var(--accent);opacity:0.25"/>
+  <rect x="30" y="212" width="320" height="12" style="fill:var(--accent);opacity:0.25"/>
+  <rect x="30" y="188" width="320" height="12" style="fill:var(--accent);opacity:0.25"/>
+  <circle class="hi" cx="175" cy="242" r="5"/>
+  <circle class="hi" cx="176" cy="218" r="5"/>
+  <circle class="hi" cx="179" cy="194" r="5"/>
+  <text class="tag mono" x="356" y="246">0.90~0.95 · w 0.7</text>
+  <text class="tag mono" x="356" y="222">0.80~0.85 · w 0.2</text>
+  <text class="tag mono" x="356" y="198">0.70~0.75 · w 0.1</text>
+  <path class="ln" d="M190 20 L190 260" stroke-width="1" stroke-dasharray="5 4"/>
+  <text class="tag" x="194" y="34">w/2</text>
+  <circle cx="190" cy="140" r="4" style="fill:var(--text-faint)"/>
+  <text class="tag" x="194" y="136">(w/2, h/2)</text>
+  <path class="ln-hi" d="M190 260 L176 140" stroke-width="1.6"/>
+  <text class="tag" x="60" y="150">θd: 아래 가운데에서</text>
+  <text class="tag" x="60" y="166">중심 방향으로 기운 각</text>
+  <text class="lbl" x="500" y="60">가중 중심</text>
+  <text class="sub mono" x="500" y="84">c = 0.7·x₁ + 0.2·x₂ + 0.1·x₃</text>
+  <text class="lbl" x="500" y="120">편향각</text>
+  <text class="sub mono" x="500" y="144">θd = −atan((c − w/2) / (h/2))</text>
+  <text class="sub" x="500" y="166">선이 오른쪽 → θd &lt; 0 → 오른쪽 회전</text>
+  <text class="lbl" x="500" y="202">아래 띠 = 지금, 위 띠 = 예고</text>
+  <text class="sub" x="500" y="224">띠를 놓치면 그 가중치만큼</text>
+  <text class="sub" x="500" y="242">c가 0(왼쪽)으로 끌려감</text>
+  <text class="sub" x="190" y="284" text-anchor="middle">카메라 영상 (w × h)</text>
+</svg>

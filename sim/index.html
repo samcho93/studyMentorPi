@@ -189,7 +189,7 @@
 
     <div class="tab-body" data-body="line">
       <div class="sub-title">라인 트레이싱 (app/line_following.py)</div>
-      <p class="hint">트랙 월드에서 가상 카메라가 앞쪽 바닥을 봅니다. 화면 아래쪽 ROI 3개에서 검은 선의 중심을 찾아 가중 평균(0.7/0.2/0.1)하고, 편향각 <code>−atan((cx − W/2)/(H/2))</code>에 PID(1.1, 0, 0)를 걸어 각속도를 냅니다. 전방 ±45°에 0.4 m 안 장애물이 있으면 멈춥니다.</p>
+      <p class="hint">트랙 월드에서 가상 카메라가 앞쪽 바닥을 봅니다. 화면 아래쪽 ROI 3개에서 검은 선의 중심을 찾아 가중 평균(0.7/0.2/0.1)하고, 편향각 <code>−atan((cx − W/2)/(H/2))</code>에 PID(1.1, 0, 0)를 걸어 각속도를 냅니다. 전방 45°(±22.5°) 안에 0.4 m보다 가까운 장애물이 있으면 멈춥니다.</p>
       <div class="field-grid">
         <label>Kp <output id="oKp">1.10</output><input type="range" id="rKp" min="0" max="4" step="0.1" value="1.1"></label>
         <label>Kd <output id="oKd">0.00</output><input type="range" id="rKd" min="0" max="1" step="0.02" value="0"></label>

@@ -1,0 +1,47 @@
+<svg viewBox="0 0 720 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="YOLOv5 데이터셋 제작부터 배포까지의 흐름">
+  <defs>
+    <marker id="arr-a08-workflow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <!-- row 1 -->
+  <rect class="box" x="15" y="30" width="200" height="70" rx="6"/>
+  <text class="lbl" x="115" y="55" text-anchor="middle">① 수집 collect_picture</text>
+  <text class="sub mono" x="115" y="75" text-anchor="middle">JPEGImages/*.jpg</text>
+  <text class="tag" x="115" y="92" text-anchor="middle">640×480, 클래스당 200장+</text>
+
+  <rect class="box" x="260" y="30" width="200" height="70" rx="6"/>
+  <text class="lbl" x="360" y="55" text-anchor="middle">② 라벨링 labelImg</text>
+  <text class="sub mono" x="360" y="75" text-anchor="middle">Annotations/*.xml</text>
+  <text class="tag" x="360" y="92" text-anchor="middle">W 상자 · Ctrl+S 저장 · D 다음</text>
+
+  <rect class="box" x="505" y="30" width="200" height="70" rx="6"/>
+  <text class="lbl" x="605" y="55" text-anchor="middle">③④ xml2yolo.py</text>
+  <text class="sub mono" x="605" y="75" text-anchor="middle">*.txt · train/val.txt</text>
+  <text class="tag" x="605" y="92" text-anchor="middle">classes.names → data.yaml</text>
+
+  <path class="ln" d="M215 65 L258 65" marker-end="url(#arr-a08-workflow)"/>
+  <path class="ln" d="M460 65 L503 65" marker-end="url(#arr-a08-workflow)"/>
+  <path class="ln" d="M605 100 L605 150" marker-end="url(#arr-a08-workflow)"/>
+
+  <!-- row 2 -->
+  <rect class="box-hi" x="505" y="152" width="200" height="80" rx="6"/>
+  <text class="lbl" x="605" y="176" text-anchor="middle">⑤ train.py (PC 권장)</text>
+  <text class="sub mono" x="605" y="196" text-anchor="middle">--img 640 --batch 8</text>
+  <text class="sub mono" x="605" y="214" text-anchor="middle">--epochs 300 --weights yolov5n.pt</text>
+
+  <rect class="box" x="260" y="152" width="200" height="80" rx="6"/>
+  <text class="lbl" x="360" y="176" text-anchor="middle">runs/train/expN</text>
+  <text class="sub mono" x="360" y="196" text-anchor="middle">weights/best.pt</text>
+  <text class="tag" x="360" y="214" text-anchor="middle">results.csv · PR_curve.png</text>
+
+  <rect class="box" x="15" y="152" width="200" height="80" rx="6"/>
+  <text class="lbl" x="115" y="176" text-anchor="middle">⑥ yolov5_ros2</text>
+  <text class="sub mono" x="115" y="196" text-anchor="middle">config/best.pt → 빌드</text>
+  <text class="tag" x="115" y="214" text-anchor="middle">yolo_detect -p model:=best</text>
+
+  <path class="ln" d="M505 192 L462 192" marker-end="url(#arr-a08-workflow)"/>
+  <path class="ln" d="M260 192 L217 192" marker-end="url(#arr-a08-workflow)"/>
+  <text class="tag" x="238" y="184" text-anchor="middle">cp</text>
+
+  <path class="ln" d="M115 232 L115 262" marker-end="url(#arr-a08-workflow)"/>
+  <text class="sub mono" x="130" y="280">/yolov5_ros2/object_detect · /yolo_result · /result_img</text>
+</svg>

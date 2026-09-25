@@ -1,0 +1,49 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="팔 들기 판정에 쓰는 거리 비율">
+  <!-- 왼쪽 인물: 팔 내림 -->
+  <g>
+    <circle class="box" cx="150" cy="50" r="16"/>
+    <path class="ln" d="M150 66 L150 170" stroke-width="2"/>
+    <path class="ln" d="M120 80 L180 80" stroke-width="2"/>
+    <path class="ln" d="M130 170 L170 170" stroke-width="2"/>
+    <path class="ln" d="M180 80 L190 130 L195 180" stroke-width="2"/>
+    <path class="ln" d="M120 80 L110 130 L105 180" stroke-width="2"/>
+    <path class="ln" d="M170 170 L172 220 L174 270" stroke-width="2"/>
+    <path class="ln" d="M130 170 L128 220 L126 270" stroke-width="2"/>
+    <circle class="hi" cx="180" cy="80" r="5"/>
+    <circle class="hi" cx="170" cy="170" r="5"/>
+    <circle class="hi" cx="195" cy="180" r="5"/>
+    <path class="ln-hi" d="M170 170 L180 80" stroke-width="2.5" stroke-dasharray="6 4"/>
+    <path style="stroke:var(--ok);fill:none" d="M170 170 L195 180" stroke-width="3"/>
+    <text class="tag" x="200" y="76">어깨 11</text>
+    <text class="tag" x="112" y="166" text-anchor="end">엉덩이 23 →</text>
+    <text class="tag" x="202" y="190">손목 15</text>
+    <text class="sub" x="150" y="292" text-anchor="middle">팔 내림: 20.0 (≥ 1)</text>
+  </g>
+  <!-- 가운데 인물: 팔 듦 -->
+  <g>
+    <circle class="box" cx="400" cy="70" r="16"/>
+    <path class="ln" d="M400 86 L400 190" stroke-width="2"/>
+    <path class="ln" d="M370 100 L430 100" stroke-width="2"/>
+    <path class="ln" d="M380 190 L420 190" stroke-width="2"/>
+    <path class="ln" d="M430 100 L445 55 L450 12" stroke-width="2"/>
+    <path class="ln" d="M370 100 L360 150 L355 200" stroke-width="2"/>
+    <path class="ln" d="M420 190 L422 240 L424 290" stroke-width="2"/>
+    <path class="ln" d="M380 190 L378 240 L376 290" stroke-width="2"/>
+    <circle class="hi" cx="430" cy="100" r="5"/>
+    <circle class="hi" cx="420" cy="190" r="5"/>
+    <circle class="hi" cx="450" cy="12" r="5"/>
+    <path class="ln-hi" d="M420 190 L430 100" stroke-width="2.5" stroke-dasharray="6 4"/>
+    <path style="stroke:var(--ok);fill:none" d="M420 190 L450 12" stroke-width="3"/>
+    <text class="tag" x="460" y="20">손목</text>
+  </g>
+  <text class="sub" x="470" y="250">팔 듦: 0.3 (&lt; 1) → 명령</text>
+  <!-- 설명 -->
+  <text class="lbl" x="505" y="90">비율 = |엉덩이−어깨|²</text>
+  <text class="lbl" x="540" y="112">÷ |엉덩이−손목|²</text>
+  <path class="ln-hi" d="M520 140 L560 140" stroke-width="2.5" stroke-dasharray="6 4"/>
+  <text class="tag" x="568" y="144">분자: 몸통</text>
+  <path style="stroke:var(--ok);fill:none" d="M520 164 L560 164" stroke-width="3"/>
+  <text class="tag" x="568" y="168">분모: 엉덩이→손목</text>
+  <text class="sub" x="520" y="200">거리가 모두 같은 배율로</text>
+  <text class="sub" x="520" y="218">줄어도 비율은 그대로</text>
+</svg>

@@ -1,0 +1,34 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="호스트 Raspberry Pi OS 위의 Docker 컨테이너와 ROS 2 워크스페이스 구조">
+  <defs>
+    <marker id="arr-b03-layers" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <rect class="box" x="16" y="16" width="688" height="222" rx="10"/>
+  <text class="lbl" x="32" y="40" font-weight="700">호스트 — Raspberry Pi OS (Debian)</text>
+  <text class="tag" x="32" y="78">· VNC 서버 / SSH</text>
+  <text class="tag mono" x="32" y="102">· start_node.service</text>
+  <text class="tag mono" x="32" y="126">· ~/docker (공유 폴더)</text>
+  <text class="tag mono" x="32" y="150">· ~/hiwonder-toolbox</text>
+  <text class="tag" x="32" y="174">· Docker 엔진</text>
+  <text class="sub" x="32" y="214">~/.stop_ros.sh 로 앱 서비스 중지</text>
+
+  <rect class="box-hi" x="246" y="50" width="446" height="176" rx="8"/>
+  <text class="lbl" x="262" y="72" font-weight="700">컨테이너 mentorpi — Ubuntu 22.04 + ROS 2 Humble</text>
+  <text class="sub mono" x="262" y="94">~/ros2_ws/src</text>
+  <rect class="box" x="262" y="102" width="80" height="24" rx="4"/><text class="tag mono" x="302" y="118" text-anchor="middle">app</text>
+  <rect class="box" x="346" y="102" width="80" height="24" rx="4"/><text class="tag mono" x="386" y="118" text-anchor="middle">example</text>
+  <rect class="box" x="430" y="102" width="80" height="24" rx="4"/><text class="tag mono" x="470" y="118" text-anchor="middle">bringup</text>
+  <rect class="box" x="514" y="102" width="80" height="24" rx="4"/><text class="tag mono" x="554" y="118" text-anchor="middle">driver</text>
+  <rect class="box" x="598" y="102" width="80" height="24" rx="4"/><text class="tag mono" x="638" y="118" text-anchor="middle">interfaces</text>
+  <rect class="box" x="262" y="132" width="80" height="24" rx="4"/><text class="tag mono" x="302" y="148" text-anchor="middle">peripherals</text>
+  <rect class="box" x="346" y="132" width="80" height="24" rx="4"/><text class="tag mono" x="386" y="148" text-anchor="middle">navigation</text>
+  <rect class="box" x="430" y="132" width="80" height="24" rx="4"/><text class="tag mono" x="470" y="148" text-anchor="middle">slam</text>
+  <rect class="box" x="514" y="132" width="80" height="24" rx="4"/><text class="tag mono" x="554" y="148" text-anchor="middle">yolov5_ros2</text>
+  <rect class="box" x="598" y="132" width="80" height="24" rx="4"/><text class="tag mono" x="638" y="148" text-anchor="middle">simulations</text>
+  <text class="tag mono" x="262" y="186">· ~/share  ⇄  호스트 ~/docker</text>
+  <text class="tag mono" x="262" y="208">· 환경 변수 MACHINE_TYPE, DEPTH_CAMERA_TYPE</text>
+  <path d="M176 122 C 220 122, 215 182, 256 182" style="stroke:var(--accent);fill:none" stroke-width="1.6" stroke-dasharray="5 4" marker-start="url(#arr-b03-layers)" marker-end="url(#arr-b03-layers)"/>
+
+  <rect class="box" x="16" y="252" width="688" height="38" rx="8"/>
+  <text class="tag mono" x="360" y="276" text-anchor="middle">하드웨어: /dev/rrc (STM32) · /dev/ldlidar · 카메라 · /dev/input/js0</text>
+  <path d="M600 250 L600 230" style="stroke:var(--accent);fill:none" stroke-width="1.6" marker-end="url(#arr-b03-layers)"/>
+</svg>

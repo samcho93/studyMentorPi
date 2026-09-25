@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A01. 색 임계값 조정과 색 인식 · studyMentorPi</title>
+<meta name="description" content="LAB/HSV 임계값 도구로 색 범위를 정하고, 마스크·윤곽선·중심점으로 색을 인식해 ROS 2 토픽으로 발행합니다.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-ai">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" class="active" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="a01" data-track="ai">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-ai">비전 AI·자율주행</span> A-1 ROS 2 + OpenCV 응용 &middot; 약 80분 &middot; 중급</div>
+    <h1><span class="lesson-no">A01</span>색 임계값 조정과 색 인식</h1>
+    <p class="lede">LAB/HSV 임계값 도구로 색 범위를 정하고, 마스크·윤곽선·중심점으로 색을 인식해 ROS 2 토픽으로 발행합니다.</p>
+    <div class="requires">선수 챕터: <a href="r11.html">R11</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      <a class="ghost-btn" href="../tools/color-lab.html">HSV 색 실험실</a><a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>조명에 따라 색 값이 변하는 이유를 설명하고, MentorPi가 쓰는 <strong>Lab 임계값 파일</strong>(<code>lab_config.yaml</code>)의 구조를 읽습니다.</li><li>LAB_Tool(실물)과 HSV 색 실험실(웹)로 색 범위를 조정하고 저장합니다.</li><li><code>color_detect_demo.py</code>의 인식 파이프라인(축소 → 흐림 → Lab → <code>inRange</code> → 침식·팽창 → 최대 윤곽 → 외접원)을 재현합니다.</li><li>여러 프레임의 결과를 <strong>다수결</strong>로 안정화하고, 원본 코드의 평균 방식이 가진 함정을 설명합니다.</li><li><code>color_detect</code> 노드의 서비스·토픽(<code>/color_detect/set_param</code>, <code>/color_detect/color_info</code>)으로 인식 결과를 ROS 2에 발행합니다.</li></ul>
+<h2 id="왜-임계값을-조정-해야-하는가">왜 임계값을 “조정”해야 하는가<a class="anchor" href="#왜-임계값을-조정-해야-하는가">#</a></h2>
+<p>같은 빨간 공도 형광등 아래, 창가 햇빛, 그늘에서 카메라가 주는 BGR 값이 크게 다릅니다. 광원의 색온도(누런 백열등 vs 푸른 LED), 밝기, 카메라의 자동 노출·화이트밸런스가 모두 픽셀 값을 바꿉니다. 그래서 색 인식 프로그램은 <strong>색 범위(임계값)를 설정 파일로 분리</strong>해 두고, 환경이 바뀌면 도구로 다시 맞춥니다.</p>
+<p>R09에서 본 것처럼 밝기와 색을 분리한 색 공간에서는 조명이 바뀌어도 <strong>색 채널은 덜 흔들립니다</strong>. MentorPi 예제는 모두 <strong>Lab</strong> 공간을 씁니다.</p>
+<div class="table-wrap"><table><thead><tr><th>Lab 채널</th><th>OpenCV 8비트 값</th><th>128보다 작으면</th><th>128보다 크면</th><th>조명 영향</th></tr></thead><tbody><tr><td>L (밝기)</td><td>0 ~ 255</td><td>어두움</td><td>밝음</td><td><strong>큼</strong> → 범위를 넓게</td></tr><tr><td>a</td><td>0 ~ 255</td><td>초록</td><td>빨강(자홍)</td><td>작음</td></tr><tr><td>b</td><td>0 ~ 255</td><td>파랑</td><td>노랑</td><td>작음</td></tr></tbody></table></div>
+<figure class="fig" id="fig-a01-lab"><svg viewBox="0 0 720 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Lab a-b 평면의 기본 임계값 영역과 샘플 색의 위치">
+  <defs>
+    <marker id="arr-a01-lab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <rect class="box" x="60" y="30" width="240" height="240"/>
+  <rect x="215" y="30" width="85" height="142" style="fill:var(--danger);opacity:0.18"/>
+  <rect x="60" y="30" width="98" height="113" style="fill:var(--ok);opacity:0.18"/>
+  <rect x="60" y="166" width="240" height="104" style="fill:var(--accent);opacity:0.15"/>
+  <path class="ln" d="M180 30 V270 M60 150 H300" stroke-width="0.8" stroke-dasharray="4 4"/>
+  <path class="ln" d="M60 285 L310 285" stroke-width="1.2" marker-end="url(#arr-a01-lab)"/>
+  <text class="tag" x="62" y="300">초록 ← a → 빨강</text>
+  <text class="tag mono" x="180" y="300" text-anchor="middle">128</text>
+  <path class="ln" d="M45 270 L45 25" stroke-width="1.2" marker-end="url(#arr-a01-lab)"/>
+  <text class="tag" x="40" y="160" text-anchor="end">b</text>
+  <text class="tag" x="40" y="40" text-anchor="end">노랑</text>
+  <text class="tag" x="40" y="268" text-anchor="end">파랑</text>
+  <text class="tag" x="257" y="48" text-anchor="middle">red</text>
+  <text class="tag" x="109" y="48" text-anchor="middle">green</text>
+  <text class="tag" x="120" y="262" text-anchor="middle">blue</text>
+  <circle class="hi" cx="248" cy="93" r="5"/>
+  <circle class="hi" cx="113" cy="85" r="5"/>
+  <circle class="hi" cx="246" cy="240" r="5"/>
+  <circle cx="180" cy="150" r="5" style="fill:var(--text-faint)"/>
+  <text class="tag" x="188" y="146">회색 (128,128)</text>
+  <text class="lbl" x="350" y="50">Stereo 기본 임계값 (L은 생략)</text>
+  <text class="sub mono" x="350" y="76">red   : a ≥ 165, b ≥ 104</text>
+  <text class="sub mono" x="350" y="98">green : a ≤ 104, b ≥ 135, L ≥ 47</text>
+  <text class="sub mono" x="350" y="120">blue  : b ≤ 110 (L·a 제한 없음)</text>
+  <text class="lbl" x="350" y="160">점 = colors.png 블록의 Lab 값</text>
+  <text class="sub mono" x="350" y="186">red   (L 117, a 200, b 188)</text>
+  <text class="sub mono" x="350" y="208">green (L 180, a  56, b 197)</text>
+  <text class="sub mono" x="350" y="230">blue  (L  70, a 198, b  32)</text>
+  <text class="sub" x="350" y="262">색 축(a, b)은 좁게, 밝기 L은 넓게 잡습니다</text>
+</svg><figcaption>Lab의 a·b 평면에서 본 MentorPi 기본 임계값(Stereo)과 샘플 색의 위치</figcaption></figure>
+<h3 id="labconfig-yaml">lab_config.yaml<a class="anchor" href="#labconfig-yaml">#</a></h3>
+<p>임계값은 로봇의 <code>/home/ubuntu/software/lab_tool/lab_config.yaml</code>에 있습니다. 카메라 종류별로 <code>Mono</code>(단안 카메라)와 <code>Stereo</code>(깊이 카메라) 두 벌이 있고, 색마다 <code>min</code>/<code>max</code> 세 값(L, a, b)을 가집니다. 깊이 카메라 버전의 기본값 일부는 다음과 같습니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">lab:
+  Stereo:
+    red:   min [0, 165, 104]   max [255, 255, 255]   # a ≥ 165 (강한 빨강), L은 전 범위
+    green: min [47, 0, 135]    max [255, 104, 255]   # a ≤ 104 (초록), b ≥ 135
+    blue:  min [0, 0, 0]       max [255, 255, 110]   # b ≤ 110 (파랑)
+    black: min [0, 0, 0]       max [90, 255, 255]    # L ≤ 90 (어두움)
+    white: min [193, 0, 0]     max [255, 255, 255]   # L ≥ 193 (밝음)
+size: {width: [640], height: [480]}</code></pre></div>
+<p>빨강이 L을 0~255로 <strong>전 범위</strong> 허용하고 a만 좁게 거는 것에 주목하세요. 밝기는 조명에 따라 크게 변하므로 색 축(a, b)으로만 가르는 전략입니다. 반대로 검정·흰색은 색이 아니라 밝기이므로 L로만 가릅니다.</p>
+<h2 id="임계값-조정-도구">임계값 조정 도구<a class="anchor" href="#임계값-조정-도구">#</a></h2>
+<h3 id="labtool-실물">LAB_Tool (실물)<a class="anchor" href="#labtool-실물">#</a></h3>
+<p>MentorPi 데스크톱의 <strong>LAB_Tool</strong>(<code>/home/ubuntu/software/lab_tool/main.py</code>, PyQt5)은 카메라 토픽 <code>/ascamera/camera_publisher/rgb0/image</code>를 구독해 왼쪽에 처리 결과(마스크), 오른쪽에 원본 영상을 보여 줍니다. 내부 처리는 <code>GaussianBlur(3×3)</code> → <code>RGB2LAB</code> → <code>inRange(min, max)</code> → 침식 → 팽창으로, 인식 노드와 같습니다.</p>
+<p>조정 요령은 다음과 같습니다.</p>
+<ol><li>색 목록에서 조정할 색(예: <code>red</code>)을 고릅니다.</li><li>L·A·B의 <code>min</code>을 모두 0, <code>max</code>를 모두 255로 벌려 화면 전체가 흰색이 되게 합니다.</li><li>물체를 화면에 두고, <strong>그 색이 놓인 축부터</strong> 좁힙니다. 빨강은 +a 쪽이므로 A의 <code>min</code>을 올려 물체만 흰색이 남을 때까지 조입니다.</li><li>남은 잡음은 L과 B로 정리합니다. 물체가 밝게 보이면 L <code>min</code>을 올리고, 어둡게 보이면 L <code>max</code>를 내립니다. 따뜻한(노란) 빨강이면 B <code>min</code>을 올리고, 차가운(자홍) 빨강이면 B <code>max</code>를 내립니다.</li><li><strong>Save</strong>를 눌러 <code>lab_config.yaml</code>에 저장합니다. 새 색은 <strong>Add</strong>로 이름을 붙여 추가합니다.</li></ol>
+<div class="callout callout-warn"><div class="callout-title">임계값은 “여유 있게”</div><div class="callout-body"><p>물체가 딱 흰색이 되는 순간의 값으로 저장하면 조명이 조금만 바뀌어도 인식이 끊깁니다. 범위를 좁혀 가다가 <strong>물체가 사라지기 시작하는 값에서 10~15 정도 되돌려</strong> 저장하고, 로봇이 실제로 달릴 장소의 조명에서 조정합니다.</p></div></div>
+<h3 id="hsv-색-실험실-웹">HSV 색 실험실 (웹)<a class="anchor" href="#hsv-색-실험실-웹">#</a></h3>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/color-lab.html">HSV 색 실험실 열기</a></p>
+<p>이 사이트의 색 실험실은 HSV 슬라이더로 같은 작업을 브라우저에서 합니다. 샘플 이미지나 직접 찍은 스냅숏(R08 실물 실습)을 올려 범위를 찾고, 결과를 <code>inRange</code> 코드로 복사할 수 있습니다. HSV와 Lab은 축이 다르지만 <strong>“색 축은 좁게, 밝기 축은 넓게”</strong>라는 원칙은 같습니다. 실물에 넣을 값은 LAB_Tool에서 최종 확인합니다.</p>
+<h2 id="인식-파이프라인-colordetectdemo-py">인식 파이프라인: color_detect_demo.py<a class="anchor" href="#인식-파이프라인-colordetectdemo-py">#</a></h2>
+<p>원본 예제 <code>~/ros2_ws/src/example/example/color_detect/color_detect_demo.py</code>는 카메라 프레임마다 다음을 합니다.</p>
+<figure class="fig" id="fig-a01-pipeline"><svg viewBox="0 0 720 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="색 인식 한 프레임의 처리 순서">
+  <defs>
+    <marker id="arr-a01-pipeline" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <g>
+    <rect class="box" x="10" y="30" width="120" height="60" rx="6"/>
+    <text class="lbl" x="70" y="56" text-anchor="middle">프레임</text>
+    <text class="tag mono" x="70" y="76" text-anchor="middle">640×480 BGR</text>
+    <rect class="box" x="150" y="30" width="120" height="60" rx="6"/>
+    <text class="lbl" x="210" y="56" text-anchor="middle">축소·흐림</text>
+    <text class="tag mono" x="210" y="76" text-anchor="middle">320×240, 3×3</text>
+    <rect class="box" x="290" y="30" width="120" height="60" rx="6"/>
+    <text class="lbl" x="350" y="56" text-anchor="middle">BGR → Lab</text>
+    <text class="tag mono" x="350" y="76" text-anchor="middle">cvtColor</text>
+    <rect class="box" x="430" y="30" width="130" height="60" rx="6"/>
+    <text class="lbl" x="495" y="56" text-anchor="middle">색마다 inRange</text>
+    <text class="tag mono" x="495" y="76" text-anchor="middle">red · green · blue</text>
+    <rect class="box" x="580" y="30" width="130" height="60" rx="6"/>
+    <text class="lbl" x="645" y="56" text-anchor="middle">침식 → 팽창</text>
+    <text class="tag mono" x="645" y="76" text-anchor="middle">3×3 RECT</text>
+  </g>
+  <path class="ln" d="M130 60 L146 60 M270 60 L286 60 M410 60 L426 60 M560 60 L576 60" stroke-width="1.6" marker-end="url(#arr-a01-pipeline)"/>
+  <path class="ln" d="M645 90 L645 115 L70 115 L70 136" stroke-width="1.6" fill="none" marker-end="url(#arr-a01-pipeline)"/>
+  <g>
+    <rect class="box" x="10" y="140" width="150" height="60" rx="6"/>
+    <text class="lbl" x="85" y="166" text-anchor="middle">최대 윤곽</text>
+    <text class="tag mono" x="85" y="186" text-anchor="middle">면적 &gt; 50</text>
+    <rect class="box" x="185" y="140" width="150" height="60" rx="6"/>
+    <text class="lbl" x="260" y="166" text-anchor="middle">가장 큰 색 선택</text>
+    <text class="tag mono" x="260" y="186" text-anchor="middle">면적 &gt; 200</text>
+    <rect class="box" x="360" y="140" width="160" height="60" rx="6"/>
+    <text class="lbl" x="440" y="166" text-anchor="middle">외접원 → 좌표 ×2</text>
+    <text class="tag mono" x="440" y="186" text-anchor="middle">minEnclosingCircle</text>
+    <rect class="box-hi" x="545" y="140" width="165" height="60" rx="6"/>
+    <text class="lbl" x="627" y="166" text-anchor="middle">3프레임 안정화</text>
+    <text class="tag mono" x="627" y="186" text-anchor="middle">평균 대신 다수결 권장</text>
+  </g>
+  <path class="ln" d="M160 170 L181 170 M335 170 L356 170 M520 170 L541 170" stroke-width="1.6" marker-end="url(#arr-a01-pipeline)"/>
+  <text class="sub" x="360" y="232" text-anchor="middle">결과: 원 + "Color: red" 표시 (데모) 또는 /color_detect/color_info 발행 (노드)</text>
+</svg><figcaption>색 인식 한 프레임의 처리 순서 (color_detect_demo.py)</figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th>단계</th><th>코드</th><th>이유</th></tr></thead><tbody><tr><td>1. 축소</td><td><code>cv2.resize(img, (320, 240), interpolation=cv2.INTER_NEAREST)</code></td><td>픽셀 수 1/4 → 4배 빠름</td></tr><tr><td>2. 흐림</td><td><code>cv2.GaussianBlur(frame, (3, 3), 3)</code></td><td>센서 잡음 제거</td></tr><tr><td>3. Lab 변환</td><td><code>cv2.cvtColor(frame, cv2.COLOR_BGR2LAB)</code></td><td>조명에 덜 민감한 색 축</td></tr><tr><td>4. 색마다 마스크</td><td><code>cv2.inRange(lab, min, max)</code> (red, green, blue)</td><td>임계값 파일 사용</td></tr><tr><td>5. 침식 → 팽창</td><td>3×3 사각형 커널 한 번씩 (= 열림)</td><td>작은 잡음 점 제거</td></tr><tr><td>6. 가장 큰 윤곽</td><td><code>findContours(..., RETR_EXTERNAL)</code> + 면적 50 초과 중 최대</td><td>잡음 조각 무시</td></tr><tr><td>7. 색 결정</td><td>세 색 중 면적이 가장 큰 색, 단 <strong>200 초과</strong>일 때만</td><td>너무 작은 물체 무시</td></tr><tr><td>8. 표시</td><td><code>minEnclosingCircle</code> → 원래 크기로 좌표 환산 → 원 + <code>&quot;Color: red&quot;</code></td><td>결과 확인</td></tr><tr><td>9. 안정화</td><td>3프레임마다 색 코드(1/2/3)의 <strong>평균을 반올림</strong></td><td>깜빡임 억제</td></tr></tbody></table></div>
+<p>아래 코드는 이 파이프라인을 그대로 옮겨 <code>shapes.png</code>(빨간 원, 초록 사각형, 파란 삼각형, 노란 타원)에 적용합니다. 임계값은 로봇의 <code>Stereo</code> 기본값입니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+import math
+import numpy as np
+
+LAB = {  # lab_config.yaml → lab: Stereo (min, max)
+    &quot;red&quot;:   ((0, 165, 104), (255, 255, 255)),
+    &quot;green&quot;: ((47, 0, 135), (255, 104, 255)),
+    &quot;blue&quot;:  ((0, 0, 0), (255, 255, 110)),
+}
+SIZE = (320, 240)
+k3 = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+
+def area_max_contour(contours):              # 원본 getAreaMaxContour와 같은 규칙
+    best, best_area = None, 0
+    for c in contours:
+        a = math.fabs(cv2.contourArea(c))
+        if a &gt; best_area:
+            best_area = a
+            if a &gt; 50:
+                best = c
+    return best, best_area
+
+img = cv2.imread(&quot;shapes.png&quot;)
+h, w = img.shape[:2]
+lab = cv2.cvtColor(cv2.GaussianBlur(cv2.resize(img, SIZE, interpolation=cv2.INTER_NEAREST), (3, 3), 3),
+                   cv2.COLOR_BGR2LAB)
+winner, win_area, win_cnt = None, 0, None
+for name, (lo, hi) in LAB.items():
+    mask = cv2.dilate(cv2.erode(cv2.inRange(lab, lo, hi), k3), k3)
+    cnt, area = area_max_contour(cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[-2])
+    print(&quot;%-5s 최대 윤곽 면적 %7.1f (320x240 기준)&quot; % (name, area))
+    if cnt is not None and area &gt; win_area:
+        winner, win_area, win_cnt = name, area, cnt
+
+if win_area &gt; 200:
+    (cx, cy), r = cv2.minEnclosingCircle(win_cnt)
+    cx, cy, r = cx * w / SIZE[0], cy * h / SIZE[1], r * w / SIZE[0]   # 원래 크기로 환산
+    print(&quot;결과: %s, 중심 (%.0f, %.0f), 반지름 %.0f px&quot; % (winner, cx, cy, r))
+    cv2.circle(img, (int(cx), int(cy)), int(r), (0, 0, 0), 2)
+    cv2.putText(img, &quot;Color: &quot; + winner, (10, h - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0, 0, 0), 2)
+cv2.imshow(&quot;color detect&quot;, img)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">red   최대 윤곽 면적  3802.0 (320x240 기준)
+green 최대 윤곽 면적  6616.0 (320x240 기준)
+blue  최대 윤곽 면적  2444.0 (320x240 기준)
+결과: green, 중심 (390, 150), 반지름 114 px</code></pre></div>
+<ul><li>세 색이 모두 검출되지만, 원본 규칙은 <strong>가장 큰 한 색</strong>만 결과로 냅니다. 초록 사각형이 가장 커서 <code>green</code>이 됩니다.</li><li>노란 타원은 목록에 없는 색이라 무시됩니다. 노랑을 인식하려면 <code>yellow</code> 항목(Stereo 기본값 <code>min [135, 129, 132]</code>)을 추가해야 합니다.</li><li>축소 영상에서 구한 좌표를 <code>640/320</code>, <code>480/240</code>배 해서 원래 영상에 그립니다. 원본은 <code>common.val_map</code>으로 같은 계산을 합니다.</li></ul>
+<h3 id="각-픽셀의-lab-값-확인하기">각 픽셀의 Lab 값 확인하기<a class="anchor" href="#각-픽셀의-lab-값-확인하기">#</a></h3>
+<p>임계값이 왜 이 색을 통과시키는지 보려면 물체 한가운데의 Lab 값을 찍어 보면 됩니다. MentorPi 라인 트레이싱·색 추적 앱의 <strong>색 고르기(ColorPicker)</strong>도 화면을 클릭한 점 주변 2×2 픽셀의 Lab 평균을 여러 프레임 모아 목표색으로 씁니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+
+LAB = {&quot;red&quot;: ((0, 165, 104), (255, 255, 255)), &quot;green&quot;: ((47, 0, 135), (255, 104, 255)),
+       &quot;blue&quot;: ((0, 0, 0), (255, 255, 110))}
+img = cv2.imread(&quot;colors.png&quot;)                 # 회색 배경 + 빨강·초록·파랑 블록
+lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+for name, (x, y) in {&quot;red 블록&quot;: (130, 240), &quot;green 블록&quot;: (320, 240),
+                     &quot;blue 블록&quot;: (510, 240), &quot;회색 배경&quot;: (20, 20)}.items():
+    L, a, b = lab[y, x].tolist()
+    hits = [c for c, (lo, hi) in LAB.items() if all(lo[i] &lt;= (L, a, b)[i] &lt;= hi[i] for i in range(3))]
+    print(&quot;%-10s BGR %-15s Lab (%3d, %3d, %3d) → 통과: %s&quot; % (name, img[y, x].tolist(), L, a, b, hits or &quot;없음&quot;))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">red 블록     BGR [0, 0, 220]     Lab (117, 200, 188) → 통과: [&#x27;red&#x27;]
+green 블록   BGR [0, 200, 0]     Lab (180,  56, 197) → 통과: [&#x27;green&#x27;]
+blue 블록    BGR [220, 0, 0]     Lab ( 70, 198,  32) → 통과: [&#x27;blue&#x27;]
+회색 배경      BGR [128, 128, 128] Lab (137, 128, 128) → 통과: 없음</code></pre></div>
+<p>회색 배경은 a = b = 128이라 어느 색 범위에도 들지 않습니다. 파랑은 b가 110 이하라서 통과하는데, <strong>파랑 범위는 L과 a를 전혀 제한하지 않으므로</strong> 어두운 그림자(b가 약간 낮은 회색)가 파랑으로 잡히는 일이 실물에서 자주 생깁니다. 이럴 때 LAB_Tool에서 파랑의 L <code>min</code>을 올립니다.</p>
+<h3 id="여러-프레임으로-안정화-평균의-함정">여러 프레임으로 안정화: 평균의 함정<a class="anchor" href="#여러-프레임으로-안정화-평균의-함정">#</a></h3>
+<p>원본은 색을 코드(빨강 1, 초록 2, 파랑 3)로 바꿔 3프레임 모은 뒤 <strong>평균을 반올림</strong>합니다. 빨강과 파랑이 번갈아 보이면 평균이 2가 되어 <strong>보이지도 않은 초록</strong>이 결과로 나옵니다. 범주형 값은 평균이 아니라 <strong>다수결(mode)</strong>로 합쳐야 합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">from collections import Counter
+
+CODE = {1: &quot;red&quot;, 2: &quot;green&quot;, 3: &quot;blue&quot;}
+for frames in ([1, 1, 1], [1, 3, 3], [1, 3, 1], [3, 1, 2], [1, 3, 0]):
+    mean_code = int(round(sum(frames) / len(frames)))          # 원본 방식
+    mode, votes = Counter(frames).most_common(1)[0]            # 다수결
+    vote = CODE.get(mode, &quot;None&quot;) if votes &gt;= 2 else &quot;보류&quot;
+    print(&quot;프레임 %-11s 평균 → %-6s  다수결 → %s&quot; % (frames, CODE.get(mean_code, &quot;None&quot;), vote))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">프레임 [1, 1, 1]   평균 → red     다수결 → red
+프레임 [1, 3, 3]   평균 → green   다수결 → blue
+프레임 [1, 3, 1]   평균 → green   다수결 → red
+프레임 [3, 1, 2]   평균 → green   다수결 → 보류
+프레임 [1, 3, 0]   평균 → red     다수결 → 보류</code></pre></div>
+<h2 id="ros-2-노드로-만들기">ROS 2 노드로 만들기<a class="anchor" href="#ros-2-노드로-만들기">#</a></h2>
+<p>데모 프로그램은 결과를 화면에만 그립니다. 다른 노드(색 추적, 분류)가 쓰게 하려면 <strong>토픽으로 발행</strong>해야 합니다. MentorPi의 <code>color_detect</code> 노드(<code>color_detect_node.py</code>)가 이 역할을 합니다.</p>
+<div class="table-wrap"><table><thead><tr><th>인터페이스</th><th>이름</th><th>타입</th><th>내용</th></tr></thead><tbody><tr><td>구독</td><td><code>/ascamera/camera_publisher/rgb0/image</code></td><td><code>sensor_msgs/Image</code></td><td>카메라 BGR 영상</td></tr><tr><td>서비스</td><td><code>/color_detect/set_param</code></td><td><code>interfaces/srv/SetColorDetectParam</code></td><td>찾을 색 목록: <code>color_name</code>, <code>detect_type</code>(<code>circle</code>·<code>rect</code>·<code>line</code>)</td></tr><tr><td>서비스</td><td><code>/color_detect/start</code>, <code>/color_detect/stop</code></td><td><code>std_srvs/Trigger</code></td><td>영상 구독 시작/중지</td></tr><tr><td>서비스</td><td><code>/color_detect/set_circle_roi</code> 등</td><td><code>interfaces/srv/SetCircleROI</code></td><td>탐색 영역 제한 (<code>config/roi.yaml</code>)</td></tr><tr><td>발행</td><td><code>/color_detect/color_info</code></td><td><code>interfaces/msg/ColorsInfo</code></td><td><code>ColorInfo[]</code>: <code>color, width, height, x, y, radius, angle</code></td></tr><tr><td>발행</td><td><code>/color_detect/image_result</code></td><td><code>sensor_msgs/Image</code></td><td>결과를 그린 영상</td></tr></tbody></table></div>
+<p><code>detect_type</code>이 <code>circle</code>이면 최소 외접원의 중심·반지름을, <code>rect</code>면 최소 회전 사각형의 중심·각도를, <code>line</code>이면 <code>roi.yaml</code>의 세 띠(가중치 0.1·0.2·0.7)에서 구한 선 중심을 발행합니다. A04의 색 추적 노드가 이 <code>ColorsInfo</code>를 구독합니다.</p>
+<p>Playground에는 카메라 토픽이 없으므로, 아래 노드는 타이머에서 샘플 이미지를 “프레임”으로 삼아 같은 구조를 흉내 냅니다. 실물에서는 타이머 대신 이미지 구독 콜백에 <code>detect()</code>를 넣으면 됩니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import String
+import mentorpi_sim as sim                              # 시뮬 전용
+sim.setup(duration=2.0)                                  # 시뮬 전용
+
+LAB = {&quot;red&quot;: ((0, 165, 104), (255, 255, 255)), &quot;green&quot;: ((47, 0, 135), (255, 104, 255)),
+       &quot;blue&quot;: ((0, 0, 0), (255, 255, 110))}
+K3 = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+
+
+def detect(bgr, colors):
+    lab = cv2.cvtColor(cv2.GaussianBlur(cv2.resize(bgr, (320, 240)), (3, 3), 3), cv2.COLOR_BGR2LAB)
+    best = (&quot;None&quot;, 0.0, 0, 0)
+    for name in colors:
+        mask = cv2.dilate(cv2.erode(cv2.inRange(lab, *LAB[name]), K3), K3)
+        for c in cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]:
+            a = cv2.contourArea(c)
+            if a &gt; 200 and a &gt; best[1]:
+                (x, y), _ = cv2.minEnclosingCircle(c)
+                best = (name, a, int(x * 2), int(y * 2))        # 640x480 좌표로
+    return best
+
+
+class ColorDetect(Node):
+    def __init__(self):
+        super().__init__(&#x27;color_detect_demo&#x27;)
+        self.pub = self.create_publisher(String, &#x27;/color_detect/result&#x27;, 1)
+        self.frames = [&#x27;shapes.png&#x27;, &#x27;colors.png&#x27;, &#x27;track.png&#x27;]
+        self.i = 0
+        self.create_timer(0.5, self.on_timer)
+
+    def on_timer(self):
+        name = self.frames[self.i % len(self.frames)]
+        self.i += 1
+        color, area, x, y = detect(cv2.imread(name), [&#x27;red&#x27;, &#x27;green&#x27;, &#x27;blue&#x27;])
+        msg = String()
+        msg.data = &#x27;%s,%d,%d&#x27; % (color, x, y)
+        self.pub.publish(msg)
+        self.get_logger().info(&#x27;%-10s → %s (area %.0f)&#x27; % (name, msg.data, area))
+
+
+rclpy.init()
+node = ColorDetect()
+try:
+    rclpy.spin(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    node.destroy_node()
+    rclpy.shutdown()</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[INFO] [0.500] [color_detect_demo]: shapes.png → green,389,150 (area 6458)
+[INFO] [1.000] [color_detect_demo]: colors.png → blue,509,239 (area 5896)
+[INFO] [1.500] [color_detect_demo]: track.png  → None,0,0 (area 0)
+[sim] 시뮬레이션 시간 2.0 s 종료 (sim.setup(duration=...)으로 변경)</code></pre></div>
+<p><code>colors.png</code>의 세 블록은 크기가 같지만, 흐림 때문에 생긴 경계 픽셀이 임계값을 통과하는 정도가 색마다 달라 파랑이 조금 더 크게 잡혔습니다. 크기가 비슷한 물체가 여럿이면 “가장 큰 색” 규칙은 프레임마다 결과가 바뀔 수 있습니다. 여러 물체를 모두 알려야 하는 응용이라면 원본 노드처럼 색마다 <code>ColorInfo</code>를 리스트로 발행하는 편이 낫습니다. <code>track.png</code>의 검은 선은 찾는 색 목록에 없으므로 <code>None</code>입니다.</p>
+<h2 id="실습-시뮬레이션">실습 (시뮬레이션)<a class="anchor" href="#실습-시뮬레이션">#</a></h2>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
+<div class="callout callout-task"><div class="callout-title">Playground 실습</div><div class="callout-body"><ol><li>파이프라인 코드의 <code>LAB</code>에 <code>&quot;yellow&quot;: ((135, 129, 132), (255, 255, 255))</code>를 추가하면 노란 타원이 잡히는지, 다른 색과 겹쳐 잡히는 것은 없는지 확인합니다.</li><li><code>shapes.png</code>의 밝기를 0.5배로 낮춘 영상에 같은 임계값을 적용해 네 도형이 모두 살아남는지 확인합니다. 어느 색이 먼저 사라지나요? 그 이유를 Lab 값으로 설명합니다.</li><li>다수결 코드를 “최근 5프레임 중 3표 이상”으로 바꾸고, 결과가 바뀌는 시점이 몇 프레임 늦어지는지 계산합니다.</li></ol></div></div>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">실물 실습 전 확인</div><div class="callout-body"><ul><li>색 인식 예제는 바퀴를 움직이지 않습니다. 로봇은 평평한 곳에 두고 카메라 앞에서 물체만 움직입니다.</li><li>인식 결과가 흔들리지 않도록 <strong>카메라 시야에 같은 색의 다른 물체가 없게</strong> 합니다.</li><li><code>~/.stop_ros.sh</code>로 앱 서비스를 끄고 실습하며, 끝나면 <strong>컨테이너 밖 시스템 터미널</strong>에서 <code>sudo systemctl restart start_node.service</code>로 되살립니다(부저가 울리면 완료).</li></ul></div></div>
+<h3 id="1-임계값-조정">1) 임계값 조정<a class="anchor" href="#1-임계값-조정">#</a></h3>
+<p>VNC로 접속해 바탕화면의 <strong>LAB_Tool</strong>을 실행합니다(“Execute” 선택). 영상이 나오지 않으면 카메라 케이블 연결을 확인합니다. 빨강·초록·파랑 물체를 하나씩 비추며 위의 조정 요령대로 맞추고 <strong>Save</strong>합니다.</p>
+<h3 id="2-색-인식-데모">2) 색 인식 데모<a class="anchor" href="#2-색-인식-데모">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">~/.stop_ros.sh
+ros2 launch peripherals depth_camera.launch.py
+# 새 터미널
+cd /home/ubuntu/ros2_ws/src/example/example/color_detect
+python3 color_detect_demo.py</code></pre></div>
+<p>물체를 비추면 같은 색 원으로 둘러싸이고 왼쪽 아래에 <code>Color: red</code> 같은 이름이 표시됩니다. <code>q</code> 또는 <code>Esc</code>로 끝냅니다.</p>
+<h3 id="3-colordetect-노드와-토픽">3) color_detect 노드와 토픽<a class="anchor" href="#3-colordetect-노드와-토픽">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 launch example color_detect_node.launch.py enable_display:=true
+# 새 터미널: 빨강을 원(circle) 방식으로 찾도록 설정
+ros2 service call /color_detect/set_param interfaces/srv/SetColorDetectParam \
+  &quot;{data: [{color_name: &#x27;red&#x27;, detect_type: &#x27;circle&#x27;}]}&quot;
+ros2 topic echo /color_detect/color_info</code></pre></div>
+<p><code>color_info</code>의 <code>x</code>, <code>y</code>, <code>radius</code>가 물체를 움직일 때 바뀌는지 확인합니다. 이 launch 파일은 카메라 launch(<code>depth_camera.launch.py</code>)를 포함하므로 카메라를 따로 켜지 않아도 됩니다.</p>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> 조정 전후로 같은 물체의 인식이 끊기는 거리를 비교했다.</label></li><li><label class="check-item"><input type="checkbox"> <code>color_info</code>의 <code>radius</code>가 물체를 멀리 할수록 작아지는 것을 확인했다(A04에서 거리 추정에 사용).</label></li><li><label class="check-item"><input type="checkbox"> 실습 후 <code>start_node.service</code>를 되살렸다.</label></li></ul></div></div>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td>LAB_Tool 영상이 안 나옴</td><td>카메라 미연결, 다른 프로그램이 카메라 사용</td><td>케이블 확인, <code>~/.stop_ros.sh</code> 후 재실행</td></tr><tr><td>저장했는데 인식 결과가 그대로</td><td>노드가 시작할 때만 yaml을 읽음</td><td>인식 노드를 다시 실행</td></tr><tr><td><code>Mono</code>/<code>Stereo</code> 값이 뒤섞임</td><td>LAB_Tool의 카메라 전환 버튼 상태와 로봇 카메라가 다름</td><td>로봇 카메라 종류에 맞는 쪽을 조정 (<code>DEPTH_CAMERA_TYPE</code>)</td></tr><tr><td>그림자·어두운 바닥이 파랑으로 잡힘</td><td>파랑 범위가 b만 제한</td><td>L <code>min</code>을 올리고 a 범위도 좁힘</td></tr><tr><td>빨강과 파랑 사이에서 초록이 튀어나옴</td><td>색 코드 평균 방식</td><td>다수결로 바꾸기</td></tr><tr><td>색 이름이 계속 <code>None</code></td><td>면적이 200 이하(축소 영상 기준)</td><td>물체를 가까이, 또는 임계값 확장</td></tr><tr><td><code>ros2 service call</code> 타입 오류</td><td>인터페이스 이름·필드 오타</td><td><code>ros2 interface show interfaces/srv/SetColorDetectParam</code>으로 확인</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">기본 과제</div><div class="callout-body"><ol><li><code>shapes.png</code>에서 네 도형을 <strong>모두</strong> 찾아 색 이름·중심·반지름을 목록으로 출력하는 함수 <code>detect_all(img)</code>를 작성합니다(노랑 포함).</li><li>파이프라인에서 <code>GaussianBlur</code>와 침식·팽창을 각각 빼 보고, 인식 면적이 얼마나 달라지는지 표로 정리합니다.</li></ol></div></div>
+<div class="callout callout-task"><div class="callout-title">심화 과제</div><div class="callout-body"><ol><li>실물에서 형광등·햇빛·스탠드 조명 세 조건으로 LAB_Tool 값을 따로 찾고, 세 조건을 모두 통과하는 “공통 범위”를 만들어 봅니다. 공통 범위의 약점은 무엇인가요?</li><li><code>/color_detect/color_info</code>를 구독해 가장 큰 물체의 색을 다수결로 안정화한 뒤 <code>std_msgs/String</code>으로 다시 발행하는 노드를 작성합니다.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>14. ROS+OpenCV Lesson</em> — Install Depth Camera, Lesson 1 Color Threshold Adjustment, Lesson 2 Color Recognition</li><li>MentorPi 소스: <code>src/example/example/color_detect/color_detect_demo.py</code>, <code>color_detect_node.py</code>, <code>color_detect_node.launch.py</code>, <code>src/example/config/roi.yaml</code>, <code>src/app/app/common.py</code>(ColorPicker), <code>software/lab_tool/main.py</code>, <code>lab_config.yaml</code></li><li>OpenCV — Changing Colorspaces / inRange: https://docs.opencv.org/4.x/df/d9d/tutorial_py_colorspaces.html</li><li>OpenCV — Color conversions (Lab 식): https://docs.opencv.org/4.x/de/d25/imgproc_color_conversions.html</li><li>ROS 2 Humble — Understanding services: https://docs.ros.org/en/humble/Tutorials/Beginner-CLI-Tools/Understanding-ROS2-Services/Understanding-ROS2-Services.html</li></ul>
+      <nav class="pager"><a class="pager-prev" href="m13.html"><span>이전 · M13</span>다중 지점 내비게이션과 3D 내비게이션</a><a class="pager-next" href="a02.html"><span>다음 · A02</span>QR 코드 생성과 인식</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#왜-임계값을-조정-해야-하는가">왜 임계값을 “조정”해야 하는가</a><a class="toc-l3" href="#labconfig-yaml">lab_config.yaml</a><a class="toc-l2" href="#임계값-조정-도구">임계값 조정 도구</a><a class="toc-l3" href="#labtool-실물">LAB_Tool (실물)</a><a class="toc-l3" href="#hsv-색-실험실-웹">HSV 색 실험실 (웹)</a><a class="toc-l2" href="#인식-파이프라인-colordetectdemo-py">인식 파이프라인: color_detect_demo.py</a><a class="toc-l3" href="#각-픽셀의-lab-값-확인하기">각 픽셀의 Lab 값 확인하기</a><a class="toc-l3" href="#여러-프레임으로-안정화-평균의-함정">여러 프레임으로 안정화: 평균의 함정</a><a class="toc-l2" href="#ros-2-노드로-만들기">ROS 2 노드로 만들기</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l3" href="#1-임계값-조정">1) 임계값 조정</a><a class="toc-l3" href="#2-색-인식-데모">2) 색 인식 데모</a><a class="toc-l3" href="#3-colordetect-노드와-토픽">3) color_detect 노드와 토픽</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

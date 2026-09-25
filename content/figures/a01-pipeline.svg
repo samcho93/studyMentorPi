@@ -1,0 +1,40 @@
+<svg viewBox="0 0 720 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="색 인식 한 프레임의 처리 순서">
+  <defs>
+    <marker id="arr-a01-pipeline" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <g>
+    <rect class="box" x="10" y="30" width="120" height="60" rx="6"/>
+    <text class="lbl" x="70" y="56" text-anchor="middle">프레임</text>
+    <text class="tag mono" x="70" y="76" text-anchor="middle">640×480 BGR</text>
+    <rect class="box" x="150" y="30" width="120" height="60" rx="6"/>
+    <text class="lbl" x="210" y="56" text-anchor="middle">축소·흐림</text>
+    <text class="tag mono" x="210" y="76" text-anchor="middle">320×240, 3×3</text>
+    <rect class="box" x="290" y="30" width="120" height="60" rx="6"/>
+    <text class="lbl" x="350" y="56" text-anchor="middle">BGR → Lab</text>
+    <text class="tag mono" x="350" y="76" text-anchor="middle">cvtColor</text>
+    <rect class="box" x="430" y="30" width="130" height="60" rx="6"/>
+    <text class="lbl" x="495" y="56" text-anchor="middle">색마다 inRange</text>
+    <text class="tag mono" x="495" y="76" text-anchor="middle">red · green · blue</text>
+    <rect class="box" x="580" y="30" width="130" height="60" rx="6"/>
+    <text class="lbl" x="645" y="56" text-anchor="middle">침식 → 팽창</text>
+    <text class="tag mono" x="645" y="76" text-anchor="middle">3×3 RECT</text>
+  </g>
+  <path class="ln" d="M130 60 L146 60 M270 60 L286 60 M410 60 L426 60 M560 60 L576 60" stroke-width="1.6" marker-end="url(#arr-a01-pipeline)"/>
+  <path class="ln" d="M645 90 L645 115 L70 115 L70 136" stroke-width="1.6" fill="none" marker-end="url(#arr-a01-pipeline)"/>
+  <g>
+    <rect class="box" x="10" y="140" width="150" height="60" rx="6"/>
+    <text class="lbl" x="85" y="166" text-anchor="middle">최대 윤곽</text>
+    <text class="tag mono" x="85" y="186" text-anchor="middle">면적 &gt; 50</text>
+    <rect class="box" x="185" y="140" width="150" height="60" rx="6"/>
+    <text class="lbl" x="260" y="166" text-anchor="middle">가장 큰 색 선택</text>
+    <text class="tag mono" x="260" y="186" text-anchor="middle">면적 &gt; 200</text>
+    <rect class="box" x="360" y="140" width="160" height="60" rx="6"/>
+    <text class="lbl" x="440" y="166" text-anchor="middle">외접원 → 좌표 ×2</text>
+    <text class="tag mono" x="440" y="186" text-anchor="middle">minEnclosingCircle</text>
+    <rect class="box-hi" x="545" y="140" width="165" height="60" rx="6"/>
+    <text class="lbl" x="627" y="166" text-anchor="middle">3프레임 안정화</text>
+    <text class="tag mono" x="627" y="186" text-anchor="middle">평균 대신 다수결 권장</text>
+  </g>
+  <path class="ln" d="M160 170 L181 170 M335 170 L356 170 M520 170 L541 170" stroke-width="1.6" marker-end="url(#arr-a01-pipeline)"/>
+  <text class="sub" x="360" y="232" text-anchor="middle">결과: 원 + "Color: red" 표시 (데모) 또는 /color_detect/color_info 발행 (노드)</text>
+</svg>

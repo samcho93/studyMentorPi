@@ -1,0 +1,41 @@
+<svg viewBox="0 0 720 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="권한 문자열 -rwxr-x--- 을 8진수 750으로 읽는 방법">
+  <g>
+    <rect class="box" x="140" y="30" width="44" height="44" rx="4"/>
+    <rect class="box-hi" x="188" y="30" width="44" height="44" rx="4"/>
+    <rect class="box-hi" x="236" y="30" width="44" height="44" rx="4"/>
+    <rect class="box-hi" x="284" y="30" width="44" height="44" rx="4"/>
+    <rect class="box" x="332" y="30" width="44" height="44" rx="4"/>
+    <rect class="box" x="380" y="30" width="44" height="44" rx="4"/>
+    <rect class="box" x="428" y="30" width="44" height="44" rx="4"/>
+    <rect class="box" x="476" y="30" width="44" height="44" rx="4"/>
+    <rect class="box" x="524" y="30" width="44" height="44" rx="4"/>
+    <rect class="box" x="572" y="30" width="44" height="44" rx="4"/>
+  </g>
+  <g class="mono" font-size="20" text-anchor="middle" style="fill:var(--text)">
+    <text x="162" y="59">-</text><text x="210" y="59">r</text><text x="258" y="59">w</text><text x="306" y="59">x</text>
+    <text x="354" y="59">r</text><text x="402" y="59">-</text><text x="450" y="59">x</text>
+    <text x="498" y="59">-</text><text x="546" y="59">-</text><text x="594" y="59">-</text>
+  </g>
+  <g style="stroke:var(--text-faint);fill:none" stroke-width="1.4">
+    <path d="M142 88 L142 94 L182 94 L182 88"/>
+    <path d="M190 88 L190 94 L326 94 L326 88"/>
+    <path d="M334 88 L334 94 L470 94 L470 88"/>
+    <path d="M478 88 L478 94 L614 94 L614 88"/>
+  </g>
+  <text class="tag" x="162" y="112" text-anchor="middle">종류</text>
+  <text class="lbl" x="258" y="112" text-anchor="middle">소유자 (u)</text>
+  <text class="lbl" x="402" y="112" text-anchor="middle">그룹 (g)</text>
+  <text class="lbl" x="546" y="112" text-anchor="middle">기타 (o)</text>
+  <g class="sub mono" text-anchor="middle">
+    <text x="210" y="138">4</text><text x="258" y="138">2</text><text x="306" y="138">1</text>
+    <text x="354" y="138">4</text><text x="402" y="138">0</text><text x="450" y="138">1</text>
+    <text x="498" y="138">0</text><text x="546" y="138">0</text><text x="594" y="138">0</text>
+  </g>
+  <text class="tag mono" x="258" y="166" text-anchor="middle">4+2+1 = 7</text>
+  <text class="tag mono" x="402" y="166" text-anchor="middle">4+0+1 = 5</text>
+  <text class="tag mono" x="546" y="166" text-anchor="middle">0+0+0 = 0</text>
+  <text class="tag mono" x="20" y="136">-  일반 파일</text>
+  <text class="tag mono" x="20" y="154">d  디렉터리</text>
+  <text class="tag mono" x="20" y="172">l  링크</text>
+  <text class="lbl mono hi" x="402" y="206" text-anchor="middle" font-weight="700">chmod 750 파일  ⇔  chmod u=rwx,g=rx,o= 파일</text>
+</svg>

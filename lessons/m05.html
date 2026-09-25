@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M05. 라이다 원리와 LaserScan · studyMentorPi</title>
+<meta name="description" content="삼각측량·ToF 거리 측정, 360° 스캔, sensor_msgs/LaserScan 필드(angle_min·increment·ranges) 해석과 좌표 변환.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-mobile">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" class="active" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="m05" data-track="mobile">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-mobile">이동로봇 핵심</span> M-2 센서: 라이다·깊이 카메라 &middot; 약 70분 &middot; 중급</div>
+    <h1><span class="lesson-no">M05</span>라이다 원리와 LaserScan</h1>
+    <p class="lede">삼각측량·ToF 거리 측정, 360° 스캔, sensor_msgs/LaserScan 필드(angle_min·increment·ranges) 해석과 좌표 변환.</p>
+    <div class="requires">선수 챕터: <a href="r03.html">R03</a> <a href="r06.html">R06</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      <a class="ghost-btn" href="../sim/index.html">2D 시뮬레이터</a><a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>ToF(비행시간)와 삼각측량 방식의 거리 측정 원리를 식으로 설명하고, 각 방식의 오차 특성을 비교합니다.</li><li>MentorPi의 LD19 라이다 사양(측정 범위, 스캔 주파수, 각도 분해능)에서 한 바퀴의 점 개수와 이동 중 왜곡을 계산합니다.</li><li><code>sensor_msgs/LaserScan</code>의 필드를 해석하고, 인덱스 ↔ 각도 ↔ 직교좌표 변환을 코드로 작성합니다.</li><li>라이다 좌표의 점을 로봇·세계 좌표로 옮겨 장애물 위치를 추정합니다.</li><li>원본 앱 코드와 시뮬레이터의 인덱스 규약 차이를 알고, <strong>각도로 계산하는</strong> 이식성 좋은 코드를 씁니다.</li></ul>
+<h2 id="라이다의-구성과-분류">라이다의 구성과 분류<a class="anchor" href="#라이다의-구성과-분류">#</a></h2>
+<p>라이다(LiDAR, Light Detection And Ranging)는 레이저를 쏘고 돌아오는 빛으로 거리를 잽니다. 원본 교재는 네 부분으로 나눕니다.</p>
+<ol><li><strong>레이저 발광부</strong>: 짧은 적외선 펄스(LD19는 파장 약 905 nm)를 쏩니다.</li><li><strong>스캔부</strong>: 발광·수광부를 모터로 회전시켜 한 평면을 훑습니다(2D 라이다).</li><li><strong>수광부</strong>: 물체에서 반사된 빛을 받아 전기 신호로 바꿉니다.</li><li><strong>신호 처리부</strong>: 시간 또는 각도 정보로 거리를 계산해 (각도, 거리) 쌍을 내보냅니다.</li></ol>
+<p>측정 원리로는 <strong>삼각측량(triangulation)</strong>, <strong>펄스(ToF)</strong>, <strong>코히어런트(FMCW)</strong> 방식이 있고, 원본 교재는 MentorPi의 라이다를 펄스 방식으로 분류합니다.</p>
+<h2 id="거리-측정-원리">거리 측정 원리<a class="anchor" href="#거리-측정-원리">#</a></h2>
+<h3 id="tof-빛이-다녀온-시간">ToF — 빛이 다녀온 시간<a class="anchor" href="#tof-빛이-다녀온-시간">#</a></h3>
+<p>빛이 물체까지 갔다가 돌아오는 시간 <span class="math">t</span>를 재면, 빛의 속도 <span class="math">c</span> ≈ 3×10⁸ m/s로</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">d = c · t / 2          (왕복이므로 2로 나눔)</code></pre></div>
+<p>1 m 거리는 왕복 6.67 ns, <strong>1 cm 분해능은 67 ps</strong>의 시간 분해능이 필요합니다. 그래서 ToF 라이다는 고속 타이밍 회로(TDC)와 여러 번 측정 평균을 씁니다. 오차가 거리에 거의 무관(대략 일정한 ±수 cm)하고 먼 거리까지 잴 수 있다는 것이 장점입니다.</p>
+<h3 id="삼각측량-빛이-맺히는-위치">삼각측량 — 빛이 맺히는 위치<a class="anchor" href="#삼각측량-빛이-맺히는-위치">#</a></h3>
+<p>발광부와 수광 렌즈를 기준선 <span class="math">b</span>만큼 떨어뜨려 두면, 물체가 가까울수록 반사광이 이미지 센서의 한쪽 끝에, 멀수록 다른 쪽에 맺힙니다. 닮은 삼각형으로</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">d = f · b / x          (f: 렌즈 초점거리, x: 센서 위 광점 위치)
+∂d/∂x = −f·b / x² = −d² / (f·b)   → 오차가 거리의 제곱으로 커짐</code></pre></div>
+<p>값싸고 가까운 거리에서 정밀하지만 먼 거리에서는 급격히 부정확해집니다. 저가 청소 로봇 라이다가 이 방식을 많이 씁니다.</p>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>ToF(펄스)</th><th>삼각측량</th></tr></thead><tbody><tr><td>거리 계산</td><td>시간 × 빛의 속도 / 2</td><td>기준선·초점거리·광점 위치의 닮음비</td></tr><tr><td>오차 vs 거리</td><td>거의 일정</td><td>거리²에 비례해 증가</td></tr><tr><td>최대 거리</td><td>길다 (LD19: 12 m)</td><td>짧다 (보통 6~8 m)</td></tr><tr><td>햇빛 영향</td><td>상대적으로 강함</td><td>약함(센서 포화)</td></tr></tbody></table></div>
+<h2 id="mentorpi의-ld19-라이다">MentorPi의 LD19 라이다<a class="anchor" href="#mentorpi의-ld19-라이다">#</a></h2>
+<p>원본 교재(Lesson 1)의 사양 중 알고리즘에 영향을 주는 값만 추렸습니다.</p>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>값</th><th>의미</th></tr></thead><tbody><tr><td>측정 범위</td><td>0.02 ~ 12 m (반사율 70 %)</td><td>검은 물체·유리·거울은 더 짧거나 측정 안 됨</td></tr><tr><td>스캔 주파수</td><td>5 ~ 13 Hz (기본 10 Hz, PWM 속도 제어)</td><td><code>/scan_raw</code> 발행 주기</td></tr><tr><td>측정 주파수</td><td>4500 회/초</td><td>한 바퀴 점 수 = 4500 / 10 = <strong>450점</strong> → 약 <strong>0.8°</strong> 간격</td></tr><tr><td>정확도</td><td>±45 mm (0.3 ~ 12 m), 표준편차 10 mm</td><td>0.3 m 미만은 경향만 맞음</td></tr><tr><td>각도 오차</td><td>최대 2°</td><td>먼 물체일수록 위치 오차 큼 (5 m에서 17 cm)</td></tr><tr><td>외란광</td><td>30 klux까지</td><td>직사광선 창가에서는 잡음 증가</td></tr><tr><td>통신</td><td>UART 230400 bps, 8N1</td><td>드라이버가 <code>/dev/ldlidar</code> 포트로 읽음</td></tr><tr><td>레이저 등급</td><td>IEC-60825 Class 1</td><td>눈에 안전, 그래도 들여다보지 않기</td></tr></tbody></table></div>
+<p>두 가지 한계를 기억하세요.</p>
+<ul><li><strong>스캔 평면이 하나</strong>입니다. 라이다 높이보다 낮은 물체(바닥의 케이블, 낮은 턱)나 높은 물체의 아래 틈(테이블 상판)은 보이지 않습니다. 교재가 "책을 라이다 높이보다 높게 세워 두라"고 하는 이유입니다.</li><li><strong>이동 중 왜곡(motion distortion)</strong>: 한 바퀴에 0.1 s가 걸리므로 0.2 m/s로 가면 스캔 처음과 끝 사이에 2 cm, 0.5 rad/s로 돌면 2.9°가 어긋납니다. SLAM이 느린 회전을 선호하는 이유입니다.</li></ul>
+<h3 id="ros-2-드라이버와-토픽">ROS 2 드라이버와 토픽<a class="anchor" href="#ros-2-드라이버와-토픽">#</a></h3>
+<p>원본 <code>peripherals/launch/include/ldlidar_LD19.launch.py</code>는 <code>ldlidar_stl_ros2</code> 노드(이름 <code>LD19</code>)를 띄웁니다.</p>
+<div class="table-wrap"><table><thead><tr><th>설정</th><th>값</th></tr></thead><tbody><tr><td><code>product_name</code></td><td><code>LDLiDAR_LD19</code></td></tr><tr><td><code>port_name</code>, <code>port_baudrate</code></td><td><code>/dev/ldlidar</code>, 230400</td></tr><tr><td><code>laser_scan_dir</code></td><td>True (반시계 방향으로 각도 증가)</td></tr><tr><td><code>enable_angle_crop_func</code></td><td>False (135°~225° 자르기 옵션은 꺼 둠)</td></tr><tr><td>발행 토픽</td><td><code>scan</code> → **<code>/scan_raw</code>** 로 remap</td></tr></tbody></table></div>
+<p><code>/scan_raw</code>를 쓰는 곳은 라이다 앱(<code>lidar_controller.py</code>), 레이저 오도메트리(rf2o), Nav2 코스트맵(<code>scan_topic: scan_raw</code>), RTAB-Map입니다. 이 사이트의 시뮬레이터와 Playground는 같은 데이터를 <code>/scan</code>으로 발행합니다. **실물로 옮길 때 토픽 이름만 <code>/scan_raw</code>로 바꾸면** 됩니다.</p>
+<h2 id="sensormsgs-laserscan-해석">sensor_msgs/LaserScan 해석<a class="anchor" href="#sensormsgs-laserscan-해석">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>필드</th><th>단위</th><th>의미</th></tr></thead><tbody><tr><td><code>header.frame_id</code></td><td>—</td><td>측정 좌표계(실물 <code>lidar_frame</code> 등, 시뮬 <code>lidar_frame</code>)</td></tr><tr><td><code>header.stamp</code></td><td>—</td><td>스캔 첫 빔의 시각</td></tr><tr><td><code>angle_min</code>, <code>angle_max</code></td><td>rad</td><td>첫 빔과 마지막 빔의 각도</td></tr><tr><td><code>angle_increment</code></td><td>rad</td><td>빔 사이 각도 Δθ</td></tr><tr><td><code>time_increment</code>, <code>scan_time</code></td><td>s</td><td>빔 사이 시간, 한 바퀴 시간 (왜곡 보정에 사용)</td></tr><tr><td><code>range_min</code>, <code>range_max</code></td><td>m</td><td>유효 거리 범위. 밖의 값은 버림</td></tr><tr><td><code>ranges[]</code></td><td>m</td><td>거리 배열. 측정 없음은 <code>inf</code>(또는 드라이버에 따라 0, <code>nan</code>)</td></tr><tr><td><code>intensities[]</code></td><td>—</td><td>반사 세기 (드라이버마다 척도가 다름)</td></tr></tbody></table></div>
+<figure class="fig" id="fig-m05-scan"><svg viewBox="0 0 720 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="LaserScan 기하: 각도 angle_min부터 angle_increment씩 반시계로 증가하는 빔과 극좌표-직교좌표 변환">
+  <defs>
+    <marker id="arr-m05-scan" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+    <marker id="arr-m05-scan-f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <!-- range circle -->
+  <circle cx="200" cy="170" r="120" style="fill:none;stroke:var(--border)" stroke-width="1.2" stroke-dasharray="4 5"/>
+  <!-- beams every 30 deg -->
+  <g style="stroke:var(--border)" stroke-width="1">
+    <path d="M200 170 L320 170 M200 170 L304 110 M200 170 L260 66 M200 170 L200 50 M200 170 L140 66 M200 170 L96 110 M200 170 L80 170 M200 170 L96 230 M200 170 L140 274 M200 170 L200 290 M200 170 L260 274 M200 170 L304 230"/>
+  </g>
+  <!-- scan direction arc (CCW from back) -->
+  <path class="ln-hi" d="M110 196 A94 94 0 0 0 290 196" stroke-width="1.8" marker-end="url(#arr-m05-scan)"/>
+  <text class="tag" x="200" y="252" text-anchor="middle">반시계로 i 증가</text>
+  <!-- robot -->
+  <rect class="box-hi" x="182" y="156" width="36" height="28" rx="5"/>
+  <path d="M200 170 L240 170" style="stroke:var(--text)" stroke-width="2" marker-end="url(#arr-m05-scan-f)"/>
+  <!-- angle labels -->
+  <text class="sub mono" x="326" y="166" text-anchor="start">0 전방</text>
+  <text class="sub mono" x="326" y="182" text-anchor="start">i = 180</text>
+  <text class="sub mono" x="200" y="40" text-anchor="middle">+π/2 왼쪽 · i = 270</text>
+  <text class="sub mono" x="200" y="308" text-anchor="middle">−π/2 오른쪽 · i = 90</text>
+  <text class="sub mono" x="86" y="160" text-anchor="start">±π</text>
+  <text class="sub mono" x="30" y="190" text-anchor="start">i = 0</text>
+  <!-- sample point -->
+  <path class="ln-hi" d="M200 170 L290 107" stroke-width="2.4"/>
+  <circle cx="290" cy="107" r="5" class="hi"/>
+  <path d="M290 107 L290 170" style="stroke:var(--text-faint)" stroke-width="1" stroke-dasharray="3 3"/>
+  <text class="lbl mono hi" x="296" y="100">P</text>
+  <text class="lbl mono hi" x="244" y="132" text-anchor="middle">r</text>
+  <path class="ln-hi" d="M236 170 A36 36 0 0 0 229.5 149.4" stroke-width="1.4"/>
+  <text class="tag mono" x="246" y="162">θ</text>
+  <!-- panel -->
+  <rect class="box" x="370" y="24" width="340" height="282" rx="8"/>
+  <text class="lbl" x="386" y="50">sensor_msgs/LaserScan 핵심 필드</text>
+  <text class="sub mono" x="386" y="74">angle_min, angle_max    [rad]</text>
+  <text class="sub mono" x="386" y="94">angle_increment Δθ      [rad]</text>
+  <text class="sub mono" x="386" y="114">ranges[i]  [m] (측정 없음 = inf)</text>
+  <text class="sub mono" x="386" y="134">range_min, range_max    [m]</text>
+  <text class="lbl mono hi" x="386" y="166">θ_i = angle_min + i·Δθ</text>
+  <text class="lbl mono" x="386" y="190">x = r·cos θ ,  y = r·sin θ</text>
+  <text class="lbl" x="386" y="224">이 사이트 시뮬레이터 /scan</text>
+  <text class="sub" x="386" y="244">angle_min = −π, 360개 → 전방은 가운데(i = 180)</text>
+  <text class="lbl" x="386" y="272">원본 lidar_controller.py 가정 (LD19)</text>
+  <text class="sub" x="386" y="292">ranges[0] = 전방, 인덱스는 반시계로 증가</text>
+</svg><figcaption>LaserScan의 기하. i번째 빔의 각도는 angle_min + i·Δθ이고, 반시계로 증가합니다.</figcaption></figure>
+<h3 id="인덱스-각도-직교좌표">인덱스 ↔ 각도 ↔ 직교좌표<a class="anchor" href="#인덱스-각도-직교좌표">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">θ_i = angle_min + i · angle_increment              (라디안, 0 = 라이다 전방, + = 왼쪽)
+i(θ) = round((θ − angle_min) / angle_increment) mod N
+x_i = r_i · cos θ_i ,   y_i = r_i · sin θ_i         (라이다 좌표계)</code></pre></div>
+<p>라이다 좌표의 점을 세계 좌표로 옮기려면 두 번 변환합니다(R06의 TF).</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">p_base  = T(base ← lidar) · p_lidar      정적 변환 (URDF, 라이다 장착 위치)
+p_world = R(ψ) · p_base + (x_r, y_r)      로봇 자세 (/odom 또는 지도 위치)</code></pre></div>
+<p>MentorPi URDF에서 라이다는 차체 중심보다 약 1.2 cm 뒤, 16 cm 위에 있습니다(M08). 2D 계산에서는 수평 오프셋 1.2 cm가 무시할 만해 흔히 생략합니다.</p>
+<h3 id="유효하지-않은-값-거르기">유효하지 않은 값 거르기<a class="anchor" href="#유효하지-않은-값-거르기">#</a></h3>
+<p>원본 앱 코드는 <code>ranges</code>에서 <strong>0이 아닌 값</strong>(<code>nonzero()</code>)과 <strong>유한한 값</strong>(<code>np.isfinite</code>)만 남긴 뒤 최솟값을 구합니다. 드라이버에 따라 "측정 없음"을 0으로 보내는 경우가 있어 0을 그대로 두면 "0 m에 장애물"로 오판합니다. 같은 이유로 <code>range_min</code> 미만 값도 버리는 것이 안전합니다.</p>
+<h3 id="인덱스-규약-차이-각도로-계산하라">인덱스 규약 차이 — 각도로 계산하라<a class="anchor" href="#인덱스-규약-차이-각도로-계산하라">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>데이터</th><th>angle_min</th><th>전방 인덱스</th><th>원본 앱의 가정</th></tr></thead><tbody><tr><td>이 사이트 시뮬레이터 <code>/scan</code></td><td>−π</td><td>가운데 (N/2 = 180)</td><td>—</td></tr><tr><td>원본 <code>lidar_controller.py</code> (LD19 등)</td><td>—</td><td>0</td><td><code>ranges[:k]</code> = 왼쪽, <code>ranges[::-1][:k]</code> = 오른쪽</td></tr><tr><td>원본 코드의 G4 라이다 분기</td><td>—</td><td>뒤집힌 순서</td><td>별도 인덱스 계산</td></tr></tbody></table></div>
+<p>원본 앱은 라이다 종류마다 인덱스 계산을 따로 둡니다(환경 변수 <code>LIDAR_TYPE</code>). 여러분의 코드는 **인덱스가 아니라 <code>angle_min + i·Δθ</code>로 각도를 계산한 뒤 각도 범위로 고르면** 어떤 드라이버·장착 방향에서도 그대로 동작합니다. 아래 실습은 모두 이 방식입니다.</p>
+<h2 id="실습-시뮬레이션">실습 (시뮬레이션)<a class="anchor" href="#실습-시뮬레이션">#</a></h2>
+<h3 id="1-스캔-한-장-받아-필드-읽기">1. 스캔 한 장 받아 필드 읽기<a class="anchor" href="#1-스캔-한-장-받아-필드-읽기">#</a></h3>
+<p>빈 방(6×6 m) 한가운데에서 앞쪽 1 m에 상자를 두고 스캔 한 장을 받습니다. 잡음을 꺼서 숫자를 검증하기 쉽게 합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import LaserScan
+import mentorpi_sim as sim                                        # 시뮬 전용
+sim.setup(chassis=&quot;mecanum&quot;, world=&quot;empty&quot;, duration=2.0,
+          start=(0.0, 0.0, 0.0), noise=False)                     # 시뮬 전용
+sim.add_box(1.0, 0.0, 0.2, 0.6)                                   # 시뮬 전용: 앞면이 x = 0.9
+
+class ScanOnce(Node):
+    def __init__(self):
+        super().__init__(&quot;scan_once&quot;)
+        self.create_subscription(LaserScan, &quot;/scan&quot;, self.on_scan, 10)
+        self.done = False
+
+    def on_scan(self, msg):
+        if self.done:
+            return
+        self.done = True
+        n = len(msg.ranges)
+        print(&quot;frame=%s  빔 %d개&quot; % (msg.header.frame_id, n))
+        print(&quot;angle_min=%.4f  angle_max=%.4f  increment=%.4f rad (%.2f°)&quot; % (
+            msg.angle_min, msg.angle_max, msg.angle_increment, math.degrees(msg.angle_increment)))
+        print(&quot;range %.2f ~ %.1f m,  scan_time %.2f s&quot; % (msg.range_min, msg.range_max, msg.scan_time))
+        for name, deg in [(&quot;전방&quot;, 0), (&quot;왼쪽&quot;, 90), (&quot;후방&quot;, 180), (&quot;오른쪽&quot;, -90), (&quot;전방 20°&quot;, 20)]:
+            i = int(round((math.radians(deg) - msg.angle_min) / msg.angle_increment)) % n
+            print(&quot;  %-6s θ=%+4d°  i=%3d  r=%.3f m&quot; % (name, deg, i, msg.ranges[i]))
+        print(&quot;inf 개수:&quot;, sum(1 for r in msg.ranges if math.isinf(r)))
+
+rclpy.init()
+node = ScanOnce()
+try:
+    while rclpy.ok() and not node.done:
+        rclpy.spin_once(node, timeout_sec=0.1)
+except KeyboardInterrupt:
+    pass
+finally:
+    node.destroy_node()
+    rclpy.shutdown()</code></pre></div>
+<p>(대략)</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">frame=lidar_frame  빔 360개
+angle_min=-3.1416  angle_max=3.1241  increment=0.0175 rad (1.00°)
+range 0.05 ~ 12.0 m,  scan_time 0.10 s
+  전방     θ=  +0°  i=180  r=0.900 m
+  왼쪽     θ= +90°  i=270  r=3.000 m
+  후방     θ=+180°  i=  0  r=3.000 m
+  오른쪽    θ= -90°  i= 90  r=3.000 m
+  전방 20° θ= +20°  i=200  r=3.193 m
+inf 개수: 0</code></pre></div>
+<ul><li>전방 인덱스가 180, 왼쪽이 270, 오른쪽이 90입니다. <code>angle_min = −π</code>이므로 인덱스 0은 <strong>후방</strong>입니다.</li><li>상자 앞면은 x = 0.9 m, 폭은 y = ±0.3 m입니다. 20° 방향 빔은 x = 0.9에서 y = 0.9·tan 20° = 0.33 m를 지나 상자 옆을 <strong>빗나가고</strong>, 3 m 떨어진 벽에 3 / cos 20° = 3.193 m에서 닿습니다.</li><li>빈 방은 벽으로 둘러싸여 12 m 안에 항상 무언가가 있으므로 <code>inf</code>가 없습니다. 실물에서 넓은 공간을 향하면 <code>inf</code>가 많이 나옵니다.</li></ul>
+<h3 id="2-가장-가까운-장애물-찾기와-세계-좌표-변환">2. 가장 가까운 장애물 찾기와 세계 좌표 변환<a class="anchor" href="#2-가장-가까운-장애물-찾기와-세계-좌표-변환">#</a></h3>
+<p>로봇을 30° 돌려 놓고, 세계 좌표 (1.0, 0.5)에 반지름 0.1 m 원기둥을 둡니다. 스캔에서 가장 가까운 점을 찾고, 로봇 자세로 세계 좌표를 계산해 원기둥 중심을 추정합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import LaserScan
+from geometry_msgs.msg import Pose2D
+import mentorpi_sim as sim                                        # 시뮬 전용
+sim.setup(chassis=&quot;mecanum&quot;, world=&quot;empty&quot;, duration=2.0,
+          start=(0.0, 0.0, math.radians(30)), noise=False)        # 시뮬 전용
+sim.add_cylinder(1.0, 0.5, 0.1)                                   # 시뮬 전용
+
+class Nearest(Node):
+    def __init__(self):
+        super().__init__(&quot;nearest_obstacle&quot;)
+        self.create_subscription(LaserScan, &quot;/scan&quot;, self.on_scan, 10)
+        self.create_subscription(Pose2D, &quot;/ground_truth&quot;, self.on_pose, 10)
+        self.pose, self.done = None, False
+
+    def on_pose(self, msg):
+        self.pose = msg
+
+    def on_scan(self, msg):
+        if self.done or self.pose is None:
+            return
+        r = np.array(msg.ranges)
+        th = msg.angle_min + np.arange(len(r)) * msg.angle_increment
+        ok = np.isfinite(r) &amp; (r &gt; msg.range_min)
+        i = np.argmin(np.where(ok, r, np.inf))
+        d, a = r[i], th[i]
+        print(&quot;최근접: 거리 %.3f m, 로봇 기준 각도 %+.1f°&quot; % (d, math.degrees(a)))
+        near = ok &amp; (np.abs(r - d) &lt; 0.15) &amp; (np.abs(th - a) &lt; math.radians(15))
+        print(&quot;같은 물체로 보이는 빔: %d개&quot; % near.sum())
+        px, py = d * math.cos(a), d * math.sin(a)                 # 로봇 좌표
+        x, y, psi = self.pose.x, self.pose.y, self.pose.theta
+        wx = x + px * math.cos(psi) - py * math.sin(psi)          # 세계 좌표
+        wy = y + px * math.sin(psi) + py * math.cos(psi)
+        cx = wx + 0.1 * math.cos(psi + a)                          # 표면 → 중심
+        cy = wy + 0.1 * math.sin(psi + a)
+        print(&quot;표면점 세계좌표 (%.3f, %.3f), 추정 중심 (%.3f, %.3f)&quot; % (wx, wy, cx, cy))
+        xs = list(x + r[ok] * np.cos(psi + th[ok]))
+        ys = list(y + r[ok] * np.sin(psi + th[ok]))
+        sim.plot(xs, ys, &quot;스캔 점 (세계 좌표)&quot;)                        # 시뮬 전용
+        self.done = True
+
+rclpy.init()
+node = Nearest()
+try:
+    while rclpy.ok() and not node.done:
+        rclpy.spin_once(node, timeout_sec=0.1)
+except KeyboardInterrupt:
+    pass
+finally:
+    node.destroy_node()
+    rclpy.shutdown()</code></pre></div>
+<p>(대략)</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">최근접: 거리 1.018 m, 로봇 기준 각도 -3.0°
+같은 물체로 보이는 빔: 10개
+표면점 세계좌표 (0.907, 0.462), 추정 중심 (0.996, 0.508)</code></pre></div>
+<p>이론값과 비교해 보세요. 원기둥 중심까지 거리 √(1² + 0.5²) = 1.118 m, 표면까지 1.018 m, 세계 방향 26.6°에서 로봇 yaw 30°를 빼면 로봇 기준 <strong>−3.4°</strong> (오른쪽 조금)입니다. 빔 간격이 1°라 최근접 빔은 −3° 또는 −4°에 있고, 그만큼 표면점이 1 cm 안팎 어긋납니다. 원기둥은 중심에서 ±asin(0.1/1.118) = ±5.1° 폭으로 보이므로 약 10개 빔이 닿습니다.</p>
+<h3 id="3-섹터별-최소거리-원본-앱-방식">3. 섹터별 최소거리 — 원본 앱 방식<a class="anchor" href="#3-섹터별-최소거리-원본-앱-방식">#</a></h3>
+<p>원본 <code>lidar_controller.py</code>는 <strong>뒤쪽 120°를 버리고</strong>(<code>MAX_SCAN_ANGLE = 240</code>), 전방 기준 좌·우로 <code>scan_angle/2</code>(기본 45°)씩의 섹터에서 최소거리를 구합니다. 같은 계산을 각도 기반으로 작성해 경기장(arena) 월드에서 돌려 봅니다. 로봇은 (0.35, 0.45)에서 +x를 보고 있고, 왼쪽 앞 (0.8, 0.8)에 한 변 0.3 m 상자가 있습니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import LaserScan
+import mentorpi_sim as sim                                        # 시뮬 전용
+sim.setup(chassis=&quot;mecanum&quot;, world=&quot;arena&quot;, duration=2.0,
+          start=(0.35, 0.45, 0.0), noise=False)                   # 시뮬 전용
+
+THRESHOLD = 0.6                      # 원본 기본값 [m]
+SCAN_ANGLE = math.radians(90)        # enter 후 기본값 → 좌우 각 45°
+
+def sector_min(r, th, lo, hi):
+    m = (th &gt;= lo) &amp; (th &lt;= hi) &amp; np.isfinite(r) &amp; (r &gt; 0)
+    return float(r[m].min()) if m.any() else float(&quot;inf&quot;)
+
+class Sectors(Node):
+    def __init__(self):
+        super().__init__(&quot;sectors&quot;)
+        self.create_subscription(LaserScan, &quot;/scan&quot;, self.on_scan, 10)
+        self.done = False
+
+    def on_scan(self, msg):
+        if self.done:
+            return
+        self.done = True
+        r = np.array(msg.ranges)
+        th = msg.angle_min + np.arange(len(r)) * msg.angle_increment
+        for name, lo, hi in [(&quot;전방 ±15°&quot;, -15, 15), (&quot;왼쪽 15~90°&quot;, 15, 90),
+                             (&quot;오른쪽 −90~−15°&quot;, -90, -15), (&quot;후방 |θ|&gt;120°&quot;, 120, 180)]:
+            d = sector_min(r, np.abs(th) if lo == 120 else th, math.radians(lo), math.radians(hi))
+            print(&quot;%-16s 최소 %.3f m&quot; % (name, d))
+        left = sector_min(r, th, 0.0, SCAN_ANGLE / 2)
+        right = sector_min(r, th, -SCAN_ANGLE / 2, 0.0)
+        print(&quot;원본 방식 left_range 최소 %.3f, right_range 최소 %.3f&quot; % (left, right))
+        if left &lt;= THRESHOLD and right &lt;= THRESHOLD:
+            act = &quot;양쪽 막힘 → 크게 회전&quot;
+        elif left &lt;= THRESHOLD:
+            act = &quot;왼쪽 막힘 → 오른쪽으로 회전&quot;
+        elif right &lt;= THRESHOLD:
+            act = &quot;오른쪽 막힘 → 왼쪽으로 회전&quot;
+        else:
+            act = &quot;통과 → 직진&quot;
+        print(&quot;판단(threshold %.1f m): %s&quot; % (THRESHOLD, act))
+
+rclpy.init()
+node = Sectors()
+try:
+    while rclpy.ok() and not node.done:
+        rclpy.spin_once(node, timeout_sec=0.1)
+except KeyboardInterrupt:
+    pass
+finally:
+    node.destroy_node()
+    rclpy.shutdown()</code></pre></div>
+<p>(대략)</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">전방 ±15°          최소 1.650 m
+왼쪽 15~90°        최소 0.362 m
+오른쪽 −90~−15°     최소 0.998 m
+후방 |θ|&gt;120°      최소 1.100 m
+원본 방식 left_range 최소 0.362, right_range 최소 0.998
+판단(threshold 0.6 m): 왼쪽 막힘 → 오른쪽으로 회전</code></pre></div>
+<p>이 판단 규칙이 다음 장(M06)의 장애물 회피 알고리즘의 뼈대입니다. <code>start</code>의 yaw를 바꿔 가며 판단이 어떻게 달라지는지 보세요.</p>
+<h3 id="2d-시뮬레이터에서-스캔-보기">2D 시뮬레이터에서 스캔 보기<a class="anchor" href="#2d-시뮬레이터에서-스캔-보기">#</a></h3>
+<p class="cta-row"><a class="ghost-btn cta" href="../sim/index.html">2D 시뮬레이터 열기</a></p>
+<ol><li><strong>라이다 표시</strong>를 켜고 방(room) 월드에서 로봇을 천천히 움직입니다. 빔이 가구 뒤쪽을 보지 못하는 <strong>그림자</strong> 영역을 찾아보세요.</li><li>원기둥 가까이 갔다가 멀어지면서 원기둥에 닿는 빔 수가 어떻게 줄어드는지 봅니다(거리 d에서 대략 2·asin(r/d) / 1°개).</li><li>로봇을 빠르게 회전시키며 스캔 모양이 흔들리는지 관찰하고, 정지했을 때와 비교합니다.</li></ol>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> 시뮬레이터 <code>/scan</code>에서 전방·왼쪽·오른쪽·후방의 인덱스를 계산할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> LD19의 한 바퀴 점 수(약 450)와 각도 간격을 사양에서 계산할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> 라이다 점을 세계 좌표로 옮기는 두 단계 변환을 쓸 수 있다.</label></li></ul></div></div>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">실물 라이다 실습 전 확인</div><div class="callout-body"><ul><li>라이다는 Class 1 레이저지만 <strong>회전하는 창을 가까이서 들여다보지 않습니다.</strong> 회전부를 손으로 막지 않습니다(모터 과부하).</li><li>라이다만 켜는 실습은 로봇이 움직이지 않지만, <code>controller.launch.py</code>까지 켠 상태라면 다른 노드가 주행 명령을 보낼 수 있으니 바퀴를 띄워 둡니다.</li><li>케이블(<code>/dev/ldlidar</code>)을 꽂거나 뺄 때는 전원을 끕니다.</li></ul></div></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">~/.stop_ros.sh
+ros2 launch peripherals lidar_view.launch.py      # 라이다 + 로봇 모델 + RViz</code></pre></div>
+<p>새 터미널에서 토픽을 확인합니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 topic list | grep scan                        # /scan_raw
+ros2 topic hz /scan_raw                            # 약 10 Hz
+ros2 topic echo /scan_raw --once --field angle_min
+ros2 topic echo /scan_raw --once --field angle_increment
+ros2 topic echo /scan_raw --once --field ranges | head -20</code></pre></div>
+<p>로봇 앞 0.5 m에 책을 세우고, 실습 1 코드의 토픽을 <code>/scan_raw</code>로 바꾸고 <code># 시뮬 전용</code> 줄을 지워 실행합니다. 전방 인덱스가 시뮬레이터와 다른지, 각도 기반 계산으로는 같은 결과가 나오는지 확인하세요. <code>rclpy</code> 기본 QoS(신뢰성 RELIABLE)로 받지 못하면 원본 앱처럼 <code>BEST_EFFORT</code> QoS를 씁니다.</p>
+<div class="code-block code-robot"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-robot">실물 전용</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">from rclpy.qos import qos_profile_sensor_data
+self.create_subscription(LaserScan, &quot;/scan_raw&quot;, self.on_scan, qos_profile_sensor_data)</code></pre></div>
+<p>끝나면 <code>sudo systemctl restart start_node.service</code>(Docker 밖)로 앱 서비스를 되살립니다.</p>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td>구독했는데 콜백이 한 번도 안 불림</td><td>토픽 이름(<code>/scan</code> vs <code>/scan_raw</code>) 또는 QoS 불일치</td><td><code>ros2 topic info -v /scan_raw</code>로 QoS 확인, <code>qos_profile_sensor_data</code> 사용</td></tr><tr><td>최솟값이 항상 0</td><td>"측정 없음"을 0으로 보내는 드라이버</td><td><code>r &gt; range_min</code>이고 <code>isfinite</code>인 값만 사용</td></tr><tr><td>전방이라고 고른 값이 실제로는 뒤쪽</td><td>인덱스 규약 차이(angle_min이 −π인지 0인지)</td><td>인덱스 대신 <code>angle_min + i·Δθ</code>로 각도 계산</td></tr><tr><td>좌우가 바뀜</td><td>라이다가 뒤집혀 장착, 또는 시계 방향 스캔</td><td><code>laser_scan_dir</code>, TF 확인, 각도 부호 점검</td></tr><tr><td>검은 의자 다리·유리문을 못 봄</td><td>반사율 낮음·투과</td><td>정상 한계. 깊이 카메라(M07)나 범퍼와 병행</td></tr><tr><td>낮은 장애물에 부딪힘</td><td>스캔 평면보다 낮음</td><td>라이다 높이 확인, 깊이 카메라로 보완</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">개인 과제</div><div class="callout-body"><ol><li><strong>(기본)</strong> 실습 2를 원기둥 위치 (0.5, −0.8), (2.0, 1.0)으로 바꿔 추정 중심의 오차를 구하고, 거리가 멀수록 오차가 커지는 이유를 빔 간격으로 설명하세요.</li><li><strong>(기본)</strong> 실습 1에서 전방 ±30° 빔의 (x, y)를 계산해 상자 앞면이 직선(x ≈ 0.9)으로 나오는지 확인하세요.</li><li><strong>(심화)</strong> 스캔을 <strong>군집화</strong>(인접 빔 거리 차가 0.1 m 이하면 같은 물체)해 물체 개수와 각 물체의 중심·폭을 출력하는 함수를 작성하고 arena 월드에서 시험하세요.</li><li><strong>(심화)</strong> 로봇이 0.5 rad/s로 도는 동안 스캔 한 장을 받아, <code>time_increment</code>로 각 빔의 측정 시각을 계산하고 회전을 보정(de-skew)하는 코드를 작성하세요.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>10. Lidar Lesson — Lesson 1 Lidar Introduction</em>, <em>Lesson 2 Lidar Working and Ranging Principle</em></li><li>원본 소스: <code>src/peripherals/launch/lidar.launch.py</code>, <code>src/peripherals/launch/include/ldlidar_LD19.launch.py</code>, <code>src/app/app/lidar_controller.py</code></li><li>sensor_msgs/LaserScan (ROS 2 Humble): https://docs.ros2.org/humble/api/sensor_msgs/msg/LaserScan.html</li><li>REP-117 Informational Distance Measurements (inf/nan 규약): https://www.ros.org/reps/rep-0117.html</li><li>LDROBOT <code>ldlidar_stl_ros2</code> 드라이버: https://github.com/ldrobotSensorTeam/ldlidar_stl_ros2</li><li>ROS 2 QoS 설정: https://docs.ros.org/en/humble/Concepts/Intermediate/About-Quality-of-Service-Settings.html</li></ul>
+      <nav class="pager"><a class="pager-prev" href="m04.html"><span>이전 · M04</span>cmd_vel 속도 제어 프로그래밍</a><a class="pager-next" href="m06.html"><span>다음 · M06</span>라이다 응용: 회피·추종·경비</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#라이다의-구성과-분류">라이다의 구성과 분류</a><a class="toc-l2" href="#거리-측정-원리">거리 측정 원리</a><a class="toc-l3" href="#tof-빛이-다녀온-시간">ToF — 빛이 다녀온 시간</a><a class="toc-l3" href="#삼각측량-빛이-맺히는-위치">삼각측량 — 빛이 맺히는 위치</a><a class="toc-l2" href="#mentorpi의-ld19-라이다">MentorPi의 LD19 라이다</a><a class="toc-l3" href="#ros-2-드라이버와-토픽">ROS 2 드라이버와 토픽</a><a class="toc-l2" href="#sensormsgs-laserscan-해석">sensor_msgs/LaserScan 해석</a><a class="toc-l3" href="#인덱스-각도-직교좌표">인덱스 ↔ 각도 ↔ 직교좌표</a><a class="toc-l3" href="#유효하지-않은-값-거르기">유효하지 않은 값 거르기</a><a class="toc-l3" href="#인덱스-규약-차이-각도로-계산하라">인덱스 규약 차이 — 각도로 계산하라</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l3" href="#1-스캔-한-장-받아-필드-읽기">1. 스캔 한 장 받아 필드 읽기</a><a class="toc-l3" href="#2-가장-가까운-장애물-찾기와-세계-좌표-변환">2. 가장 가까운 장애물 찾기와 세계 좌표 변환</a><a class="toc-l3" href="#3-섹터별-최소거리-원본-앱-방식">3. 섹터별 최소거리 — 원본 앱 방식</a><a class="toc-l3" href="#2d-시뮬레이터에서-스캔-보기">2D 시뮬레이터에서 스캔 보기</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

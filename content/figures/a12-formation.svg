@@ -1,0 +1,38 @@
+<svg viewBox="0 0 720 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="row, column, triangle 대형의 오프셋">
+  <defs>
+    <marker id="arr-a12-formation" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <!-- scale: 1 m = 100 px, leader x forward = up on screen, y left = left on screen -->
+  <!-- row: leader at (120,120) -->
+  <text class="lbl" x="120" y="24" text-anchor="middle">row</text>
+  <rect class="box-hi" x="108" y="108" width="24" height="24" rx="4"/>
+  <path class="ln-hi" d="M120 108 L120 80" marker-end="url(#arr-a12-formation)"/>
+  <rect class="box" x="178" y="108" width="24" height="24" rx="4"/>
+  <rect class="box" x="38" y="108" width="24" height="24" rx="4"/>
+  <text class="tag" x="120" y="150" text-anchor="middle">리더</text>
+  <text class="tag" x="190" y="150" text-anchor="middle">r2 (0, −0.7)</text>
+  <text class="tag" x="50" y="150" text-anchor="middle">r3 (0, +0.7)</text>
+
+  <!-- column: leader at (360,60) -->
+  <text class="lbl" x="360" y="24" text-anchor="middle">column</text>
+  <rect class="box-hi" x="348" y="48" width="24" height="24" rx="4"/>
+  <path class="ln-hi" d="M360 48 L360 34" marker-end="url(#arr-a12-formation)"/>
+  <rect class="box" x="348" y="108" width="24" height="24" rx="4"/>
+  <rect class="box" x="348" y="168" width="24" height="24" rx="4"/>
+  <text class="tag" x="380" y="64">리더</text>
+  <text class="tag" x="380" y="124">r2 (−0.6, 0)</text>
+  <text class="tag" x="380" y="184">r3 (−1.2, 0)</text>
+
+  <!-- triangle: leader at (600,60) -->
+  <text class="lbl" x="600" y="24" text-anchor="middle">triangle</text>
+  <rect class="box-hi" x="588" y="48" width="24" height="24" rx="4"/>
+  <path class="ln-hi" d="M600 48 L600 34" marker-end="url(#arr-a12-formation)"/>
+  <rect class="box" x="628" y="118" width="24" height="24" rx="4"/>
+  <rect class="box" x="548" y="118" width="24" height="24" rx="4"/>
+  <text class="tag" x="620" y="64">리더</text>
+  <text class="tag" x="610" y="160" text-anchor="start">r2 (−0.7, −0.4)</text>
+  <text class="tag" x="590" y="160" text-anchor="end">r3 (−0.7, +0.4)</text>
+
+  <text class="sub" x="360" y="226" text-anchor="middle">화면 위 = 리더 전방(+x), 화면 왼쪽 = 리더 왼쪽(+y), 1 m = 100 px</text>
+  <text class="sub" x="360" y="246" text-anchor="middle">월드 목표 = 리더 위치 + R(ψ)·오프셋 → 대형은 리더와 함께 회전</text>
+</svg>

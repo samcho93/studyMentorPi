@@ -1,0 +1,32 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="차선 검출 ROI 세 개와 조향 기준선">
+  <!-- 640x480 image scaled by 0.5 at (20,20) -->
+  <rect class="box" x="20" y="20" width="320" height="240"/>
+  <text class="tag" x="20" y="14">(0,0)</text>
+  <text class="tag" x="340" y="276" text-anchor="end">640×480</text>
+  <!-- lane line: from (130,480) to (300,200) scaled -->
+  <path d="M85 260 L170 120" style="stroke:var(--warn)" stroke-width="7" fill="none"/>
+  <path d="M320 260 L255 120" style="stroke:var(--text-faint)" stroke-width="5" fill="none"/>
+  <!-- ROIs: y 338-360, 292-315, 248-270 ; x 0-320 -->
+  <rect class="box-hi" x="20" y="189" width="160" height="11" opacity="0.55"/>
+  <rect class="box-hi" x="20" y="166" width="160" height="11.5" opacity="0.55"/>
+  <rect class="box-hi" x="20" y="144" width="160" height="11" opacity="0.55"/>
+  <!-- setpoint 130 and turn 150 -->
+  <path class="ln" d="M85 30 L85 258" stroke-dasharray="4 3"/>
+  <path class="ln-hi" d="M95 30 L95 258" stroke-dasharray="4 3"/>
+  <text class="tag" x="82" y="40" text-anchor="end">130</text>
+  <text class="tag" x="98" y="40">150</text>
+  <path class="ln" d="M180 30 L180 258" stroke-dasharray="2 4"/>
+  <text class="tag" x="183" y="52">x = 320</text>
+  <text class="tag" x="183" y="66">(ROI 오른쪽 끝)</text>
+  <!-- labels -->
+  <text class="sub" x="360" y="60">ROI 띠 (y 범위 · 가중치)</text>
+  <text class="lbl mono" x="360" y="92">248–270 · 0.1  (멀리)</text>
+  <text class="lbl mono" x="360" y="116">292–315 · 0.2</text>
+  <text class="lbl mono" x="360" y="140">338–360 · 0.7  (가까움)</text>
+  <text class="sub" x="360" y="178">띠마다: 최대 윤곽 → minAreaRect 중심 x</text>
+  <text class="sub" x="360" y="200">lane_x = 세 중심 x의 최댓값</text>
+  <text class="sub" x="360" y="226">lane_x ≤ 150 → PID(0.4, 0, 0.05), 설정점 130, ±0.1</text>
+  <text class="sub" x="360" y="248">lane_x &gt; 150 → 회전 모드 (메카넘 −0.45 rad/s)</text>
+  <text class="tag" x="120" y="252">노란 선</text>
+  <text class="tag" x="296" y="252" text-anchor="end">흰 선(무시)</text>
+</svg>

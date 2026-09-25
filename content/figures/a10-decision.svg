@@ -1,0 +1,41 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="검출 결과에서 상황 변수, 주행 명령으로 이어지는 판단 흐름">
+  <defs>
+    <marker id="arr-a10-decision" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <text class="lbl" x="95" y="24" text-anchor="middle">인식 (YOLOv5)</text>
+  <rect class="box" x="15" y="40" width="160" height="220" rx="6"/>
+  <text class="sub mono" x="95" y="70" text-anchor="middle">crosswalk</text>
+  <text class="sub mono" x="95" y="110" text-anchor="middle">red / green</text>
+  <text class="sub mono" x="95" y="150" text-anchor="middle">park</text>
+  <text class="sub mono" x="95" y="190" text-anchor="middle">right</text>
+  <text class="sub mono" x="95" y="230" text-anchor="middle">go</text>
+  <text class="tag" x="95" y="250" text-anchor="middle">/yolov5_ros2/object_detect</text>
+
+  <text class="lbl" x="340" y="24" text-anchor="middle">상황 변수 (get_object_callback)</text>
+  <rect class="box-hi" x="220" y="40" width="240" height="220" rx="6"/>
+  <text class="sub" x="235" y="70">crosswalk_distance = 중심 y 최댓값</text>
+  <text class="sub" x="235" y="110">traffic_signs_status = 신호 객체</text>
+  <text class="sub" x="235" y="150">park_x = 중심 x</text>
+  <text class="sub" x="235" y="190">count_right → turn_right (≥ 5)</text>
+  <text class="tag" x="235" y="230">(go는 별도 처리 없음 = 차선 유지)</text>
+
+  <path class="ln" d="M175 66 L218 66" marker-end="url(#arr-a10-decision)"/>
+  <path class="ln" d="M175 106 L218 106" marker-end="url(#arr-a10-decision)"/>
+  <path class="ln" d="M175 146 L218 146" marker-end="url(#arr-a10-decision)"/>
+  <path class="ln" d="M175 186 L218 186" marker-end="url(#arr-a10-decision)"/>
+
+  <text class="lbl" x="600" y="24" text-anchor="middle">판단 (main 루프)</text>
+  <rect class="box" x="505" y="40" width="200" height="60" rx="6"/>
+  <text class="sub" x="515" y="62">y &gt; 70, 3프레임 연속</text>
+  <text class="sub" x="515" y="84">→ 감속 (0.4 m / v 동안)</text>
+  <rect class="box" x="505" y="110" width="200" height="60" rx="6"/>
+  <text class="sub" x="515" y="132">감속 중 red, 면적 &lt; 1000</text>
+  <text class="sub" x="515" y="154">→ 정지 / green → 출발</text>
+  <rect class="box" x="505" y="180" width="200" height="60" rx="6"/>
+  <text class="sub" x="515" y="202">park_x &gt; 0, y &gt; 180 × 15회</text>
+  <text class="sub" x="515" y="224">→ 주차 동작 (A11)</text>
+  <path class="ln" d="M460 66 L503 70" marker-end="url(#arr-a10-decision)"/>
+  <path class="ln" d="M460 106 L503 138" marker-end="url(#arr-a10-decision)"/>
+  <path class="ln" d="M460 146 L503 206" marker-end="url(#arr-a10-decision)"/>
+  <text class="sub" x="360" y="290" text-anchor="middle">최종 명령: Twist → /controller/cmd_vel (차선 유지 각속도와 합쳐 발행)</text>
+</svg>

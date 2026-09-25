@@ -1,0 +1,43 @@
+<svg viewBox="0 0 720 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="손 추종 팬 서보 제어 루프">
+  <defs>
+    <marker id="arr-a06-pantilt-loop" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-a06-pantilt-loop-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <circle class="box" cx="70" cy="90" r="18"/>
+  <text class="lbl" x="70" y="95" text-anchor="middle">Σ</text>
+  <text class="tag" x="20" y="70">목표 320 px</text>
+  <path class="ln" d="M10 90 L50 90" marker-end="url(#arr-a06-pantilt-loop)"/>
+  <text class="tag" x="58" y="126" text-anchor="middle">−</text>
+
+  <path class="ln" d="M88 90 L138 90" marker-end="url(#arr-a06-pantilt-loop)"/>
+  <text class="tag" x="113" y="80" text-anchor="middle">오차 e</text>
+
+  <rect class="box-hi" x="140" y="60" width="140" height="60" rx="6"/>
+  <text class="lbl" x="210" y="86" text-anchor="middle">PID(0.1, 0.0002,</text>
+  <text class="lbl" x="210" y="104" text-anchor="middle">0.00001)</text>
+
+  <path class="ln" d="M280 90 L330 90" marker-end="url(#arr-a06-pantilt-loop)"/>
+  <text class="tag" x="305" y="80" text-anchor="middle">Δ펄스</text>
+
+  <rect class="box" x="332" y="60" width="120" height="60" rx="6"/>
+  <text class="lbl" x="392" y="86" text-anchor="middle">누적 ∑</text>
+  <text class="sub" x="392" y="104" text-anchor="middle">800~1900 제한</text>
+
+  <path class="ln" d="M452 90 L502 90" marker-end="url(#arr-a06-pantilt-loop)"/>
+  <text class="tag" x="477" y="80" text-anchor="middle">펄스</text>
+
+  <rect class="box" x="504" y="60" width="120" height="60" rx="6"/>
+  <text class="lbl" x="564" y="86" text-anchor="middle">PWM 서보</text>
+  <text class="sub" x="564" y="104" text-anchor="middle">팬(2) · 틸트(1)</text>
+
+  <path class="ln" d="M624 90 L700 90 L700 200 L640 200" fill="none" marker-end="url(#arr-a06-pantilt-loop)"/>
+  <text class="tag" x="705" y="150" text-anchor="end">카메라 회전</text>
+
+  <rect class="box" x="400" y="170" width="238" height="60" rx="6"/>
+  <text class="lbl" x="519" y="196" text-anchor="middle">카메라 + MediaPipe</text>
+  <text class="sub" x="519" y="214" text-anchor="middle">hand_detect → /hand_detect/center</text>
+
+  <path class="ln-hi" d="M400 200 L70 200 L70 110" fill="none" marker-end="url(#arr-a06-pantilt-loop-hi)"/>
+  <text class="tag" x="235" y="192" text-anchor="middle">손 중심 x (반전 보정: width − x)</text>
+  <text class="sub" x="235" y="245" text-anchor="middle">PID 출력이 '위치 증분'이므로 누적 블록이 적분기 역할 → P만으로도 정상상태 오차 0</text>
+</svg>

@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A07. 머신러닝과 YOLOv5 이해 · studyMentorPi</title>
+<meta name="description" content="지도·비지도·강화 학습, 딥러닝 라이브러리(PyTorch·TensorFlow·ONNX), YOLO 계열 구조와 출력(박스·신뢰도·NMS).">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-ai">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" class="active" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="a07" data-track="ai">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-ai">비전 AI·자율주행</span> A-3 머신러닝·YOLOv5 &middot; 약 80분 &middot; 중급</div>
+    <h1><span class="lesson-no">A07</span>머신러닝과 YOLOv5 이해</h1>
+    <p class="lede">지도·비지도·강화 학습, 딥러닝 라이브러리(PyTorch·TensorFlow·ONNX), YOLO 계열 구조와 출력(박스·신뢰도·NMS).</p>
+    <div class="requires">선수 챕터: <a href="a01.html">A01</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>인공지능·머신러닝·딥러닝의 관계와 지도·비지도·강화 학습의 차이를 예를 들어 설명합니다.</li><li>PyTorch·TensorFlow 같은 학습 프레임워크와 ONNX·TensorRT·TFLite 같은 배포 형식의 역할을 구분합니다.</li><li>YOLOv5의 구조(입력 → 백본 → 넥 → 헤드)와 출력 텐서의 모양(박스·객체성·클래스)을 설명합니다.</li><li>IoU·NMS를 numpy로 직접 구현하고, 정밀도·재현율·AP(mAP)를 계산합니다.</li><li>앵커 매칭(<code>anchor_t</code>)과 손실 함수(box·obj·cls)가 학습에서 하는 일을 말합니다.</li></ul>
+<h2 id="인공지능-머신러닝-딥러닝">인공지능, 머신러닝, 딥러닝<a class="anchor" href="#인공지능-머신러닝-딥러닝">#</a></h2>
+<p><strong>인공지능(AI, Artificial Intelligence)</strong>은 사람의 지능을 흉내 내고 확장하는 기술 전체를 말합니다. 그 안에서 <strong>머신러닝(Machine Learning)</strong>은 규칙을 사람이 적는 대신 <strong>데이터로부터 규칙(모델)을 학습</strong>하는 방법이고, <strong>딥러닝(Deep Learning)</strong>은 머신러닝 가운데 여러 층의 신경망을 쓰는 방법입니다. 바둑에서 세계 챔피언을 이긴 AlphaGo가 대표적인 딥러닝 사례입니다.</p>
+<p>A01에서 만든 색 인식은 사람이 LAB 임계값이라는 <strong>규칙</strong>을 정했습니다. 반면 이 장의 YOLOv5는 "이 사진의 이 상자가 우회전 표지판"이라는 <strong>예시</strong>를 수백 장 보여 주면 규칙을 스스로 찾습니다. 조명·각도·배경이 다양할수록 규칙을 사람이 적기 어려워지므로 학습이 유리해집니다.</p>
+<h3 id="학습의-세-종류">학습의 세 종류<a class="anchor" href="#학습의-세-종류">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>종류</th><th>데이터</th><th>목표</th><th>로봇 예</th></tr></thead><tbody><tr><td><strong>지도 학습</strong> (Supervised)</td><td>입력 + 정답 라벨</td><td>새 입력의 정답 예측</td><td>표지판 사진 + 상자 라벨 → YOLOv5</td></tr><tr><td><strong>비지도 학습</strong> (Unsupervised)</td><td>입력만</td><td>데이터 속 구조(군집 등) 발견</td><td>라이다 점들을 물체별로 묶기(군집화)</td></tr><tr><td><strong>강화 학습</strong> (Reinforcement)</td><td>행동 → 보상</td><td>누적 보상 최대화 정책</td><td>시뮬레이터에서 넘어지지 않는 보행 학습</td></tr></tbody></table></div>
+<p>지도 학습은 네 단계로 이루어집니다.</p>
+<ol><li><strong>모델 선택</strong>: 선형 회귀, 로지스틱 회귀, 결정 트리, SVM, 심층 신경망 등 문제에 맞는 모델을 고릅니다.</li><li><strong>특징 공학(feature engineering)</strong>: 데이터 정리, 결측값 처리, 정규화 등. 딥러닝은 특징을 스스로 배우지만 입력 크기·정규화 같은 전처리는 여전히 필요합니다(YOLOv5의 레터박스, 0~1 정규화).</li><li><strong>학습과 최적화</strong>: 손실 함수를 정하고 경사 하강법(gradient descent)이나 확률적 경사 하강법(SGD)으로 파라미터를 조금씩 바꿔 손실을 줄입니다.</li><li><strong>평가</strong>: 학습에 쓰지 않은 데이터로 정확도·정밀도·재현율·F1 등을 잽니다.</li></ol>
+<h2 id="프레임워크와-배포-형식">프레임워크와 배포 형식<a class="anchor" href="#프레임워크와-배포-형식">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>이름</th><th>성격</th><th>특징</th></tr></thead><tbody><tr><td><strong>PyTorch</strong></td><td>학습 프레임워크</td><td>동적 계산 그래프, Python 친화적. YOLOv5가 PyTorch로 작성됨</td></tr><tr><td><strong>TensorFlow</strong></td><td>학습 프레임워크</td><td>정적 그래프 기반(2.x는 즉시 실행 지원), 산업 배포 도구가 풍부</td></tr><tr><td><strong>PaddlePaddle</strong></td><td>학습 프레임워크</td><td>Baidu가 개발, 학습·추론·모델 라이브러리 일체형</td></tr><tr><td><strong>MXNet</strong></td><td>학습 프레임워크</td><td>여러 언어 지원, 분산 학습에 강함</td></tr><tr><td><strong>ONNX</strong></td><td>교환 형식</td><td>프레임워크 사이 모델 변환의 공용어 (<code>export.py --include onnx</code>)</td></tr><tr><td><strong>TensorRT</strong></td><td>추론 엔진</td><td>NVIDIA GPU용 최적화 엔진(<code>.engine</code>). 원본 <code>yolov5_trt.py</code>가 사용</td></tr><tr><td><strong>TFLite</strong></td><td>추론 엔진</td><td>모바일·임베디드용. MediaPipe 모델(<code>.tflite</code>, <code>.task</code>)이 이 형식</td></tr></tbody></table></div>
+<p>MentorPi(Raspberry Pi 5)는 NVIDIA GPU가 없으므로 기본 경로는 **PyTorch 모델(<code>.pt</code>)을 CPU로 추론**하는 <code>yolov5_ros2</code> 패키지입니다(<code>device: cpu</code>). 예제 폴더의 <code>yolov5_trt.py</code>·<code>libmyplugins.so</code>는 Jetson 계열 제품과 공유하는 TensorRT 경로이며, 원리 공부(전처리·NMS)에 좋은 자료입니다.</p>
+<h2 id="yolo-한-번-보고-모두-찾기">YOLO: 한 번 보고 모두 찾기<a class="anchor" href="#yolo-한-번-보고-모두-찾기">#</a></h2>
+<p><strong>YOLO(You Only Look Once)</strong>가 나오기 전에는 R-CNN 계열 <strong>2단계(two-stage)</strong> 검출기가 주류였습니다. 1단계에서 물체가 있을 법한 후보 영역 수천 개를 뽑고, 2단계에서 후보마다 분류했기 때문에 정확하지만 느렸습니다. YOLO는 검출을 <strong>하나의 회귀 문제</strong>로 바꿔, 영상 전체를 한 번 통과시켜 모든 상자와 클래스를 동시에 출력하는 <strong>1단계(one-stage)</strong> 검출기입니다.</p>
+<h3 id="yolov5-구조">YOLOv5 구조<a class="anchor" href="#yolov5-구조">#</a></h3>
+<figure class="fig" id="fig-a07-yolo-arch"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="YOLOv5 구조: 입력, 백본, 넥, 헤드와 세 출력 격자">
+  <defs>
+    <marker id="arr-a07-yolo-arch" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <rect class="box" x="15" y="110" width="95" height="80" rx="6"/>
+  <text class="lbl" x="62" y="140" text-anchor="middle">입력</text>
+  <text class="sub" x="62" y="160" text-anchor="middle">640×640×3</text>
+  <text class="tag" x="62" y="178" text-anchor="middle">레터박스·0~1</text>
+
+  <rect class="box" x="140" y="40" width="150" height="220" rx="6"/>
+  <text class="lbl" x="215" y="62" text-anchor="middle">백본 Backbone</text>
+  <text class="sub mono" x="215" y="90" text-anchor="middle">Conv 6×6 s2</text>
+  <text class="sub mono" x="215" y="112" text-anchor="middle">Conv + C3 ×n</text>
+  <text class="sub mono" x="215" y="146" text-anchor="middle">P3 (80×80)</text>
+  <text class="sub mono" x="215" y="180" text-anchor="middle">P4 (40×40)</text>
+  <text class="sub mono" x="215" y="214" text-anchor="middle">P5 (20×20)</text>
+  <text class="sub mono" x="215" y="240" text-anchor="middle">SPPF</text>
+
+  <rect class="box" x="320" y="40" width="150" height="220" rx="6"/>
+  <text class="lbl" x="395" y="62" text-anchor="middle">넥 Neck</text>
+  <text class="sub" x="395" y="90" text-anchor="middle">FPN: 위 → 아래</text>
+  <text class="sub" x="395" y="110" text-anchor="middle">(업샘플 + Concat)</text>
+  <text class="sub" x="395" y="150" text-anchor="middle">PAN: 아래 → 위</text>
+  <text class="sub" x="395" y="170" text-anchor="middle">(Conv s2 + Concat)</text>
+  <text class="tag" x="395" y="215" text-anchor="middle">큰 물체의 의미 정보와</text>
+  <text class="tag" x="395" y="231" text-anchor="middle">작은 물체의 위치 정보 결합</text>
+
+  <path class="ln" d="M110 150 L138 150" marker-end="url(#arr-a07-yolo-arch)"/>
+  <path class="ln" d="M290 142 L318 142" marker-end="url(#arr-a07-yolo-arch)"/>
+  <path class="ln" d="M290 176 L318 176" marker-end="url(#arr-a07-yolo-arch)"/>
+  <path class="ln" d="M290 210 L318 210" marker-end="url(#arr-a07-yolo-arch)"/>
+
+  <rect class="box-hi" x="510" y="40" width="195" height="60" rx="6"/>
+  <text class="lbl" x="607" y="64" text-anchor="middle">P3 · stride 8 · 80×80</text>
+  <text class="tag" x="607" y="84" text-anchor="middle">작은 물체 · 앵커 (10,13)(16,30)(33,23)</text>
+  <rect class="box-hi" x="510" y="120" width="195" height="60" rx="6"/>
+  <text class="lbl" x="607" y="144" text-anchor="middle">P4 · stride 16 · 40×40</text>
+  <text class="tag" x="607" y="164" text-anchor="middle">중간 · (30,61)(62,45)(59,119)</text>
+  <rect class="box-hi" x="510" y="200" width="195" height="60" rx="6"/>
+  <text class="lbl" x="607" y="224" text-anchor="middle">P5 · stride 32 · 20×20</text>
+  <text class="tag" x="607" y="244" text-anchor="middle">큰 물체 · (116,90)(156,198)(373,326)</text>
+
+  <path class="ln" d="M470 90 L508 70" marker-end="url(#arr-a07-yolo-arch)"/>
+  <path class="ln" d="M470 150 L508 150" marker-end="url(#arr-a07-yolo-arch)"/>
+  <path class="ln" d="M470 210 L508 230" marker-end="url(#arr-a07-yolo-arch)"/>
+  <text class="sub" x="360" y="288" text-anchor="middle">헤드 출력: (80²+40²+20²) × 3 앵커 = 25,200개 예측, 각각 [x, y, w, h, obj, 클래스 nc개]</text>
+</svg><figcaption>YOLOv5 구조와 640 입력에서의 세 출력 격자. 작은 물체는 촘촘한 80×80 격자(P3)가, 큰 물체는 20×20 격자(P5)가 맡습니다.</figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th>부분</th><th>하는 일</th><th>YOLOv5의 선택</th></tr></thead><tbody><tr><td><strong>입력</strong></td><td>크기 맞추기, 데이터 증강</td><td>레터박스(비율 유지 + 회색 패딩), Mosaic 증강(학습 시 4장 합성), 적응형 앵커 계산</td></tr><tr><td><strong>백본(Backbone)</strong></td><td>특징 추출</td><td>Conv(합성곱+BN+SiLU), C3(CSP 잔차 묶음). 원본 교재가 설명한 Focus는 v6.0부터 6×6 합성곱으로 대체</td></tr><tr><td><strong>넥(Neck)</strong></td><td>여러 크기 특징 섞기</td><td>SPPF(연속 최대 풀링), FPN(위→아래) + PAN(아래→위)</td></tr><tr><td><strong>헤드(Head)</strong></td><td>박스·점수 예측</td><td>3개 스케일(stride 8/16/32) × 격자 셀마다 앵커 3개</td></tr></tbody></table></div>
+<p>원본 교재가 소개하는 구성 요소를 정리하면 다음과 같습니다. <strong>합성곱층</strong>은 작은 커널을 영상 위로 밀며 특징을 뽑고, <strong>풀링층</strong>(최대 풀링)은 크기를 줄이며 강한 특징만 남기고, <strong>업샘플링층</strong>은 크기를 키워 다른 층과 합칠 수 있게 합니다. <strong>배치 정규화(BN)</strong>는 층 출력의 분포를 고르게 해 학습을 안정시키고, <strong>활성화 함수</strong>(ReLU, SiLU 등)는 비선형성을 넣어 층을 여러 개 쌓는 의미를 만듭니다. <strong>Add</strong>는 잔차 연결처럼 텐서를 더하고, <strong>Concat</strong>은 채널 방향으로 이어 붙입니다.</p>
+<h3 id="출력-텐서-읽기">출력 텐서 읽기<a class="anchor" href="#출력-텐서-읽기">#</a></h3>
+<p>입력이 640×640이면 세 격자의 셀 수는 <span class="math">80² + 40² + 20² = 8400</span>개이고, 셀마다 앵커 3개이므로 <strong>예측은 25,200개</strong>입니다. 예측 하나는 <code>5 + nc</code>개의 숫자입니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[ tx, ty, tw, th,  obj,  p_0, p_1, ..., p_(nc-1) ]
+  └ 박스 4개 ┘  객체성   클래스 확률 nc개</code></pre></div>
+<p>자율주행 표지판 모델(<code>traffic_signs_640s_7_0</code>)은 클래스가 6개(<code>go, right, park, red, green, crosswalk</code>)이므로 25,200 × 11 행렬이 나옵니다. 박스는 격자 셀 위치 <span class="math">(c_x, c_y)</span>, stride <span class="math">s</span>, 앵커 크기 <span class="math">(p_w, p_h)</span>로 복원합니다(σ는 시그모이드).</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">b_x = (2·σ(t_x) − 0.5 + c_x) · s          b_w = p_w · (2·σ(t_w))²
+b_y = (2·σ(t_y) − 0.5 + c_y) · s          b_h = p_h · (2·σ(t_h))²
+최종 점수 = obj × p_class</code></pre></div>
+<p>중심은 자기 셀에서 −0.5~1.5칸까지, 크기는 앵커의 0~4배까지 움직일 수 있습니다. 이 "4배"가 뒤에 나올 <code>anchor_t = 4.0</code>과 짝을 이룹니다.</p>
+<h2 id="iou와-nms">IoU와 NMS<a class="anchor" href="#iou와-nms">#</a></h2>
+<figure class="fig" id="fig-a07-iou-nms"><svg viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="IoU 정의와 NMS 동작">
+  <!-- IoU -->
+  <text class="lbl" x="150" y="28" text-anchor="middle">IoU = 교집합 ÷ 합집합</text>
+  <rect class="box" x="60" y="60" width="120" height="120"/>
+  <rect class="box" x="120" y="120" width="120" height="120"/>
+  <rect class="hi" x="120" y="120" width="60" height="60" opacity="0.8"/>
+  <text class="tag" x="70" y="78">A</text>
+  <text class="tag" x="228" y="232" text-anchor="end">B</text>
+  <text class="tag" x="150" y="155" text-anchor="middle">A∩B</text>
+  <text class="sub" x="150" y="262" text-anchor="middle">반씩 어긋나면 2500 / 17500 = 0.143</text>
+
+  <line class="ln" x1="300" y1="30" x2="300" y2="260" stroke-dasharray="4 4"/>
+
+  <!-- NMS -->
+  <text class="lbl" x="510" y="28" text-anchor="middle">NMS (같은 클래스, IoU &gt; 0.4 제거)</text>
+  <rect style="fill:none;stroke:var(--accent)" x="350" y="70" width="110" height="110" stroke-width="3"/>
+  <text class="tag" x="352" y="64">right 0.92 ✔ 채택</text>
+  <rect style="fill:none;stroke:var(--danger)" x="361" y="76" width="104" height="115" stroke-width="1.5" stroke-dasharray="5 3"/>
+  <text class="tag" x="522" y="205">right 0.85 ✘ (IoU 0.75)</text>
+  <rect style="fill:none;stroke:var(--ok)" x="405" y="125" width="110" height="110" stroke-width="2"/>
+  <text class="tag" x="518" y="238">right 0.60 ✔ (IoU 0.14)</text>
+  <rect style="fill:none;stroke:var(--warn)" x="560" y="70" width="60" height="70" stroke-width="2"/>
+  <text class="tag" x="590" y="60" text-anchor="middle">park 0.80 ✔</text>
+  <text class="tag" x="590" y="158" text-anchor="middle">(다른 클래스는</text>
+  <text class="tag" x="590" y="172" text-anchor="middle">겹쳐도 유지)</text>
+  <text class="sub" x="510" y="262" text-anchor="middle">① conf 필터 → ② 점수 정렬 → ③ 최고 채택 → ④ 겹침 제거 → 반복</text>
+</svg><figcaption>왼쪽: IoU = 교집합 ÷ 합집합. 오른쪽: NMS는 점수 순으로 하나를 채택하고, 같은 클래스에서 많이 겹치는 상자를 지웁니다.</figcaption></figure>
+<p>한 물체 주변의 여러 셀·앵커가 동시에 "여기 있다"고 답하므로 25,200개 예측에는 중복이 많습니다. 이를 정리하는 것이 <strong>NMS(Non-Maximum Suppression)</strong>이고, 겹침 정도를 재는 척도가 <strong>IoU(Intersection over Union)</strong>입니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">IoU(A, B) = |A ∩ B| / |A ∪ B| = 교집합 넓이 / (A 넓이 + B 넓이 − 교집합 넓이)</code></pre></div>
+<p><code>yolov5_trt.py</code>의 <code>non_max_suppression()</code> 순서는 다음과 같습니다.</p>
+<ol><li>신뢰도 &lt; <code>conf_thres</code>(원본 기본 0.8, 노드 파라미터 <code>conf</code>)인 예측을 버립니다.</li><li>중심·크기 표기(cx, cy, w, h)를 모서리 표기(x1, y1, x2, y2)로 바꾸고, 레터박스 패딩을 빼서 원본 영상 좌표로 되돌립니다.</li><li>신뢰도 내림차순으로 정렬합니다.</li><li>맨 위 상자를 채택하고, <strong>같은 클래스이면서</strong> IoU &gt; <code>nms_thres</code>(0.4)인 상자를 모두 지웁니다. 남은 상자가 없을 때까지 반복합니다.</li></ol>
+<p>클래스가 다르면 겹쳐도 지우지 않으므로(class-aware NMS), 신호등 상자와 그 옆 표지판 상자가 겹쳐도 둘 다 살아남습니다.</p>
+<h3 id="실습-iou와-nms-구현">실습: IoU와 NMS 구현<a class="anchor" href="#실습-iou와-nms-구현">#</a></h3>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import numpy as np
+
+def iou(box, boxes):
+    &quot;&quot;&quot;box: (4,), boxes: (N,4)  [x1, y1, x2, y2] → (N,) IoU&quot;&quot;&quot;
+    ix1 = np.maximum(box[0], boxes[:, 0])
+    iy1 = np.maximum(box[1], boxes[:, 1])
+    ix2 = np.minimum(box[2], boxes[:, 2])
+    iy2 = np.minimum(box[3], boxes[:, 3])
+    inter = np.clip(ix2 - ix1, 0, None) * np.clip(iy2 - iy1, 0, None)
+    a1 = (box[2] - box[0]) * (box[3] - box[1])
+    a2 = (boxes[:, 2] - boxes[:, 0]) * (boxes[:, 3] - boxes[:, 1])
+    return inter / (a1 + a2 - inter + 1e-16)
+
+def nms(det, conf_thres=0.5, iou_thres=0.4):
+    &quot;&quot;&quot;det: (N,6) [x1,y1,x2,y2,conf,cls] → 남은 행 (yolov5_trt.py 와 같은 순서)&quot;&quot;&quot;
+    det = det[det[:, 4] &gt;= conf_thres]          # ① 신뢰도 필터
+    det = det[np.argsort(-det[:, 4])]           # ② 신뢰도 내림차순
+    keep = []
+    while len(det):
+        keep.append(det[0])                     # ③ 가장 높은 것 채택
+        same = det[:, 5] == det[0, 5]           # ④ 같은 클래스 중
+        over = iou(det[0, :4], det[:, :4]) &gt; iou_thres
+        det = det[~(same &amp; over)]               #    많이 겹치는 것 제거(자기 자신 포함)
+    return np.array(keep)
+
+a = np.array([100, 100, 200, 200.])
+print(&quot;IoU 예:&quot;, np.round(iou(a, np.array([[150, 150, 250, 250.],
+                                            [110, 100, 210, 200.],
+                                            [300, 300, 350, 350.]])), 4))
+names = [&quot;go&quot;, &quot;right&quot;, &quot;park&quot;, &quot;red&quot;, &quot;green&quot;, &quot;crosswalk&quot;]
+det = np.array([[100, 100, 200, 200, 0.92, 1],   # right
+                [110, 105, 205, 210, 0.85, 1],   # right (중복)
+                [150, 150, 250, 250, 0.60, 1],   # right (조금 겹침)
+                [105, 100, 200, 205, 0.80, 2],   # park (다른 클래스)
+                [400, 50, 430, 120, 0.45, 3]])   # red (신뢰도 낮음)
+for r in nms(det):
+    print(names[int(r[5])], r[:4].astype(int).tolist(), r[4])</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">IoU 예: [0.1429 0.8182 0.    ]
+right [100, 100, 200, 200] 0.92
+park [105, 100, 200, 205] 0.8
+right [150, 150, 250, 250] 0.6</code></pre></div>
+<ul><li>절반씩 어긋난 두 정사각형의 IoU는 <span class="math">2500 / (10000 + 10000 − 2500) = 0.1429</span>로 생각보다 작습니다. IoU 0.5는 "상당히 겹친다"는 뜻입니다.</li><li>0.85짜리 <code>right</code>는 0.92짜리와 IoU 0.748이라 지워졌고, 0.60짜리 <code>right</code>는 IoU 0.143이라 <strong>다른 물체로 보고</strong> 남았습니다.</li><li><code>park</code>는 첫 상자와 거의 겹치지만 클래스가 달라 남습니다. 0.45짜리 <code>red</code>는 1단계에서 탈락했습니다.</li></ul>
+<div class="callout callout-info"><div class="callout-title">+1 픽셀 관례</div><div class="callout-body"><p><code>yolov5_trt.py</code>의 <code>bbox_iou()</code>는 넓이를 <code>(x2 − x1 + 1) × (y2 − y1 + 1)</code>로 계산합니다. 픽셀 좌표를 "양 끝 포함"으로 보는 옛 PASCAL VOC 관례입니다. 위 구현은 연속 좌표 관례(+1 없음)를 썼으며, 상자가 수십 픽셀 이상이면 차이는 무시할 만합니다.</p></div></div>
+<h2 id="성능-지표-정밀도-재현율-map">성능 지표: 정밀도, 재현율, mAP<a class="anchor" href="#성능-지표-정밀도-재현율-map">#</a></h2>
+<p>검증 이미지에서 예측 상자가 정답 상자와 IoU ≥ 0.5이면 <strong>TP(참 양성)</strong>, 아니면 <strong>FP(거짓 양성)</strong>, 찾지 못한 정답은 <strong>FN(거짓 음성)</strong>입니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">정밀도 P = TP / (TP + FP)     &quot;찾았다고 한 것 중 맞은 비율&quot;
+재현율 R = TP / (TP + FN)     &quot;실제 물체 중 찾아낸 비율&quot;</code></pre></div>
+<p>신뢰도 문턱을 낮추면 R은 오르고 P는 떨어집니다. 문턱을 1에서 0까지 내리며 그린 <strong>P–R 곡선 아래 넓이가 AP(Average Precision)</strong>이고, 클래스별 AP의 평균이 <strong>mAP</strong>입니다. YOLOv5가 출력하는 두 지표는 다음과 같습니다.</p>
+<ul><li><code>mAP_0.5</code>: IoU 문턱 0.5에서의 mAP</li><li><code>mAP_0.5:0.95</code>: IoU 문턱 0.5, 0.55, …, 0.95 (10개)의 mAP 평균 — 상자를 <strong>정확히</strong> 그려야 높음</li></ul>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import numpy as np
+
+# 검증 세트: 정답(GT) 8개, 예측 10개 (IoU≥0.5로 이미 TP/FP 판정됨)
+scores = np.array([0.95, 0.91, 0.88, 0.80, 0.74, 0.66, 0.60, 0.52, 0.41, 0.30])
+is_tp  = np.array([1,    1,    0,    1,    1,    0,    1,    1,    0,    1])
+n_gt = 8
+
+order = np.argsort(-scores)                 # 신뢰도 높은 것부터 누적
+tp = np.cumsum(is_tp[order])
+fp = np.cumsum(1 - is_tp[order])
+recall = tp / n_gt
+precision = tp / (tp + fp)
+for k in (0, 2, 4, 7, 9):
+    print(&quot;상위 %2d개: P=%.3f R=%.3f&quot; % (k + 1, precision[k], recall[k]))
+
+mrec = np.concatenate(([0.0], recall, [1.0]))
+mpre = np.concatenate(([1.0], precision, [0.0]))
+mpre = np.flip(np.maximum.accumulate(np.flip(mpre)))   # 정밀도 포락선(오른쪽 최대)
+x = np.linspace(0, 1, 101)                             # COCO 101점 보간
+y = np.interp(x, mrec, mpre)
+ap = np.sum((y[1:] + y[:-1]) / 2 * np.diff(x))         # 사다리꼴 적분
+print(&quot;AP@0.5 = %.4f&quot; % ap)
+
+# 앵커 매칭: anchor_t = 4.0 (hyp.scratch-low.yaml)
+anchors = {&quot;P3/8&quot;:  [(10, 13), (16, 30), (33, 23)],
+           &quot;P4/16&quot;: [(30, 61), (62, 45), (59, 119)],
+           &quot;P5/32&quot;: [(116, 90), (156, 198), (373, 326)]}
+gw, gh = 60, 60                                         # 640 입력에서 표지판 60x60 px
+for level, anc in anchors.items():
+    ok = [a for a in anc if max(gw / a[0], a[0] / gw, gh / a[1], a[1] / gh) &lt; 4.0]
+    print(level, &quot;매칭 앵커:&quot;, ok)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">상위  1개: P=1.000 R=0.125
+상위  3개: P=0.667 R=0.250
+상위  5개: P=0.800 R=0.500
+상위  8개: P=0.750 R=0.750
+상위 10개: P=0.700 R=0.875
+AP@0.5 = 0.7672
+P3/8 매칭 앵커: [(16, 30), (33, 23)]
+P4/16 매칭 앵커: [(30, 61), (62, 45), (59, 119)]
+P5/32 매칭 앵커: [(116, 90), (156, 198)]</code></pre></div>
+<p>AP 계산은 <code>software/yolov5/utils/metrics.py</code>의 <code>compute_ap()</code>와 같은 방식입니다. <strong>정밀도 포락선</strong>은 "재현율이 이보다 높은 구간에서 얻을 수 있는 최대 정밀도"로 곡선을 계단 모양으로 펴 주는 단계입니다. 정답 8개 중 1개는 끝까지 못 찾았으므로(R 최대 0.875) AP는 1이 될 수 없습니다.</p>
+<h2 id="앵커와-손실-함수">앵커와 손실 함수<a class="anchor" href="#앵커와-손실-함수">#</a></h2>
+<h3 id="앵커-매칭">앵커 매칭<a class="anchor" href="#앵커-매칭">#</a></h3>
+<p><strong>앵커(anchor)</strong>는 격자마다 미리 정해 둔 기준 상자 크기입니다. <code>models/yolov5n.yaml</code>에 스케일마다 3개씩 적혀 있습니다(위 코드의 <code>anchors</code>). 학습 때 정답 상자는 <strong>가로·세로 비가 앵커의 1/4~4배 안에 드는 모든 앵커</strong>에 배정됩니다. 위 결과처럼 60×60 표지판은 세 스케일의 앵커 7개가 동시에 배우므로 한 물체에서 양성 샘플이 여러 개 생깁니다. 원본 교재가 말하는 "사전 상자(prior box)"가 바로 이 앵커입니다.</p>
+<p>학습 시작 시 YOLOv5는 데이터셋 라벨 크기와 기본 앵커가 잘 맞는지 검사하고(<code>AutoAnchor</code>), 맞지 않으면 k-means로 앵커를 새로 계산합니다. 원본 교재의 "적응형 앵커 계산"이 이것입니다.</p>
+<h3 id="손실-함수">손실 함수<a class="anchor" href="#손실-함수">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>손실</th><th>무엇을 벌하나</th><th>방법</th><th>가중치(<code>hyp.scratch-low.yaml</code>)</th></tr></thead><tbody><tr><td><code>box_loss</code></td><td>상자 위치·크기 오차</td><td>1 − CIoU</td><td><code>box: 0.05</code></td></tr><tr><td><code>obj_loss</code></td><td>물체 유무 판단 오차</td><td>BCE(이진 교차 엔트로피), 목표값 = IoU</td><td><code>obj: 1.0</code>, 스케일별 4.0/1.0/0.4 배</td></tr><tr><td><code>cls_loss</code></td><td>클래스 판단 오차</td><td>BCE</td><td><code>cls: 0.5</code></td></tr></tbody></table></div>
+<p><strong>CIoU</strong>는 IoU에 중심 거리 항과 가로세로비 항을 더한 척도입니다. 상자가 전혀 겹치지 않으면 IoU는 0이라 기울기가 없지만, 중심 거리 항 덕분에 CIoU는 "어느 쪽으로 옮겨야 하는지" 알려 줍니다. 원본 교재는 GIoU를 언급하는데, 이는 초기 버전 설명이고 현재 코드(<code>utils/loss.py</code>)는 <code>CIoU=True</code>입니다. 클래스가 하나뿐인 데이터셋에서는 <code>cls_loss</code>가 항상 0으로 기록됩니다(A08).</p>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td>같은 표지판에 상자가 여러 개 겹쳐 나옴</td><td>NMS IoU 문턱이 너무 높음</td><td><code>iou_thres</code>를 0.45 → 0.3으로 낮춤</td></tr><tr><td>가까이 붙은 두 표지판 중 하나가 사라짐</td><td>NMS IoU 문턱이 너무 낮아 다른 물체까지 지움</td><td><code>iou_thres</code>를 올리거나 표지판 간격을 넓힘</td></tr><tr><td>엉뚱한 곳에 낮은 점수 상자가 뜸</td><td>신뢰도 문턱이 낮음</td><td><code>conf</code>를 올림. 대신 먼 표지판은 늦게 잡힘</td></tr><tr><td>mAP_0.5는 높은데 mAP_0.5:0.95가 낮음</td><td>상자 위치가 대충 맞음</td><td>라벨 상자를 물체에 딱 맞게 다시 그림, 학습 epoch 증가</td></tr><tr><td>상자 좌표가 위아래로 일정하게 어긋남</td><td>레터박스 패딩을 빼지 않고 좌표 변환</td><td><code>xywh2xyxy</code>처럼 <code>(640 − 480·r)/2</code>를 빼고 비율로 나눔</td></tr><tr><td><code>Arrays of 2-dimensional vectors are deprecated</code> 경고</td><td>NumPy 2에서 2D <code>np.cross</code> 사용</td><td>외적을 <code>a[0]*b[1] − a[1]*b[0]</code>로 직접 계산</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">과제</div><div class="callout-body"><ol><li><strong>(기본)</strong> NMS 실습에서 <code>iou_thres</code>를 0.1과 0.8로 바꿔 결과가 어떻게 달라지는지 표로 정리하고, 각각의 위험을 한 문장으로 쓰세요.</li><li><strong>(기본)</strong> 입력 640×480 영상에서 네트워크 좌표 상자 (cx, cy, w, h) = (320, 300, 100, 60)을 원본 좌표로 되돌려 보세요(레터박스 위아래 패딩 80 px). 답: (270, 190, 370, 250).</li><li><strong>(심화)</strong> 클래스를 무시하는 NMS(agnostic)를 구현하고, 신호등 <code>red</code>와 <code>green</code> 상자가 동시에 나오는 상황에서 어느 쪽이 유리한지 논의하세요.</li><li><strong>(심화)</strong> 30×30 px(멀리 있는 표지판)과 300×300 px 상자에 매칭되는 앵커를 계산하고, 작은 물체 검출에 P3 스케일이 중요한 이유를 설명하세요.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>16. Machine Learning</em> — Lesson 1 Machine Learning Introduction, Lesson 2 Machine Learning Library Introduction, Lesson 3 Yolov5 Introduction</li><li>원본 소스: <code>src/example/example/yolov5_detect/yolov5_trt.py</code>, <code>src/yolov5_ros2/yolov5_ros2/yolo_detect.py</code>, <code>software/yolov5/utils/metrics.py</code>, <code>utils/loss.py</code>, <code>models/yolov5n.yaml</code></li><li>Ultralytics YOLOv5 문서: https://docs.ultralytics.com/yolov5/</li><li>YOLOv5 저장소: https://github.com/ultralytics/yolov5</li><li>Redmon et al., <em>You Only Look Once</em> (2016): https://arxiv.org/abs/1506.02640</li><li>Zheng et al., <em>Distance-IoU Loss</em> (CIoU, 2020): https://arxiv.org/abs/1911.08287</li><li>PyTorch: https://pytorch.org/ · ONNX: https://onnx.ai/ · TensorRT: https://developer.nvidia.com/tensorrt</li></ul>
+      <nav class="pager"><a class="pager-prev" href="a06.html"><span>이전 · A06</span>손 추종·자세 제어·포즈 감지</a><a class="pager-next" href="a08.html"><span>다음 · A08</span>YOLOv5 데이터셋·학습·배포</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#인공지능-머신러닝-딥러닝">인공지능, 머신러닝, 딥러닝</a><a class="toc-l3" href="#학습의-세-종류">학습의 세 종류</a><a class="toc-l2" href="#프레임워크와-배포-형식">프레임워크와 배포 형식</a><a class="toc-l2" href="#yolo-한-번-보고-모두-찾기">YOLO: 한 번 보고 모두 찾기</a><a class="toc-l3" href="#yolov5-구조">YOLOv5 구조</a><a class="toc-l3" href="#출력-텐서-읽기">출력 텐서 읽기</a><a class="toc-l2" href="#iou와-nms">IoU와 NMS</a><a class="toc-l3" href="#실습-iou와-nms-구현">실습: IoU와 NMS 구현</a><a class="toc-l2" href="#성능-지표-정밀도-재현율-map">성능 지표: 정밀도, 재현율, mAP</a><a class="toc-l2" href="#앵커와-손실-함수">앵커와 손실 함수</a><a class="toc-l3" href="#앵커-매칭">앵커 매칭</a><a class="toc-l3" href="#손실-함수">손실 함수</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>B10. Docker 기초와 ROS 2 컨테이너 · studyMentorPi</title>
+<meta name="description" content="이미지와 컨테이너, 생성·실행·관리, Dockerfile, 장치·볼륨 연결, 컨테이너 안의 ROS, 저장소 — MentorPi가 ROS 2를 돌리는 방식.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-base">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" class="active" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="b10" data-track="base">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-base">기초·하드웨어</span> B-4 컨테이너 &middot; 약 90분 &middot; 초급</div>
+    <h1><span class="lesson-no">B10</span>Docker 기초와 ROS 2 컨테이너</h1>
+    <p class="lede">이미지와 컨테이너, 생성·실행·관리, Dockerfile, 장치·볼륨 연결, 컨테이너 안의 ROS, 저장소 — MentorPi가 ROS 2를 돌리는 방식.</p>
+    <div class="requires">선수 챕터: <a href="b03.html">B03</a> <a href="b04.html">B04</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>컨테이너와 가상 머신의 차이를 <strong>커널 공유·격리 기술(namespace, cgroup, UnionFS)</strong> 관점에서 설명합니다.</li><li>이미지·컨테이너·저장소(registry)의 관계와 레이어 구조를 그림으로 설명합니다.</li><li><code>docker run/ps/exec/start/stop/rm/images/rmi/logs/stats</code> 등 핵심 명령으로 컨테이너의 수명 주기를 관리합니다.</li><li><code>Dockerfile</code>과 <code>docker commit</code>으로 이미지를 만들고, 장치(<code>--device</code>)·볼륨(<code>-v</code>)·GUI(X11)·네트워크(<code>--network=host</code>)를 연결합니다.</li><li>ROS 2 Humble 컨테이너를 직접 구성해 보고, MentorPi의 <code>mentorpi</code> 컨테이너를 안전하게 다루는 규칙을 지킵니다.</li></ul>
+<h2 id="왜-docker인가">왜 Docker인가<a class="anchor" href="#왜-docker인가">#</a></h2>
+<p>B03에서 본 것처럼 MentorPi의 모든 기능 프로그램은 호스트(라즈베리파이 OS, Debian)가 아니라 <strong>Docker 컨테이너(Ubuntu 22.04 + ROS 2 Humble)</strong> 안에 있습니다. 이렇게 하면</p>
+<ul><li>호스트 OS 버전과 무관하게 ROS 2가 요구하는 <strong>정확한 환경</strong>을 재현할 수 있고,</li><li>설치가 꼬여도 컨테이너를 바꾸면 되며(호스트는 깨끗하게 유지),</li><li>같은 이미지를 여러 로봇에 배포할 수 있습니다.</li></ul>
+<p>"내 컴퓨터에서는 되는데요"라는 문제를 없애는 것이 Docker의 핵심 가치입니다.</p>
+<h3 id="docker란">Docker란<a class="anchor" href="#docker란">#</a></h3>
+<p>Docker는 Go 언어로 작성된 오픈 소스(Apache 2.0) <strong>애플리케이션 컨테이너 엔진</strong>입니다. 리눅스 커널의 기능으로 프로세스를 격리합니다.</p>
+<div class="table-wrap"><table><thead><tr><th>커널 기능</th><th>역할</th></tr></thead><tbody><tr><td><strong>namespace</strong></td><td>프로세스가 보는 세계를 분리: PID(프로세스 번호), 네트워크, 마운트(파일 시스템), 사용자, 호스트 이름</td></tr><tr><td><strong>cgroup</strong></td><td>CPU·메모리 등 자원 사용량 제한·측정</td></tr><tr><td><strong>UnionFS</strong>(overlay)</td><td>읽기 전용 레이어 여러 장을 겹쳐 하나의 파일 시스템처럼 보이게 함</td></tr></tbody></table></div>
+<p>즉 <strong>컨테이너의 정체는 격리된 프로세스</strong>입니다. 별도 OS를 부팅하지 않으므로 밀리초~초 단위로 시작합니다.</p>
+<h3 id="가상-머신과-비교">가상 머신과 비교<a class="anchor" href="#가상-머신과-비교">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>가상 머신(VM)</th><th>컨테이너</th></tr></thead><tbody><tr><td>격리 단위</td><td>하드웨어를 흉내 내고 <strong>게스트 OS 전체</strong>를 실행</td><td>호스트 <strong>커널을 공유</strong>, 프로세스만 격리</td></tr><tr><td>시작 시간</td><td>수십 초~수 분</td><td>밀리초~초</td></tr><tr><td>크기</td><td>수 GB(OS 포함)</td><td>수십 MB~수 GB(커널 제외)</td></tr><tr><td>격리 강도</td><td>강함(클라우드의 사용자 간 격리)</td><td>상대적으로 약함(앱 간 격리)</td></tr><tr><td>다른 OS 커널</td><td>가능(Windows 위 Linux)</td><td>불가(리눅스 컨테이너는 리눅스 커널 필요)</td></tr></tbody></table></div>
+<p>라즈베리파이처럼 자원이 적은 장치에서 ROS 2 환경을 통째로 넣기에 컨테이너가 알맞은 이유입니다.</p>
+<h3 id="구조-클라이언트-서버">구조: 클라이언트-서버<a class="anchor" href="#구조-클라이언트-서버">#</a></h3>
+<p><code>docker</code> 명령(클라이언트)은 요청만 보내고, 실제 일은 <strong>Docker 데몬(dockerd)</strong>이 합니다. 둘은 UNIX 소켓(<code>/var/run/docker.sock</code>)이나 네트워크로 REST API를 주고받습니다. 이미지는 <strong>레지스트리(registry, 예: Docker Hub)</strong>에서 내려받습니다.</p>
+<div class="table-wrap"><table><thead><tr><th>명령</th><th>흐름</th></tr></thead><tbody><tr><td><code>docker build</code></td><td>Dockerfile → 데몬이 레이어를 쌓아 <strong>이미지</strong> 생성</td></tr><tr><td><code>docker pull</code></td><td>데몬이 레지스트리에서 이미지를 내려받아 로컬에 저장</td></tr><tr><td><code>docker run</code></td><td>이미지로 <strong>컨테이너</strong> 생성·시작(로컬에 없으면 먼저 pull)</td></tr></tbody></table></div>
+<h2 id="세-가지-핵심-개념">세 가지 핵심 개념<a class="anchor" href="#세-가지-핵심-개념">#</a></h2>
+<figure class="fig" id="fig-b10-layers"><svg viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Docker 이미지 레이어, 컨테이너 쓰기 레이어, 볼륨과 장치 연결">
+  <defs>
+    <marker id="arr-b10-layers" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <rect class="box-hi" x="150" y="36" width="270" height="40" rx="5" stroke-dasharray="5 3"/>
+  <text class="lbl" x="285" y="55" text-anchor="middle">컨테이너 레이어 (쓰기 가능)</text>
+  <text class="sub" x="285" y="70" text-anchor="middle">컨테이너를 지우면 함께 삭제</text>
+  <rect class="box" x="150" y="84" width="270" height="32" rx="4"/>
+  <text class="tag mono" x="162" y="104">4  COPY my_node.py</text>
+  <rect class="box" x="150" y="120" width="270" height="32" rx="4"/>
+  <text class="tag mono" x="162" y="140">3  RUN pip3 install numpy</text>
+  <rect class="box" x="150" y="156" width="270" height="32" rx="4"/>
+  <text class="tag mono" x="162" y="176">2  RUN apt-get install …</text>
+  <rect class="box" x="150" y="192" width="270" height="32" rx="4"/>
+  <text class="tag mono" x="162" y="212">1  FROM ros:humble (바탕)</text>
+  <path d="M142 86 L136 86 L136 222 L142 222" style="stroke:var(--text-faint);fill:none" stroke-width="1.4"/>
+  <text class="lbl" x="128" y="150" text-anchor="end">이미지</text>
+  <text class="sub" x="128" y="167" text-anchor="end">읽기 전용 레이어</text>
+  <text class="lbl" x="128" y="61" text-anchor="end">컨테이너</text>
+  <rect class="box" x="150" y="238" width="550" height="30" rx="5"/>
+  <text class="tag" x="425" y="257" text-anchor="middle">호스트 리눅스 커널 (모든 컨테이너가 공유) · namespace · cgroup · overlay</text>
+
+  <rect class="box" x="480" y="40" width="220" height="62" rx="6"/>
+  <text class="lbl" x="590" y="62" text-anchor="middle">볼륨 -v 호스트:컨테이너</text>
+  <text class="sub mono" x="590" y="80" text-anchor="middle">~/docker ⇄ ~/share</text>
+  <text class="sub" x="590" y="96" text-anchor="middle">컨테이너를 지워도 남음</text>
+  <rect class="box" x="480" y="120" width="220" height="62" rx="6"/>
+  <text class="lbl" x="590" y="142" text-anchor="middle">장치 --device / -v /dev</text>
+  <text class="sub mono" x="590" y="160" text-anchor="middle">/dev/rrc · /dev/ldlidar</text>
+  <text class="sub mono" x="590" y="176" text-anchor="middle">/dev/video0</text>
+  <path d="M422 56 L478 70" style="stroke:var(--accent);fill:none" stroke-width="1.6" marker-start="url(#arr-b10-layers)" marker-end="url(#arr-b10-layers)"/>
+  <path d="M422 62 L478 150" style="stroke:var(--accent);fill:none" stroke-width="1.6" marker-end="url(#arr-b10-layers)"/>
+  <text class="tag" x="590" y="210" text-anchor="middle">--network=host : 호스트 네트워크 공유</text>
+</svg><figcaption>이미지는 읽기 전용 레이어의 묶음이고, 컨테이너는 그 위에 쓰기 가능한 레이어 한 장을 얹은 실행 인스턴스입니다. 지워지면 안 되는 데이터는 볼륨으로 호스트에 둡니다.</figcaption></figure>
+<h3 id="이미지image-특수한-파일-시스템">이미지(image) — 특수한 파일 시스템<a class="anchor" href="#이미지image-특수한-파일-시스템">#</a></h3>
+<ul><li>프로그램·라이브러리·설정과 실행 준비 정보(환경 변수, 기본 명령 등)를 담은 <strong>읽기 전용 루트 파일 시스템</strong></li><li>여러 <strong>레이어</strong>가 겹쳐 있음. 앞 레이어는 뒤 레이어의 바탕이고, 한 번 만든 레이어는 바뀌지 않음</li><li>뒤 레이어에서 파일을 지우면 실제로는 "삭제 표시"만 됨 → 이미지 크기는 줄지 않음. 그래서 <strong>불필요한 파일은 같은 레이어 안에서 지워야</strong> 합니다.</li><li>같은 바탕 레이어는 여러 이미지가 <strong>공유</strong>(디스크·다운로드 절약)</li></ul>
+<h3 id="컨테이너container-이미지의-실행-실체">컨테이너(container) — 이미지의 실행 실체<a class="anchor" href="#컨테이너container-이미지의-실행-실체">#</a></h3>
+<ul><li>이미지와 컨테이너의 관계는 <strong>클래스와 인스턴스</strong>와 같습니다(B06). 하나의 이미지로 여러 컨테이너를 만들 수 있음</li><li>생성·시작·정지·일시정지·삭제가 가능한 격리된 프로세스</li><li>이미지 위에 <strong>쓰기 가능한 컨테이너 레이어</strong>가 얹힘. 컨테이너를 <strong>삭제하면 이 레이어도 사라짐</strong></li><li>모범 사례: 컨테이너 레이어에는 데이터를 쓰지 않고(stateless), 남겨야 할 데이터는 <strong>볼륨이나 호스트 디렉터리</strong>에 씀</li></ul>
+<h3 id="저장소repository와-레지스트리">저장소(repository)와 레지스트리<a class="anchor" href="#저장소repository와-레지스트리">#</a></h3>
+<ul><li>레지스트리(예: Docker Hub) 안에 여러 저장소가 있고, 저장소 안에 <strong>태그(tag)</strong>별 이미지가 있음</li><li>이름 형식 <code>저장소:태그</code> — 예: <code>ros:humble</code>, <code>debian:latest</code>. 태그를 생략하면 **<code>latest</code>**</li></ul>
+<h2 id="설치와-hello-world">설치와 hello-world<a class="anchor" href="#설치와-hello-world">#</a></h2>
+<p>MentorPi 이미지에는 Docker가 이미 설치되어 있습니다. 아래는 새 라즈베리파이(Debian)에 설치할 때의 공식 절차 요약입니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">sudo apt-get update
+sudo apt-get install ca-certificates curl gnupg
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+echo &quot;deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+  https://download.docker.com/linux/debian $(. /etc/os-release &amp;&amp; echo &quot;$VERSION_CODENAME&quot;) stable&quot; | \
+  sudo tee /etc/apt/sources.list.d/docker.list &gt; /dev/null
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo groupadd docker                  # (이미 있으면 메시지만 나옴)
+sudo gpasswd -a $USER docker          # sudo 없이 docker 명령 사용
+sudo reboot
+docker version
+docker run hello-world                # &quot;Hello from Docker!&quot; 가 나오면 성공</code></pre></div>
+<p><code>docker run hello-world</code>는 로컬에 이미지가 없으면 자동으로 내려받고(pull), 컨테이너를 만들어 실행한 뒤 메시지를 출력하고 끝납니다. 이어서</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">docker images                  # REPOSITORY, TAG, IMAGE ID, CREATED, SIZE
+docker inspect hello-world     # 이미지 상세 정보(JSON)</code></pre></div>
+<h2 id="명령-모음">명령 모음<a class="anchor" href="#명령-모음">#</a></h2>
+<h3 id="도움말-정보">도움말·정보<a class="anchor" href="#도움말-정보">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">docker info          # 이미지·컨테이너 수, 스토리지 드라이버, 네트워크 등 시스템 요약
+docker --help        # 모든 명령 목록
+docker run --help    # 특정 명령의 옵션</code></pre></div>
+<h3 id="이미지">이미지<a class="anchor" href="#이미지">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>명령</th><th>설명</th></tr></thead><tbody><tr><td><code>docker images</code> (<code>-a</code> 전부, <code>-q</code> ID만, <code>--digests</code>)</td><td>로컬 이미지 목록</td></tr><tr><td><code>docker pull debian</code> / <code>docker pull ros:humble</code></td><td>내려받기</td></tr><tr><td><code>docker search ros</code> (<code>--filter</code>, <code>--limit</code>, <code>--no-trunc</code>)</td><td>Docker Hub 검색</td></tr><tr><td><code>docker rmi -f &lt;ID 또는 이름:태그&gt;</code></td><td>이미지 삭제</td></tr><tr><td><code>docker image inspect &lt;이미지&gt;</code></td><td>레이어 등 상세</td></tr></tbody></table></div>
+<h3 id="컨테이너-생성-실행-docker-run">컨테이너 생성·실행: <code>docker run</code><a class="anchor" href="#컨테이너-생성-실행-docker-run">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">docker run [OPTIONS] IMAGE [COMMAND] [ARG...]</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>옵션</th><th>의미</th><th>로봇 예</th></tr></thead><tbody><tr><td><code>--name 이름</code></td><td>컨테이너 이름</td><td><code>--name humble</code></td></tr><tr><td><code>-it</code></td><td>대화형 + 터미널(함께 사용)</td><td>셸 사용</td></tr><tr><td><code>-d</code></td><td>백그라운드 실행, ID 출력</td><td>서비스형 컨테이너</td></tr><tr><td><code>--rm</code></td><td>종료 시 자동 삭제</td><td>일회성 실험</td></tr><tr><td><code>-p 호스트:컨테이너</code> / <code>-P</code></td><td>포트 매핑 / 임의 포트</td><td>웹 영상 스트림</td></tr><tr><td><code>--network=host</code></td><td>호스트 네트워크를 그대로 사용</td><td><strong>ROS 2 DDS 통신</strong></td></tr><tr><td><code>--device=/dev/video0</code></td><td>특정 장치 전달</td><td>카메라</td></tr><tr><td><code>-v 호스트경로:컨테이너경로</code></td><td>볼륨(바인드 마운트)</td><td><code>-v /dev:/dev</code>, 공유 폴더</td></tr><tr><td><code>-e 이름=값</code></td><td>환경 변수</td><td><code>-e DISPLAY=$DISPLAY</code></td></tr><tr><td><code>--restart=always</code></td><td>재부팅·종료 시 자동 재시작</td><td>로봇 부팅 시 자동 기동</td></tr></tbody></table></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">docker pull debian
+docker run -it debian /bin/bash       # 프롬프트가 root@&lt;컨테이너ID&gt; 로 바뀜 → 컨테이너 안
+exit                                  # 셸 종료 → 이 컨테이너는 정지</code></pre></div>
+<h3 id="목록-진입-종료">목록·진입·종료<a class="anchor" href="#목록-진입-종료">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">docker ps            # 실행 중인 컨테이너
+docker ps -a         # 정지된 것 포함 전부   (-l 최근 1개, -n 3 최근 3개, -q ID만)</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>방법</th><th>동작</th><th>나올 때</th></tr></thead><tbody><tr><td><code>docker attach &lt;ID&gt;</code></td><td>컨테이너의 <strong>시작 프로세스</strong>(PID 1) 터미널에 붙음</td><td><code>exit</code>하면 PID 1이 끝나 <strong>컨테이너가 정지</strong></td></tr><tr><td><code>docker exec -it &lt;ID&gt; /bin/bash</code></td><td>컨테이너 안에 <strong>새 셸 프로세스</strong>를 띄움</td><td><code>exit</code>해도 컨테이너는 <strong>계속 실행</strong> (권장)</td></tr><tr><td><code>Ctrl+P</code> 다음 <code>Ctrl+Q</code></td><td><code>-it</code>로 붙은 상태에서 떼어 내기(detach)</td><td>컨테이너 계속 실행</td></tr></tbody></table></div>
+<p>컨테이너 ID는 다른 것과 구별되는 <strong>앞 몇 글자</strong>만 써도 됩니다(<code>docker exec -it efe9 /bin/bash</code>).</p>
+<h3 id="수명-주기">수명 주기<a class="anchor" href="#수명-주기">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">docker start   &lt;ID|이름&gt;     # 정지된 컨테이너 시작
+docker restart &lt;ID|이름&gt;
+docker stop    &lt;ID|이름&gt;     # 정상 종료 요청(SIGTERM → 유예 후 SIGKILL)
+docker kill    &lt;ID|이름&gt;     # 즉시 강제 종료
+docker rm      &lt;ID|이름&gt;     # 정지된 컨테이너 삭제  (-f 실행 중이어도 강제)</code></pre></div>
+<h3 id="관찰-관리">관찰·관리<a class="anchor" href="#관찰-관리">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">docker top   &lt;ID&gt;            # 컨테이너 안 프로세스(UID, PID, PPID, CMD …)
+docker inspect &lt;ID&gt;          # 설정 전체(JSON): 마운트, 환경 변수, 네트워크
+docker logs  &lt;ID&gt;            # 표준 출력 로그   (-f 실시간, --tail 50)
+docker stats &lt;ID&gt;            # CPU·메모리·네트워크·디스크 실시간
+docker inspect -f &#x27;{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}&#x27; &lt;ID&gt;   # 컨테이너 IP
+docker container prune       # 정지된 컨테이너 일괄 삭제
+docker image prune           # 이름 없는(dangling) 이미지 삭제
+docker volume create my-data # 이름 있는 볼륨 생성</code></pre></div>
+<div class="callout callout-danger"><div class="callout-title">MentorPi 컨테이너를 지우지 마세요</div><div class="callout-body"><p><code>mentorpi</code> 컨테이너 안에는 MentorPi의 모든 기능 코드와 <strong>여러분이 컨테이너 레이어에 저장한 작업</strong>이 들어 있습니다. 다음 명령은 로봇 위에서 절대 실행하지 않습니다.</p>
+<ul><li><code>docker rm -f $(docker ps -a -q)</code>, <code>docker ps -a -q | xargs docker rm</code> — <strong>모든</strong> 컨테이너 삭제</li><li><code>docker rmi -f $(docker images -qa)</code> — <strong>모든</strong> 이미지 삭제</li><li><code>docker system prune -a</code> — 사용 중이지 않은 이미지까지 삭제(컨테이너가 정지된 순간 실행하면 MentorPi 이미지도 대상)</li><li><code>docker container prune</code> — <code>mentorpi</code>가 <strong>정지 상태</strong>라면 함께 삭제됨</li></ul>
+<p>자기 작업은 공유 폴더(호스트 <code>~/docker</code> ↔ 컨테이너 <code>~/share</code>)에 두거나 <code>docker commit</code>으로 백업합니다.</p></div></div>
+<h2 id="이미지-만들기">이미지 만들기<a class="anchor" href="#이미지-만들기">#</a></h2>
+<h3 id="방법-1-docker-commit컨테이너-이미지">방법 1: <code>docker commit</code>(컨테이너 → 이미지)<a class="anchor" href="#방법-1-docker-commit컨테이너-이미지">#</a></h3>
+<p>컨테이너 안에서 패키지를 설치·수정한 상태를 그대로 이미지로 굳힙니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">docker ps -a                                   # 대상 컨테이너 ID 확인
+docker commit -m &quot;add vim&quot; -a &quot;me&quot; 9aeb4cc795e6 debian:1.0
+docker images                                  # debian:1.0 추가 확인</code></pre></div>
+<p>간단하지만 <strong>무엇을 바꿨는지 기록이 남지 않아</strong> 재현성이 떨어집니다. MentorPi 컨테이너를 통째로 백업할 때는 유용합니다.</p>
+<h3 id="방법-2-dockerfile권장">방법 2: Dockerfile(권장)<a class="anchor" href="#방법-2-dockerfile권장">#</a></h3>
+<p>이미지를 만드는 절차를 텍스트로 적은 파일입니다. 한 명령(<code>RUN</code>, <code>COPY</code> …)이 대체로 <strong>레이어 하나</strong>가 됩니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text"># Dockerfile — ROS 2 Humble 위에 내 노드를 올린 이미지
+FROM ros:humble
+RUN apt-get update &amp;&amp; \
+    apt-get install -y --no-install-recommends python3-pip vim &amp;&amp; \
+    rm -rf /var/lib/apt/lists/*            # 같은 RUN 안에서 캐시 삭제 → 레이어가 작아짐
+RUN pip3 install --no-cache-dir numpy
+WORKDIR /root/ws
+COPY my_node.py .
+ENV ROS_DOMAIN_ID=0
+CMD [&quot;bash&quot;, &quot;-c&quot;, &quot;source /opt/ros/humble/setup.bash &amp;&amp; python3 my_node.py&quot;]</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">docker build -t my-ros:1.0 .                 # 현재 폴더(.)의 Dockerfile 로 빌드
+docker build -f dockerfile -t debian:1.1 .   # 파일 이름을 지정할 때 (원본 예)
+docker run --rm -it --network=host my-ros:1.0</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>지시어</th><th>역할</th></tr></thead><tbody><tr><td><code>FROM</code></td><td>바탕 이미지</td></tr><tr><td><code>RUN</code></td><td>빌드 중 명령 실행(레이어 생성)</td></tr><tr><td><code>COPY</code>/<code>ADD</code></td><td>호스트 파일을 이미지로 복사</td></tr><tr><td><code>WORKDIR</code></td><td>작업 디렉터리</td></tr><tr><td><code>ENV</code></td><td>환경 변수</td></tr><tr><td><code>CMD</code> / <code>ENTRYPOINT</code></td><td>컨테이너 시작 시 실행할 기본 명령</td></tr></tbody></table></div>
+<p>Docker는 레이어를 <strong>캐시</strong>합니다. 앞 단계가 바뀌지 않으면 다시 빌드하지 않으므로, 자주 바뀌는 <code>COPY</code>는 뒤쪽에, 느린 <code>apt-get install</code>은 앞쪽에 둡니다.</p>
+<h2 id="하드웨어와-데이터-연결">하드웨어와 데이터 연결<a class="anchor" href="#하드웨어와-데이터-연결">#</a></h2>
+<h3 id="장치">장치<a class="anchor" href="#장치">#</a></h3>
+<p>컨테이너는 기본적으로 호스트 장치를 보지 못합니다. 필요한 장치만 넘기거나(<code>--device</code>), <code>/dev</code> 전체를 마운트합니다(<code>-v /dev:/dev</code>, 보통 <code>--privileged</code>와 함께 — 편하지만 격리가 약해짐).</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">docker run -it --device=/dev/video0 debian:latest /bin/bash
+ls /dev/          # 컨테이너 안에서 video0 확인</code></pre></div>
+<p>장치 이름이 부팅마다 바뀌지 않도록 호스트에 <strong>udev 규칙</strong>(<code>/etc/udev/rules.d/</code>)으로 고정 이름을 만들기도 합니다. MentorPi의 <code>/dev/rrc</code>(확장보드), <code>/dev/ldlidar</code>(라이다)가 이런 고정 이름입니다.</p>
+<h3 id="guix11">GUI(X11)<a class="anchor" href="#guix11">#</a></h3>
+<p>RViz·turtlesim 같은 창을 컨테이너에서 띄우려면 호스트의 X 서버에 접근하게 해 줍니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">sudo apt-get install x11-xserver-utils
+xhost +                                   # X 서버 접근 허용(실습용. 끝나면 xhost - 권장)
+docker run -it -e DISPLAY=$DISPLAY -e QT_X11_NO_MITSHM=1 \
+  -v /tmp/.X11-unix:/tmp/.X11-unix debian:latest /bin/bash
+apt-get update &amp;&amp; apt-get install -y x11-apps
+xeyes                                     # 마우스를 따라가는 눈이 뜨면 성공</code></pre></div>
+<h3 id="파일-복사와-볼륨">파일 복사와 볼륨<a class="anchor" href="#파일-복사와-볼륨">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">docker cp d2d0e43b41eb:/root/test.txt ~/        # 컨테이너 → 호스트
+docker cp test_1.txt d2d0e43b41eb:/root/         # 호스트 → 컨테이너 (컨테이너 실행 중)
+docker run -it -v /home/pi/temp:/root/temp debian:latest /bin/bash   # 볼륨(바인드 마운트)</code></pre></div>
+<p><strong>데이터 볼륨</strong>의 특징: 컨테이너끼리 공유·재사용 가능, 변경이 즉시 반영, 이미지 업데이트에 포함되지 않음, 컨테이너를 지워도 남음. 지도(<code>.pgm/.yaml</code>), 학습 데이터, rosbag처럼 <strong>남겨야 하는 결과물</strong>은 볼륨에 저장합니다.</p>
+<h2 id="컨테이너-안의-ros-2">컨테이너 안의 ROS 2<a class="anchor" href="#컨테이너-안의-ros-2">#</a></h2>
+<p>원본은 공식 <code>ros:humble</code> 이미지로 ROS 2 환경을 만드는 과정을 보여 줍니다(인터넷 필요, 시간이 오래 걸림). MentorPi 이미지는 이미 구성되어 있으므로 <strong>학습용</strong>입니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">docker pull ros:humble
+docker run -it --network=host -d -v=/dev:/dev -v /tmp/.X11-unix:/tmp/.X11-unix \
+  --name humble -e DISPLAY=${DISPLAY} --restart=always ros:humble /bin/bash
+xhost +
+docker exec -it humble /bin/bash
+# --- 컨테이너 안 (root) ---
+useradd -m -s /bin/bash ubuntu &amp;&amp; passwd ubuntu &amp;&amp; usermod -aG sudo ubuntu
+apt-get update &amp;&amp; apt-get install -y sudo vim ros-humble-desktop-full    # 매우 오래 걸림
+exit
+docker exec -it -u ubuntu -w /home/ubuntu humble /bin/bash
+source /opt/ros/humble/setup.bash
+echo &quot;source /opt/ros/humble/setup.bash&quot; &gt;&gt; ~/.bashrc     # 새 터미널마다 자동 적용
+ros2 run turtlesim turtlesim_node                         # 거북이 창이 뜨면 성공</code></pre></div>
+<div class="callout callout-info"><div class="callout-title">원본과 다른 점</div><div class="callout-body"><p>원본은 ROS 2 설치 확인에 <code>rosrun turtlesim turtlesim_node</code>를 적었지만, 이는 <strong>ROS 1 명령</strong>입니다. ROS 2에서는 <code>ros2 run turtlesim turtlesim_node</code>를 씁니다. 또 원본의 ROS 1(melodic) 예제는 <code>docker pull ros:melodic</code>으로 같은 절차를 따릅니다.</p></div></div>
+<p>옵션의 의미를 로봇 관점에서 정리하면:</p>
+<div class="table-wrap"><table><thead><tr><th>옵션</th><th>왜 필요한가</th></tr></thead><tbody><tr><td><code>--network=host</code></td><td>ROS 2의 DDS는 <strong>멀티캐스트로 서로를 발견</strong>합니다. 컨테이너 전용 가상 네트워크에 있으면 PC·다른 로봇의 노드가 보이지 않을 수 있어 호스트 네트워크를 그대로 씁니다(R05).</td></tr><tr><td><code>-v /dev:/dev</code></td><td>라이다·카메라·확장보드 직렬 장치를 컨테이너에서 사용</td></tr><tr><td><code>-v /tmp/.X11-unix</code> + <code>DISPLAY</code></td><td>RViz 등 GUI</td></tr><tr><td><code>--restart=always</code></td><td>로봇 전원을 켜면 컨테이너 자동 기동</td></tr><tr><td><code>-u ubuntu -w /home/ubuntu</code></td><td>root가 아닌 일반 사용자로, 홈에서 시작</td></tr></tbody></table></div>
+<p>MentorPi 컨테이너도 같은 원리로 만들어져 있으며, 여러분은 B03에서 배운 대로 들어갑니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">docker exec -it -u ubuntu -w /home/ubuntu mentorpi /bin/bash</code></pre></div>
+<h2 id="이미지-배포-저장소와-파일">이미지 배포: 저장소와 파일<a class="anchor" href="#이미지-배포-저장소와-파일">#</a></h2>
+<h3 id="docker-hub에-올리기">Docker Hub에 올리기<a class="anchor" href="#docker-hub에-올리기">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">docker tag 30555f5a4f74 &lt;사용자명&gt;/debian:1.1    # 이름을 &quot;사용자명/이미지:태그&quot;로
+docker login -u &lt;사용자명&gt;
+docker push &lt;사용자명&gt;/debian:1.1</code></pre></div>
+<h3 id="tar-파일로-옮기기">tar 파일로 옮기기<a class="anchor" href="#tar-파일로-옮기기">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>방법</th><th>대상</th><th>명령</th><th>특징</th></tr></thead><tbody><tr><td>export / import</td><td><strong>컨테이너</strong></td><td><code>docker export &lt;ID&gt; &gt; debian.tar</code> → <code>cat debian.tar | docker import - test/debian:v1</code></td><td>파일 시스템 한 장으로 평탄화(레이어·히스토리 없음), 더 작음, import 때 새 이름·태그 지정</td></tr><tr><td>save / load</td><td><strong>이미지</strong></td><td><code>docker save -o debian_1.1.tar debian:latest</code> → <code>docker load -i debian_1.1.tar</code></td><td>레이어·태그 그대로 보존</td></tr></tbody></table></div>
+<p>인터넷이 없는 실습실에서 여러 로봇에 같은 환경을 배포할 때 <code>save/load</code>가 유용합니다.</p>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<p>MentorPi 호스트 터미널에서 진행합니다. <code>debian</code> 이미지를 내려받는 단계는 인터넷이 필요하므로 <strong>LAN 모드</strong>로 연결해 둡니다(B02).</p>
+<div class="callout callout-safety"><div class="callout-title">안전 확인 (실물 실습 전 필수)</div><div class="callout-body"><ul><li><code>mentorpi</code> 컨테이너와 이미지는 <strong>삭제·정지·재생성하지 않습니다.</strong> 실습은 <code>debian</code>·<code>hello-world</code>로 만든 <strong>새 컨테이너</strong>에서만 합니다.</li><li><code>docker rm</code>, <code>docker rmi</code>, <code>prune</code> 명령은 대상 ID가 <strong>내가 만든 실습 컨테이너인지</strong> <code>docker ps -a</code>로 확인한 뒤에만 실행합니다. 일괄 삭제 명령(<code>$(docker ps -a -q)</code>)은 쓰지 않습니다.</li><li>SD 카드 여유 공간을 확인합니다(<code>df -h /</code>). <code>ros-humble-desktop-full</code> 설치는 수 GB가 필요하므로 로봇에서는 하지 않습니다.</li><li>실습이 끝나면 <code>xhost -</code>로 X 서버 접근을 다시 막습니다.</li></ul></div></div>
+<div class="callout callout-task"><div class="callout-title">따라 하기</div><div class="callout-body"><ol><li><code>docker version</code>, <code>docker info | head -20</code>으로 설치 상태를 확인합니다.</li><li><code>docker ps -a</code>에서 <code>mentorpi</code> 컨테이너의 이름·이미지·상태를 기록하고, <code>docker inspect mentorpi | grep -A3 &#x27;&quot;Mounts&quot;&#x27;</code>로 어떤 호스트 경로가 마운트되어 있는지 살펴봅니다(없으면 <code>docker inspect mentorpi | less</code>).</li><li><code>docker stats --no-stream mentorpi</code>로 ROS 2 전체가 쓰는 CPU·메모리를 봅니다.</li><li><code>docker run hello-world</code> → <code>docker images</code></li><li><code>docker pull debian</code> → <code>docker run -it --name lab1 -v ~/temp:/root/temp debian /bin/bash</code> → 컨테이너 안에서 <code>touch /root/temp/from_container.txt</code>, <code>touch /root/only_in_container.txt</code> → <code>exit</code></li><li>호스트에서 <code>ls ~/temp</code> → 볼륨 파일만 보이는 것 확인. <code>docker start lab1</code> 후 <code>docker exec -it lab1 ls /root</code>로 컨테이너 레이어 파일도 남아 있음을 확인</li><li><code>docker cp lab1:/root/only_in_container.txt ~/</code> 로 꺼내기</li><li><code>docker commit lab1 lab1-image:1.0</code> → <code>docker images</code> → <code>docker rm -f lab1</code> → <code>docker run --rm lab1-image:1.0 ls /root</code>로 커밋된 파일 확인</li><li>정리: <code>docker rmi lab1-image:1.0</code> (자기 이미지만)</li></ol></div></div>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> 컨테이너를 지우면 무엇이 사라지고 무엇이 남는지(컨테이너 레이어 vs 볼륨) 설명할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> <code>docker attach</code>와 <code>docker exec</code>의 종료 동작 차이를 안다.</label></li><li><label class="check-item"><input type="checkbox"> ROS 2 컨테이너에 <code>--network=host</code>를 주는 이유를 DDS 발견으로 설명할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> <code>export/import</code>와 <code>save/load</code>의 차이를 안다.</label></li></ul></div></div>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td><code>permission denied while trying to connect to the Docker daemon socket</code></td><td>사용자가 <code>docker</code> 그룹이 아님</td><td><code>sudo gpasswd -a $USER docker</code> 후 재로그인(또는 재부팅)</td></tr><tr><td><code>Unable to find image … locally</code> 후 멈춤·실패</td><td>인터넷 없음(AP 모드), 레지스트리 접속 불가</td><td>LAN 모드 전환, 프록시·미러 확인</td></tr><tr><td><code>Conflict. The container name &quot;/humble&quot; is already in use</code></td><td>같은 이름의 컨테이너가 이미 있음</td><td><code>docker ps -a</code>로 확인, 다른 이름 사용 또는 기존 것 재사용(<code>docker start</code>)</td></tr><tr><td><code>exit</code> 했더니 컨테이너가 멈춤</td><td><code>docker run -it</code>/<code>attach</code>로 PID 1 셸에 있었음</td><td>진입은 <code>docker exec</code>, 떼어 낼 때는 <code>Ctrl+P Ctrl+Q</code></td></tr><tr><td>컨테이너에서 만든 파일이 사라짐</td><td>컨테이너를 삭제(<code>rm</code>, <code>--rm</code>)</td><td>볼륨·공유 폴더 사용, 필요 시 <code>commit</code></td></tr><tr><td>컨테이너 안에서 카메라·시리얼 장치가 없음</td><td><code>--device</code>/<code>-v /dev:/dev</code> 미지정</td><td>실행 옵션에 장치 추가(기존 컨테이너는 재생성 필요)</td></tr><tr><td><code>cannot open display</code> / <code>Authorization required</code></td><td><code>DISPLAY</code> 미전달, <code>xhost +</code> 안 함, X11 소켓 미마운트</td><td>세 가지 옵션 확인</td></tr><tr><td>PC의 ROS 2 노드가 컨테이너 토픽을 못 봄</td><td>브리지 네트워크, <code>ROS_DOMAIN_ID</code> 불일치</td><td><code>--network=host</code>, 같은 도메인 ID(R05)</td></tr><tr><td><code>rosrun: command not found</code></td><td>ROS 1 명령을 ROS 2에서 사용</td><td><code>ros2 run …</code></td></tr><tr><td>디스크가 가득 참</td><td>오래된 이미지·정지 컨테이너·빌드 캐시</td><td><code>docker system df</code>로 확인 후 <strong>자기 것만</strong> 정리</td></tr><tr><td>이미지가 예상보다 큼</td><td>다른 <code>RUN</code>에서 캐시 삭제(레이어에 이미 남음)</td><td>설치와 정리를 같은 <code>RUN</code>에서, <code>--no-install-recommends</code></td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">기본</div><div class="callout-body"><ol><li><code>docker run -it --rm debian bash</code>와 <code>docker run -it --name keep debian bash</code>로 각각 파일을 만들고 나온 뒤, <code>docker ps -a</code>와 파일 존재 여부를 비교해 표로 정리합니다.</li><li><code>docker inspect mentorpi</code> 결과에서 <code>Env</code> 항목을 찾아 <code>MACHINE_TYPE</code> 등 로봇 관련 환경 변수가 어디서 오는지(이미지 <code>ENV</code>인지 실행 옵션 <code>-e</code>인지, 또는 셸 설정 파일인지) 추론해 봅니다.</li></ol></div></div>
+<div class="callout callout-task"><div class="callout-title">심화</div><div class="callout-body"><ol><li>PC(가상 머신)에서 <code>ros:humble</code> 바탕의 Dockerfile을 작성해, 컨테이너 시작 시 <code>/chatter</code>에 1 Hz로 문자열을 발행하는 노드가 자동 실행되게 합니다(R03 이후 권장). <code>--network=host</code>를 뺐을 때와 넣었을 때 호스트에서 <code>ros2 topic echo /chatter</code>가 되는지 비교합니다.</li><li><code>docker save</code>와 <code>docker export</code>로 같은 실습 이미지/컨테이너를 tar로 만들고 파일 크기와 <code>docker history</code> 결과를 비교해 차이를 설명합니다.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: 7. Docker Basic Lesson — <em>Lesson 1 Docker Introduction and Installation</em>, <em>Lesson 2 Docker 'hello-world'</em>, <em>Lesson 3 Docker Container Usage</em>, <em>Lesson 4 Understanding and Creating Docker Image in Depth</em>, <em>Lesson 5 Docker Hardware Interaction and Data Processing</em>, <em>Lesson 6 Container Daily Management</em>, <em>Lesson 7 Installation ROS in Docker</em>, <em>Lesson 8 Docker Repository</em></li><li>원본 교재: 8. Set Development Environment — <em>Lesson 4 Docker Introduction &amp; Usage</em></li><li>Docker 공식 문서: https://docs.docker.com/</li><li>Install Docker Engine on Debian: https://docs.docker.com/engine/install/debian/</li><li>Dockerfile best practices: https://docs.docker.com/build/building/best-practices/</li><li>ROS 공식 Docker 이미지: https://hub.docker.com/_/ros</li></ul>
+      <nav class="pager"><a class="pager-prev" href="b09.html"><span>이전 · B09</span>서보와 DC 모터 제어</a><a class="pager-next" href="r01.html"><span>다음 · R01</span>ROS 2 개요·설치·명령행 도구</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#왜-docker인가">왜 Docker인가</a><a class="toc-l3" href="#docker란">Docker란</a><a class="toc-l3" href="#가상-머신과-비교">가상 머신과 비교</a><a class="toc-l3" href="#구조-클라이언트-서버">구조: 클라이언트-서버</a><a class="toc-l2" href="#세-가지-핵심-개념">세 가지 핵심 개념</a><a class="toc-l3" href="#이미지image-특수한-파일-시스템">이미지(image) — 특수한 파일 시스템</a><a class="toc-l3" href="#컨테이너container-이미지의-실행-실체">컨테이너(container) — 이미지의 실행 실체</a><a class="toc-l3" href="#저장소repository와-레지스트리">저장소(repository)와 레지스트리</a><a class="toc-l2" href="#설치와-hello-world">설치와 hello-world</a><a class="toc-l2" href="#명령-모음">명령 모음</a><a class="toc-l3" href="#도움말-정보">도움말·정보</a><a class="toc-l3" href="#이미지">이미지</a><a class="toc-l3" href="#컨테이너-생성-실행-docker-run">컨테이너 생성·실행: `docker run`</a><a class="toc-l3" href="#목록-진입-종료">목록·진입·종료</a><a class="toc-l3" href="#수명-주기">수명 주기</a><a class="toc-l3" href="#관찰-관리">관찰·관리</a><a class="toc-l2" href="#이미지-만들기">이미지 만들기</a><a class="toc-l3" href="#방법-1-docker-commit컨테이너-이미지">방법 1: `docker commit`(컨테이너 → 이미지)</a><a class="toc-l3" href="#방법-2-dockerfile권장">방법 2: Dockerfile(권장)</a><a class="toc-l2" href="#하드웨어와-데이터-연결">하드웨어와 데이터 연결</a><a class="toc-l3" href="#장치">장치</a><a class="toc-l3" href="#guix11">GUI(X11)</a><a class="toc-l3" href="#파일-복사와-볼륨">파일 복사와 볼륨</a><a class="toc-l2" href="#컨테이너-안의-ros-2">컨테이너 안의 ROS 2</a><a class="toc-l2" href="#이미지-배포-저장소와-파일">이미지 배포: 저장소와 파일</a><a class="toc-l3" href="#docker-hub에-올리기">Docker Hub에 올리기</a><a class="toc-l3" href="#tar-파일로-옮기기">tar 파일로 옮기기</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

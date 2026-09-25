@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>B04. 리눅스 기초: 설치·명령어·권한 · studyMentorPi</title>
+<meta name="description" content="리눅스 소개, VirtualBox에 Ubuntu 설치와 소스 변경, 디렉터리 구조, 자주 쓰는 명령, 사용자와 권한(chmod·sudo)을 실습합니다.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-base">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" class="active" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="b04" data-track="base">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-base">기초·하드웨어</span> B-2 리눅스·파이썬 &middot; 약 90분 &middot; 입문</div>
+    <h1><span class="lesson-no">B04</span>리눅스 기초: 설치·명령어·권한</h1>
+    <p class="lede">리눅스 소개, VirtualBox에 Ubuntu 설치와 소스 변경, 디렉터리 구조, 자주 쓰는 명령, 사용자와 권한(chmod·sudo)을 실습합니다.</p>
+    <div class="requires">선수 챕터: <a href="b03.html">B03</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>운영체제의 역할과 리눅스 배포판(Ubuntu·Debian 등)의 관계를 설명하고, MentorPi에서 어떤 배포판이 어디에 쓰이는지 구분합니다.</li><li>VirtualBox/VMware에 Ubuntu를 설치하고 <strong>소프트웨어 소스(미러)</strong>와 <strong>공유 폴더</strong>를 설정합니다.</li><li>리눅스 디렉터리 트리(<code>/</code>, <code>/home</code>, <code>/dev</code>, <code>/etc</code> …)를 탐색하고 절대·상대 경로를 자유롭게 씁니다.</li><li><code>명령 + 옵션 + 대상</code> 형식을 이해하고 자주 쓰는 명령(<code>ls cd pwd cp mv rm mkdir find …</code>)과 도움말(<code>--help</code>, <code>man</code>, Tab 자동완성)을 활용합니다.</li><li><code>rwx</code> 권한과 8진수 표기를 읽고 <code>chmod</code>·<code>sudo</code>·<code>su</code>로 권한을 다룹니다.</li></ul>
+<h2 id="운영체제와-리눅스">운영체제와 리눅스<a class="anchor" href="#운영체제와-리눅스">#</a></h2>
+<p>컴퓨터는 하드웨어(CPU·메모리·디스크·키보드)와 소프트웨어로 이루어집니다. <strong>운영체제(OS, Operating System)</strong>는 그 사이의 중개자로서 프로그램 실행, 메모리·파일·장치 같은 자원 관리, 기본 서비스 제공을 맡습니다.</p>
+<p>리눅스(Linux)는 Windows처럼 운영체제이지만 <strong>오픈 소스</strong>라는 점이 다릅니다. 서버, 임베디드 기기, 데스크톱 세 분야에서 널리 쓰이며, 특히 서버와 로봇(ROS)의 표준 플랫폼입니다.</p>
+<div class="table-wrap"><table><thead><tr><th>특징</th><th>로봇 개발에서의 의미</th></tr></thead><tbody><tr><td>무료·오픈 소스</td><td>라즈베리파이 같은 저가 보드에 자유롭게 탑재</td></tr><tr><td>다중 사용자·다중 작업</td><td>여러 ROS 노드가 동시에 돌고, PC와 로봇에서 동시에 원격 접속</td></tr><tr><td>강력한 패키지 관리(<code>apt</code>)</td><td><code>sudo apt install ros-humble-…</code>처럼 한 줄로 설치</td></tr><tr><td>안정성·원격 관리</td><td>모니터 없는 로봇을 SSH로 운용</td></tr></tbody></table></div>
+<h3 id="주요-배포판">주요 배포판<a class="anchor" href="#주요-배포판">#</a></h3>
+<p>리눅스 <strong>커널</strong>에 각종 도구와 패키지 관리 방식을 묶은 것을 <strong>배포판(distribution)</strong>이라 합니다.</p>
+<div class="table-wrap"><table><thead><tr><th>배포판</th><th>특징</th><th>MentorPi에서</th></tr></thead><tbody><tr><td><strong>Debian</strong></td><td>1993년 출시, 매우 안정적, 3만 개 이상 패키지</td><td>라즈베리파이 OS(호스트)의 기반(bookworm)</td></tr><tr><td><strong>Ubuntu</strong></td><td>Debian 기반, 사용자 친화적 데스크톱, 넓은 하드웨어 지원</td><td><strong>컨테이너 안(22.04)</strong> — ROS 2 Humble의 기준 OS. 실습용 가상 머신</td></tr><tr><td>RHEL / CentOS / Fedora</td><td>Red Hat 계열 서버·데스크톱</td><td>—</td></tr><tr><td>openSUSE</td><td>유럽에서 인기 있는 배포판</td><td>—</td></tr></tbody></table></div>
+<p>즉 MentorPi는 <strong>Debian(호스트) 위에서 Ubuntu(컨테이너)</strong>를 돌리는 구조입니다(B03). 두 배포판 모두 <code>apt</code> 패키지 관리자를 쓰므로 명령은 거의 같습니다.</p>
+<h2 id="pc에-실습-환경-만들기-가상-머신">PC에 실습 환경 만들기: 가상 머신<a class="anchor" href="#pc에-실습-환경-만들기-가상-머신">#</a></h2>
+<p><strong>가상 머신(VM, Virtual Machine)</strong>은 Windows 위에서 다른 OS를 통째로 돌리는 소프트웨어입니다. 로봇을 망가뜨릴 걱정 없이 리눅스 명령을 연습하고, 나중에 PC 쪽 ROS 2(RViz 등)를 설치하는 데 씁니다.</p>
+<h3 id="설치-흐름virtualbox-기준">설치 흐름(VirtualBox 기준)<a class="anchor" href="#설치-흐름virtualbox-기준">#</a></h3>
+<ol><li>교재 폴더의 VirtualBox 설치 파일 실행 → 설치 경로 선택 → 기본값으로 Next → Yes/Install → Finish</li><li>Ubuntu 이미지(교재 제공 압축 파일 또는 공식 ISO)로 새 가상 머신 생성: 메모리 4 GB 이상, 디스크 30 GB 이상 권장</li><li>설치 후 로그인</li></ol>
+<p>VMware Workstation을 쓸 때도 흐름은 같습니다("Create a New Virtual Machine" → Custom → 단계별 설정). VMware는 30일 평가판입니다.</p>
+<h3 id="소프트웨어-소스미러-바꾸기">소프트웨어 소스(미러) 바꾸기<a class="anchor" href="#소프트웨어-소스미러-바꾸기">#</a></h3>
+<p><code>apt</code>가 패키지를 내려받는 서버를 <strong>소스(source)</strong> 또는 <strong>미러(mirror)</strong>라고 합니다. 앱 스토어의 서버와 같은 역할입니다. 기본 서버가 멀어 느리거나 오류가 나면 가까운 미러로 바꿉니다.</p>
+<ol><li>Settings → <strong>Software &amp; Updates</strong> 실행</li><li>"Download from" → <strong>Other…</strong> → 목록에서 국내 미러(예: <code>mirror.kakao.com</code>, <code>ftp.kaist.ac.kr</code>) 선택, 또는 <strong>Select Best Server</strong></li><li>비밀번호 입력 → 목록 갱신</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">sudo apt update          # 새 소스에서 패키지 목록 다시 받기</code></pre></div>
+<div class="callout callout-info"><div class="callout-title">소스 목록 파일</div><div class="callout-body"><p>GUI로 바꾼 내용은 결국 <code>/etc/apt/sources.list</code>(또는 <code>/etc/apt/sources.list.d/*</code>) 파일에 기록됩니다. 라즈베리파이 OS에서는 이 파일을 <code>nano</code>로 직접 편집해 미러를 바꿉니다(B07).</p></div></div>
+<h3 id="공유-폴더">공유 폴더<a class="anchor" href="#공유-폴더">#</a></h3>
+<p>PC(호스트)와 가상 머신 사이에 파일을 주고받는 폴더입니다. <strong>처음 설정할 때 공유 폴더는 비어 있어야</strong> 설정이 실패하지 않습니다.</p>
+<p><strong>VirtualBox</strong></p>
+<ol><li>가상 머신 Settings → Shared Folders → 폴더 경로·이름(<code>share</code>) 지정, Auto-mount 체크, 마운트 지점 <code>/mnt/share</code></li><li>Devices → <strong>Insert Guest Additions CD image</strong> → 실행·비밀번호 입력 → 설치 완료</li><li>터미널에서</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">sudo mkdir /mnt/share
+sudo mount -t vboxsf share /mnt/share      # 첫 share = 호스트에서 지정한 공유 이름
+sudo usermod -aG vboxsf $(whoami)          # 현재 사용자를 vboxsf 그룹에 추가 → 재부팅</code></pre></div>
+<p><strong>VMware</strong></p>
+<ol><li>VM 끄기 → Settings → Options → Shared Folders → Always Enabled → Add(예: <code>share_test</code>)</li><li>부팅 후</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">sudo apt install open-vm-tools
+ls /mnt/                                   # hgfs 폴더가 있는지 확인, 없으면 sudo mkdir /mnt/hgfs
+sudo mount -t fuse.vmhgfs-fuse .host:/ /mnt/hgfs -o allow_other</code></pre></div>
+<p>재부팅마다 마운트하기 번거로우면 <code>/etc/fstab</code>에 한 줄을 추가해 자동 마운트합니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">.host:/  /mnt/hgfs  fuse.vmhgfs-fuse  auto,allow_other  0  0</code></pre></div>
+<h2 id="터미널과-명령-형식">터미널과 명령 형식<a class="anchor" href="#터미널과-명령-형식">#</a></h2>
+<p>GUI로도 파일을 복사·이동할 수 있지만, 로봇은 모니터 없이 원격으로 쓰는 일이 많아 <strong>터미널(terminal)</strong>이 주 무대입니다. <code>Ctrl+Alt+T</code>로 엽니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">hiwonder@ubuntu:~$
+   │       │    │ └─ $ 일반 사용자 / # 관리자(root)
+   │       │    └─── 현재 디렉터리 (~ = 홈)
+   │       └──────── 호스트 이름
+   └──────────────── 사용자 이름</code></pre></div>
+<p>명령은 **<code>명령 [옵션] [대상]</code>** 형식이며 각 부분은 공백으로 구분합니다.</p>
+<ul><li>짧은 옵션: <code>-</code> + 한 글자(<code>-l</code>, <code>-a</code>). 여러 개를 합칠 수 있습니다: <code>ls -l -a</code> = <code>ls -la</code></li><li>긴 옵션: <code>--</code> + 단어(<code>--help</code>). 합칠 수 없습니다.</li><li>대상은 여러 개일 수 있습니다: <code>cp a.txt b.txt backup/</code></li><li>리눅스는 <strong>대소문자를 구분</strong>합니다. <code>Desktop</code>과 <code>desktop</code>은 다른 폴더입니다.</li></ul>
+<h2 id="디렉터리-구조">디렉터리 구조<a class="anchor" href="#디렉터리-구조">#</a></h2>
+<p>리눅스는 모든 것을 <strong>하나의 트리</strong>로 다룹니다. 맨 위는 루트(root) <code>/</code>이고, Windows의 <code>C:</code>·<code>D:</code> 같은 드라이브 구분 대신 저장 장치를 트리의 한 지점에 <strong>마운트(mount)</strong>합니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">cd /            # 루트로 이동
+sudo apt-get install tree
+tree -L 1       # 1단계 하위 폴더만 트리로 표시</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>디렉터리</th><th>내용</th><th>로봇에서의 예</th></tr></thead><tbody><tr><td><code>/bin</code>, <code>/sbin</code></td><td>기본 명령·시스템 명령</td><td><code>ls</code>, <code>cp</code></td></tr><tr><td><code>/boot</code></td><td>부팅 파일</td><td>라즈베리파이 <code>config.txt</code>(B07)</td></tr><tr><td><code>/dev</code></td><td><strong>장치 파일</strong></td><td><code>/dev/ttyAMA0</code>(UART), <code>/dev/video0</code>(카메라), <code>/dev/input/js0</code>(조이패드)</td></tr><tr><td><code>/etc</code></td><td>시스템 설정 파일</td><td><code>/etc/apt/sources.list</code>, <code>/etc/NetworkManager/</code></td></tr><tr><td><code>/home</code></td><td>사용자 홈</td><td><code>/home/pi</code>(호스트), <code>/home/ubuntu</code>(컨테이너)</td></tr><tr><td><code>/lib</code></td><td>공유 라이브러리</td><td></td></tr><tr><td><code>/media</code>, <code>/mnt</code></td><td>이동식 저장장치·임시 마운트 지점</td><td>USB 메모리, 공유 폴더</td></tr><tr><td><code>/opt</code></td><td>추가 소프트웨어</td><td><code>/opt/ros/humble</code></td></tr><tr><td><code>/proc</code>, <code>/sys</code></td><td>커널이 보여 주는 시스템 정보(가상 파일)</td><td><code>/sys/class/thermal/thermal_zone0/temp</code></td></tr><tr><td><code>/root</code></td><td>root 사용자의 홈</td><td></td></tr><tr><td><code>/tmp</code></td><td>임시 파일(재부팅 시 삭제)</td><td></td></tr><tr><td><code>/usr</code></td><td>사용자 프로그램·라이브러리</td><td><code>/usr/bin/python3</code></td></tr><tr><td><code>/var</code></td><td>자주 바뀌는 데이터(로그 등)</td><td><code>/var/log</code></td></tr></tbody></table></div>
+<figure class="fig" id="fig-b04-tree"><svg viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="리눅스 디렉터리 트리와 절대 경로, 상대 경로">
+  <defs>
+    <marker id="arr-b04-tree" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <g style="stroke:var(--text-faint);fill:none" stroke-width="1.4">
+    <path d="M70 120 L90 120 M90 40 L90 240 M90 40 L110 40 M90 80 L110 80 M90 120 L110 120 M90 160 L110 160 M90 200 L110 200 M90 240 L110 240"/>
+    <path d="M174 80 L210 80 M174 160 L210 160 M270 160 L300 160 M390 160 L420 160 M500 160 L530 160 M174 200 L210 200 M270 200 L300 200"/>
+  </g>
+  <rect class="box-hi" x="20" y="107" width="50" height="26" rx="4"/>
+  <text class="lbl mono" x="45" y="125" text-anchor="middle">/</text>
+  <rect class="box" x="110" y="27" width="64" height="26" rx="4"/><text class="tag mono" x="142" y="44" text-anchor="middle">bin</text>
+  <rect class="box" x="110" y="67" width="64" height="26" rx="4"/><text class="tag mono" x="142" y="84" text-anchor="middle">dev</text>
+  <rect class="box" x="110" y="107" width="64" height="26" rx="4"/><text class="tag mono" x="142" y="124" text-anchor="middle">etc</text>
+  <rect class="box" x="110" y="147" width="64" height="26" rx="4"/><text class="tag mono" x="142" y="164" text-anchor="middle">home</text>
+  <rect class="box" x="110" y="187" width="64" height="26" rx="4"/><text class="tag mono" x="142" y="204" text-anchor="middle">opt</text>
+  <rect class="box" x="110" y="227" width="64" height="26" rx="4"/><text class="tag mono" x="142" y="244" text-anchor="middle">tmp</text>
+
+  <rect class="box" x="210" y="67" width="90" height="26" rx="4"/><text class="tag mono" x="255" y="84" text-anchor="middle">ttyAMA0</text>
+  <text class="sub" x="312" y="84">UART 장치 파일</text>
+  <text class="sub" x="190" y="124">시스템 설정 파일</text>
+
+  <text class="tag" x="240" y="140" text-anchor="middle">~ (현재 위치)</text>
+  <rect class="box-hi" x="210" y="147" width="60" height="26" rx="4"/><text class="tag mono" x="240" y="164" text-anchor="middle">pi</text>
+  <rect class="box" x="300" y="147" width="90" height="26" rx="4"/><text class="tag mono" x="345" y="164" text-anchor="middle">linux_lab</text>
+  <rect class="box" x="420" y="147" width="80" height="26" rx="4"/><text class="tag mono" x="460" y="164" text-anchor="middle">scripts</text>
+  <rect class="box" x="530" y="147" width="80" height="26" rx="4"/><text class="tag mono" x="570" y="164" text-anchor="middle">hello.py</text>
+  <path d="M460 146 C 440 116, 365 116, 347 144" style="stroke:var(--accent);fill:none" stroke-width="1.6" marker-end="url(#arr-b04-tree)"/>
+  <text class="tag mono hi" x="403" y="118" text-anchor="middle">..</text>
+
+  <rect class="box" x="210" y="187" width="60" height="26" rx="4"/><text class="tag mono" x="240" y="204" text-anchor="middle">ros</text>
+  <rect class="box" x="300" y="187" width="80" height="26" rx="4"/><text class="tag mono" x="340" y="204" text-anchor="middle">humble</text>
+  <text class="sub" x="392" y="204">ROS 2 설치 위치</text>
+
+  <text class="tag mono" x="210" y="244">절대 경로  /home/pi/linux_lab/scripts/hello.py</text>
+  <text class="tag mono" x="210" y="266">상대 경로  linux_lab/scripts/hello.py  (현재 위치가 ~ 일 때)</text>
+</svg><figcaption>절대 경로는 <code>/</code>에서, 상대 경로는 현재 위치에서 출발합니다. <code>.</code>은 현재, <code>..</code>은 상위 디렉터리, <code>~</code>는 홈입니다.</figcaption></figure>
+<div class="callout callout-tip"><div class="callout-title">장치도 파일이다</div><div class="callout-body"><p><code>/dev/ttyAMA0</code>에 바이트를 쓰면 UART로 전송되고, <code>/sys/class/thermal/thermal_zone0/temp</code>를 읽으면 CPU 온도가 나옵니다. 리눅스의 "모든 것은 파일" 철학 덕분에, 로봇의 확장보드 SDK도 결국 <strong>시리얼 장치 파일을 열고 읽고 쓰는</strong> 프로그램입니다(B08).</p></div></div>
+<h2 id="자주-쓰는-명령">자주 쓰는 명령<a class="anchor" href="#자주-쓰는-명령">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>명령</th><th>원말</th><th>기능</th><th>예</th></tr></thead><tbody><tr><td><code>ls</code></td><td>list</td><td>목록</td><td><code>ls -la</code>(숨김 포함 자세히)</td></tr><tr><td><code>cd</code></td><td>change directory</td><td>이동</td><td><code>cd ~/ros2_ws/src</code>, <code>cd ..</code></td></tr><tr><td><code>pwd</code></td><td>print working directory</td><td>현재 위치</td><td></td></tr><tr><td><code>mkdir</code></td><td>make directory</td><td>폴더 생성</td><td><code>mkdir -p a/b/c</code></td></tr><tr><td><code>touch</code></td><td></td><td>빈 파일 생성·시간 갱신</td><td><code>touch hello.py</code></td></tr><tr><td><code>cp</code></td><td>copy</td><td>복사</td><td><code>cp -r src/ backup/</code></td></tr><tr><td><code>mv</code></td><td>move</td><td>이동·이름 바꾸기</td><td><code>mv old.py new.py</code></td></tr><tr><td><code>rm</code></td><td>remove</td><td>삭제(휴지통 없음!)</td><td><code>rm file</code>, <code>rm -r dir</code></td></tr><tr><td><code>cat</code></td><td>concatenate</td><td>파일 내용 출력</td><td><code>cat /etc/hostname</code></td></tr><tr><td><code>echo</code></td><td></td><td>문자열 출력</td><td><code>echo $HOME</code></td></tr><tr><td><code>find</code></td><td></td><td>파일 찾기</td><td><code>find ~ -name &quot;*.launch.py&quot;</code></td></tr><tr><td><code>grep</code></td><td></td><td>내용 검색</td><td><code>grep -rn &quot;cmd_vel&quot; ~/ros2_ws/src/app</code></td></tr><tr><td><code>man</code></td><td>manual</td><td>매뉴얼</td><td><code>man cp</code></td></tr><tr><td><code>sudo</code></td><td>superuser do</td><td>관리자 권한으로 실행</td><td><code>sudo apt update</code></td></tr><tr><td><code>ping</code></td><td></td><td>네트워크 연결 확인</td><td><code>ping 192.168.149.1</code></td></tr><tr><td><code>date</code></td><td></td><td>날짜·시간</td><td></td></tr><tr><td><code>clear</code></td><td></td><td>화면 지우기</td><td><code>Ctrl+L</code>도 같음</td></tr><tr><td><code>shutdown</code>, <code>reboot</code></td><td></td><td>종료·재시작</td><td><code>sudo shutdown -h now</code></td></tr></tbody></table></div>
+<h3 id="도움말과-단축키">도움말과 단축키<a class="anchor" href="#도움말과-단축키">#</a></h3>
+<ul><li><code>명령 --help</code>: 간단한 사용법. 예: <code>ls --help</code></li><li><code>man 명령</code>: 자세한 매뉴얼. <strong>Space</strong> 다음 쪽, <strong>B</strong> 이전 쪽, <strong>Enter</strong> 한 줄 아래, <strong>q</strong> 종료</li><li><strong>Tab</strong>: 명령·파일 이름 자동완성. 후보가 여러 개면 두 번 눌러 목록 표시. <code>cd Pict</code> + Tab → <code>cd Pictures/</code></li><li><strong>↑/↓</strong>: 명령 기록</li><li><strong>Ctrl+C</strong>: 실행 중인 프로그램 중단(ROS 노드 종료에 가장 많이 씀)</li><li><strong>Ctrl+D</strong>: 터미널(셸) 종료</li><li><strong>Ctrl+A / Ctrl+E</strong>: 줄 맨 앞 / 맨 끝으로 커서 이동</li></ul>
+<div class="callout callout-warn"><div class="callout-title">rm은 되돌릴 수 없습니다</div><div class="callout-body"><p>터미널의 <code>rm</code>은 휴지통을 거치지 않습니다. 특히 <code>sudo rm -rf</code> 뒤에 경로를 잘못 쓰면 시스템이 망가집니다. 지우기 전에 <code>ls</code>로 대상을 먼저 확인하는 습관을 들이세요.</p></div></div>
+<h2 id="사용자와-권한">사용자와 권한<a class="anchor" href="#사용자와-권한">#</a></h2>
+<p>리눅스는 다중 사용자 OS라서 <strong>누가 어떤 파일에 무엇을 할 수 있는지</strong>를 엄격히 관리합니다. 관리자 <strong>root</strong>는 거의 모든 것을 할 수 있고, 일반 사용자는 허락된 범위에서만 작업합니다.</p>
+<h3 id="사용자-전환">사용자 전환<a class="anchor" href="#사용자-전환">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">sudo passwd        # root 비밀번호 설정(Ubuntu는 기본적으로 root 비밀번호가 없음)
+su                 # root로 전환 → 프롬프트 끝이 $ 에서 # 로 바뀜
+exit               # 원래 사용자로 복귀
+sudo 명령          # 한 명령만 관리자 권한으로 실행(권장 방식)</code></pre></div>
+<p>일상 작업은 <code>su</code>로 root에 머무르기보다 **필요한 명령에만 <code>sudo</code>**를 붙이는 편이 안전합니다.</p>
+<h3 id="권한-읽기">권한 읽기<a class="anchor" href="#권한-읽기">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">touch test.txt
+ls -l test.txt
+# -rw-rw-r-- 1 hiwonder hiwonder 0 ... test.txt</code></pre></div>
+<figure class="fig" id="fig-b04-perm"><svg viewBox="0 0 720 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="권한 문자열 -rwxr-x--- 을 8진수 750으로 읽는 방법">
+  <g>
+    <rect class="box" x="140" y="30" width="44" height="44" rx="4"/>
+    <rect class="box-hi" x="188" y="30" width="44" height="44" rx="4"/>
+    <rect class="box-hi" x="236" y="30" width="44" height="44" rx="4"/>
+    <rect class="box-hi" x="284" y="30" width="44" height="44" rx="4"/>
+    <rect class="box" x="332" y="30" width="44" height="44" rx="4"/>
+    <rect class="box" x="380" y="30" width="44" height="44" rx="4"/>
+    <rect class="box" x="428" y="30" width="44" height="44" rx="4"/>
+    <rect class="box" x="476" y="30" width="44" height="44" rx="4"/>
+    <rect class="box" x="524" y="30" width="44" height="44" rx="4"/>
+    <rect class="box" x="572" y="30" width="44" height="44" rx="4"/>
+  </g>
+  <g class="mono" font-size="20" text-anchor="middle" style="fill:var(--text)">
+    <text x="162" y="59">-</text><text x="210" y="59">r</text><text x="258" y="59">w</text><text x="306" y="59">x</text>
+    <text x="354" y="59">r</text><text x="402" y="59">-</text><text x="450" y="59">x</text>
+    <text x="498" y="59">-</text><text x="546" y="59">-</text><text x="594" y="59">-</text>
+  </g>
+  <g style="stroke:var(--text-faint);fill:none" stroke-width="1.4">
+    <path d="M142 88 L142 94 L182 94 L182 88"/>
+    <path d="M190 88 L190 94 L326 94 L326 88"/>
+    <path d="M334 88 L334 94 L470 94 L470 88"/>
+    <path d="M478 88 L478 94 L614 94 L614 88"/>
+  </g>
+  <text class="tag" x="162" y="112" text-anchor="middle">종류</text>
+  <text class="lbl" x="258" y="112" text-anchor="middle">소유자 (u)</text>
+  <text class="lbl" x="402" y="112" text-anchor="middle">그룹 (g)</text>
+  <text class="lbl" x="546" y="112" text-anchor="middle">기타 (o)</text>
+  <g class="sub mono" text-anchor="middle">
+    <text x="210" y="138">4</text><text x="258" y="138">2</text><text x="306" y="138">1</text>
+    <text x="354" y="138">4</text><text x="402" y="138">0</text><text x="450" y="138">1</text>
+    <text x="498" y="138">0</text><text x="546" y="138">0</text><text x="594" y="138">0</text>
+  </g>
+  <text class="tag mono" x="258" y="166" text-anchor="middle">4+2+1 = 7</text>
+  <text class="tag mono" x="402" y="166" text-anchor="middle">4+0+1 = 5</text>
+  <text class="tag mono" x="546" y="166" text-anchor="middle">0+0+0 = 0</text>
+  <text class="tag mono" x="20" y="136">-  일반 파일</text>
+  <text class="tag mono" x="20" y="154">d  디렉터리</text>
+  <text class="tag mono" x="20" y="172">l  링크</text>
+  <text class="lbl mono hi" x="402" y="206" text-anchor="middle" font-weight="700">chmod 750 파일  ⇔  chmod u=rwx,g=rx,o= 파일</text>
+</svg><figcaption>권한 문자열 10글자 = 파일 종류 1글자 + (소유자·그룹·기타) × (r·w·x). 각 세 글자를 r=4, w=2, x=1로 더하면 8진수 한 자리가 됩니다.</figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th>권한</th><th>파일에서</th><th>디렉터리에서</th></tr></thead><tbody><tr><td><code>r</code>(4)</td><td>내용 읽기</td><td>목록 보기(<code>ls</code>)</td></tr><tr><td><code>w</code>(2)</td><td>내용 수정</td><td>안의 파일 생성·삭제·이름 변경</td></tr><tr><td><code>x</code>(1)</td><td>프로그램으로 실행</td><td>안으로 들어가기(<code>cd</code>)</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>8진수</th><th>문자</th><th>의미</th></tr></thead><tbody><tr><td>7</td><td><code>rwx</code></td><td>읽기·쓰기·실행</td></tr><tr><td>6</td><td><code>rw-</code></td><td>읽기·쓰기</td></tr><tr><td>5</td><td><code>r-x</code></td><td>읽기·실행</td></tr><tr><td>4</td><td><code>r--</code></td><td>읽기만</td></tr><tr><td>0</td><td><code>---</code></td><td>권한 없음</td></tr></tbody></table></div>
+<h3 id="권한-바꾸기-chmod">권한 바꾸기: chmod<a class="anchor" href="#권한-바꾸기-chmod">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">chmod 755 run.sh          # 숫자 방식: 소유자 rwx, 그룹 r-x, 기타 r-x
+chmod u+x test_1.txt      # 문자 방식: 소유자(u)에 실행 추가
+chmod g+x test_1.txt      # 그룹(g)
+chmod o-x test_1.txt      # 기타(o)에서 실행 제거
+chmod a+w test_1.txt      # 모두(a)에 쓰기 추가</code></pre></div>
+<p>문자 방식은 <code>u/g/o/a</code> + <code>+/-/=</code> + <code>r/w/x</code> 조합이라 <strong>일부만</strong> 바꿀 때 편하고, 숫자 방식은 <strong>전체를 한 번에</strong> 정할 때 편합니다.</p>
+<div class="callout callout-info"><div class="callout-title">로봇에서 권한이 문제 되는 순간</div><div class="callout-body"><ul><li>파이썬 스크립트를 <code>./run.py</code>처럼 직접 실행하려면 <code>x</code> 권한과 첫 줄 <code>#!/usr/bin/env python3</code>(셔뱅)이 필요합니다.</li><li>시리얼 장치 <code>/dev/ttyAMA0</code>에 일반 사용자가 접근하지 못하면 원본은 <code>sudo chmod 777 /dev/ttyAMA0</code>을 안내합니다. 하지만 이 설정은 재부팅하면 사라지고 모든 사용자에게 쓰기를 열어 줍니다. 더 나은 방법은 사용자를 장치 그룹(<code>dialout</code>)에 넣는 것입니다: <code>sudo usermod -aG dialout $USER</code> 후 재로그인.</li><li><code>docker</code> 명령을 <code>sudo</code> 없이 쓰려면 사용자가 <code>docker</code> 그룹에 있어야 합니다(B10).</li></ul></div></div>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<p>가상 머신의 Ubuntu 또는 MentorPi 호스트 터미널(VNC/SSH)에서 진행합니다.</p>
+<div class="callout callout-safety"><div class="callout-title">안전 확인 (실물 실습 전 필수)</div><div class="callout-body"><ul><li>로봇의 시스템 폴더(<code>/etc</code>, <code>/boot</code>, <code>/usr</code>)에서는 <strong>읽기만</strong> 합니다. 실습 파일은 반드시 홈 아래 <code>~/linux_lab</code>에서 만듭니다.</li><li><code>sudo rm</code>, <code>chmod -R</code> 같은 명령은 대상 경로를 <code>ls</code>로 확인한 뒤에만 실행합니다.</li><li>로봇 전원을 끌 때는 스위치를 바로 내리지 말고 <code>sudo shutdown -h now</code> 후 LED가 꺼지면 내립니다(SD 카드 손상 방지).</li></ul></div></div>
+<div class="callout callout-task"><div class="callout-title">따라 하기</div><div class="callout-body"><ol><li><code>pwd</code> → <code>cd /</code> → <code>tree -L 1</code>(없으면 <code>sudo apt install tree</code>)로 루트 구조를 확인합니다.</li><li><code>ls /dev | grep -E &quot;tty|video|js&quot;</code>로 로봇에 연결된 장치 파일을 찾습니다.</li><li><code>cat /sys/class/thermal/thermal_zone0/temp</code>로 CPU 온도(1/1000 °C)를 읽습니다.</li><li>홈에서 실습 폴더 만들기: <code>mkdir -p ~/linux_lab/scripts &amp;&amp; cd ~/linux_lab</code></li><li><code>touch notes.txt test.txt</code> → <code>ls -l</code>로 기본 권한을 확인하고, <code>chmod 777 test.txt</code> 후 다시 확인합니다.</li><li><code>echo &#x27;print(&quot;hello robot&quot;)&#x27; &gt; scripts/hello.py</code> → <code>python3 scripts/hello.py</code> 실행</li><li><code>cp scripts/hello.py scripts/hello2.py</code> → <code>mv scripts/hello2.py scripts/hi.py</code> → <code>rm scripts/hi.py</code></li><li><code>find ~ -name &quot;*.py&quot; 2&gt;/dev/null | head</code>로 홈의 파이썬 파일을 찾습니다.</li><li>(로봇) 컨테이너에 들어가 <code>grep -rn &quot;cmd_vel&quot; ~/ros2_ws/src/peripherals/peripherals | head</code>로 조이패드 노드가 어떤 토픽을 쓰는지 찾습니다.</li></ol></div></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash"># 참고: 4~7단계를 한 번에
+mkdir -p ~/linux_lab/scripts &amp;&amp; cd ~/linux_lab
+touch notes.txt test.txt &amp;&amp; ls -l
+chmod 777 test.txt &amp;&amp; ls -l test.txt
+echo &#x27;print(&quot;hello robot&quot;)&#x27; &gt; scripts/hello.py
+python3 scripts/hello.py</code></pre></div>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> 절대 경로와 상대 경로로 같은 폴더에 이동할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> <code>-rwxr-x---</code>를 8진수(750)로 바꿔 말할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> <code>/dev</code>, <code>/etc</code>, <code>/home</code>, <code>/opt</code>가 각각 무엇을 담는지 로봇 예로 설명할 수 있다.</label></li></ul></div></div>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td><code>command not found</code></td><td>오타, 대소문자 틀림, 패키지 미설치</td><td>철자 확인, Tab 자동완성 사용, <code>sudo apt install 패키지</code></td></tr><tr><td><code>No such file or directory</code></td><td>현재 위치 기준 상대 경로가 틀림</td><td><code>pwd</code>로 위치 확인, 절대 경로 사용</td></tr><tr><td><code>Permission denied</code></td><td>권한 부족(시스템 파일, 실행 권한 없음, 장치 접근)</td><td><code>sudo</code>, <code>chmod +x</code>, 장치는 그룹(<code>dialout</code>) 추가</td></tr><tr><td><code>apt update</code> 중 연결 오류·매우 느림</td><td>기본 소스가 멀거나 네트워크 불량</td><td>미러 변경, 네트워크 확인(로봇 AP 모드는 인터넷 없음)</td></tr><tr><td><code>Unable to locate package</code></td><td><code>apt update</code>를 안 함</td><td><code>sudo apt update</code> 후 다시 설치</td></tr><tr><td>공유 폴더가 안 보임</td><td>Guest Additions/open-vm-tools 미설치, 미마운트, 첫 설정 시 폴더가 비어 있지 않음</td><td>도구 설치 → mount 명령 → 비어 있는 새 공유 폴더로 재설정</td></tr><tr><td>재부팅 후 공유 폴더가 사라짐</td><td>수동 마운트는 일시적</td><td><code>/etc/fstab</code>에 자동 마운트 줄 추가</td></tr><tr><td><code>su: Authentication failure</code></td><td>root 비밀번호 미설정</td><td><code>sudo passwd</code>로 먼저 설정</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">기본</div><div class="callout-body"><ol><li><code>ls -l</code> 결과에서 <code>drwxr-xr--</code>와 <code>-rw-r-----</code>를 각각 8진수로 바꾸고, "그룹 사용자가 할 수 있는 일"을 문장으로 씁니다.</li><li>홈에서 출발해 <code>~/ros2_ws/src/driver/controller</code>로 가는 절대 경로와, <code>~/ros2_ws/src/app</code>에서 같은 곳으로 가는 상대 경로를 각각 씁니다.</li></ol></div></div>
+<div class="callout callout-task"><div class="callout-title">심화</div><div class="callout-body"><ol><li><code>find</code>와 <code>grep</code>을 조합해 컨테이너의 <code>~/ros2_ws/src</code>에서 <code>create_publisher</code>가 들어간 파이썬 파일 개수를 세는 한 줄 명령을 만듭니다(힌트: <code>grep -rl … | wc -l</code>).</li><li><code>chmod 777 /dev/ttyAMA0</code>와 <code>usermod -aG dialout</code>의 차이를 <strong>지속성</strong>과 <strong>보안</strong> 관점에서 비교합니다.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: 2. Linux Basic Lesson — <em>Lesson 1 Linux Introduction</em>, <em>Lesson 2 Environment Configuration in Windows</em>, <em>Lesson 3 Linux Installation and Source Replacement</em>, <em>Lesson 4 Basic Operation of Linux</em>, <em>Lesson 5 Linux Directory Introduction</em>, <em>Lesson 6 Common Linux Command</em>, <em>Lesson 7 Linux Permission</em></li><li>Ubuntu 공식 튜토리얼 — The Linux command line for beginners: https://ubuntu.com/tutorials/command-line-for-beginners</li><li>Filesystem Hierarchy Standard: https://refspecs.linuxfoundation.org/FHS_3.0/fhs/index.html</li><li>VirtualBox 매뉴얼(Shared Folders): https://www.virtualbox.org/manual/</li></ul>
+      <nav class="pager"><a class="pager-prev" href="b03.html"><span>이전 · B03</span>개발 환경: VNC·버전 설정·시스템 구조</a><a class="pager-next" href="b05.html"><span>다음 · B05</span>파이썬 기초: 문법·제어문·함수</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#운영체제와-리눅스">운영체제와 리눅스</a><a class="toc-l3" href="#주요-배포판">주요 배포판</a><a class="toc-l2" href="#pc에-실습-환경-만들기-가상-머신">PC에 실습 환경 만들기: 가상 머신</a><a class="toc-l3" href="#설치-흐름virtualbox-기준">설치 흐름(VirtualBox 기준)</a><a class="toc-l3" href="#소프트웨어-소스미러-바꾸기">소프트웨어 소스(미러) 바꾸기</a><a class="toc-l3" href="#공유-폴더">공유 폴더</a><a class="toc-l2" href="#터미널과-명령-형식">터미널과 명령 형식</a><a class="toc-l2" href="#디렉터리-구조">디렉터리 구조</a><a class="toc-l2" href="#자주-쓰는-명령">자주 쓰는 명령</a><a class="toc-l3" href="#도움말과-단축키">도움말과 단축키</a><a class="toc-l2" href="#사용자와-권한">사용자와 권한</a><a class="toc-l3" href="#사용자-전환">사용자 전환</a><a class="toc-l3" href="#권한-읽기">권한 읽기</a><a class="toc-l3" href="#권한-바꾸기-chmod">권한 바꾸기: chmod</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

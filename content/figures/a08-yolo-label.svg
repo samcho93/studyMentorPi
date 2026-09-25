@@ -1,0 +1,29 @@
+<svg viewBox="0 0 720 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="VOC 라벨과 YOLO 라벨 좌표 비교">
+  <defs>
+    <marker id="arr-a08-yolo-label" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <!-- image frame 640x480 scaled 0.5 -->
+  <rect class="box" x="30" y="30" width="320" height="240"/>
+  <text class="tag" x="30" y="22">(0,0)</text>
+  <text class="tag" x="350" y="286" text-anchor="end">(640,480)</text>
+  <!-- bbox 250,120 - 330,210 → scaled 125,60 - 165,105 -->
+  <rect style="fill:none;stroke:var(--accent)" x="155" y="90" width="40" height="45" stroke-width="2.5"/>
+  <circle class="hi" cx="175" cy="112.5" r="4"/>
+  <circle class="box" cx="155" cy="90" r="3"/>
+  <circle class="box" cx="195" cy="135" r="3"/>
+  <text class="tag mono" x="40" y="70">(xmin, ymin) = (250, 120)</text>
+  <text class="tag mono" x="200" y="150">(xmax, ymax) = (330, 210)</text>
+  <text class="tag" x="183" y="116">중심</text>
+  <path class="ln" d="M30 112.5 L150 112.5" stroke-dasharray="3 3"/>
+  <!-- right side -->
+  <text class="lbl" x="390" y="50">VOC (labelImg XML)</text>
+  <text class="sub mono" x="390" y="72">픽셀 모서리: 250 120 330 210</text>
+  <path class="ln" d="M470 90 L470 120" marker-end="url(#arr-a08-yolo-label)"/>
+  <text class="tag" x="480" y="110">÷ 영상 크기 (W=640, H=480)</text>
+  <text class="lbl" x="390" y="148">YOLO (.txt 한 줄)</text>
+  <text class="sub mono" x="390" y="170">1 0.453125 0.34375 0.125 0.1875</text>
+  <text class="tag" x="390" y="192">클래스 · x중심 · y중심 · 폭 · 높이 (모두 0~1)</text>
+  <text class="sub" x="390" y="228">x중심 = (250+330)/(2·640) = 0.453</text>
+  <text class="sub" x="390" y="248">폭 = (330−250)/640 = 0.125</text>
+  <text class="sub" x="390" y="268">클래스 1 = classes.names 두 번째 줄 'right'</text>
+</svg>

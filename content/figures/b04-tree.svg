@@ -1,0 +1,36 @@
+<svg viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="리눅스 디렉터리 트리와 절대 경로, 상대 경로">
+  <defs>
+    <marker id="arr-b04-tree" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <g style="stroke:var(--text-faint);fill:none" stroke-width="1.4">
+    <path d="M70 120 L90 120 M90 40 L90 240 M90 40 L110 40 M90 80 L110 80 M90 120 L110 120 M90 160 L110 160 M90 200 L110 200 M90 240 L110 240"/>
+    <path d="M174 80 L210 80 M174 160 L210 160 M270 160 L300 160 M390 160 L420 160 M500 160 L530 160 M174 200 L210 200 M270 200 L300 200"/>
+  </g>
+  <rect class="box-hi" x="20" y="107" width="50" height="26" rx="4"/>
+  <text class="lbl mono" x="45" y="125" text-anchor="middle">/</text>
+  <rect class="box" x="110" y="27" width="64" height="26" rx="4"/><text class="tag mono" x="142" y="44" text-anchor="middle">bin</text>
+  <rect class="box" x="110" y="67" width="64" height="26" rx="4"/><text class="tag mono" x="142" y="84" text-anchor="middle">dev</text>
+  <rect class="box" x="110" y="107" width="64" height="26" rx="4"/><text class="tag mono" x="142" y="124" text-anchor="middle">etc</text>
+  <rect class="box" x="110" y="147" width="64" height="26" rx="4"/><text class="tag mono" x="142" y="164" text-anchor="middle">home</text>
+  <rect class="box" x="110" y="187" width="64" height="26" rx="4"/><text class="tag mono" x="142" y="204" text-anchor="middle">opt</text>
+  <rect class="box" x="110" y="227" width="64" height="26" rx="4"/><text class="tag mono" x="142" y="244" text-anchor="middle">tmp</text>
+
+  <rect class="box" x="210" y="67" width="90" height="26" rx="4"/><text class="tag mono" x="255" y="84" text-anchor="middle">ttyAMA0</text>
+  <text class="sub" x="312" y="84">UART 장치 파일</text>
+  <text class="sub" x="190" y="124">시스템 설정 파일</text>
+
+  <text class="tag" x="240" y="140" text-anchor="middle">~ (현재 위치)</text>
+  <rect class="box-hi" x="210" y="147" width="60" height="26" rx="4"/><text class="tag mono" x="240" y="164" text-anchor="middle">pi</text>
+  <rect class="box" x="300" y="147" width="90" height="26" rx="4"/><text class="tag mono" x="345" y="164" text-anchor="middle">linux_lab</text>
+  <rect class="box" x="420" y="147" width="80" height="26" rx="4"/><text class="tag mono" x="460" y="164" text-anchor="middle">scripts</text>
+  <rect class="box" x="530" y="147" width="80" height="26" rx="4"/><text class="tag mono" x="570" y="164" text-anchor="middle">hello.py</text>
+  <path d="M460 146 C 440 116, 365 116, 347 144" style="stroke:var(--accent);fill:none" stroke-width="1.6" marker-end="url(#arr-b04-tree)"/>
+  <text class="tag mono hi" x="403" y="118" text-anchor="middle">..</text>
+
+  <rect class="box" x="210" y="187" width="60" height="26" rx="4"/><text class="tag mono" x="240" y="204" text-anchor="middle">ros</text>
+  <rect class="box" x="300" y="187" width="80" height="26" rx="4"/><text class="tag mono" x="340" y="204" text-anchor="middle">humble</text>
+  <text class="sub" x="392" y="204">ROS 2 설치 위치</text>
+
+  <text class="tag mono" x="210" y="244">절대 경로  /home/pi/linux_lab/scripts/hello.py</text>
+  <text class="tag mono" x="210" y="266">상대 경로  linux_lab/scripts/hello.py  (현재 위치가 ~ 일 때)</text>
+</svg>

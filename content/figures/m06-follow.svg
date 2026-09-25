@@ -1,0 +1,46 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="라이다 추종과 경비의 제어 구조: 최근접점 각도와 거리를 각각 PD 제어기로 각속도와 선속도로 바꾼다">
+  <defs>
+    <marker id="arr-m06-follow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-m06-follow-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <text class="tag" x="360" y="18" text-anchor="middle">±45° 창 안에서 가장 가까운 점 (d, θ)</text>
+  <!-- row 1: yaw -->
+  <rect class="box" x="10" y="34" width="120" height="50" rx="6"/>
+  <text class="lbl mono" x="70" y="56" text-anchor="middle">θ</text>
+  <text class="sub" x="70" y="74" text-anchor="middle">최근접점 방향</text>
+  <rect class="box" x="150" y="34" width="150" height="50" rx="6"/>
+  <text class="sub" x="225" y="55" text-anchor="middle">d &lt; thr 이고</text>
+  <text class="sub" x="225" y="72" text-anchor="middle">|θ| &gt; 5° 일 때만</text>
+  <rect class="box-hi" x="320" y="34" width="160" height="50" rx="6"/>
+  <text class="lbl mono" x="400" y="56" text-anchor="middle">PID_yaw</text>
+  <text class="sub mono" x="400" y="74" text-anchor="middle">Kp 1.6, Ki 0, Kd 0.16</text>
+  <rect class="box" x="500" y="34" width="90" height="50" rx="6"/>
+  <text class="sub mono" x="545" y="64" text-anchor="middle">±1.2 제한</text>
+  <text class="lbl mono hi" x="650" y="64" text-anchor="middle">ωz</text>
+  <path d="M130 59 L148 59 M300 59 L318 59 M480 59 L498 59" style="stroke:var(--text-faint)" stroke-width="1.4" marker-end="url(#arr-m06-follow)"/>
+  <path d="M590 59 L630 59" style="stroke:var(--text-faint)" stroke-width="1.4" marker-end="url(#arr-m06-follow)"/>
+  <!-- row 2: distance -->
+  <rect class="box" x="10" y="124" width="120" height="50" rx="6"/>
+  <text class="lbl mono" x="70" y="146" text-anchor="middle">d</text>
+  <text class="sub" x="70" y="164" text-anchor="middle">최근접 거리</text>
+  <rect class="box" x="150" y="124" width="150" height="50" rx="6"/>
+  <text class="sub" x="225" y="145" text-anchor="middle">d &lt; thr 일 때만</text>
+  <text class="sub mono" x="225" y="162" text-anchor="middle">오차 = d − thr/2</text>
+  <rect class="box-hi" x="320" y="124" width="160" height="50" rx="6"/>
+  <text class="lbl mono" x="400" y="146" text-anchor="middle">PID_dist</text>
+  <text class="sub mono" x="400" y="164" text-anchor="middle">Kp 1.7, Ki 0, Kd 0.16</text>
+  <rect class="box" x="500" y="124" width="90" height="50" rx="6"/>
+  <text class="sub mono" x="545" y="154" text-anchor="middle">±speed 제한</text>
+  <text class="lbl mono hi" x="650" y="154" text-anchor="middle">vx</text>
+  <path d="M130 149 L148 149 M300 149 L318 149 M480 149 L498 149" style="stroke:var(--text-faint)" stroke-width="1.4" marker-end="url(#arr-m06-follow)"/>
+  <path d="M590 149 L630 149" style="stroke:var(--text-faint)" stroke-width="1.4" marker-end="url(#arr-m06-follow)"/>
+  <!-- merge -->
+  <path class="ln-hi" d="M672 64 L700 64 L700 214 L674 214" stroke-width="1.6" marker-end="url(#arr-m06-follow-hi)"/>
+  <path class="ln-hi" d="M672 154 L700 154" stroke-width="1.6"/>
+  <rect class="box-hi" x="470" y="194" width="200" height="40" rx="6"/>
+  <text class="lbl mono" x="570" y="219" text-anchor="middle">/controller/cmd_vel</text>
+  <text class="sub" x="20" y="212">추종 (mode 2): 두 줄 모두 사용 → 목표 거리 thr/2 = 0.3 m</text>
+  <text class="sub" x="20" y="232">경비 (mode 3): 윗줄만 사용 → 제자리에서 방향만 맞춤</text>
+  <text class="sub" x="20" y="262">데드밴드: |ωz| &lt; 0.008 → 0 , |vx| &lt; 0.05 → 0</text>
+  <text class="sub" x="20" y="282">PID 오차 = SetPoint(0) − 입력, 입력으로 −θ를 넣으므로 ωz ∝ +θ (물체 쪽으로 회전)</text>
+</svg>

@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A05. MediaPipe 소개와 손끝 궤적 인식 · studyMentorPi</title>
+<meta name="description" content="MediaPipe 솔루션(Hands·Pose·Face), 21개 손 랜드마크, 손끝 궤적을 그리고 제스처로 로봇을 움직입니다.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-ai">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" class="active" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="a05" data-track="ai">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-ai">비전 AI·자율주행</span> A-2 MediaPipe 상호작용 &middot; 약 80분 &middot; 중급</div>
+    <h1><span class="lesson-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</h1>
+    <p class="lede">MediaPipe 솔루션(Hands·Pose·Face), 21개 손 랜드마크, 손끝 궤적을 그리고 제스처로 로봇을 움직입니다.</p>
+    <div class="requires">선수 챕터: <a href="a01.html">A01</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>MediaPipe의 구조(그래프·계산기·솔루션)와 손 인식 파이프라인(손바닥 검출 → 랜드마크 회귀 → 추적)을 설명합니다.</li><li>21개 손 랜드마크의 번호 체계를 외우고, 정규화 좌표를 픽셀 좌표로 바꿉니다.</li><li>원본 <code>hand_angle()</code>·<code>h_gesture()</code>가 <strong>두 벡터의 각도</strong>로 손가락이 펴졌는지 판정하는 원리를 설명하고, numpy로 똑같이 구현합니다.</li><li>손끝 궤적 기록 상태 기계(NULL → TRACKING → 지우기)를 따라가며 <code>count &gt; 5</code>, <code>distance &lt; 5</code> 같은 필터의 역할을 말합니다.</li><li>MentorPi에서 <code>hand_gesture.py</code>, <code>hand_trajectory</code> 노드를 실행하고 궤적 점 토픽을 확인합니다.</li></ul>
+<h2 id="mediapipe란">MediaPipe란<a class="anchor" href="#mediapipe란">#</a></h2>
+<p><strong>MediaPipe</strong>는 Google이 공개한 멀티미디어 머신러닝 프레임워크입니다. 카메라 영상이 들어오면 여러 단계의 모델과 전처리·후처리를 <strong>그래프(graph)</strong>로 묶어 실시간으로 돌립니다. 그래프의 각 노드를 <strong>계산기(calculator)</strong>라고 부르고, 계산기 사이를 흐르는 데이터 묶음을 <strong>패킷(packet)</strong>이라고 합니다. 사용자는 이 그래프를 직접 짜지 않아도 되도록 미리 조립된 <strong>솔루션(Solutions)</strong>을 씁니다.</p>
+<div class="table-wrap"><table><thead><tr><th>솔루션</th><th>출력</th><th>MentorPi 예제 파일 (<code>mediapipe_example/</code>)</th></tr></thead><tbody><tr><td>Hands (손)</td><td>손마다 21개 3D 랜드마크, 왼손/오른손</td><td><code>hand.py</code>, <code>hand_gesture.py</code></td></tr><tr><td>Pose (자세)</td><td>33개 몸 랜드마크</td><td><code>pose.py</code></td></tr><tr><td>Face Detection</td><td>얼굴 박스 + 6개 특징점</td><td><code>face_detect.py</code></td></tr><tr><td>Face Mesh</td><td>468개 얼굴 메시 점</td><td><code>face_mesh.py</code></td></tr><tr><td>Holistic</td><td>손 + 자세 + 얼굴 동시</td><td><code>holistic.py</code></td></tr><tr><td>Selfie Segmentation</td><td>사람/배경 마스크</td><td><code>self_segmentation.py</code></td></tr><tr><td>Objectron</td><td>물체 3D 상자</td><td><code>objectron.py</code></td></tr></tbody></table></div>
+<p>원본 교재는 장점으로 <strong>여러 플랫폼 지원(Android·iOS·C++·Python·JavaScript), 실시간 속도, 높은 재사용성</strong>을, 단점으로 <strong>모바일에서 10 MB 이상 차지, TensorFlow 의존, 그래프 내부 오류를 찾기 어렵다</strong>는 점을 꼽습니다. 영상 입출력은 OpenCV, 모델 추론은 TensorFlow Lite가 맡으므로 R08~R11의 OpenCV 기초가 그대로 쓰입니다.</p>
+<div class="callout callout-info"><div class="callout-title">두 가지 Python API</div><div class="callout-body"><p>MentorPi 예제에는 두 세대의 API가 섞여 있습니다.</p>
+<ul><li><strong>레거시 Solutions API</strong>: <code>mp.solutions.hands.Hands(...)</code> → <code>process(rgb)</code> → <code>results.multi_hand_landmarks</code>. <code>hand_gesture.py</code>, <code>hand_trajectory_node.py</code>, <code>hand_detect_node.py</code>가 이 방식입니다.</li><li><strong>Tasks API</strong>: <code>mediapipe.tasks.python.vision.HandLandmarker</code> + <code>model/hand_landmarker.task</code> 파일. <code>hand.py</code>가 이 방식이며 모델 파일(<code>.task</code>)을 직접 지정합니다.</li></ul>
+<p>결과 좌표 형식(정규화 x, y, z)은 같으므로 이 장의 알고리즘은 어느 쪽에나 적용됩니다.</p></div></div>
+<h2 id="손-인식-파이프라인">손 인식 파이프라인<a class="anchor" href="#손-인식-파이프라인">#</a></h2>
+<figure class="fig" id="fig-a05-pipeline"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="MediaPipe Hands 파이프라인: 손바닥 검출, 랜드마크 모델, 추적 루프">
+  <defs>
+    <marker id="arr-a05-pipeline" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-a05-pipeline-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <rect class="box" x="20" y="100" width="110" height="60" rx="6"/>
+  <text class="lbl" x="75" y="126" text-anchor="middle">카메라 프레임</text>
+  <text class="sub" x="75" y="146" text-anchor="middle">flip → RGB</text>
+
+  <rect class="box" x="170" y="40" width="150" height="70" rx="6"/>
+  <text class="lbl" x="245" y="66" text-anchor="middle">① 손바닥 검출기</text>
+  <text class="sub" x="245" y="86" text-anchor="middle">BlazePalm, 영상 전체</text>
+  <text class="tag" x="245" y="102" text-anchor="middle">무거움 · 가끔만 실행</text>
+
+  <rect class="box-hi" x="380" y="100" width="160" height="70" rx="6"/>
+  <text class="lbl" x="460" y="126" text-anchor="middle">② 랜드마크 모델</text>
+  <text class="sub" x="460" y="146" text-anchor="middle">회전 보정 ROI → 21점 (x,y,z)</text>
+  <text class="tag" x="460" y="162" text-anchor="middle">+ 존재 점수, 왼/오른손</text>
+
+  <rect class="box" x="590" y="100" width="110" height="70" rx="6"/>
+  <text class="lbl" x="645" y="126" text-anchor="middle">결과</text>
+  <text class="sub" x="645" y="146" text-anchor="middle">multi_hand_</text>
+  <text class="sub" x="645" y="162" text-anchor="middle">landmarks</text>
+
+  <path class="ln" d="M130 120 L168 84" marker-end="url(#arr-a05-pipeline)"/>
+  <text class="tag" x="118" y="92" text-anchor="middle">추적 실패 시</text>
+  <path class="ln" d="M320 80 L380 120" marker-end="url(#arr-a05-pipeline)"/>
+  <text class="tag" x="360" y="88" text-anchor="start">손 상자 + 회전각</text>
+  <path class="ln" d="M540 135 L588 135" marker-end="url(#arr-a05-pipeline)"/>
+
+  <path class="ln-hi" d="M460 170 L460 230 L100 230 L100 162" fill="none" marker-end="url(#arr-a05-pipeline-hi)"/>
+  <text class="tag" x="280" y="222" text-anchor="middle">③ 추적 루프: 이번 랜드마크로 다음 프레임 ROI 예측 (검출기 생략)</text>
+  <text class="sub" x="360" y="262" text-anchor="middle">존재 점수 &lt; min_tracking_confidence(0.05) 일 때만 ①을 다시 실행</text>
+  <text class="sub" x="360" y="282" text-anchor="middle">손바닥 검출 채택 기준 = min_detection_confidence(0.6)</text>
+</svg><figcaption>MediaPipe Hands의 두 단계 모델과 추적 루프. 추적이 잘 되는 동안은 손바닥 검출기를 건너뜁니다.</figcaption></figure>
+<p>MediaPipe Hands는 모델 두 개를 이어 붙인 구조입니다.</p>
+<ol><li><strong>손바닥 검출기(BlazePalm)</strong>: 영상 전체에서 손바닥 상자를 찾습니다. 손가락은 모양이 제각각이지만 손바닥·주먹은 거의 <strong>정사각형이고 단단한(rigid)</strong> 물체라서 검출이 쉽습니다. 상자와 함께 손목·손가락 뿌리 같은 점 몇 개를 내놓아 <strong>손의 회전 각도</strong>까지 추정합니다.</li><li><strong>손 랜드마크 모델</strong>: 회전을 바로잡아 잘라 낸 손 영역(ROI)에서 <strong>21개 점의 (x, y, z)</strong>를 회귀(regression)로 한 번에 출력합니다. 동시에 "이 ROI에 손이 정말 있는가"를 나타내는 <strong>존재 점수(presence score)</strong>와 왼손/오른손 분류도 냅니다.</li><li><strong>추적 루프</strong>: 동영상 모드(<code>static_image_mode=False</code>)에서는 이번 프레임의 랜드마크로 다음 프레임 ROI를 예측합니다. 존재 점수가 <code>min_tracking_confidence</code>보다 낮아질 때만 1단계 검출기를 다시 돌립니다. 검출기는 무겁고 랜드마크 모델은 가벼우므로 이 구조 덕분에 라즈베리파이에서도 실시간이 됩니다.</li></ol>
+<p>원본 노드의 설정값에는 이유가 있습니다.</p>
+<div class="table-wrap"><table><thead><tr><th>파라미터</th><th><code>hand_gesture.py</code> 값</th><th>의미와 선택 이유</th></tr></thead><tbody><tr><td><code>static_image_mode</code></td><td><code>False</code></td><td>동영상 추적 모드. <code>True</code>면 매 프레임 검출기를 돌려 느려집니다.</td></tr><tr><td><code>max_num_hands</code></td><td><code>1</code></td><td>한 손만. 궤적·제스처는 한 사람의 한 손이면 충분하고 연산도 줄어듭니다.</td></tr><tr><td><code>min_detection_confidence</code></td><td><code>0.6</code></td><td>손바닥 검출 채택 기준. 낮추면 잘못된 검출↑, 높이면 손을 늦게 잡습니다.</td></tr><tr><td><code>min_tracking_confidence</code></td><td><code>0.05</code></td><td>추적 유지 기준. <strong>매우 낮게</strong> 두어 한 번 잡은 손을 거의 놓지 않게(재검출 최소화) 했습니다.</td></tr></tbody></table></div>
+<div class="callout callout-tip"><div class="callout-title">조정 범위</div><div class="callout-body"><p>원본 교재는 두 신뢰도 값을 ±0.1 정도씩 조정하라고 권합니다. 손을 자주 놓치면 <code>min_tracking_confidence</code>를 올리는 것이 아니라 <strong>내려야</strong> 한다는 점에 주의합니다(추적 유지 문턱이 낮을수록 덜 놓칩니다).</p></div></div>
+<h2 id="21개-손-랜드마크">21개 손 랜드마크<a class="anchor" href="#21개-손-랜드마크">#</a></h2>
+<figure class="fig" id="fig-a05-landmarks"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="21개 손 랜드마크 번호와 손가락 각도 벡터">
+  <defs><marker id="arr-a05-landmarks" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker></defs>
+  <path class="ln" d="M170 260 L130 235"/>
+  <path class="ln" d="M130 235 L100 205"/>
+  <path class="ln" d="M100 205 L80 175"/>
+  <path class="ln" d="M80 175 L65 145"/>
+  <path class="ln" d="M170 260 L140 160"/>
+  <path class="ln" d="M140 160 L135 115"/>
+  <path class="ln" d="M135 115 L132 85"/>
+  <path class="ln" d="M132 85 L130 55"/>
+  <path class="ln" d="M140 160 L170 155"/>
+  <path class="ln" d="M170 155 L170 105"/>
+  <path class="ln" d="M170 105 L170 72"/>
+  <path class="ln" d="M170 72 L170 40"/>
+  <path class="ln" d="M170 155 L200 162"/>
+  <path class="ln" d="M200 162 L205 117"/>
+  <path class="ln" d="M205 117 L208 88"/>
+  <path class="ln" d="M208 88 L210 60"/>
+  <path class="ln" d="M200 162 L228 178"/>
+  <path class="ln" d="M170 260 L228 178"/>
+  <path class="ln" d="M228 178 L238 143"/>
+  <path class="ln" d="M238 143 L244 122"/>
+  <path class="ln" d="M244 122 L250 100"/>
+  <circle class="box" cx="170" cy="260" r="5"/>
+  <text class="tag mono" x="180" y="264" text-anchor="start">0</text>
+  <circle class="box" cx="130" cy="235" r="5"/>
+  <text class="tag mono" x="122" y="239" text-anchor="end">1</text>
+  <circle class="box" cx="100" cy="205" r="5"/>
+  <text class="tag mono" x="92" y="209" text-anchor="end">2</text>
+  <circle class="box" cx="80" cy="175" r="5"/>
+  <text class="tag mono" x="72" y="179" text-anchor="end">3</text>
+  <circle class="hi" cx="65" cy="145" r="5"/>
+  <text class="tag mono" x="57" y="149" text-anchor="end">4</text>
+  <circle class="box" cx="140" cy="160" r="5"/>
+  <text class="tag mono" x="132" y="164" text-anchor="end">5</text>
+  <circle class="box" cx="135" cy="115" r="5"/>
+  <text class="tag mono" x="127" y="119" text-anchor="end">6</text>
+  <circle class="box" cx="132" cy="85" r="5"/>
+  <text class="tag mono" x="124" y="89" text-anchor="end">7</text>
+  <circle class="hi" cx="130" cy="55" r="5"/>
+  <text class="tag mono" x="122" y="59" text-anchor="end">8</text>
+  <circle class="box" cx="170" cy="155" r="5"/>
+  <text class="tag mono" x="178" y="159" text-anchor="start">9</text>
+  <circle class="box" cx="170" cy="105" r="5"/>
+  <text class="tag mono" x="178" y="109" text-anchor="start">10</text>
+  <circle class="box" cx="170" cy="72" r="5"/>
+  <text class="tag mono" x="178" y="76" text-anchor="start">11</text>
+  <circle class="hi" cx="170" cy="40" r="5"/>
+  <text class="tag mono" x="178" y="44" text-anchor="start">12</text>
+  <circle class="box" cx="200" cy="162" r="5"/>
+  <text class="tag mono" x="210" y="166" text-anchor="start">13</text>
+  <circle class="box" cx="205" cy="117" r="5"/>
+  <text class="tag mono" x="215" y="121" text-anchor="start">14</text>
+  <circle class="box" cx="208" cy="88" r="5"/>
+  <text class="tag mono" x="218" y="92" text-anchor="start">15</text>
+  <circle class="hi" cx="210" cy="60" r="5"/>
+  <text class="tag mono" x="220" y="64" text-anchor="start">16</text>
+  <circle class="box" cx="228" cy="178" r="5"/>
+  <text class="tag mono" x="238" y="182" text-anchor="start">17</text>
+  <circle class="box" cx="238" cy="143" r="5"/>
+  <text class="tag mono" x="248" y="147" text-anchor="start">18</text>
+  <circle class="box" cx="244" cy="122" r="5"/>
+  <text class="tag mono" x="254" y="126" text-anchor="start">19</text>
+  <circle class="hi" cx="250" cy="100" r="5"/>
+  <text class="tag mono" x="260" y="104" text-anchor="start">20</text>
+  <text class="sub" x="160" y="285" text-anchor="middle">FIVE 예제 좌표 (주황 = 손끝 4·8·12·16·20)</text>
+  <text class="lbl" x="330" y="40">검지 각도 = ∠(v1, v2)</text>
+  <text class="sub mono" x="330" y="60">v1 = lm[0] − lm[6]   (PIP → 손목)</text>
+  <text class="sub mono" x="330" y="78">v2 = lm[7] − lm[8]   (TIP → DIP)</text>
+  <text class="lbl" x="390" y="110">펴짐</text>
+  <path class="ln" d="M400 270 L400 190 L400 160 L400 135"/>
+  <circle class="box" cx="400" cy="270" r="4"/>
+  <circle class="box" cx="400" cy="190" r="4"/>
+  <circle class="box" cx="400" cy="160" r="4"/>
+  <circle class="box" cx="400" cy="135" r="4"/>
+  <path class="ln-hi" d="M412 190 L412 262" stroke-width="2" marker-end="url(#arr-a05-landmarks)"/>
+  <path class="ln-hi" d="M388 135 L388 158" stroke-width="2" marker-end="url(#arr-a05-landmarks)"/>
+  <text class="tag" x="418" y="232">v1</text>
+  <text class="tag" x="382" y="150" text-anchor="end">v2</text>
+  <text class="sub" x="400" y="290" text-anchor="middle">같은 방향 → 약 0°</text>
+  <text class="lbl" x="570" y="110">접힘</text>
+  <path class="ln" d="M580 270 L580 190 L600 170 L602 195"/>
+  <circle class="box" cx="580" cy="270" r="4"/>
+  <circle class="box" cx="580" cy="190" r="4"/>
+  <circle class="box" cx="600" cy="170" r="4"/>
+  <circle class="box" cx="602" cy="195" r="4"/>
+  <path class="ln-hi" d="M568 190 L568 262" stroke-width="2" marker-end="url(#arr-a05-landmarks)"/>
+  <path class="ln-hi" d="M614 197 L612 174" stroke-width="2" marker-end="url(#arr-a05-landmarks)"/>
+  <text class="tag" x="562" y="232" text-anchor="end">v1</text>
+  <text class="tag" x="620" y="190">v2</text>
+  <text class="sub" x="580" y="290" text-anchor="middle">반대 방향 → 180°에 가까움</text>
+  <text class="tag" x="630" y="60" text-anchor="middle">&lt; 49° 펴짐</text>
+  <text class="tag" x="630" y="78" text-anchor="middle">&gt; 65° 접힘</text>
+</svg><figcaption>손 랜드마크 번호와 손가락 각도를 재는 두 벡터. 각 손가락은 "손목→중간 관절" 벡터와 "끝 두 관절" 벡터의 각도로 판단합니다.</figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th>번호</th><th>부위</th><th>번호</th><th>부위</th></tr></thead><tbody><tr><td>0</td><td>손목 WRIST</td><td>9~12</td><td>중지 MCP·PIP·DIP·TIP</td></tr><tr><td>1~4</td><td>엄지 CMC·MCP·IP·TIP</td><td>13~16</td><td>약지 MCP·PIP·DIP·TIP</td></tr><tr><td>5~8</td><td>검지 MCP·PIP·DIP·TIP</td><td>17~20</td><td>새끼 MCP·PIP·DIP·TIP</td></tr></tbody></table></div>
+<p>MCP는 손가락 뿌리 관절, PIP·DIP는 가운데·끝 관절, TIP은 손끝입니다. <strong>손끝은 4의 배수(4, 8, 12, 16, 20)</strong>라고 기억하면 편합니다.</p>
+<p>모델 출력은 <strong>정규화 좌표</strong>입니다. x·y는 영상 폭·높이로 나눈 0~1 값이고, z는 손목을 기준으로 한 상대 깊이(작을수록 카메라에 가까움)입니다. 원본은 모든 노드에서 같은 함수로 픽셀 좌표로 바꿉니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">def get_hand_landmarks(img, landmarks):
+    h, w, _ = img.shape
+    return np.array([(lm.x * w, lm.y * h) for lm in landmarks])   # (21, 2) 픽셀 좌표</code></pre></div>
+<h3 id="영상-좌우-반전">영상 좌우 반전<a class="anchor" href="#영상-좌우-반전">#</a></h3>
+<p>노드는 인식 전에 <code>cv2.flip(image, 1)</code>로 영상을 좌우 반전합니다. 카메라가 사람을 마주 보고 있으므로 반전하지 않으면 사용자가 오른쪽으로 손을 움직일 때 화면 속 손은 왼쪽으로 갑니다. <strong>거울처럼 보여야</strong> 궤적을 그리기 자연스럽기 때문에 반전합니다. 그 대가로 MediaPipe가 판단한 왼손/오른손 라벨도 뒤바뀌므로, 손 종류를 쓰는 코드를 짤 때는 이 점을 기억해야 합니다.</p>
+<h2 id="손가락-판정-두-벡터의-각도">손가락 판정: 두 벡터의 각도<a class="anchor" href="#손가락-판정-두-벡터의-각도">#</a></h2>
+<p>손가락이 펴졌는지는 관절 좌표 사이의 <strong>각도</strong>로 판단합니다. 원본 <code>hand_angle()</code>은 손가락마다 벡터 두 개를 만듭니다.</p>
+<div class="table-wrap"><table><thead><tr><th>손가락</th><th>벡터 v1</th><th>벡터 v2</th></tr></thead><tbody><tr><td>엄지</td><td><code>lm[3] - lm[4]</code> (TIP → IP)</td><td><code>lm[0] - lm[2]</code> (MCP → 손목)</td></tr><tr><td>검지</td><td><code>lm[0] - lm[6]</code> (PIP → 손목)</td><td><code>lm[7] - lm[8]</code> (TIP → DIP)</td></tr><tr><td>중지·약지·새끼</td><td><code>lm[0] - lm[10/14/18]</code></td><td><code>lm[11]-lm[12]</code>, <code>lm[15]-lm[16]</code>, <code>lm[19]-lm[20]</code></td></tr></tbody></table></div>
+<p>손가락을 쭉 펴면 손목, 가운데 관절, 손끝이 거의 한 직선 위에 있으므로 두 벡터가 <strong>같은 방향</strong>(각도 ≈ 0°)입니다. 손가락을 접으면 끝마디가 손바닥 쪽으로 꺾여 두 벡터가 <strong>반대 방향</strong>(각도 → 180°)이 됩니다.</p>
+<p>두 벡터 사이 각은 <code>sdk/common.py</code>의 <code>vector_2d_angle()</code>이 계산합니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">cos θ = (v1 · v2) / (|v1| |v2|)          (내적)
+sin θ = (v1 × v2) / (|v1| |v2|)          (2D 외적 = v1x·v2y − v1y·v2x)
+θ = atan2(sin θ, cos θ)   → −180° ~ 180°,  hand_angle()은 절댓값 사용</code></pre></div>
+<p><code>acos</code>만 쓰지 않고 <code>atan2</code>를 쓰는 이유는 수치 안정성 때문입니다. <code>acos</code>는 입력이 1에 가까울 때(각이 0°에 가까울 때) 기울기가 무한대로 커져 작은 잡음에도 각도가 크게 흔들립니다.</p>
+<h3 id="문턱값과-제스처-표">문턱값과 제스처 표<a class="anchor" href="#문턱값과-제스처-표">#</a></h3>
+<p><code>h_gesture()</code>는 다섯 각도를 세 문턱값과 비교합니다.</p>
+<div class="table-wrap"><table><thead><tr><th>상수</th><th>값</th><th>의미</th></tr></thead><tbody><tr><td><code>thr_angle</code></td><td>65°</td><td>이보다 크면 "접힘"</td></tr><tr><td><code>thr_angle_thumb</code></td><td>53°</td><td>엄지가 접혔다고 보는 기준</td></tr><tr><td><code>thr_angle_s</code></td><td>49°</td><td>이보다 작으면 "펴짐"</td></tr></tbody></table></div>
+<p>"펴짐" 기준(49°)과 "접힘" 기준(65°) 사이에 <strong>빈 구간</strong>이 있다는 점이 중요합니다. 각도가 50~64°인 애매한 손가락은 어느 조건도 만족하지 않아 <code>&quot;none&quot;</code>이 되고, 덕분에 제스처가 경계에서 깜빡이지 않습니다. 이는 온도조절기의 <strong>히스테리시스(hysteresis)</strong>와 같은 원리입니다.</p>
+<div class="table-wrap"><table><thead><tr><th>제스처</th><th>엄지</th><th>검지</th><th>중지</th><th>약지</th><th>새끼</th></tr></thead><tbody><tr><td><code>one</code></td><td>&gt; 5°</td><td>펴짐</td><td>접힘</td><td>접힘</td><td>접힘</td></tr><tr><td><code>two</code></td><td>접힘</td><td>펴짐</td><td>펴짐</td><td>접힘</td><td>접힘</td></tr><tr><td><code>three</code></td><td>접힘</td><td>펴짐</td><td>펴짐</td><td>펴짐</td><td>접힘</td></tr><tr><td><code>four</code></td><td>접힘</td><td>펴짐</td><td>펴짐</td><td>펴짐</td><td>펴짐</td></tr><tr><td><code>five</code></td><td>펴짐</td><td>펴짐</td><td>펴짐</td><td>펴짐</td><td>펴짐</td></tr><tr><td><code>fist</code></td><td>접힘</td><td>접힘</td><td>접힘</td><td>접힘</td><td>접힘</td></tr></tbody></table></div>
+<p>원본에는 이 밖에 <code>OK</code>, <code>six</code>, <code>hand_heart</code>, <code>nico-nico-ni</code>도 있습니다. <code>if/elif</code> 순서대로 검사하므로 <strong>먼저 나온 조건이 이깁니다.</strong></p>
+<h3 id="실습-하드코딩한-랜드마크로-제스처-판정">실습: 하드코딩한 랜드마크로 제스처 판정<a class="anchor" href="#실습-하드코딩한-랜드마크로-제스처-판정">#</a></h3>
+<p>카메라 없이도 알고리즘을 확인할 수 있게, 손을 편 자세(FIVE)와 검지만 편 자세(ONE)의 21점을 직접 적어 넣었습니다. 계산 함수는 원본과 같은 식입니다.</p>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import numpy as np
+
+def vector_2d_angle(v1, v2):                      # sdk/common.py 와 같은 식
+    d = np.linalg.norm(v1) * np.linalg.norm(v2)
+    cos = v1.dot(v2) / d
+    sin = (v1[0] * v2[1] - v1[1] * v2[0]) / d
+    return np.degrees(np.arctan2(sin, cos))
+
+def hand_angle(lm):
+    pairs = [((3, 4), (0, 2)),                     # 엄지
+             ((0, 6), (7, 8)), ((0, 10), (11, 12)),  # 검지, 중지
+             ((0, 14), (15, 16)), ((0, 18), (19, 20))]  # 약지, 새끼
+    return [abs(vector_2d_angle(lm[a] - lm[b], lm[c] - lm[d]))
+            for (a, b), (c, d) in pairs]
+
+# 640x480 영상의 픽셀 좌표 (x, y) — 0 손목, 4·8·12·16·20 손끝
+FIVE = np.array([(320, 420), (280, 395), (250, 365), (230, 335), (215, 305),
+                 (290, 320), (285, 275), (282, 245), (280, 215),
+                 (320, 315), (320, 265), (320, 232), (320, 200),
+                 (350, 322), (355, 277), (358, 248), (360, 220),
+                 (378, 338), (388, 303), (394, 282), (400, 260)], float)
+ONE = FIVE.copy()
+ONE[1:5] = [(285, 398), (265, 370), (285, 350), (310, 350)]      # 엄지 접음
+ONE[9:13] = [(320, 315), (320, 280), (322, 300), (322, 320)]     # 중지 접음
+ONE[13:17] = [(350, 322), (352, 288), (352, 305), (350, 322)]    # 약지 접음
+ONE[17:21] = [(378, 338), (382, 310), (382, 325), (378, 340)]    # 새끼 접음
+
+THR, THR_THUMB, THR_S = 65.0, 53.0, 49.0
+def gesture(a):
+    if a[0] &gt; 5 and a[1] &lt; THR_S and all(x &gt; THR for x in a[2:]):
+        return &quot;one&quot;
+    if all(x &lt; THR_S for x in a):
+        return &quot;five&quot;
+    if a[0] &gt; THR_THUMB and all(x &gt; THR for x in a[1:]):
+        return &quot;fist&quot;
+    return &quot;none&quot;
+
+for name, lm in ((&quot;FIVE&quot;, FIVE), (&quot;ONE&quot;, ONE)):
+    a = hand_angle(lm)
+    n = sum(x &lt; THR_S for x in a)                  # 펴진 손가락 수
+    print(name, [round(float(x), 1) for x in a], &quot;-&gt;&quot;, gesture(a), &quot;/ 펴진 손가락&quot;, n)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">FIVE [25.3, 9.8, 0.0, 9.7, 14.9] -&gt; five / 펴진 손가락 5
+ONE [137.7, 9.8, 180.0, 173.1, 165.5] -&gt; one / 펴진 손가락 1</code></pre></div>
+<p>결과 읽기:</p>
+<ul><li>편 손가락은 0~25°, 접은 손가락은 137~180°로 <strong>두 무리가 뚜렷이 갈립니다.</strong> 문턱값 49°·65°는 이 두 무리 사이에 놓인 값입니다.</li><li>엄지는 다른 손가락과 달리 옆으로 벌어지므로 편 상태에서도 25° 정도가 나옵니다. 그래서 엄지만 별도 문턱값(53°)을 씁니다.</li><li><strong>손가락 개수 세기</strong>는 "각도 &lt; 49°인 손가락 수"로 간단히 구할 수 있습니다. 원본 제스처 표를 몰라도 개수만으로 명령을 고를 수 있습니다(A06 과제).</li></ul>
+<div class="callout callout-warn"><div class="callout-title">각도 판정의 한계</div><div class="callout-body"><p>2D 좌표만 쓰므로 <strong>손바닥이 카메라를 정면으로 향할 때</strong> 가장 잘 됩니다. 손을 옆으로 세우면 접힌 손가락이 겹쳐 보여 각도가 작게 나옵니다. z 좌표까지 쓰는 3D 각도로 바꾸면 개선되지만, z는 x·y보다 잡음이 커서 평균 필터가 필요합니다.</p></div></div>
+<h2 id="손끝-궤적-기록-상태-기계">손끝 궤적 기록: 상태 기계<a class="anchor" href="#손끝-궤적-기록-상태-기계">#</a></h2>
+<figure class="fig" id="fig-a05-trajectory-fsm"><svg viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="손끝 궤적 기록 상태 기계">
+  <defs>
+    <marker id="arr-a05-trajectory-fsm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-a05-trajectory-fsm-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <rect class="box" x="60" y="100" width="160" height="70" rx="35"/>
+  <text class="lbl" x="140" y="130" text-anchor="middle">NULL</text>
+  <text class="sub" x="140" y="150" text-anchor="middle">기록 안 함</text>
+
+  <rect class="box-hi" x="470" y="100" width="190" height="70" rx="35"/>
+  <text class="lbl" x="565" y="130" text-anchor="middle">TRACKING</text>
+  <text class="sub" x="565" y="150" text-anchor="middle">검지 끝(8번) 점 기록</text>
+
+  <path class="ln-hi" d="M220 120 L468 120" marker-end="url(#arr-a05-trajectory-fsm-hi)"/>
+  <text class="tag" x="344" y="110" text-anchor="middle">"one" 연속 6프레임 (count &gt; 5)</text>
+  <path class="ln" d="M468 155 L222 155" marker-end="url(#arr-a05-trajectory-fsm)"/>
+  <text class="tag" x="344" y="175" text-anchor="middle">"five" → points 발행 · 비우기</text>
+
+  <path class="ln" d="M100 100 C80 40 200 40 180 98" fill="none" marker-end="url(#arr-a05-trajectory-fsm)"/>
+  <text class="tag" x="140" y="36" text-anchor="middle">"one" 아닌 프레임 → count = 0</text>
+
+  <path class="ln" d="M520 170 C490 240 640 240 610 172" fill="none" marker-end="url(#arr-a05-trajectory-fsm)"/>
+  <text class="tag" x="565" y="252" text-anchor="middle">이동 ≥ 5 px → 점 추가</text>
+  <text class="tag" x="565" y="268" text-anchor="middle">&lt; 5 px 또는 "two" → 추가 안 함</text>
+  <text class="sub" x="140" y="220" text-anchor="middle">30 fps 기준 6프레임 ≈ 0.2 s</text>
+</svg><figcaption>손끝 궤적 노드의 상태 전이. "1"을 6프레임 연속 유지하면 기록을 시작하고, "5"를 보이면 점을 발행하고 지웁니다.</figcaption></figure>
+<p><code>hand_gesture.py</code>와 <code>hand_trajectory_node.py</code>는 <code>enum.Enum</code>으로 상태 <code>NULL</code>, <code>START</code>, <code>TRACKING</code>, <code>RUNNING</code>을 정의하지만 실제로는 두 상태만 씁니다.</p>
+<div class="table-wrap"><table><thead><tr><th>현재 상태</th><th>조건</th><th>동작</th></tr></thead><tbody><tr><td><code>NULL</code></td><td>제스처가 <code>one</code></td><td><code>count += 1</code>, <code>count &gt; 5</code>면 <code>TRACKING</code>으로, 점 목록 초기화</td></tr><tr><td><code>NULL</code></td><td>그 외</td><td><code>count = 0</code> (연속이 끊기면 처음부터)</td></tr><tr><td><code>TRACKING</code></td><td>제스처가 <code>two</code>가 아님</td><td>검지 끝(8번)이 마지막 점에서 <strong>5 px 이상</strong> 움직였으면 점 추가</td></tr><tr><td>모든 상태</td><td>제스처가 <code>five</code></td><td>(궤적 노드는 점들을 <code>~/points</code>로 발행) → 점 비우기, <code>NULL</code>로</td></tr></tbody></table></div>
+<p>두 필터의 의미를 짚어 봅니다.</p>
+<ul><li>**<code>count &gt; 5</code> (6프레임 연속)<strong>: 한 프레임짜리 오인식으로 기록이 시작되지 않게 하는 </strong>디바운싱(debouncing)**입니다. 카메라가 약 30 fps이면 0.2 s 동안 같은 제스처를 유지해야 합니다. 원본 교재는 5~7프레임을 권장합니다.</li><li>**<code>distance(last_point, tip) &lt; 5</code><strong>: 손이 멈춰 있을 때 랜드마크가 1~3 px씩 떨리는데, 그 떨림을 점으로 쌓지 않는 </strong>최소 이동 거리 필터**입니다. 빠른 동작을 놓치지 않으려면 값을 키우되 10을 넘기지 말라고 원본은 권합니다.</li><li>**<code>two</code>에서는 점을 추가하지 않음**: 손가락 두 개를 펴면 "펜을 든" 상태가 되어 손을 옮겨도 선이 그어지지 않습니다.</li></ul>
+<h3 id="실습-궤적-상태-기계-시뮬레이션">실습: 궤적 상태 기계 시뮬레이션<a class="anchor" href="#실습-궤적-상태-기계-시뮬레이션">#</a></h3>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+
+def distance(p, q):
+    return math.hypot(p[0] - q[0], p[1] - q[1])
+
+# 프레임마다 (인식된 제스처, 검지 끝 좌표) — 카메라 30 fps 가정
+frames = [(&quot;one&quot;, (300, 240))] * 7                       # ① &quot;1&quot;을 7프레임 유지
+for k in range(20):                                      # ② 손끝으로 오른쪽 위로 긋기
+    frames.append((&quot;one&quot;, (300 + 8 * k, 240 - 3 * k)))
+frames += [(&quot;one&quot;, (452, 183))] * 4                      # ③ 잠깐 멈춤(떨림 &lt; 5 px)
+frames += [(&quot;five&quot;, (450, 185))]                         # ④ &quot;5&quot;로 지우기
+
+state, count, points = &quot;NULL&quot;, 0, []
+for i, (g, tip) in enumerate(frames):
+    if state != &quot;TRACKING&quot;:
+        if g == &quot;one&quot;:
+            count += 1
+            if count &gt; 5:                    # 6번째 연속 프레임에서 확정
+                count, state, points = 0, &quot;TRACKING&quot;, []
+                print(&quot;frame %2d: TRACKING 시작&quot; % i)
+        else:
+            count = 0
+    elif g != &quot;two&quot;:
+        if points and distance(points[-1], tip) &lt; 5:
+            count += 1                       # 거의 안 움직임 → 점 추가 안 함
+        else:
+            count = 0
+            points.append(tip)
+    if g == &quot;five&quot;:
+        print(&quot;frame %2d: five → 점 %d개 발행 후 지움&quot; % (i, len(points)))
+        state, points = &quot;NULL&quot;, []
+print(&quot;최종 상태:&quot;, state, &quot;/ 남은 점&quot;, len(points))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">frame  5: TRACKING 시작
+frame 31: five → 점 20개 발행 후 지움
+최종 상태: NULL / 남은 점 0</code></pre></div>
+<p>프레임은 32개지만 점은 20개만 저장됩니다. 시작 직후 제자리 프레임, 멈춘 4프레임, 마지막 <code>five</code> 프레임이 모두 5 px 필터에 걸러졌기 때문입니다.</p>
+<h2 id="궤적을-로봇-명령으로-방향-분류">궤적을 로봇 명령으로: 방향 분류<a class="anchor" href="#궤적을-로봇-명령으로-방향-분류">#</a></h2>
+<p><code>hand_gesture_control_node.py</code>는 <code>/hand_trajectory/points</code>를 구독해 궤적의 <strong>방향</strong>을 판정합니다(원본 동작은 로봇팔 버전용 액션 그룹이지만 분류 방법은 섀시에도 그대로 쓸 수 있습니다).</p>
+<ol><li>점이 6개 이상일 때만 처리합니다.</li><li><code>cv2.fitLine(points, cv2.DIST_L2, ...)</code>으로 점들에 <strong>최소제곱 직선</strong>을 맞춥니다. 결과의 방향 벡터 <span class="math">(v_x, v_y)</span>에서 <span class="math">θ = |acos(v_x)|</span>를 구하면 0°는 수평, 90°는 수직입니다.</li><li>60° &lt; θ ≤ 90°이면 <strong>세로 동작</strong>, 0° ≤ θ &lt; 30°이면 <strong>가로 동작</strong>입니다. 30~60°는 대각선이라 판단하지 않습니다(여기에도 불감 구간).</li><li>위/아래, 왼/오른쪽은 이웃한 점의 x·y 증감 부호를 +1/−1로 더한 <strong>다수결</strong>로 정합니다.</li></ol>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+import numpy as np
+import cv2
+
+def classify(points):
+    pts = np.array(points, dtype=np.int32)
+    lr = sum(1 if b[0] - a[0] &gt; 0 else -1 for a, b in zip(pts[:-1], pts[1:]))
+    ud = sum(1 if b[1] - a[1] &gt; 0 else -1 for a, b in zip(pts[:-1], pts[1:]))
+    vx, vy, x0, y0 = cv2.fitLine(pts, cv2.DIST_L2, 0, 0.01, 0.01).flatten()
+    angle = int(abs(math.degrees(math.acos(vx))))   # 0 = 수평, 90 = 수직
+    if 90 &gt;= angle &gt; 60:
+        return angle, &quot;아래&quot; if ud &gt; 0 else &quot;위&quot;
+    if 30 &gt; angle &gt;= 0:
+        return angle, &quot;오른쪽&quot; if lr &gt; 0 else &quot;왼쪽&quot;
+    return angle, &quot;판단 보류(대각선)&quot;
+
+strokes = {
+    &quot;좌→우&quot;: [(100 + 20 * i, 240 + (i % 2)) for i in range(10)],
+    &quot;위→아래&quot;: [(320 + (i % 3), 100 + 25 * i) for i in range(10)],
+    &quot;우→좌&quot;: [(500 - 30 * i, 200 + 2 * i) for i in range(10)],
+    &quot;대각선&quot;: [(100 + 20 * i, 100 + 20 * i) for i in range(10)],
+}
+for name, pts in strokes.items():
+    print(name, &quot;-&gt;&quot;, classify(pts))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">좌→우 -&gt; (0, &#x27;오른쪽&#x27;)
+위→아래 -&gt; (89, &#x27;아래&#x27;)
+우→좌 -&gt; (3, &#x27;왼쪽&#x27;)
+대각선 -&gt; (45, &#x27;판단 보류(대각선)&#x27;)</code></pre></div>
+<p><code>fitLine</code>의 방향 벡터는 선의 <strong>기울기만</strong> 알려 주고 진행 방향(앞/뒤)은 알려 주지 않습니다. 그래서 방향은 부호 다수결로 따로 정합니다. 다수결은 중간에 몇 점이 튀어도 결과가 바뀌지 않는 장점이 있습니다.</p>
+<h3 id="섀시-명령으로-연결하기">섀시 명령으로 연결하기<a class="anchor" href="#섀시-명령으로-연결하기">#</a></h3>
+<p>아래는 분류 결과를 MentorPi 섀시의 짧은 이동으로 바꾸는 예시 노드입니다. <code>interfaces.msg.Points</code>는 MentorPi 워크스페이스의 사용자 정의 메시지(<code>points[].x</code>, <code>points[].y</code>)라 실물에서만 동작합니다.</p>
+<div class="code-block code-robot"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-robot">실물 전용</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math, time
+import numpy as np, cv2, rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist
+from interfaces.msg import Points
+
+class TrajectoryDrive(Node):
+    def __init__(self):
+        super().__init__(&#x27;trajectory_drive&#x27;)
+        self.pub = self.create_publisher(Twist, &#x27;/controller/cmd_vel&#x27;, 1)
+        self.create_subscription(Points, &#x27;/hand_trajectory/points&#x27;, self.cb, 1)
+
+    def cb(self, msg):
+        if len(msg.points) &lt;= 5:
+            return
+        pts = np.array([(p.x, p.y) for p in msg.points], np.int32)
+        vx = cv2.fitLine(pts, cv2.DIST_L2, 0, 0.01, 0.01).flatten()[0]
+        angle = abs(math.degrees(math.acos(vx)))
+        d = np.sign(np.diff(pts, axis=0)).sum(axis=0)       # (x 다수결, y 다수결)
+        t = Twist()
+        if angle &gt; 60:
+            t.linear.x = 0.15 if d[1] &lt; 0 else -0.15        # 위로 그으면 전진
+        elif angle &lt; 30:
+            t.angular.z = -0.4 if d[0] &gt; 0 else 0.4         # 오른쪽으로 그으면 우회전
+        else:
+            return
+        self.pub.publish(t); time.sleep(1.0); self.pub.publish(Twist())
+
+def main():
+    rclpy.init()
+    node = TrajectoryDrive()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.pub.publish(Twist())
+        node.destroy_node()
+        rclpy.shutdown()
+
+if __name__ == &#x27;__main__&#x27;:
+    main()</code></pre></div>
+<p>콜백 안에서 <code>time.sleep(1.0)</code>을 쓰면 그동안 다른 콜백이 멈춥니다. 한 번에 한 명령만 처리하는 이 예제에서는 괜찮지만, 여러 토픽을 다루는 노드라면 타이머로 정지 시각을 예약하는 방식이 좋습니다(R05 참고).</p>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">실물 실습 안전 수칙</div><div class="callout-body"><ul><li>이 장의 기본 예제(<code>hand_gesture.py</code>, <code>hand_trajectory</code>)는 <strong>바퀴를 움직이지 않습니다.</strong> 위의 <code>TrajectoryDrive</code>처럼 섀시 명령을 붙일 때만 로봇이 움직이므로, 그때는 바닥에 내려놓고 주변 1 m를 비웁니다.</li><li>속도는 선속도 0.15 m/s, 각속도 0.4 rad/s 이하로 두고 1초 뒤 반드시 정지 명령을 보냅니다.</li><li>카메라 앞에서 손을 움직이다가 로봇에 부딪히지 않도록 손과 로봇 사이 40 cm 이상을 유지합니다.</li></ul></div></div>
+<ol><li>VNC로 로봇 데스크톱에 접속하고 터미널에서 앱 자동 실행 서비스를 멈춥니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">~/.stop_ros.sh</code></pre></div>
+<ol><li>깊이 카메라 노드를 켭니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 launch peripherals depth_camera.launch.py</code></pre></div>
+<ol><li>새 터미널에서 제스처·궤적 예제를 실행합니다. 창이 뜨면 손을 카메라 앞 40~60 cm에 둡니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">cd ros2_ws/src/example/example/mediapipe_example
+python3 hand_gesture.py</code></pre></div>
+<ol><li>검지만 편 "1"을 잠시 유지하면 기록이 시작되고, 손끝을 움직이면 선이 그려집니다. 손을 펴서 "5"를 보이면 지워집니다. <code>q</code> 또는 <code>Esc</code>로 창을, 터미널에서 <code>Ctrl+C</code>로 프로그램을 끝냅니다.</li></ol>
+<ol><li>궤적 점을 <strong>토픽으로</strong> 받고 싶으면 ROS 2 노드 버전을 launch로 실행합니다. 이 launch는 카메라·컨트롤러·초기 자세 노드를 함께 켜므로 2번 카메라 노드는 먼저 끕니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 launch example hand_trajectory_node.launch.py
+# 다른 터미널
+ros2 topic echo /hand_trajectory/points
+ros2 service call /hand_trajectory/stop std_srvs/srv/Trigger {}</code></pre></div>
+<ol><li>실습을 마치면 앱 서비스를 다시 켭니다(부저가 한 번 울리면 완료).</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">sudo systemctl restart start_node.service</code></pre></div>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> "1"을 짧게(0.1 s) 보이면 기록이 시작되지 않고, 0.2 s 이상 유지해야 시작되는 것을 확인했다.</label></li><li><label class="check-item"><input type="checkbox"> 손을 멈추면 선이 더 이상 늘어나지 않는 이유를 5 px 필터로 설명할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> <code>/hand_trajectory/points</code>에 "5" 제스처 순간 한 번 메시지가 오는 것을 확인했다.</label></li></ul></div></div>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td>창은 뜨는데 손 점이 전혀 안 그려짐</td><td>카메라 토픽 이름 불일치. <code>hand_gesture.py</code>는 <code>/ascamera/camera_publisher/rgb0/image</code>, <code>hand_trajectory_node.py</code>는 <code>/depth_cam/rgb/image_raw</code>를 구독</td><td><code>ros2 topic list</code>로 실제 이름을 보고 <code>--ros-args -r /depth_cam/rgb/image_raw:=/ascamera/camera_publisher/rgb0/image</code>로 리매핑</td></tr><tr><td>제스처가 <code>none</code>으로만 나옴</td><td>손바닥이 옆을 향함, 손이 너무 멀어 랜드마크가 뭉개짐</td><td>손바닥을 카메라 정면으로, 거리 40~60 cm, 밝은 조명</td></tr><tr><td>"1"인데 <code>two</code>/<code>hand_heart</code>로 나옴</td><td>엄지 각도가 문턱값 근처</td><td>엄지를 확실히 접거나, <code>thr_angle_s</code>를 ±5 범위에서 조정</td></tr><tr><td>궤적이 끊겨서 점선처럼 그려짐</td><td>손을 빨리 움직여 프레임 사이 이동이 크고, 추적이 끊겨 재검출</td><td>천천히 움직이기, 조명 개선. 필요하면 <code>distance</code> 문턱을 10 이하에서 키움</td></tr><tr><td><code>ModuleNotFoundError: fps</code></td><td><code>hand_gesture.py</code>는 같은 폴더의 <code>fps.py</code>를 import</td><td>반드시 <code>mediapipe_example</code> 폴더로 <code>cd</code>한 뒤 실행</td></tr><tr><td>앱 기능이 동작하지 않음</td><td><code>~/.stop_ros.sh</code>로 앱 서비스를 멈춘 상태</td><td><code>sudo systemctl restart start_node.service</code> 또는 재부팅</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">과제</div><div class="callout-body"><ol><li><strong>(기본)</strong> 첫 번째 실습 코드에 주먹(FIST) 랜드마크 배열을 만들어 추가하고 <code>fist</code>가 나오게 하세요. 검지 네 점만 바꾸면 됩니다.</li><li><strong>(기본)</strong> 궤적 시뮬레이션에서 필터 문턱을 5 → 10 px로 바꾸면 저장되는 점이 몇 개가 되는지 예측한 뒤 실행해 확인하세요.</li><li><strong>(심화)</strong> <code>vector_2d_angle</code>을 z 좌표까지 쓰는 3D 각도(<code>acos</code> 대신 <code>atan2(|v1×v2|, v1·v2)</code>)로 바꾸고, 손을 45° 옆으로 기울였을 때 2D/3D 판정이 어떻게 다른지 실물에서 비교하세요.</li><li><strong>(심화)</strong> <code>TrajectoryDrive</code>에 원(○) 궤적을 인식해 제자리 한 바퀴 회전하는 기능을 넣으세요. 힌트: 원은 fitLine 잔차가 크고, 시작점과 끝점이 가깝습니다.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>15. MediaPipe Human-robot Interaction</em> — Lesson 1 MediaPipe Introduction, Lesson 2 Fingertip Trajectory Recognition</li><li>원본 소스: <code>src/example/example/mediapipe_example/hand_gesture.py</code>, <code>hand_trajectory/hand_trajectory_node.py</code>, <code>hand_gesture_control/hand_gesture_control_node.py</code>, <code>src/driver/sdk/sdk/common.py</code></li><li>MediaPipe 공식 문서: https://developers.google.com/mediapipe</li><li>MediaPipe Hand Landmarker 가이드: https://ai.google.dev/edge/mediapipe/solutions/vision/hand_landmarker</li><li>MediaPipe GitHub: https://github.com/google/mediapipe</li><li>Zhang et al., <em>MediaPipe Hands: On-device Real-time Hand Tracking</em> (2020): https://arxiv.org/abs/2006.10214</li><li>OpenCV <code>fitLine</code> 문서: https://docs.opencv.org/4.x/d3/dc0/group__imgproc__shape.html</li></ul>
+      <nav class="pager"><a class="pager-prev" href="a04.html"><span>이전 · A04</span>색 추적</a><a class="pager-next" href="a06.html"><span>다음 · A06</span>손 추종·자세 제어·포즈 감지</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#mediapipe란">MediaPipe란</a><a class="toc-l2" href="#손-인식-파이프라인">손 인식 파이프라인</a><a class="toc-l2" href="#21개-손-랜드마크">21개 손 랜드마크</a><a class="toc-l3" href="#영상-좌우-반전">영상 좌우 반전</a><a class="toc-l2" href="#손가락-판정-두-벡터의-각도">손가락 판정: 두 벡터의 각도</a><a class="toc-l3" href="#문턱값과-제스처-표">문턱값과 제스처 표</a><a class="toc-l3" href="#실습-하드코딩한-랜드마크로-제스처-판정">실습: 하드코딩한 랜드마크로 제스처 판정</a><a class="toc-l2" href="#손끝-궤적-기록-상태-기계">손끝 궤적 기록: 상태 기계</a><a class="toc-l3" href="#실습-궤적-상태-기계-시뮬레이션">실습: 궤적 상태 기계 시뮬레이션</a><a class="toc-l2" href="#궤적을-로봇-명령으로-방향-분류">궤적을 로봇 명령으로: 방향 분류</a><a class="toc-l3" href="#섀시-명령으로-연결하기">섀시 명령으로 연결하기</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

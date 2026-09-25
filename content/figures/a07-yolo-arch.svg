@@ -1,0 +1,47 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="YOLOv5 구조: 입력, 백본, 넥, 헤드와 세 출력 격자">
+  <defs>
+    <marker id="arr-a07-yolo-arch" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <rect class="box" x="15" y="110" width="95" height="80" rx="6"/>
+  <text class="lbl" x="62" y="140" text-anchor="middle">입력</text>
+  <text class="sub" x="62" y="160" text-anchor="middle">640×640×3</text>
+  <text class="tag" x="62" y="178" text-anchor="middle">레터박스·0~1</text>
+
+  <rect class="box" x="140" y="40" width="150" height="220" rx="6"/>
+  <text class="lbl" x="215" y="62" text-anchor="middle">백본 Backbone</text>
+  <text class="sub mono" x="215" y="90" text-anchor="middle">Conv 6×6 s2</text>
+  <text class="sub mono" x="215" y="112" text-anchor="middle">Conv + C3 ×n</text>
+  <text class="sub mono" x="215" y="146" text-anchor="middle">P3 (80×80)</text>
+  <text class="sub mono" x="215" y="180" text-anchor="middle">P4 (40×40)</text>
+  <text class="sub mono" x="215" y="214" text-anchor="middle">P5 (20×20)</text>
+  <text class="sub mono" x="215" y="240" text-anchor="middle">SPPF</text>
+
+  <rect class="box" x="320" y="40" width="150" height="220" rx="6"/>
+  <text class="lbl" x="395" y="62" text-anchor="middle">넥 Neck</text>
+  <text class="sub" x="395" y="90" text-anchor="middle">FPN: 위 → 아래</text>
+  <text class="sub" x="395" y="110" text-anchor="middle">(업샘플 + Concat)</text>
+  <text class="sub" x="395" y="150" text-anchor="middle">PAN: 아래 → 위</text>
+  <text class="sub" x="395" y="170" text-anchor="middle">(Conv s2 + Concat)</text>
+  <text class="tag" x="395" y="215" text-anchor="middle">큰 물체의 의미 정보와</text>
+  <text class="tag" x="395" y="231" text-anchor="middle">작은 물체의 위치 정보 결합</text>
+
+  <path class="ln" d="M110 150 L138 150" marker-end="url(#arr-a07-yolo-arch)"/>
+  <path class="ln" d="M290 142 L318 142" marker-end="url(#arr-a07-yolo-arch)"/>
+  <path class="ln" d="M290 176 L318 176" marker-end="url(#arr-a07-yolo-arch)"/>
+  <path class="ln" d="M290 210 L318 210" marker-end="url(#arr-a07-yolo-arch)"/>
+
+  <rect class="box-hi" x="510" y="40" width="195" height="60" rx="6"/>
+  <text class="lbl" x="607" y="64" text-anchor="middle">P3 · stride 8 · 80×80</text>
+  <text class="tag" x="607" y="84" text-anchor="middle">작은 물체 · 앵커 (10,13)(16,30)(33,23)</text>
+  <rect class="box-hi" x="510" y="120" width="195" height="60" rx="6"/>
+  <text class="lbl" x="607" y="144" text-anchor="middle">P4 · stride 16 · 40×40</text>
+  <text class="tag" x="607" y="164" text-anchor="middle">중간 · (30,61)(62,45)(59,119)</text>
+  <rect class="box-hi" x="510" y="200" width="195" height="60" rx="6"/>
+  <text class="lbl" x="607" y="224" text-anchor="middle">P5 · stride 32 · 20×20</text>
+  <text class="tag" x="607" y="244" text-anchor="middle">큰 물체 · (116,90)(156,198)(373,326)</text>
+
+  <path class="ln" d="M470 90 L508 70" marker-end="url(#arr-a07-yolo-arch)"/>
+  <path class="ln" d="M470 150 L508 150" marker-end="url(#arr-a07-yolo-arch)"/>
+  <path class="ln" d="M470 210 L508 230" marker-end="url(#arr-a07-yolo-arch)"/>
+  <text class="sub" x="360" y="288" text-anchor="middle">헤드 출력: (80²+40²+20²) × 3 앵커 = 25,200개 예측, 각각 [x, y, w, h, obj, 클래스 nc개]</text>
+</svg>

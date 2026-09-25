@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A12. 군집 제어: 마스터-슬레이브 · studyMentorPi</title>
+<meta name="description" content="여러 대의 MentorPi 네트워크·환경변수 구성, 네임스페이스와 대형 유지, 조이패드로 군집을 함께 조종합니다.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-ai">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" class="active" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="a12" data-track="ai">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-ai">비전 AI·자율주행</span> A-4 자율주행과 군집 &middot; 약 80분 &middot; 고급</div>
+    <h1><span class="lesson-no">A12</span>군집 제어: 마스터-슬레이브</h1>
+    <p class="lede">여러 대의 MentorPi 네트워크·환경변수 구성, 네임스페이스와 대형 유지, 조이패드로 군집을 함께 조종합니다.</p>
+    <div class="requires">선수 챕터: <a href="a11.html">A11</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>여러 대의 MentorPi가 한 ROS 2 네트워크에서 <strong>네임스페이스</strong>로 구분되어 동작하는 원리를 설명합니다.</li><li>마스터 핫스팟·슬레이브 LAN 모드 Wi-Fi 설정과 <code>HOST</code>·<code>MASTER</code> 환경변수를 구성합니다.</li><li><code>multi_controller.launch.py</code>와 <code>joystick_control_multi.py</code>가 조이패드 입력을 모든 로봇의 <code>/robot_N/controller/cmd_vel</code>로 나눠 보내는 흐름을 추적합니다.</li><li>리더-팔로워 대형의 좌표 변환(오프셋 회전)과 P 제어 추종의 정상상태 오차를 계산합니다.</li><li>두 대 이상의 로봇을 조이패드 하나로 함께 조종하고 시간 동기화의 필요성을 설명합니다.</li></ul>
+<h2 id="군집-제어의-원리">군집 제어의 원리<a class="anchor" href="#군집-제어의-원리">#</a></h2>
+<p><strong>군집 제어(group control, multi-robot control)</strong>는 여러 로봇을 한 명령 체계로 움직이는 것입니다. MentorPi의 예제는 가장 단순한 <strong>중앙 집중형 마스터-슬레이브</strong> 구조입니다.</p>
+<figure class="fig" id="fig-a12-network"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="마스터-슬레이브 군집 제어 네트워크와 토픽 흐름">
+  <defs>
+    <marker id="arr-a12-network" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-a12-network-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <!-- master -->
+  <rect class="box-hi" x="20" y="30" width="330" height="240" rx="8" opacity="0.35"/>
+  <text class="lbl" x="35" y="52">마스터 로봇 · HOST = MASTER = robot_1</text>
+  <text class="tag" x="35" y="70">Wi-Fi 핫스팟 (예: HW-123)</text>
+
+  <rect class="box" x="35" y="90" width="110" height="46" rx="6"/>
+  <text class="lbl" x="90" y="110" text-anchor="middle">joy_node</text>
+  <text class="tag" x="90" y="126" text-anchor="middle">USB 수신기</text>
+  <path class="ln" d="M145 113 L178 113" marker-end="url(#arr-a12-network)"/>
+  <text class="tag mono" x="161" y="105" text-anchor="middle">/joy</text>
+
+  <rect class="box" x="180" y="90" width="160" height="46" rx="6"/>
+  <text class="sub mono" x="260" y="110" text-anchor="middle">joystick_control_multi</text>
+  <text class="tag" x="260" y="126" text-anchor="middle">같은 Twist를 N대에 복제</text>
+
+  <rect class="box" x="120" y="190" width="220" height="60" rx="6"/>
+  <text class="lbl" x="230" y="212" text-anchor="middle">/robot_1 네임스페이스</text>
+  <text class="sub mono" x="230" y="232" text-anchor="middle">controller → 모터</text>
+  <path class="ln-hi" d="M240 136 L240 188" marker-end="url(#arr-a12-network-hi)"/>
+  <text class="tag mono" x="234" y="166" text-anchor="end">/robot_1/controller/cmd_vel</text>
+
+  <!-- wifi -->
+  <path class="ln" d="M350 150 L420 150" stroke-dasharray="5 4"/>
+  <text class="tag" x="385" y="142" text-anchor="middle">Wi-Fi</text>
+  <text class="tag" x="385" y="168" text-anchor="middle">DDS</text>
+
+  <!-- slave -->
+  <rect class="box" x="420" y="30" width="280" height="240" rx="8"/>
+  <text class="lbl" x="435" y="52">슬레이브 로봇 · HOST = robot_2</text>
+  <text class="tag" x="435" y="70">wifi_conf.py 모드 2 (LAN), MASTER = robot_1</text>
+  <rect class="box" x="450" y="190" width="220" height="60" rx="6"/>
+  <text class="lbl" x="560" y="212" text-anchor="middle">/robot_2 네임스페이스</text>
+  <text class="sub mono" x="560" y="232" text-anchor="middle">controller → 모터</text>
+  <path class="ln-hi" d="M340 113 L560 113 L560 188" fill="none" marker-end="url(#arr-a12-network-hi)"/>
+  <text class="tag mono" x="566" y="150">/robot_2/controller/cmd_vel</text>
+  <text class="sub" x="360" y="292" text-anchor="middle">두 로봇 모두 ros2 launch multi multi_controller.launch.py — 조이패드 부분은 HOST == MASTER 일 때만</text>
+</svg><figcaption>마스터가 Wi-Fi 핫스팟과 조이패드를 맡고, 각 로봇의 컨트롤러는 자기 네임스페이스의 토픽만 구독합니다.</figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th>역할</th><th>하는 일</th></tr></thead><tbody><tr><td>마스터(host)</td><td>Wi-Fi 핫스팟 제공, 조이패드 수신(<code>joy_node</code>), 명령 분배(<code>joystick_control_multi.py</code>), 자기 섀시 제어</td></tr><tr><td>슬레이브(slave)</td><td>마스터 핫스팟에 접속, 자기 섀시 제어(<code>multi_controller.launch.py</code>)만 실행</td></tr></tbody></table></div>
+<p>ROS 2는 마스터 서버가 없는 <strong>DDS(Data Distribution Service)</strong> 기반이라, 같은 네트워크·같은 <code>ROS_DOMAIN_ID</code>에 있는 노드는 서로를 자동으로 발견합니다. 두 로봇이 모두 <code>/controller/cmd_vel</code>을 쓰면 한 명령에 두 대가 같이 반응하고, <code>/odom</code>도 뒤섞입니다. 그래서 각 로봇의 노드를 <strong>네임스페이스(namespace)</strong>로 감쌉니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">robot_1 의 컨트롤러:  /robot_1/controller/cmd_vel  →  /robot_1/odom ...
+robot_2 의 컨트롤러:  /robot_2/controller/cmd_vel  →  /robot_2/odom ...</code></pre></div>
+<p>컨트롤러 노드(<code>odom_publisher_node.py</code>)는 <code>controller/cmd_vel</code>처럼 **<code>/</code>로 시작하지 않는 상대 이름**으로 구독하므로, launch에서 네임스페이스만 씌우면 코드 수정 없이 토픽이 분리됩니다. R03에서 배운 이름 규칙이 여기서 쓰입니다.</p>
+<h2 id="네트워크-구성">네트워크 구성<a class="anchor" href="#네트워크-구성">#</a></h2>
+<h3 id="마스터-핫스팟-모드">마스터: 핫스팟 모드<a class="anchor" href="#마스터-핫스팟-모드">#</a></h3>
+<ol><li>마스터로 쓸 로봇에 VNC로 접속합니다.</li><li>Wi-Fi 설정 파일을 엽니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">cd hiwonder-toolbox
+sudo vim wifi_conf.py</code></pre></div>
+<ol><li>핫스팟 비밀번호 줄을 원하는 값으로 바꾸고 <code>:wq</code>로 저장한 뒤 재부팅합니다. 원본 예시는 핫스팟 이름 <code>HW-123</code>, 비밀번호 <code>hiwonder</code>입니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">sudo reboot</code></pre></div>
+<h3 id="슬레이브-lan클라이언트-모드">슬레이브: LAN(클라이언트) 모드<a class="anchor" href="#슬레이브-lan클라이언트-모드">#</a></h3>
+<ol><li>슬레이브 로봇의 <code>wifi_conf.py</code>를 열어 **네트워크 모드를 <code>2</code>(LAN 모드)**로 바꾸고, 접속할 Wi-Fi 이름·비밀번호를 마스터 핫스팟 값으로 적습니다.</li><li>저장 후 반드시 재부팅합니다(건너뛰면 적용 안 됨).</li></ol>
+<p>LAN 모드로 부팅하면 확장 보드의 <strong>LED2가 빠르게 깜빡이며</strong> 지정 네트워크를 찾습니다. 세 번 연속 찾지 못하면 자동으로 직접 연결(AP) 모드로 돌아가고 LED2가 <strong>천천히</strong> 깜빡입니다. 이때 <code>wifi_conf.py</code> 내용은 LAN 설정 그대로 남아 있어 다음 부팅에 다시 LAN 모드를 시도합니다. 따라서 <strong>마스터를 먼저 켜서 핫스팟이 뜬 뒤에</strong> 슬레이브를 켜야 합니다.</p>
+<h2 id="환경변수-host와-master">환경변수: HOST와 MASTER<a class="anchor" href="#환경변수-host와-master">#</a></h2>
+<p>각 로봇의 <code>~/ros2_ws/.typerc</code>에 두 환경변수를 적습니다(셸 시작 시 <code>~/.zshrc</code>가 불러옴).</p>
+<div class="table-wrap"><table><thead><tr><th>변수</th><th>마스터</th><th>슬레이브</th><th>쓰이는 곳</th></tr></thead><tbody><tr><td><code>HOST</code></td><td><code>robot_1</code></td><td><code>robot_2</code> (세 번째는 <code>robot_3</code>)</td><td>이 로봇의 네임스페이스</td></tr><tr><td><code>MASTER</code></td><td><code>robot_1</code></td><td><code>robot_1</code></td><td>마스터가 누구인지</td></tr></tbody></table></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">~/.stop_ros.sh
+vim /home/ubuntu/ros2_ws/.typerc      # HOST, MASTER 값 수정
+source ~/.zshrc
+echo $HOST $MASTER                     # 확인</code></pre></div>
+<p>슬레이브의 IP 주소는 휴대폰 앱으로 마스터 핫스팟에 접속해 로봇 아이콘을 길게 누르면 보이며, 그 주소로 VNC 접속해 설정합니다.</p>
+<p><code>multi_controller.launch.py</code>는 이 두 값을 이렇게 씁니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">robot_name = EnvironmentVariable(&#x27;HOST&#x27;)          # 기본 인자 robot_name
+master     = EnvironmentVariable(&#x27;MASTER&#x27;)        # 기본 인자 master
+GroupAction([PushRosNamespace(robot_name),         # 이 안의 모든 노드에 /robot_N 접두
+             IncludeLaunchDescription(controller.launch.py)])
+IncludeLaunchDescription(joy_control.launch.py,
+    condition=IfCondition(PythonExpression([&#x27;&quot;&#x27;, master, &#x27;&quot; == &quot;&#x27;, robot_name, &#x27;&quot;&#x27;])))</code></pre></div>
+<p>같은 launch 파일을 모든 로봇에서 실행하되, <strong>HOST == MASTER인 로봇에서만</strong> 조이패드 관련 launch가 추가로 켜집니다. 설정은 환경변수가, 역할 분기는 launch 조건식이 맡는 구조라 로봇 수가 늘어도 파일을 복사할 필요가 없습니다.</p>
+<h2 id="조이패드-명령-분배">조이패드 명령 분배<a class="anchor" href="#조이패드-명령-분배">#</a></h2>
+<p><code>joystick_control_multi.py</code>의 핵심은 로봇 목록을 만들어 같은 명령을 모두에게 보내는 부분입니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">for i in range(1, num_robots + 1):             # num_robots = 3 (main에서 지정)
+    ns = f&#x27;robot_{i}/&#x27;
+    robot = {&#x27;mecanum_pub&#x27;: create_publisher(Twist, ns + &#x27;controller/cmd_vel&#x27;, 1),
+             &#x27;buzzer_pub&#x27;:  create_publisher(BuzzerState, ns + &#x27;ros_robot_controller/set_buzzer&#x27;, 1),
+             &#x27;servo_state_pub&#x27;: create_publisher(SetPWMServoState, ns + &#x27;ros_robot_controller/pwm_servo/set_state&#x27;, 1)}
+...
+for robot in self.robots:
+    robot[&#x27;mecanum_pub&#x27;].publish(twist)          # 같은 Twist를 모든 로봇에</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>조작</th><th>기능</th></tr></thead><tbody><tr><td>START</td><td>모든 로봇 부저 울림(연결 확인)·정지</td></tr><tr><td>왼쪽 스틱 위/아래</td><td>전진/후진</td></tr><tr><td>왼쪽 스틱 좌/우</td><td>좌/우 평행 이동 (메카넘만)</td></tr><tr><td>오른쪽 스틱 좌/우</td><td>좌/우 회전 (메카넘) 또는 앞바퀴 조향 (애커만)</td></tr></tbody></table></div>
+<p>스틱 값 −1~1은 <code>val_map()</code>으로 속도 범위에 선형 대응되고, |값| &lt; 0.1은 <strong>불감대</strong>로 0이 됩니다. 애커만이면 오른쪽 스틱을 조향각 ±28.98°(= 322/2000 × 180°, 서보 펄스 ±322)로 바꿔 서보 3번에 직접 보내고, 각속도는 <span class="math">ω = v / R</span>, <span class="math">R = L / tan δ</span>로 계산합니다.</p>
+<div class="callout callout-warn"><div class="callout-title">기본 최대 속도가 권장 한계를 넘습니다</div><div class="callout-body"><p><code>joystick_control_multi.py</code>의 파라미터 기본값은 <code>max_linear = 0.7</code> m/s, <code>max_angular = 3.0</code> rad/s입니다(이 파일은 launch 없이 <code>python3</code>로 직접 실행하므로 launch의 0.2/0.5 값이 적용되지 않습니다). 여러 대가 동시에 움직이는 실습에서는 반드시 명령줄에서 낮춰 실행합니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">python3 ros2_ws/src/multi/launch/joystick_control_multi.py --ros-args -p max_linear:=0.2 -p max_angular:=0.5</code></pre></div></div></div>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+
+def val_map(x, in_min, in_max, out_min, out_max):          # sdk/common.py
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+
+MAX_LIN = 0.2                                  # 권장값 (joystick_control_multi.py 기본은 0.7)
+MAX_STEER = math.radians(322 / 2000 * 180)     # 애커만 최대 조향 ≈ 29°
+for ly, rx in ((0.05, 0.0), (0.5, 0.0), (1.0, 0.5), (1.0, -1.0)):
+    ly_ = 0.0 if abs(ly) &lt; 0.1 else ly         # 불감대 0.1
+    v = val_map(ly_, -1, 1, -MAX_LIN, MAX_LIN)
+    steer = val_map(rx, -1, 1, -MAX_STEER, MAX_STEER)
+    if steer == 0:
+        w, pulse = 0.0, 1500
+    else:
+        w = v / (0.145 / math.tan(steer))      # ω = v / R,  R = L / tan δ
+        pulse = 1500 + int(math.degrees(-steer) / 180 * 2000)
+    print(&quot;ly=%+.2f rx=%+.1f → v=%.3f m/s δ=%+.1f° ω=%+.3f rad/s 서보=%d&quot;
+          % (ly, rx, v, math.degrees(steer), w, pulse))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">ly=+0.05 rx=+0.0 → v=0.000 m/s δ=+0.0° ω=+0.000 rad/s 서보=1500
+ly=+0.50 rx=+0.0 → v=0.100 m/s δ=+0.0° ω=+0.000 rad/s 서보=1500
+ly=+1.00 rx=+0.5 → v=0.200 m/s δ=+14.5° ω=+0.356 rad/s 서보=1339
+ly=+1.00 rx=-1.0 → v=0.200 m/s δ=-29.0° ω=-0.764 rad/s 서보=1822</code></pre></div>
+<p>같은 명령을 모두에게 보내는 이 방식은 <strong>대형을 유지하지 않습니다.</strong> 두 로봇이 같은 Twist를 받아도 바퀴 미끄러짐, 모터 편차, 출발 시각 차이 때문에 시간이 지나면 간격이 벌어집니다. 한 로봇이 회전하면 각자 <strong>자기 중심</strong>으로 돌기 때문에, 나란히 선 두 로봇은 회전 후 서로 다른 방향을 보게 됩니다. 대형을 유지하려면 다음 절의 리더-팔로워 제어가 필요합니다.</p>
+<h2 id="리더-팔로워-대형">리더-팔로워 대형<a class="anchor" href="#리더-팔로워-대형">#</a></h2>
+<figure class="fig" id="fig-a12-formation"><svg viewBox="0 0 720 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="row, column, triangle 대형의 오프셋">
+  <defs>
+    <marker id="arr-a12-formation" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <!-- scale: 1 m = 100 px, leader x forward = up on screen, y left = left on screen -->
+  <!-- row: leader at (120,120) -->
+  <text class="lbl" x="120" y="24" text-anchor="middle">row</text>
+  <rect class="box-hi" x="108" y="108" width="24" height="24" rx="4"/>
+  <path class="ln-hi" d="M120 108 L120 80" marker-end="url(#arr-a12-formation)"/>
+  <rect class="box" x="178" y="108" width="24" height="24" rx="4"/>
+  <rect class="box" x="38" y="108" width="24" height="24" rx="4"/>
+  <text class="tag" x="120" y="150" text-anchor="middle">리더</text>
+  <text class="tag" x="190" y="150" text-anchor="middle">r2 (0, −0.7)</text>
+  <text class="tag" x="50" y="150" text-anchor="middle">r3 (0, +0.7)</text>
+
+  <!-- column: leader at (360,60) -->
+  <text class="lbl" x="360" y="24" text-anchor="middle">column</text>
+  <rect class="box-hi" x="348" y="48" width="24" height="24" rx="4"/>
+  <path class="ln-hi" d="M360 48 L360 34" marker-end="url(#arr-a12-formation)"/>
+  <rect class="box" x="348" y="108" width="24" height="24" rx="4"/>
+  <rect class="box" x="348" y="168" width="24" height="24" rx="4"/>
+  <text class="tag" x="380" y="64">리더</text>
+  <text class="tag" x="380" y="124">r2 (−0.6, 0)</text>
+  <text class="tag" x="380" y="184">r3 (−1.2, 0)</text>
+
+  <!-- triangle: leader at (600,60) -->
+  <text class="lbl" x="600" y="24" text-anchor="middle">triangle</text>
+  <rect class="box-hi" x="588" y="48" width="24" height="24" rx="4"/>
+  <path class="ln-hi" d="M600 48 L600 34" marker-end="url(#arr-a12-formation)"/>
+  <rect class="box" x="628" y="118" width="24" height="24" rx="4"/>
+  <rect class="box" x="548" y="118" width="24" height="24" rx="4"/>
+  <text class="tag" x="620" y="64">리더</text>
+  <text class="tag" x="610" y="160" text-anchor="start">r2 (−0.7, −0.4)</text>
+  <text class="tag" x="590" y="160" text-anchor="end">r3 (−0.7, +0.4)</text>
+
+  <text class="sub" x="360" y="226" text-anchor="middle">화면 위 = 리더 전방(+x), 화면 왼쪽 = 리더 왼쪽(+y), 1 m = 100 px</text>
+  <text class="sub" x="360" y="246" text-anchor="middle">월드 목표 = 리더 위치 + R(ψ)·오프셋 → 대형은 리더와 함께 회전</text>
+</svg><figcaption><code>formation_update.py</code>의 세 대형. 오프셋은 리더의 <code>base_footprint</code> 좌표계(x 전방, y 왼쪽)로 주어집니다.</figcaption></figure>
+<p><code>multi</code> 패키지에는 대형 유지용 노드도 들어 있습니다(<code>formation_update</code>, <code>slave_tf_listener</code>, <code>tf_follower.py</code>). 원리는 다음과 같습니다.</p>
+<ol><li><strong>목표점 정의</strong>: 리더 좌표계에서 팔로워가 있어야 할 위치(오프셋)를 정합니다. <code>formation_update.py</code>는 이를 정적 TF(<code>point2</code>, <code>point3</code>)로 방송합니다.</li></ol>
+<div class="table-wrap"><table><thead><tr><th>대형</th><th>robot_2 오프셋 (x, y)</th><th>robot_3 오프셋 (x, y)</th></tr></thead><tbody><tr><td><code>row</code> (옆으로 나란히)</td><td>(0.0, −0.7)</td><td>(0.0, +0.7)</td></tr><tr><td><code>column</code> (한 줄 종대)</td><td>(−0.6, 0.0)</td><td>(−1.2, 0.0)</td></tr><tr><td><code>triangle</code> (삼각)</td><td>(−0.7, −0.4)</td><td>(−0.7, +0.4)</td></tr></tbody></table></div>
+<ol><li><strong>월드 좌표로 변환</strong>: 리더 자세가 <span class="math">(x_L, y_L, ψ_L)</span>이면 오프셋 <span class="math">(d_x, d_y)</span>의 월드 좌표는 2D 회전 + 평행이동입니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">x_T = x_L + d_x·cos ψ_L − d_y·sin ψ_L
+y_T = y_L + d_x·sin ψ_L + d_y·cos ψ_L</code></pre></div>
+<ol><li><strong>추종 제어</strong>: 팔로워는 자기 좌표계에서 본 목표점 <span class="math">(e_x, e_y)</span>를 줄이도록 속도를 냅니다. <code>slave_tf_listener.py</code>는 P 제어(Kp = 1.5), 불감대 3 cm, 속도 제한 ±0.25 m/s를 씁니다. 메카넘은 x·y를 독립적으로 움직일 수 있어 이 제어가 간단합니다.</li></ol>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+
+FORMATIONS = {                       # formation_update.py: (x2, y2), (x3, y3) [m]
+    &quot;row&quot;:      [(0.0, -0.7), (0.0, 0.7)],
+    &quot;column&quot;:   [(-0.6, 0.0), (-1.2, 0.0)],
+    &quot;triangle&quot;: [(-0.7, -0.4), (-0.7, 0.4)],
+}
+
+def to_world(leader, offset):        # tf_follower.py 와 같은 회전 + 평행이동
+    x, y, yaw = leader
+    ox, oy = offset
+    return (x + ox * math.cos(yaw) - oy * math.sin(yaw),
+            y + ox * math.sin(yaw) + oy * math.cos(yaw))
+
+leader = (1.0, 0.5, math.radians(30))            # 리더 자세 (x, y, yaw)
+for name, offs in FORMATIONS.items():
+    pts = [&quot;(%+.3f, %+.3f)&quot; % to_world(leader, o) for o in offs]
+    print(&quot;%-8s robot_2 → %s  robot_3 → %s&quot; % (name, pts[0], pts[1]))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">row      robot_2 → (+1.350, -0.106)  robot_3 → (+0.650, +1.106)
+column   robot_2 → (+0.480, +0.200)  robot_3 → (-0.039, -0.100)
+triangle robot_2 → (+0.594, -0.196)  robot_3 → (+0.194, +0.496)</code></pre></div>
+<p>리더가 30° 돌아 있으므로 "오른쪽 0.7 m"는 월드 좌표에서 (+0.35, −0.61)만큼 떨어진 곳이 됩니다. 대형은 리더와 <strong>함께 회전</strong>합니다.</p>
+<h3 id="p-제어-추종과-정상상태-오차">P 제어 추종과 정상상태 오차<a class="anchor" href="#p-제어-추종과-정상상태-오차">#</a></h3>
+<p>리더가 일정 속도 <span class="math">v</span>로 움직이면, P 제어만 쓰는 팔로워는 목표점을 <strong>일정 거리 뒤에서</strong> 따라갑니다. 정상상태에서 팔로워 속도 = 리더 속도이어야 하므로 <span class="math">K_p · e_{ss} = v</span>, 즉 <span class="math">e_{ss} = v / K_p</span>입니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python"># slave_tf_listener.py 의 P 제어(Kp=1.5, 불감대 3 cm, 한계 0.25 m/s)로
+# 리더를 옆(row 대형, y=-0.7 m)에서 따라가는 추종 로봇 — 30 Hz
+KP, DEAD, VMAX, dt = 1.5, 0.03, 0.25, 1 / 30
+
+def p_cmd(err):
+    err = 0.0 if abs(err) &lt; DEAD else err
+    return max(-VMAX, min(VMAX, KP * err))
+
+leader_x, v_leader = 0.0, 0.10                   # 리더는 x축으로 0.1 m/s 직진
+fx, fy = -0.40, -0.30                            # 추종 로봇 출발 위치
+for k in range(int(12 / dt) + 1):
+    tx, ty = leader_x + 0.0, -0.7                # 목표점 point2 (row: x 오프셋 0)
+    ex, ey = tx - fx, ty - fy                    # 추종 로봇 기준 목표까지 오차
+    if k % 60 == 0:
+        print(&quot;t=%4.1fs 오차 x=%+.3f y=%+.3f m&quot; % (k * dt, ex, ey))
+    fx += p_cmd(ex) * dt                         # 메카넘: x·y 독립 이동
+    fy += p_cmd(ey) * dt
+    leader_x += v_leader * dt
+print(&quot;이론 정상상태 지연 v/Kp = %.3f m&quot; % (v_leader / KP))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">t= 0.0s 오차 x=+0.400 y=-0.400 m
+t= 2.0s 오차 x=+0.117 y=-0.032 m
+t= 4.0s 오차 x=+0.069 y=-0.029 m
+t= 6.0s 오차 x=+0.067 y=-0.029 m
+t= 8.0s 오차 x=+0.067 y=-0.029 m
+t=10.0s 오차 x=+0.067 y=-0.029 m
+t=12.0s 오차 x=+0.067 y=-0.029 m
+이론 정상상태 지연 v/Kp = 0.067 m</code></pre></div>
+<ul><li>x 방향은 계산한 대로 6.7 cm 뒤처져 따라옵니다. 이를 없애려면 <strong>적분 항</strong>을 넣거나, 리더 속도를 알면 <strong>피드포워드</strong>(<span class="math">v_{cmd} = v_L + K_p e</span>)를 더합니다.</li><li>y 방향은 2.9 cm에서 멈췄습니다. 불감대(3 cm) 안이라 명령이 0이 되었기 때문입니다. 불감대는 떨림을 막지만 그 크기만큼의 오차를 허용합니다.</li></ul>
+<h2 id="시간-동기화">시간 동기화<a class="anchor" href="#시간-동기화">#</a></h2>
+<p>원본 교재는 실행 전에 슬레이브의 시계를 마스터에 맞추게 합니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">date                                       # 마스터에서 현재 시각 확인
+sudo date -s &quot;2024-10-29 22:46:31&quot;         # 슬레이브에서 (마스터 시각 + 입력하는 데 걸린 초)</code></pre></div>
+<p>로봇은 인터넷 없이 핫스팟으로만 연결되므로 NTP로 시계를 맞출 수 없고, 부팅할 때마다 시계가 어긋나 있을 수 있습니다. 단순한 Twist 토픽은 시각을 검사하지 않지만, 메시지 헤더의 <strong>타임스탬프</strong>를 쓰는 기능(TF 조회, 센서 동기화, 대형 유지의 <code>lookup_transform</code>)은 시계가 몇 초만 어긋나도 "미래/과거 데이터" 오류(<code>ExtrapolationException</code>)를 냅니다. 원본 교재도 조이패드 반응이 로봇마다 어긋나면 이 단계를 다시 하라고 안내합니다. 수동 입력 대신 마스터를 <code>chrony</code> 시간 서버로 두고 슬레이브가 동기화하게 하면 더 정확합니다.</p>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">실물 실습 안전 수칙</div><div class="callout-body"><ul><li>로봇 여러 대가 <strong>동시에</strong> 움직입니다. 로봇 사이 간격을 1 m 이상 두고, 전체 공간은 3 m × 3 m 이상 비웁니다.</li><li><code>joystick_control_multi.py</code>는 반드시 <code>max_linear:=0.2</code>, <code>max_angular:=0.5</code>로 실행합니다.</li><li>조이패드 연결이 끊기면 마지막 명령이 남을 수 있습니다. 한 사람은 각 로봇 옆에서 정지를 도울 준비를 하고, <code>START</code> 버튼과 <code>Ctrl+C</code> 위치를 미리 확인합니다.</li><li>슬레이브가 네트워크를 잃으면 명령을 못 받고 마지막 속도로 움직일 수 있으므로, 처음에는 저속으로 짧게 움직여 연결을 확인합니다.</li></ul></div></div>
+<ol><li>마스터를 켜고 핫스팟이 뜬 것을 확인한 뒤 슬레이브를 켭니다(LED2가 빠른 깜빡임 → 연결).</li><li>모든 로봇에서 앱 자동 실행을 멈추고, <code>.typerc</code>의 <code>HOST</code>·<code>MASTER</code>를 확인합니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">~/.stop_ros.sh
+echo $HOST $MASTER</code></pre></div>
+<ol><li>슬레이브 시계를 마스터에 맞춥니다(위 절 참고). 두 로봇에서 <code>date</code>를 연달아 쳐서 차이가 1초 이내인지 봅니다.</li><li>마스터에 USB 조이패드 수신기를 꽂고, 터미널 세 개에서 각각 실행합니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 launch multi multi_controller.launch.py
+python3 ros2_ws/src/multi/launch/joystick_control_multi.py --ros-args -p max_linear:=0.2 -p max_angular:=0.5
+ros2 run joy joy_node</code></pre></div>
+<ol><li>슬레이브에서 실행합니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 launch multi multi_controller.launch.py</code></pre></div>
+<ol><li>연결을 확인합니다. 네임스페이스가 붙은 토픽이 로봇 수만큼 보여야 합니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 topic list | grep controller/cmd_vel
+ros2 topic echo /robot_2/controller/cmd_vel</code></pre></div>
+<ol><li>조이패드 전원을 켜고(빨강·초록 LED 동시 깜빡임) 페어링되면 초록 LED가 켜집니다. <code>START</code>를 눌러 모든 로봇의 부저가 울리는지 확인한 뒤, 스틱을 <strong>살짝</strong> 밀어 천천히 움직입니다.</li><li>끝나면 모든 터미널에서 <code>Ctrl+C</code> 후, 각 로봇에서 앱 서비스를 복구합니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">sudo systemctl restart start_node.service</code></pre></div>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> <code>/robot_1/controller/cmd_vel</code>과 <code>/robot_2/controller/cmd_vel</code>이 모두 보이고 같은 값이 온다.</label></li><li><label class="check-item"><input type="checkbox"> <code>START</code>로 두 로봇의 부저가 함께 울렸다.</label></li><li><label class="check-item"><input type="checkbox"> 두 로봇이 나란히 선 상태에서 회전 명령을 주면 대형이 어떻게 깨지는지 관찰하고 이유를 설명할 수 있다.</label></li></ul></div></div>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td>슬레이브가 마스터 핫스팟에 안 붙음 (LED2 느린 깜빡임)</td><td>슬레이브가 먼저 켜져 3회 검색 실패 → AP 모드로 복귀</td><td>마스터 먼저 부팅, 슬레이브 재부팅</td></tr><tr><td><code>ros2 topic list</code>에 다른 로봇 토픽이 안 보임</td><td>다른 네트워크, <code>ROS_DOMAIN_ID</code> 불일치, 방화벽</td><td>같은 핫스팟인지 <code>ip addr</code>로 확인, 두 로봇의 <code>echo $ROS_DOMAIN_ID</code> 비교</td></tr><tr><td>두 로봇 토픽이 <code>/controller/cmd_vel</code> 하나로 겹침</td><td><code>HOST</code>가 비었거나 <code>source ~/.zshrc</code>를 안 함</td><td><code>.typerc</code> 수정 후 새 터미널에서 <code>echo $HOST</code> 확인</td></tr><tr><td>마스터에서 조이패드 launch가 안 뜸</td><td><code>HOST</code>와 <code>MASTER</code> 문자열이 다름(뒤 <code>/</code> 포함 여부 등)</td><td>두 값을 정확히 같게(<code>robot_1</code>) 설정</td></tr><tr><td>한 로봇만 반응</td><td><code>num_robots</code>보다 <code>HOST</code> 번호가 큼, 또는 슬레이브에서 launch 미실행</td><td><code>robot_1</code>~<code>robot_3</code> 범위로 이름 지정, 슬레이브 launch 확인</td></tr><tr><td>조이패드 반응이 로봇마다 어긋남</td><td>시스템 시계 불일치</td><td><code>date -s</code>로 재동기화</td></tr><tr><td>로봇이 너무 빠름</td><td><code>max_linear</code> 기본 0.7 m/s</td><td><code>--ros-args -p max_linear:=0.2 -p max_angular:=0.5</code></td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">과제</div><div class="callout-body"><ol><li><strong>(기본)</strong> 대형 변환 코드에서 리더 yaw를 90°로 바꾸면 <code>row</code> 대형의 robot_2 목표점이 어디가 되는지 손으로 먼저 계산하고 확인하세요.</li><li><strong>(기본)</strong> P 추종 시뮬레이션에 피드포워드 <code>p_cmd(ex) + v_leader</code>를 넣어 x 방향 정상상태 오차가 사라지는지 확인하세요. 속도 제한 0.25 m/s와의 관계도 설명합니다.</li><li><strong>(심화)</strong> <code>slave_tf_listener.py</code>에서 방향 오차 불감대를 <code>abs(angle) &lt; 5</code>로 비교하는 부분을 찾아, 각도 단위(rad)를 고려하면 이 조건이 무엇을 뜻하는지 설명하고 올바른 값으로 고치는 방안을 제시하세요.</li><li><strong>(심화)</strong> 세 번째 로봇을 추가해 <code>triangle</code> 대형으로 조이패드 주행을 할 때, 회전 명령에서 대형이 깨지지 않게 하려면 각 로봇에 보낼 <span class="math">(v_x, v_y, ω)</span>를 어떻게 바꿔야 하는지 강체 운동(<span class="math">v_i = v_L + ω × r_i</span>)으로 유도하세요.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>18. Group Control</em> — 01 Configuration for Master-Slave Device and Environment Variable, 02 Group Control Startup</li><li>원본 소스: <code>src/multi/launch/multi_controller.launch.py</code>, <code>joy_control.launch.py</code>, <code>joystick_control_multi.py</code>, <code>src/multi/multi/formation_update.py</code>, <code>slave_tf_listener.py</code>, <code>tf_follower.py</code>, <code>src/driver/sdk/sdk/common.py</code></li><li>ROS 2 Humble — 네임스페이스와 launch: https://docs.ros.org/en/humble/Tutorials/Intermediate/Launch/Using-ROS2-Launch-For-Large-Projects.html</li><li>ROS 2 Humble — ROS_DOMAIN_ID: https://docs.ros.org/en/humble/Concepts/Intermediate/About-Domain-ID.html</li><li>ROS 2 joy 패키지: https://github.com/ros-drivers/joystick_drivers</li><li>chrony (시간 동기화): https://chrony-project.org/</li><li>Desai, Ostrowski &amp; Kumar, <em>Modeling and control of formations of nonholonomic mobile robots</em>, IEEE T-RA (2001)</li></ul>
+      <nav class="pager"><a class="pager-prev" href="a11.html"><span>이전 · A11</span>회전 판단·자율 주차·통합 주행</a><span class="pager-next disabled"></span></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#군집-제어의-원리">군집 제어의 원리</a><a class="toc-l2" href="#네트워크-구성">네트워크 구성</a><a class="toc-l3" href="#마스터-핫스팟-모드">마스터: 핫스팟 모드</a><a class="toc-l3" href="#슬레이브-lan클라이언트-모드">슬레이브: LAN(클라이언트) 모드</a><a class="toc-l2" href="#환경변수-host와-master">환경변수: HOST와 MASTER</a><a class="toc-l2" href="#조이패드-명령-분배">조이패드 명령 분배</a><a class="toc-l2" href="#리더-팔로워-대형">리더-팔로워 대형</a><a class="toc-l3" href="#p-제어-추종과-정상상태-오차">P 제어 추종과 정상상태 오차</a><a class="toc-l2" href="#시간-동기화">시간 동기화</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

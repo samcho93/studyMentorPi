@@ -1,0 +1,38 @@
+<svg viewBox="0 0 720 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="cmd_vel 주행 과제 세 가지: 정사각형, 원, 8자 경로와 각각의 명령 값">
+  <defs>
+    <marker id="arr-m04-paths" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <!-- panel 1: square -->
+  <text class="lbl" x="125" y="30" text-anchor="middle">① 정사각형 (한 변 0.5 m)</text>
+  <path class="ln-hi" d="M65 240 L180 240" stroke-width="2.4" marker-end="url(#arr-m04-paths)"/>
+  <path class="ln-hi" d="M185 235 L185 120" stroke-width="2.4" marker-end="url(#arr-m04-paths)"/>
+  <path class="ln-hi" d="M180 115 L65 115" stroke-width="2.4" marker-end="url(#arr-m04-paths)"/>
+  <path class="ln-hi" d="M60 120 L60 235" stroke-width="2.4" marker-end="url(#arr-m04-paths)"/>
+  <circle cx="60" cy="240" r="6" class="hi"/>
+  <text class="tag" x="60" y="262" text-anchor="middle">시작</text>
+  <text class="sub" x="125" y="182" text-anchor="middle">직진 0.5 m</text>
+  <text class="sub" x="125" y="198" text-anchor="middle">→ 좌회전 90°</text>
+  <text class="sub" x="125" y="214" text-anchor="middle">× 4</text>
+  <text class="sub" x="125" y="290" text-anchor="middle">/odom 피드백으로 거리·각도 판정</text>
+  <text class="sub" x="125" y="308" text-anchor="middle">(시간 기반은 오차 누적)</text>
+  <!-- panel 2: circle -->
+  <text class="lbl" x="360" y="30" text-anchor="middle">② 원 (v = 0.2, ω = 0.5)</text>
+  <circle cx="360" cy="160" r="80" style="fill:none;stroke:var(--accent)" stroke-width="2.4"/>
+  <path class="ln-hi" d="M360 240 L372 240" stroke-width="2.4" marker-end="url(#arr-m04-paths)"/>
+  <circle cx="360" cy="240" r="6" class="hi"/>
+  <circle cx="360" cy="160" r="3" style="fill:var(--text-faint)"/>
+  <path d="M360 160 L417 103" style="stroke:var(--text-faint)" stroke-width="1.2" stroke-dasharray="4 4"/>
+  <text class="sub mono" x="392" y="146">R = 0.4 m</text>
+  <text class="sub" x="360" y="290" text-anchor="middle">R = v / ω ,  한 바퀴 2πR / v = 12.6 s</text>
+  <text class="sub" x="360" y="308" text-anchor="middle">메카넘·애커만 모두 같은 명령</text>
+  <!-- panel 3: figure-8 -->
+  <text class="lbl" x="600" y="30" text-anchor="middle">③ 8자 (ω 부호 반전)</text>
+  <circle cx="600" cy="105" r="58" style="fill:none;stroke:var(--accent)" stroke-width="2.4"/>
+  <circle cx="600" cy="221" r="58" style="fill:none;stroke:var(--accent)" stroke-width="2.4" stroke-dasharray="7 5"/>
+  <circle cx="600" cy="163" r="6" class="hi"/>
+  <path class="ln-hi" d="M600 163 L612 163" stroke-width="2.4" marker-end="url(#arr-m04-paths)"/>
+  <text class="tag" x="662" y="105" text-anchor="start">ω = +0.5</text>
+  <text class="tag" x="662" y="225" text-anchor="start">ω = −0.5</text>
+  <text class="sub" x="600" y="298" text-anchor="middle">위 원 12.6 s → 아래 원 12.6 s</text>
+  <text class="sub" x="600" y="316" text-anchor="middle">교차점에서 부호 전환</text>
+</svg>

@@ -1,0 +1,33 @@
+<svg viewBox="0 0 720 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="3x3 구조 요소로 본 침식과 팽창">
+  <defs>
+    <marker id="arr-r10-morph" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <text class="lbl" x="120" y="24" text-anchor="middle">원본 (흰 물체 3×4 + 잡음 1)</text>
+  <g>
+    <rect class="box" x="40" y="40" width="160" height="160"/>
+    <rect class="hi" x="80" y="80" width="60" height="80"/>
+    <rect class="hi" x="180" y="60" width="20" height="20"/>
+    <path class="ln" d="M60 40 V200 M80 40 V200 M100 40 V200 M120 40 V200 M140 40 V200 M160 40 V200 M180 40 V200 M40 60 H200 M40 80 H200 M40 100 H200 M40 120 H200 M40 140 H200 M40 160 H200 M40 180 H200" stroke-width="0.5"/>
+    <rect class="ln-hi" x="60" y="60" width="60" height="60" fill="none" stroke-width="2"/>
+  </g>
+  <text class="tag" x="120" y="222" text-anchor="middle">강조 틀 = 3×3 구조 요소</text>
+  <path class="ln" d="M215 120 L260 90" stroke-width="1.4" marker-end="url(#arr-r10-morph)"/>
+  <path class="ln" d="M215 120 L260 170" stroke-width="1.4" marker-end="url(#arr-r10-morph)"/>
+  <text class="lbl" x="360" y="44" text-anchor="middle">침식 erode: 틀 안이 모두 1</text>
+  <g>
+    <rect class="box" x="300" y="56" width="120" height="70"/>
+    <rect class="hi" x="345" y="72" width="15" height="30"/>
+  </g>
+  <text class="sub" x="470" y="86">물체 1×2로 축소</text>
+  <text class="sub" x="470" y="106">잡음 점 사라짐</text>
+  <text class="lbl" x="360" y="152" text-anchor="middle">팽창 dilate: 틀 안에 1이 하나라도</text>
+  <g>
+    <rect class="box" x="300" y="164" width="120" height="70"/>
+    <rect class="hi" x="323" y="172" width="75" height="54"/>
+    <rect class="hi" x="398" y="164" width="22" height="30"/>
+  </g>
+  <text class="sub" x="470" y="194">물체 5×6으로 확대</text>
+  <text class="sub" x="470" y="214">잡음 점도 커짐</text>
+  <text class="sub mono" x="630" y="132" text-anchor="middle">열림 = 침식 → 팽창</text>
+  <text class="sub mono" x="630" y="152" text-anchor="middle">닫힘 = 팽창 → 침식</text>
+</svg>

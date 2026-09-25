@@ -1,0 +1,28 @@
+<svg viewBox="0 0 720 276" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="주기 20 ms PWM에서 펄스 폭 0.5, 1.5, 2.5 ms와 서보 각도 0, 90, 180도">
+  <defs>
+    <marker id="arr-b09-pwm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <g style="stroke:var(--border);fill:none" stroke-width="1" stroke-dasharray="3 4">
+    <path d="M160 30 L160 222 M280 30 L280 222 M400 30 L400 222 M520 30 L520 222 M640 30 L640 222"/>
+  </g>
+  <g style="stroke:var(--accent);fill:none" stroke-width="2.2">
+    <path d="M130 72 L160 72 L160 40 L172 40 L172 72 L640 72 L640 40 L652 40 L652 72 L668 72"/>
+    <path d="M130 142 L160 142 L160 110 L196 110 L196 142 L640 142 L640 110 L676 110"/>
+    <path d="M130 212 L160 212 L160 180 L220 180 L220 212 L640 212 L640 180 L680 180"/>
+  </g>
+  <text class="lbl" x="20" y="52">0.5 ms</text>
+  <text class="tag" x="20" y="70">→ 0°</text>
+  <text class="lbl" x="20" y="122">1.5 ms</text>
+  <text class="tag" x="20" y="140">→ 90° (중립)</text>
+  <text class="lbl" x="20" y="192">2.5 ms</text>
+  <text class="tag" x="20" y="210">→ 180°</text>
+  <text class="tag mono" x="184" y="36">t_on</text>
+  <text class="sub mono" x="560" y="62">D = 2.5 %</text>
+  <text class="sub mono" x="560" y="132">D = 7.5 %</text>
+  <text class="sub mono" x="560" y="202">D = 12.5 %</text>
+  <g class="tag mono" text-anchor="middle">
+    <text x="160" y="238">0</text><text x="280" y="238">5</text><text x="400" y="238">10</text><text x="520" y="238">15</text><text x="640" y="238">20 ms</text>
+  </g>
+  <path d="M162 252 L638 252" style="stroke:var(--text-faint);fill:none" stroke-width="1.4" marker-start="url(#arr-b09-pwm)" marker-end="url(#arr-b09-pwm)"/>
+  <text class="tag" x="400" y="266" text-anchor="middle">주기 T = 20 ms (50 Hz) — 매 주기 맨 앞의 High 폭(t_on)이 각도를 정함</text>
+</svg>

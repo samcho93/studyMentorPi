@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M02. 애커만 조향 섀시 기구학 · studyMentorPi</title>
+<meta name="description" content="자전거 모델, 회전 반경과 조향각 δ = atan(L·ω/v), 좌·우 바퀴 속도차, 최대 조향각 제한과 최소 회전 반경.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-mobile">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" class="active" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="m02" data-track="mobile">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-mobile">이동로봇 핵심</span> M-1 섀시와 모션 제어 &middot; 약 90분 &middot; 중급</div>
+    <h1><span class="lesson-no">M02</span>애커만 조향 섀시 기구학</h1>
+    <p class="lede">자전거 모델, 회전 반경과 조향각 δ = atan(L·ω/v), 좌·우 바퀴 속도차, 최대 조향각 제한과 최소 회전 반경.</p>
+    <div class="requires">선수 챕터: <a href="m01.html">M01</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      <a class="ghost-btn" href="../tools/kinematics-lab.html">섀시 기구학 실험실</a><a class="ghost-btn" href="../sim/index.html">2D 시뮬레이터</a><a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>순수 구름(pure rolling) 조건에서 <strong>순간 회전 중심(ICR)</strong> 을 찾고, 애커만 섀시를 자전거 모델(bicycle model)로 단순화할 수 있습니다.</li><li>회전 반경 <span class="math">R = v/ω</span>, 조향각 <span class="math">δ = atan(Lω/v)</span>, 좌·우 뒷바퀴 속도 <span class="math">v_L, v_R = v ∓ ωD/2</span>를 유도합니다.</li><li>최대 조향각 29°에서 최소 회전 반경과 속도별 최대 각속도를 계산하고, 정지 상태에서 회전할 수 없는 이유를 설명합니다.</li><li>원본 <code>ackermann.py</code>의 서보 펄스 식과 모터 부호를 해석하고, 조향각 제한 코드의 <strong>부호 손실 문제</strong>를 찾아 고칩니다.</li><li>시뮬레이터에서 원 주행 반경을 측정해 이론값과 비교합니다.</li></ul>
+<h2 id="애커만-섀시의-구조">애커만 섀시의 구조<a class="anchor" href="#애커만-섀시의-구조">#</a></h2>
+<p>MentorPi 애커만 버전은 자동차와 같은 구조입니다.</p>
+<ul><li><strong>앞바퀴</strong>: 구동력이 없고 방향만 바꿉니다. PWM 서보(id 3)가 링키지를 밀고 당겨 두 앞바퀴를 함께 꺾습니다.</li><li><strong>뒷바퀴</strong>: 좌·우 각각 DC 모터(모터 2번·4번)로 구동합니다. 1번·3번 모터 자리는 쓰지 않습니다.</li></ul>
+<p>메카넘(M01)은 <span class="math">(v_x, v_y, ω_z)</span> 세 자유도를 모두 직접 만들 수 있지만, 애커만은 <strong>옆으로 미끄러지지 않는 바퀴</strong> 때문에 <span class="math">v_y = 0</span>이 강제됩니다. 이런 구속을 비홀로노믹(non-holonomic) 구속이라고 합니다. 주차할 때 차를 옆으로 밀 수 없어 앞뒤로 여러 번 움직이는 것과 같은 이유입니다.</p>
+<h3 id="순수-구름-조건과-icr">순수 구름 조건과 ICR<a class="anchor" href="#순수-구름-조건과-icr">#</a></h3>
+<p>바퀴가 옆으로 미끄러지지 않으려면 각 바퀴는 <strong>자기 굴러가는 방향</strong>으로만 움직여야 합니다. 차체가 회전하고 있다면, 차체 위 모든 점은 한 점(ICR)을 중심으로 원운동하므로 <strong>각 바퀴 축(굴러가는 방향에 수직인 선)의 연장선이 모두 ICR에서 만나야</strong> 합니다.</p>
+<ul><li>뒷바퀴는 꺾이지 않으므로 ICR은 항상 <strong>뒷차축 연장선 위</strong>에 있습니다.</li><li>앞바퀴 두 개의 축 연장선도 같은 점을 지나야 하므로, 안쪽 앞바퀴는 바깥쪽보다 <strong>더 많이</strong> 꺾여야 합니다. 이 조건을 만족하는 링키지가 원래 의미의 애커만 기하(Ackermann geometry)입니다.</li></ul>
+<p>이상적인 안쪽·바깥쪽 조향각은 다음과 같습니다(뒷차축 중심 기준 반경 <span class="math">R</span>, 윤거 <span class="math">D</span>).</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">δ_in  = atan( L / (R − D/2) )
+δ_out = atan( L / (R + D/2) )</code></pre></div>
+<div class="callout callout-info"><div class="callout-title">MentorPi의 실제 링키지</div><div class="callout-body"><p>원본 교재(Lesson 2)는 회전할 때 <strong>두 앞바퀴가 평행 상태로 같은 각도만큼</strong> 꺾인다고 설명합니다. 즉 교육용 섀시는 완전한 애커만 기하가 아니라 평행 조향에 가깝습니다. R = 0.4 m에서 이상적인 두 각도 차이는 약 6°(안쪽 23.5°, 바깥쪽 17.3°)라서, 평행 조향이면 한 바퀴가 조금 옆으로 끌립니다. 저속 소형 로봇에서는 무시할 만하고, 제어 계산은 두 앞바퀴를 가운데 하나로 합친 <strong>자전거 모델</strong>로 합니다.</p></div></div>
+<h2 id="자전거-모델-유도">자전거 모델 유도<a class="anchor" href="#자전거-모델-유도">#</a></h2>
+<p>두 앞바퀴를 앞차축 가운데의 가상 바퀴 하나로, 두 뒷바퀴를 뒷차축 가운데의 가상 바퀴 하나로 합칩니다. 기준점은 <strong>뒷차축 중심</strong>입니다(오도메트리 <code>base_footprint</code>도 여기에 가깝게 둡니다).</p>
+<figure class="fig" id="fig-m02-bicycle"><svg viewBox="0 0 720 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="애커만 섀시의 자전거 모델: 순간 회전 중심, 회전 반경 R, 휠베이스 L, 조향각 δ, 좌우 뒷바퀴 반경">
+  <defs>
+    <marker id="arr-m02-bicycle" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+    <marker id="arr-m02-bicycle-f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <!-- path arc around ICR -->
+  <path d="M330 240 A220 220 0 0 0 251.4 71.5" style="stroke:var(--text-faint)" stroke-width="1.2" stroke-dasharray="5 5" fill="none"/>
+  <text class="tag" x="236" y="64" text-anchor="end">뒷차축 중심의 궤적 (반경 R)</text>
+  <!-- body outline -->
+  <rect x="282" y="78" width="96" height="186" rx="10" style="fill:none;stroke:var(--border)" stroke-width="1.4"/>
+  <!-- lines from ICR -->
+  <path d="M110 240 L372 240" style="stroke:var(--text-faint)" stroke-width="1.4"/>
+  <path d="M110 240 L330 100" style="stroke:var(--text-faint)" stroke-width="1.4"/>
+  <circle cx="110" cy="240" r="5" class="hi"/>
+  <text class="lbl" x="110" y="266" text-anchor="middle">ICR</text>
+  <text class="sub" x="110" y="282" text-anchor="middle">순간 회전 중심</text>
+  <!-- delta at ICR -->
+  <path class="ln-hi" d="M160 240 A50 50 0 0 0 152.2 213.2" stroke-width="1.8"/>
+  <text class="lbl hi" x="168" y="230">δ</text>
+  <text class="lbl mono" x="220" y="258" text-anchor="middle">R = v / ω</text>
+  <!-- rear wheels -->
+  <rect class="box-hi" x="283" y="218" width="14" height="44" rx="4"/>
+  <rect class="box-hi" x="363" y="218" width="14" height="44" rx="4"/>
+  <text class="tag mono" x="290" y="290" text-anchor="middle">v_L</text>
+  <text class="tag mono" x="370" y="290" text-anchor="middle">v_R</text>
+  <text class="sub" x="330" y="310" text-anchor="middle">R_L = R − D/2 ,  R_R = R + D/2</text>
+  <!-- rear axle velocity -->
+  <circle cx="330" cy="240" r="3.5" style="fill:var(--text)"/>
+  <path class="ln-hi" d="M330 240 L330 184" stroke-width="2.4" marker-end="url(#arr-m02-bicycle)"/>
+  <text class="lbl mono hi" x="338" y="200">v</text>
+  <!-- front (virtual) wheel -->
+  <path d="M330 100 L330 48" style="stroke:var(--text-faint)" stroke-width="1.2" stroke-dasharray="4 4"/>
+  <path d="M330 100 L303 58" class="ln-hi" stroke-width="1.6"/>
+  <rect class="box-hi" x="323" y="78" width="14" height="44" rx="4" transform="rotate(-32.5 330 100)"/>
+  <path class="ln-hi" d="M330 70 A30 30 0 0 0 313.9 74.7" stroke-width="1.8"/>
+  <text class="lbl hi" x="300" y="68" text-anchor="end">δ</text>
+  <text class="tag" x="344" y="60">앞바퀴 (가상 1개)</text>
+  <!-- wheelbase dimension -->
+  <path d="M404 100 L404 240" style="stroke:var(--text-faint)" stroke-width="1.2" marker-start="url(#arr-m02-bicycle-f)" marker-end="url(#arr-m02-bicycle-f)"/>
+  <text class="sub mono" x="412" y="174">L</text>
+  <!-- formula panel -->
+  <rect class="box" x="440" y="28" width="272" height="276" rx="8"/>
+  <text class="lbl" x="454" y="54">자전거 모델 (뒷차축 기준)</text>
+  <text class="lbl mono" x="454" y="80">R = v / ω</text>
+  <text class="lbl mono" x="454" y="104">tan δ = L / R</text>
+  <text class="lbl mono hi" x="454" y="128">δ = atan(L·ω / v)</text>
+  <text class="lbl mono" x="454" y="156">v_L = v − ω·D/2</text>
+  <text class="lbl mono" x="454" y="180">v_R = v + ω·D/2</text>
+  <text class="sub mono" x="454" y="204">L = 0.145 m , D = 0.133 m</text>
+  <text class="lbl" x="454" y="232">|δ| ≤ 29° 이므로</text>
+  <text class="lbl mono" x="454" y="254">R_min = L / tan 29° = 0.262 m</text>
+  <text class="sub mono" x="454" y="282">서보 펄스 = 1500 + 2000·(−δ°)/180</text>
+</svg><figcaption>자전거 모델. 뒷차축 연장선과 앞바퀴 축 연장선이 만나는 점이 ICR이고, ICR에서 본 휠베이스의 각이 조향각 δ와 같습니다.</figcaption></figure>
+<h3 id="1단계-회전-반경">1단계 — 회전 반경<a class="anchor" href="#1단계-회전-반경">#</a></h3>
+<p>뒷차축 중심은 반경 <span class="math">R</span>인 원을 속도 <span class="math">v</span>로 돕니다. 원운동에서 <span class="math">v = ωR</span>이므로</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">R = v / ω</code></pre></div>
+<h3 id="2단계-조향각">2단계 — 조향각<a class="anchor" href="#2단계-조향각">#</a></h3>
+<p>ICR, 뒷차축 중심, 앞바퀴 중심이 직각삼각형을 이룹니다(밑변 <span class="math">R</span>, 높이 <span class="math">L</span>). 앞바퀴는 ICR-앞바퀴 선에 수직이어야 하므로, 앞바퀴가 차체 축과 이루는 각 δ는 ICR에서의 각과 같습니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">tan δ = L / R = L·ω / v
+δ = atan( L·ω / v )</code></pre></div>
+<p>원본 코드 <code>theta = math.atan(self.wheelbase*angular_speed/linear_speed)</code>가 바로 이 식입니다. <span class="math">v &lt; 0</span>(후진)이면 같은 ω에 대해 δ의 부호가 반대가 되는데, 후진할 때 핸들을 반대로 꺾어야 같은 방향으로 도는 자동차 경험과 일치합니다.</p>
+<h3 id="3단계-좌-우-뒷바퀴-속도">3단계 — 좌·우 뒷바퀴 속도<a class="anchor" href="#3단계-좌-우-뒷바퀴-속도">#</a></h3>
+<p>좌·우 뒷바퀴는 ICR에서 각각 <span class="math">R − D/2</span>, <span class="math">R + D/2</span> 떨어져 있고 같은 각속도 ω로 돕니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">v_L = ω (R − D/2) = v − ω·D/2 = v · (1 − D·tan δ / (2L))
+v_R = ω (R + D/2) = v + ω·D/2 = v · (1 + D·tan δ / (2L))</code></pre></div>
+<p>원본 교재의 식(<span class="math">V_L = V(1 − D·tanθ/2H)</span>)과 원본 코드(<code>vl = linear_speed - angular_speed*self.track_width/2</code>)가 같은 식을 서로 다른 변수로 쓴 것입니다. 뒷바퀴 속도 차이는 <strong>전자식 차동장치(electronic differential)</strong> 역할을 합니다. 두 뒷바퀴를 같은 속도로 돌리면 코너에서 한쪽이 끌리며 타이어가 미끄러집니다.</p>
+<h2 id="조향-한계-29-와-최소-회전-반경">조향 한계: 29°와 최소 회전 반경<a class="anchor" href="#조향-한계-29-와-최소-회전-반경">#</a></h2>
+<p>원본은 조향각을 <strong>29°</strong> 로 제한합니다(서보·링키지의 기계적 한계). 이로부터</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">R_min = L / tan 29° = 0.145 / 0.5543 = 0.262 m
+ω_max(v) = v · tan 29° / L = 3.823 · v   [rad/s]</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>선속도 v [m/s]</th><th>최대 각속도 ω_max [rad/s]</th><th><code>/cmd_vel</code> 제한(0.5) 적용 후 δ</th></tr></thead><tbody><tr><td>0.05</td><td>0.19</td><td>29° (ω = 0.19에서 이미 한계)</td></tr><tr><td>0.10</td><td>0.38</td><td>29° (0.5 요청 시 잘림)</td></tr><tr><td>0.20</td><td>0.76</td><td>19.9° (ω = 0.5가 먼저 잘림)</td></tr><tr><td>0.30</td><td>—</td><td><code>/cmd_vel</code>은 0.2 m/s로 잘림</td></tr></tbody></table></div>
+<div class="callout callout-tip"><div class="callout-title">원본 키보드 조종의 각속도</div><div class="callout-body"><p>원본 <code>teleop_key_control.py</code>는 애커만일 때 <code>ANG_VEL = LIN_VEL/(0.145/math.tan(0.5061))</code>을 씁니다. 0.5061 rad = 29°이므로 0.2 m/s에서 ω = 0.765 rad/s, 즉 <strong>최소 회전 반경으로 도는 값</strong>을 정확히 계산해 둔 것입니다.</p></div></div>
+<p><strong>정지 상태에서는 회전할 수 없습니다.</strong> <span class="math">v → 0</span>이면 δ = atan(Lω/v)가 ±90°로 발산하고, 실제로는 29°에 막히므로 ω = v·tan δ / L → 0입니다. 원본 코드도 <span class="math">|v| &lt; 10⁻⁸</span>이면 서보 값을 <code>None</code>으로 돌려주고 모든 모터를 0으로 둡니다.</p>
+<h2 id="원본-ackermann-py-해설">원본 ackermann.py 해설<a class="anchor" href="#원본-ackermann-py-해설">#</a></h2>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">class AckermannChassis:
+    def __init__(self, wheelbase=0.145, track_width=0.133, wheel_diameter=0.067): ...
+
+    def set_velocity(self, linear_speed, angular_speed, reset_servo=True):
+        servo_angle = 1500
+        if abs(linear_speed) &gt;= 1e-8:
+            if abs(angular_speed) &gt;= 1e-8:
+                theta = math.atan(self.wheelbase*angular_speed/linear_speed)
+                steering_angle = theta
+                if abs(steering_angle) &gt; math.radians(29):
+                    steering_angle = math.radians(29)          # ← 부호가 사라짐
+                servo_angle = 1500 + 2000*math.degrees(-steering_angle)/180
+            vr = linear_speed + angular_speed*self.track_width/2
+            vl = linear_speed - angular_speed*self.track_width/2
+            v_s = [self.speed_covert(v) for v in [0, vl, 0, -vr]]
+            return servo_angle, MotorsState(...)
+        else:
+            return None, MotorsState(모두 0)</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>해석</th></tr></thead><tbody><tr><td>치수</td><td>휠베이스 L = 0.145 m, 윤거 D = 0.133 m, 바퀴 지름 0.067 m (둘레 0.2105 m)</td></tr><tr><td>서보 펄스</td><td>중앙 1500 µs, <strong>180°당 2000 µs</strong>(1°당 11.1 µs). <code>-steering_angle</code>이므로 <strong>좌회전(δ &gt; 0) → 1500보다 작은 펄스</strong></td></tr><tr><td>펄스 범위</td><td>±29° → 1178 ~ 1822 µs. 노드는 <code>int()</code>로 잘라 <code>/ros_robot_controller/pwm_servo/set_state</code>에 id 3으로 발행</td></tr><tr><td>모터 목록</td><td><code>[0, vl, 0, -vr]</code> → 모터 2번 = 왼쪽 뒤, 모터 4번 = 오른쪽 뒤. <strong>메카넘과 달리 오른쪽의 부호를 뒤집습니다</strong>(배선·장착 방향이 다름)</td></tr><tr><td>정지</td><td><span class="math">v = 0</span>이면 서보 <code>None</code>(서보 명령 없음), 모든 모터 0</td></tr></tbody></table></div>
+<div class="callout callout-warn"><div class="callout-title">원본 코드의 세 가지 함정</div><div class="callout-body"><ol><li><strong>조향 제한에서 부호 손실</strong>: <span class="math">|δ| &gt; 29°</span>이면 <code>steering_angle = math.radians(29)</code>로 <strong>항상 +29°</strong> 가 됩니다. 오른쪽으로 크게 꺾는 요청(예: v = 0.1, ω = −0.5 → δ = −35.9°)이 <strong>왼쪽 29°</strong> 서보 명령이 되고, 뒷바퀴 속도는 오른쪽 회전용으로 계산되어 서로 싸웁니다. <code>math.copysign(math.radians(29), theta)</code>로 고쳐야 합니다. <code>/cmd_vel</code>을 쓰면 ω ≤ 0.5로 잘리므로 v &lt; 0.13 m/s일 때 이 경우가 생깁니다.</li><li><strong>ω = 0일 때 서보를 되돌리지 않음</strong>: <code>odom_publisher_node.py</code>의 <code>cmd_vel_callback</code>은 <code>angular.z == 0</code>이면 모터 명령만 보내고 <strong>서보 명령은 보내지 않습니다.</strong> 회전하다가 ω = 0을 보내면 바퀴가 꺾인 채로 계속 돕니다. 원본 라이다 앱(<code>lidar_controller.py</code>)은 이 때문에 직진할 때 서보 1500을 <strong>따로</strong> 발행합니다(M06). 여러분의 노드도 직진 전환 시 아주 작은 ω(예: 1e-6)를 보내거나 서보를 직접 가운데로 두세요.</li><li><strong>오도메트리는 요청 ω를 적분</strong>: 조향이 29°에서 잘려도 <code>odom_publisher</code>는 <strong>요청한 ω</strong>를 적분합니다. 한계를 넘는 명령을 보내면 odom의 yaw가 실제보다 빨리 돕니다(M03).</li></ol></div></div>
+<p>교재 Lesson 6의 주의 문구에 나오는 D = 0.213, 36° 같은 값은 소스의 주석으로 남아 있는 다른(더 큰) 섀시의 값입니다. MentorPi에서 실제로 쓰이는 값은 위 표의 0.145 m, 29°입니다.</p>
+<h2 id="실습-시뮬레이션">실습 (시뮬레이션)<a class="anchor" href="#실습-시뮬레이션">#</a></h2>
+<h3 id="1-원본-setvelocity를-python으로-옮겨-보기">1. 원본 set_velocity를 Python으로 옮겨 보기<a class="anchor" href="#1-원본-setvelocity를-python으로-옮겨-보기">#</a></h3>
+<p>원본 로직을 그대로 옮기고, 부호 손실 문제를 고친 버전과 비교합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+
+L, T, D = 0.145, 0.133, 0.067          # wheelbase, track_width, wheel_diameter
+MAX = math.radians(29)
+
+def ackermann(v, w, fix_sign=False):
+    &quot;&quot;&quot;원본 AckermannChassis.set_velocity() → (서보 펄스, 모터 rps 4개).&quot;&quot;&quot;
+    if abs(v) &lt; 1e-8:
+        return None, [0.0] * 4
+    pulse = 1500
+    if abs(w) &gt;= 1e-8:
+        delta = math.atan(L * w / v)
+        if abs(delta) &gt; MAX:
+            delta = math.copysign(MAX, delta) if fix_sign else MAX
+        pulse = 1500 + 2000 * math.degrees(-delta) / 180
+    vr = v + w * T / 2
+    vl = v - w * T / 2
+    rps = [x / (math.pi * D) for x in (0, vl, 0, -vr)]
+    return pulse, rps
+
+print(&quot;최소 회전반경 R_min = %.3f m&quot; % (L / math.tan(MAX)))
+for v, w in [(0.2, 0.0), (0.2, 0.5), (0.2, -0.5), (0.1, 0.5), (0.1, -0.5), (0.0, 0.5)]:
+    p, rps = ackermann(v, w)
+    d = math.degrees(math.atan(L * w / v)) if v else float(&quot;nan&quot;)
+    ps = &quot;None&quot; if p is None else &quot;%.0f&quot; % p
+    print(&quot;v=%+.1f w=%+.1f  delta_req=%+6.1f°  pulse=%s  rps=%s&quot; % (
+        v, w, d, ps, [round(x, 3) + 0.0 for x in rps]))
+p, _ = ackermann(0.1, -0.5, fix_sign=True)
+print(&quot;부호 보존 수정 시 v=+0.1 w=-0.5 → pulse=%.0f&quot; % p)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">최소 회전반경 R_min = 0.262 m
+v=+0.2 w=+0.0  delta_req=  +0.0°  pulse=1500  rps=[0.0, 0.95, 0.0, -0.95]
+v=+0.2 w=+0.5  delta_req= +19.9°  pulse=1279  rps=[0.0, 0.792, 0.0, -1.108]
+v=+0.2 w=-0.5  delta_req= -19.9°  pulse=1721  rps=[0.0, 1.108, 0.0, -0.792]
+v=+0.1 w=+0.5  delta_req= +35.9°  pulse=1178  rps=[0.0, 0.317, 0.0, -0.633]
+v=+0.1 w=-0.5  delta_req= -35.9°  pulse=1178  rps=[0.0, 0.633, 0.0, -0.317]
+v=+0.0 w=+0.5  delta_req=  +nan°  pulse=None  rps=[0.0, 0.0, 0.0, 0.0]
+부호 보존 수정 시 v=+0.1 w=-0.5 → pulse=1822</code></pre></div>
+<p>다섯째 줄을 보세요. 오른쪽 회전 요청인데 펄스가 왼쪽 한계(1178)이고, 뒷바퀴는 왼쪽이 더 빠른(오른쪽 회전용) 속도입니다. 수정 후에는 1822(오른쪽 한계)가 됩니다. 실제 노드는 <code>int(1278.55)</code> = 1278처럼 소수점을 버리므로 1 µs 차이가 날 수 있습니다.</p>
+<h3 id="2-원-주행과-회전-반경-측정">2. 원 주행과 회전 반경 측정<a class="anchor" href="#2-원-주행과-회전-반경-측정">#</a></h3>
+<p>가상 애커만 로봇에 v = 0.2 m/s, ω = 0.5 rad/s를 한 바퀴(2π/0.5 ≈ 12.6 s) 동안 보내고, 실제 궤적에 원을 맞춰(최소제곱 원 맞춤) 반경을 구합니다. 이론값은 R = v/ω = 0.400 m, 시작점 (0, −0.4)에서 출발하면 원의 중심은 (0, 0)입니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist, Pose2D
+import mentorpi_sim as sim                                          # 시뮬 전용
+sim.setup(chassis=&quot;ackermann&quot;, world=&quot;empty&quot;, duration=12.6,
+          start=(0.0, -0.4, 0.0), noise=False)                      # 시뮬 전용
+
+V, W, L = 0.2, 0.5, 0.145
+
+class Circle(Node):
+    def __init__(self):
+        super().__init__(&quot;ackermann_circle&quot;)
+        self.pub = self.create_publisher(Twist, &quot;/cmd_vel&quot;, 10)
+        self.create_subscription(Pose2D, &quot;/ground_truth&quot;, self.on_gt, 10)
+        self.xs, self.ys = [], []
+        self.create_timer(0.05, self.tick)
+
+    def on_gt(self, msg):
+        self.xs.append(msg.x)
+        self.ys.append(msg.y)
+
+    def tick(self):
+        cmd = Twist()
+        cmd.linear.x, cmd.angular.z = V, W
+        self.pub.publish(cmd)
+
+rclpy.init()
+node = Circle()
+try:
+    rclpy.spin(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    node.pub.publish(Twist())
+    xs, ys = np.array(node.xs), np.array(node.ys)
+    node.destroy_node()
+    rclpy.shutdown()
+
+# 원 맞춤: x² + y² + D·x + E·y + F = 0 을 최소제곱으로
+A = np.column_stack([xs, ys, np.ones_like(xs)])
+b = -(xs ** 2 + ys ** 2)
+Dc, Ec, F = np.linalg.lstsq(A, b, rcond=None)[0]
+cx, cy = -Dc / 2, -Ec / 2
+r = math.sqrt(cx ** 2 + cy ** 2 - F)
+print(&quot;요청 δ = %.1f°, 이론 R = %.3f m&quot; % (math.degrees(math.atan(L * W / V)), V / W))
+print(&quot;측정 중심 = (%+.3f, %+.3f), 반경 = %.3f m&quot; % (cx, cy, r))
+print(&quot;끝점과 시작점 거리 = %.3f m&quot; % math.hypot(xs[-1] - xs[0], ys[-1] - ys[0]))
+sim.plot(list(xs), list(ys), &quot;애커만 원 주행 (v=0.2, w=0.5)&quot;)   # 시뮬 전용</code></pre></div>
+<p>(대략)</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">요청 δ = 19.9°, 이론 R = 0.400 m
+측정 중심 = (+0.002, +0.000), 반경 = 0.400 m
+끝점과 시작점 거리 = 0.040 m</code></pre></div>
+<p>반경은 이론과 거의 같고, 끝점이 시작점에서 몇 cm 모자란 것은 출발할 때의 가속 구간 때문입니다. <code>sim.plot</code>으로 그린 궤적이 원인지 결과 그래프 패널에서 확인하세요.</p>
+<h3 id="3-조향-한계와-정지-회전-시험">3. 조향 한계와 정지 회전 시험<a class="anchor" href="#3-조향-한계와-정지-회전-시험">#</a></h3>
+<p>ω는 그대로 0.5인데 v를 0.1로 낮추면 요청 δ = 35.9°가 되어 29°에 걸립니다. 세 구간의 실제 각속도를 <code>/imu</code>로 측정합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+import time
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist
+from sensor_msgs.msg import Imu
+import mentorpi_sim as sim                                          # 시뮬 전용
+sim.setup(chassis=&quot;ackermann&quot;, world=&quot;empty&quot;, duration=11.5,
+          start=(0.0, 0.0, 0.0), noise=False)                       # 시뮬 전용
+
+L = 0.145
+PHASES = [(0.0, 5.0, 0.1, 0.5), (5.0, 8.0, 0.1, -0.5), (8.0, 11.0, 0.0, 0.5)]
+
+class SteerLimit(Node):
+    def __init__(self):
+        super().__init__(&quot;steer_limit&quot;)
+        self.pub = self.create_publisher(Twist, &quot;/cmd_vel&quot;, 10)
+        self.create_subscription(Imu, &quot;/imu&quot;, self.on_imu, 10)
+        self.t0 = time.time()
+        self.samples = {i: [] for i in range(len(PHASES))}
+        self.create_timer(0.05, self.tick)
+
+    def phase(self):
+        t = time.time() - self.t0
+        for i, (a, b, v, w) in enumerate(PHASES):
+            if a &lt;= t &lt; b:
+                return i, t - a
+        return None, 0.0
+
+    def on_imu(self, msg):
+        i, since = self.phase()
+        if i is not None and since &gt; 1.0:          # 과도 구간 1초는 버림
+            self.samples[i].append(msg.angular_velocity.z)
+
+    def tick(self):
+        i, _ = self.phase()
+        cmd = Twist()
+        if i is not None:
+            cmd.linear.x, cmd.angular.z = PHASES[i][2], PHASES[i][3]
+        self.pub.publish(cmd)
+
+rclpy.init()
+node = SteerLimit()
+try:
+    rclpy.spin(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    node.pub.publish(Twist())
+    for i, (a, b, v, w) in enumerate(PHASES):
+        s = node.samples[i]
+        wm = sum(s) / len(s) if s else float(&quot;nan&quot;)
+        req = math.degrees(math.atan(L * w / v)) if v else float(&quot;nan&quot;)
+        print(&quot;v=%.1f w=%+.1f  δ요청=%+6.1f°  측정 ω=%+.3f rad/s  R=%s&quot; % (
+            v, w, req, wm, &quot;%.3f m&quot; % (v / wm) if abs(wm) &gt; 1e-3 else &quot;—&quot;))
+    node.destroy_node()
+    rclpy.shutdown()</code></pre></div>
+<p>(대략)</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">v=0.1 w=+0.5  δ요청= +35.9°  측정 ω=+0.382 rad/s  R=0.262 m
+v=0.1 w=-0.5  δ요청= -35.9°  측정 ω=-0.382 rad/s  R=-0.262 m
+v=0.0 w=+0.5  δ요청=   +nan°  측정 ω=+0.000 rad/s  R=—</code></pre></div>
+<ul><li>요청 0.5 rad/s가 <strong>0.382 rad/s</strong>(= 0.1 · tan 29° / 0.145)로 줄었고, 회전 반경은 최소 회전 반경 0.262 m입니다.</li><li>시뮬레이터는 부호를 보존해 제한합니다. 원본 코드를 그대로 실물에 쓰면 둘째 구간에서 <strong>왼쪽으로</strong> 돌게 됩니다.</li><li>v = 0이면 ω 요청이 있어도 전혀 돌지 않습니다.</li></ul>
+<h3 id="기구학-실험실과-2d-시뮬레이터에서-확인하기">기구학 실험실과 2D 시뮬레이터에서 확인하기<a class="anchor" href="#기구학-실험실과-2d-시뮬레이터에서-확인하기">#</a></h3>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/kinematics-lab.html">섀시 기구학 실험실 열기</a></p>
+<ol><li>섀시를 <strong>애커만</strong>으로 바꿉니다.</li><li>v = 0.2로 두고 ω를 0 → 0.8까지 올리며 조향각 δ와 ICR 위치가 어떻게 바뀌는지 봅니다. δ가 29°에 닿는 ω(약 0.76)를 찾습니다.</li><li>v를 음수로 바꿔 같은 ω에서 δ의 부호가 바뀌는지 확인합니다.</li><li>좌·우 뒷바퀴 속도 비 <span class="math">v_R / v_L</span>을 읽고 <span class="math">(R + D/2)/(R − D/2)</span>로 계산한 값과 비교합니다.</li></ol>
+<p class="cta-row"><a class="ghost-btn cta" href="../sim/index.html">2D 시뮬레이터 열기</a></p>
+<ol><li>섀시 선택에서 <strong>애커만</strong>을 고르고 <strong>수동 주행</strong>을 켭니다.</li><li>제자리 회전 키를 눌러도 로봇이 돌지 않는 것, 전진하면서 조향해야 도는 것을 확인합니다.</li><li>좁은 복도(corridor) 월드에서 U턴을 시도해 보고, 한 번에 돌 수 없으면 전진·후진을 섞는 3점 회전을 해 봅니다. 메카넘으로 바꿔 같은 동작을 비교합니다.</li></ol>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> ICR이 항상 뒷차축 연장선 위에 있는 이유를 설명할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> v = 0.15 m/s일 때 도달 가능한 최대 ω를 계산할 수 있다(0.573 rad/s).</label></li><li><label class="check-item"><input type="checkbox"> 원본 조향 제한 코드의 문제와 수정 방법을 말할 수 있다.</label></li></ul></div></div>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">실물 주행 전 확인</div><div class="callout-body"><ul><li>애커만은 회전 반경이 크므로(최소 0.26 m, 차체 포함 더 큼) 사방 1.5 m 이상 비워 둡니다.</li><li>서보가 가운데(1500 µs)에서 바퀴가 똑바른지 먼저 확인합니다. 어긋나 있으면 B03의 서보 편차 조정(Servo Deviation Adjustment)을 먼저 합니다.</li><li><code>/controller/cmd_vel</code>은 제한이 없으므로 v ≤ 0.2 m/s를 지킵니다. v &lt; 0.13 m/s에서 오른쪽 급회전(ω ≤ −0.5)을 요청하지 않습니다(부호 손실 문제).</li><li>Ctrl+C로는 멈추지 않습니다. 정지는 0 명령을 따로 발행합니다.</li></ul></div></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">~/.stop_ros.sh
+echo $MACHINE_TYPE                               # MentorPi_Acker 인지 확인
+ros2 launch controller controller.launch.py</code></pre></div>
+<p>새 터미널에서 서보 명령과 모터 명령을 관찰할 준비를 합니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 topic echo /ros_robot_controller/pwm_servo/set_state</code></pre></div>
+<p>또 다른 터미널에서 원 주행 명령을 보냅니다(R = 0.4 m, 예상 펄스 1278).</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 topic pub -r 10 /controller/cmd_vel geometry_msgs/msg/Twist &quot;{linear: {x: 0.2}, angular: {z: 0.5}}&quot;</code></pre></div>
+<p>바닥에 테이프로 시작점을 표시하고 한 바퀴 뒤 원의 지름(약 0.8 m)을 줄자로 재 봅니다. 그다음 <code>angular: {z: 0.0}</code>으로 바꿔 발행해 <strong>바퀴가 꺾인 채로 남는지</strong> 확인하세요(함정 2). 정지와 복구:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 topic pub --once /controller/cmd_vel geometry_msgs/msg/Twist &quot;{}&quot;
+sudo systemctl restart start_node.service        # Docker 밖 시스템 터미널에서</code></pre></div>
+<p>키보드로 조종해 보고 싶다면 원본 패키지의 키보드 노드를 씁니다(w/a/s/d, 애커만은 최소 회전 반경으로 회전).</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 launch peripherals teleop_key_control.launch.py</code></pre></div>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td>ω만 보냈는데 전혀 움직이지 않음</td><td>v = 0이면 서보 <code>None</code>, 모터 0</td><td>애커만은 반드시 v ≠ 0과 함께 ω를 보냄</td></tr><tr><td>직진 명령인데 계속 원을 그림</td><td>ω = 0일 때 서보 명령이 나가지 않아 조향이 남음</td><td>직진 전환 시 ω = 1e-6 같은 작은 값을 보내거나 서보 1500을 직접 발행</td></tr><tr><td>오른쪽으로 급회전하려 했는데 왼쪽으로 꺾임</td><td>조향 제한 코드의 부호 손실(+29° 고정)</td><td>명령을 <span class="math">|ω| ≤ v·tan 29°/L</span>로 미리 제한하거나 원본을 <code>copysign</code>으로 수정</td></tr><tr><td>같은 ω인데 원이 예상보다 큼</td><td>29° 제한에 걸림(저속) 또는 바닥 미끄럼</td><td><span class="math">R = max(v/ω, 0.262)</span>로 계산해 보고, 속도를 올려 δ를 줄임</td></tr><tr><td>직진이 한쪽으로 휨</td><td>서보 중립 편차</td><td>서보 편차 조정 후 다시 시험</td></tr><tr><td>odom의 yaw가 실제보다 많이 돔</td><td>odom은 제한 전 요청 ω를 적분</td><td>한계를 넘는 명령을 보내지 않음, EKF의 IMU 융합 사용(M03)</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">개인 과제</div><div class="callout-body"><ol><li><strong>(기본)</strong> R = 0.3, 0.5, 1.0 m 원을 v = 0.15 m/s로 그리는 (v, ω)를 계산하고, 실습 2 코드로 반경을 측정해 표로 정리하세요.</li><li><strong>(기본)</strong> 이상적 애커만 기하의 안쪽·바깥쪽 조향각 <span class="math">δ_in</span>, <span class="math">δ_out</span>을 R = 0.3 ~ 1.0 m에서 계산해 평행 조향과의 차이(°)를 그래프(<code>sim.plot</code>)로 그리세요.</li><li><strong>(심화)</strong> <code>ackermann()</code> 앞단에 "명령 정리 함수"를 만드세요: ① <span class="math">|ω|</span>를 <span class="math">v·tan 29°/L</span>로 제한, ② ω가 0이 되면 1e-6으로 바꿔 서보를 가운데로, ③ v = 0이면 ω를 0으로. 실습 3의 명령을 이 함수에 통과시켜 결과를 비교하세요.</li><li><strong>(심화)</strong> 애커만으로 폭 0.8 m 복도에서 180° 방향 전환(3점 회전)을 하는 명령 시퀀스를 설계하고 corridor 월드에서 시험하세요.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>9. Motion Control Lesson — Lesson 2 Ackerman Chassis Motion Analysis</em>, <em>Lesson 6 Ackerman Chassis Speed Control</em></li><li>원본 소스: <code>src/driver/controller/controller/ackermann.py</code>, <code>src/driver/controller/controller/odom_publisher_node.py</code>, <code>src/peripherals/peripherals/teleop_key_control.py</code></li><li>Kinematic bicycle model (Kong et al., <em>Kinematic and Dynamic Vehicle Models for Autonomous Driving Control Design</em>, IEEE IV 2015): https://ieeexplore.ieee.org/document/7225830</li><li>Ackermann steering geometry 개요: https://en.wikipedia.org/wiki/Ackermann_steering_geometry</li><li>ROS 2 <code>ackermann_msgs</code> 패키지(참고용 조향 메시지): https://index.ros.org/p/ackermann_msgs/</li></ul>
+      <nav class="pager"><a class="pager-prev" href="m01.html"><span>이전 · M01</span>메카넘 휠 섀시 기구학</a><a class="pager-next" href="m03.html"><span>다음 · M03</span>IMU·오도메트리 보정과 발행</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#애커만-섀시의-구조">애커만 섀시의 구조</a><a class="toc-l3" href="#순수-구름-조건과-icr">순수 구름 조건과 ICR</a><a class="toc-l2" href="#자전거-모델-유도">자전거 모델 유도</a><a class="toc-l3" href="#1단계-회전-반경">1단계 — 회전 반경</a><a class="toc-l3" href="#2단계-조향각">2단계 — 조향각</a><a class="toc-l3" href="#3단계-좌-우-뒷바퀴-속도">3단계 — 좌·우 뒷바퀴 속도</a><a class="toc-l2" href="#조향-한계-29-와-최소-회전-반경">조향 한계: 29°와 최소 회전 반경</a><a class="toc-l2" href="#원본-ackermann-py-해설">원본 ackermann.py 해설</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l3" href="#1-원본-setvelocity를-python으로-옮겨-보기">1. 원본 set_velocity를 Python으로 옮겨 보기</a><a class="toc-l3" href="#2-원-주행과-회전-반경-측정">2. 원 주행과 회전 반경 측정</a><a class="toc-l3" href="#3-조향-한계와-정지-회전-시험">3. 조향 한계와 정지 회전 시험</a><a class="toc-l3" href="#기구학-실험실과-2d-시뮬레이터에서-확인하기">기구학 실험실과 2D 시뮬레이터에서 확인하기</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,33 @@
+<svg viewBox="0 0 720 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="카메라 높이와 기울기로 바닥 거리 구하기">
+  <defs>
+    <marker id="arr-a10-ground-ray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <!-- ground -->
+  <path class="ln" d="M20 210 L700 210" stroke-width="2"/>
+  <text class="tag" x="690" y="228" text-anchor="end">바닥</text>
+  <!-- robot and camera -->
+  <rect class="box" x="40" y="170" width="70" height="40" rx="4"/>
+  <circle class="hi" cx="100" cy="140" r="7"/>
+  <path class="ln" d="M100 147 L100 170"/>
+  <text class="tag" x="60" y="195">로봇</text>
+  <!-- horizontal line -->
+  <path class="ln" d="M100 140 L680 140" stroke-dasharray="4 4"/>
+  <text class="tag" x="676" y="132" text-anchor="end">수평선</text>
+  <!-- optical axis tilt 25 deg: slope tan25=0.466 → hits ground at dx = 70/0.466=150 -->
+  <path class="ln-hi" d="M100 140 L250 210" stroke-width="2"/>
+  <text class="tag" x="255" y="202">광축 (기울기 θ)</text>
+  <!-- ray to far point: angle 5.5 deg → dx = 70/0.0963 = 727 too far; draw to 600 at y=188 -->
+  <path class="ln" d="M100 140 L620 206" stroke-width="1.5"/>
+  <circle class="box" cx="620" cy="206" r="4"/>
+  <text class="tag" x="560" y="180" text-anchor="end">영상 y 행의 광선</text>
+  <!-- height -->
+  <path class="ln" d="M28 140 L28 210" marker-start="url(#arr-a10-ground-ray)" marker-end="url(#arr-a10-ground-ray)"/>
+  <text class="tag" x="24" y="178" text-anchor="end">h</text>
+  <!-- distance -->
+  <path class="ln" d="M100 240 L620 240" marker-start="url(#arr-a10-ground-ray)" marker-end="url(#arr-a10-ground-ray)"/>
+  <text class="sub" x="360" y="254" text-anchor="middle">Z = h / tan(θ + atan((y − cy)/f))</text>
+  <text class="lbl" x="300" y="40">광선 각 = θ + atan((y − cy)/f)</text>
+  <text class="sub" x="300" y="62">y가 작을수록(영상 위쪽) 각이 작아져 먼 곳</text>
+  <text class="sub" x="300" y="82">가정: h = 0.12 m, θ = 25°, f = 480 px, cy = 240</text>
+  <text class="sub" x="300" y="102">y = 70 → 1.25 m,  y = 180 → 0.37 m,  y = 400 → 0.13 m</text>
+</svg>

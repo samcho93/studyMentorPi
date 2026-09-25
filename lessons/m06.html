@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M06. 라이다 응용: 회피·추종·경비 · studyMentorPi</title>
+<meta name="description" content="섹터 최소거리로 장애물 회피, 가장 가까운 물체 추종(P 제어), 경비 모드(물체를 향해 회전) — 세 가지 반응형 행동.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-mobile">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" class="active" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="m06" data-track="mobile">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-mobile">이동로봇 핵심</span> M-2 센서: 라이다·깊이 카메라 &middot; 약 100분 &middot; 중급</div>
+    <h1><span class="lesson-no">M06</span>라이다 응용: 회피·추종·경비</h1>
+    <p class="lede">섹터 최소거리로 장애물 회피, 가장 가까운 물체 추종(P 제어), 경비 모드(물체를 향해 회전) — 세 가지 반응형 행동.</p>
+    <div class="requires">선수 챕터: <a href="m05.html">M05</a> <a href="m04.html">M04</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      <a class="ghost-btn" href="../sim/index.html">2D 시뮬레이터</a><a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>원본 <code>lidar_controller.py</code>의 서비스 구조(enter / set_running / set_param / exit)와 데이터 전처리(240° 사용, 좌우 45° 창)를 설명합니다.</li><li>장애물 회피의 네 가지 판단, <strong>타임스탬프 잠금</strong>(non-blocking timed action), <code>last_act</code> 히스테리시스를 코드 수준에서 재현합니다.</li><li>추종·경비의 PD 제어(각도 Kp 1.6 Kd 0.16, 거리 Kp 1.7 Kd 0.16)를 해석하고, 움직이는 목표에서 생기는 정상상태 오차를 계산합니다.</li><li>임계거리·속도·반응 시간으로 정지 거리를 계산해 안전한 파라미터를 고릅니다.</li><li>시뮬레이터에서 세 행동을 직접 구현·실행하고, 실물에서 원본 앱을 명령행으로 실행합니다.</li></ul>
+<h2 id="반응형-행동이란">반응형 행동이란<a class="anchor" href="#반응형-행동이란">#</a></h2>
+<p>이 장의 세 행동은 지도도 경로 계획도 없이 <strong>매 스캔마다 "보고 → 판단하고 → 움직이는"</strong> 반응형 행동(reactive behavior)입니다.</p>
+<div class="table-wrap"><table><thead><tr><th>행동</th><th><code>running_mode</code></th><th>한 줄 요약</th><th>애커만 지원</th></tr></thead><tbody><tr><td>장애물 회피 (Obstacle Avoidance)</td><td>1</td><td>앞 좌우 45° 안에 임계거리보다 가까운 것이 있으면 반대쪽으로 튼다</td><td>지원(다른 동작)</td></tr><tr><td>추종 (Following)</td><td>2</td><td>가장 가까운 물체를 향해 돌고, 일정 거리를 유지한다</td><td>지원(다른 파라미터)</td></tr><tr><td>경비 (Guarding)</td><td>3</td><td>가장 가까운 물체를 향해 제자리에서 방향만 맞춘다</td><td><strong>미지원</strong></td></tr></tbody></table></div>
+<p>반응형 행동은 빠르고 단순하지만 "막다른 골목"이나 "U자 장애물"에서 갇힐 수 있습니다. 이 한계를 넘는 것이 지도 기반 내비게이션(M11~M12)입니다.</p>
+<h2 id="원본-lidarcontroller-py-구조">원본 lidar_controller.py 구조<a class="anchor" href="#원본-lidarcontroller-py-구조">#</a></h2>
+<p>노드 이름은 <code>lidar_app</code>입니다. 앱(WonderPi)과 명령행이 같은 서비스를 호출합니다.</p>
+<div class="table-wrap"><table><thead><tr><th>서비스</th><th>타입</th><th>하는 일</th></tr></thead><tbody><tr><td><code>/lidar_app/enter</code></td><td><code>std_srvs/srv/Trigger</code></td><td>파라미터 초기화(<code>reset_value</code>), <code>/scan_raw</code> 구독 시작(QoS BEST_EFFORT, depth 1)</td></tr><tr><td><code>/lidar_app/set_running</code></td><td><code>interfaces/srv/SetInt64</code></td><td>0 정지, 1 회피, 2 추종, 3 경비. 바꿀 때마다 정지 Twist 1회 발행</td></tr><tr><td><code>/lidar_app/set_param</code></td><td><code>interfaces/srv/SetFloat64List</code></td><td><code>[threshold(0.3~1.5 m), scan_angle(0~90°), speed(&gt;0)]</code></td></tr><tr><td><code>/lidar_app/exit</code></td><td><code>std_srvs/srv/Trigger</code></td><td>초기화 + 정지 Twist</td></tr><tr><td><code>/lidar_app/heartbeat</code></td><td><code>std_srvs/srv/SetBool</code></td><td>앱이 5초마다 보내는 생존 신호. 끊기면 자동 exit (명령행에서는 보내지 않으면 무관)</td></tr></tbody></table></div>
+<p>출력은 **<code>/controller/cmd_vel</code>**(속도 제한 없음)과, 애커만일 때 서보 명령 <code>ros_robot_controller/pwm_servo/set_state</code>입니다.</p>
+<h3 id="초기값과-데이터-전처리">초기값과 데이터 전처리<a class="anchor" href="#초기값과-데이터-전처리">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>변수</th><th><code>enter</code> 후 값</th><th>의미</th></tr></thead><tbody><tr><td><code>threshold</code></td><td>0.6 m</td><td>회피 판단 거리, 추종·경비의 반응 거리</td></tr><tr><td><code>scan_angle</code></td><td>90° (생성자에서는 360°였다가 <code>reset_value</code>에서 90°로)</td><td>전방 판단 창 전체 폭 → 좌·우 각 45°</td></tr><tr><td><code>speed</code></td><td>0.2 m/s</td><td>직진 속도, 회전 속도의 기준(×6)</td></tr><tr><td><code>MAX_SCAN_ANGLE</code></td><td>240° (상수)</td><td>차체에 늘 가리는 뒤쪽 120°를 버림</td></tr></tbody></table></div>
+<p>콜백은 먼저 <code>ranges</code>를 전방 기준 <strong>왼쪽 120°</strong>(<code>left_ranges</code>)와 <strong>오른쪽 120°</strong>(<code>right_ranges</code>, 배열을 뒤집어 전방부터)로 나누고, 다시 각각 앞에서부터 <code>scan_angle/2</code>만큼(<code>angle_index = int(angle / angle_increment + 0.5)</code>)만 잘라 씁니다. 그 뒤 0과 <code>inf</code>/<code>nan</code>을 걸러 냅니다(M05).</p>
+<h2 id="행동-1-장애물-회피-mode-1-메카넘">행동 1: 장애물 회피 (mode 1, 메카넘)<a class="anchor" href="#행동-1-장애물-회피-mode-1-메카넘">#</a></h2>
+<figure class="fig" id="fig-m06-sectors"><svg viewBox="0 0 720 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="라이다 회피 알고리즘의 좌우 섹터(각 45도), 임계거리 0.6 m, 사용 각도 240도와 판단 규칙">
+  <defs>
+    <marker id="arr-m06-sectors" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text)"/></marker>
+  </defs>
+  <!-- usable 240 deg boundary -->
+  <path d="M200 210 L70 285 M200 210 L330 285" style="stroke:var(--text-faint)" stroke-width="1.2" stroke-dasharray="5 5"/>
+  <text class="tag" x="200" y="304" text-anchor="middle">뒤쪽 120°는 버림 (MAX_SCAN_ANGLE = 240°)</text>
+  <!-- sectors -->
+  <path class="box-hi" d="M200 210 L200 100 A110 110 0 0 0 122.2 132.2 Z"/>
+  <path d="M200 210 L200 100 A110 110 0 0 1 277.8 132.2 Z" style="fill:var(--warn);opacity:0.22;stroke:var(--warn)"/>
+  <!-- threshold arc beyond sectors -->
+  <path d="M122.2 132.2 A110 110 0 0 0 90 210" style="stroke:var(--text-faint)" stroke-width="1" stroke-dasharray="3 4" fill="none"/>
+  <path d="M277.8 132.2 A110 110 0 0 1 310 210" style="stroke:var(--text-faint)" stroke-width="1" stroke-dasharray="3 4" fill="none"/>
+  <text class="sub mono" x="318" y="200" text-anchor="start">threshold</text>
+  <text class="sub mono" x="318" y="216" text-anchor="start">0.6 m</text>
+  <!-- labels -->
+  <text class="lbl" x="150" y="88" text-anchor="end">왼쪽 섹터</text>
+  <text class="sub mono" x="150" y="104" text-anchor="end">0 ~ +45°</text>
+  <text class="lbl" x="250" y="88" text-anchor="start">오른쪽 섹터</text>
+  <text class="sub mono" x="250" y="104" text-anchor="start">0 ~ −45°</text>
+  <text class="tag" x="200" y="40" text-anchor="middle">scan_angle = 90° (enter 시 기본값)</text>
+  <path d="M200 210 L200 58" style="stroke:var(--text)" stroke-width="1.6" marker-end="url(#arr-m06-sectors)"/>
+  <text class="tag" x="206" y="66" text-anchor="start">전방</text>
+  <!-- robot -->
+  <rect class="box" x="180" y="192" width="40" height="44" rx="6"/>
+  <!-- obstacle example in left sector -->
+  <circle cx="160" cy="140" r="9" class="dg"/>
+  <text class="tag" x="146" y="160" text-anchor="end">장애물</text>
+  <!-- decision panel -->
+  <rect class="box" x="392" y="24" width="320" height="282" rx="8"/>
+  <text class="lbl" x="406" y="50">회피 규칙 (메카넘, running_mode = 1)</text>
+  <text class="sub" x="406" y="78">L = 왼쪽 최소거리, R = 오른쪽 최소거리</text>
+  <text class="lbl" x="406" y="106">L ≤ thr, R &gt; thr</text>
+  <text class="sub mono" x="422" y="124">ωz = −1.2 (우회전), 0.65 s 유지</text>
+  <text class="lbl" x="406" y="150">L &gt; thr, R ≤ thr</text>
+  <text class="sub mono" x="422" y="168">ωz = +1.2 (좌회전), 0.65 s 유지</text>
+  <text class="lbl" x="406" y="194">L ≤ thr, R ≤ thr</text>
+  <text class="sub mono" x="422" y="212">ωz = +1.2 (좌회전), 1.31 s 유지</text>
+  <text class="lbl" x="406" y="238">둘 다 &gt; thr</text>
+  <text class="sub mono" x="422" y="256">vx = 0.2 직진, last_act = 0</text>
+  <text class="sub" x="406" y="282">회전 중 vx = speed/6 ≈ 0.033 m/s</text>
+  <text class="sub" x="406" y="298">직전 회전 방향이면 방향 유지(떨림 방지)</text>
+</svg><figcaption>회피 판단에 쓰는 좌우 섹터와 네 가지 규칙. 섹터 안 최소거리를 threshold와 비교합니다.</figcaption></figure>
+<h3 id="판단-규칙">판단 규칙<a class="anchor" href="#판단-규칙">#</a></h3>
+<p><code>w = speed × 6 = 1.2 rad/s</code>, 회전 중 전진 속도는 <code>speed / 6 ≈ 0.033 m/s</code>입니다(“돌 때는 앞으로 조금만, 회전은 크게”).</p>
+<div class="table-wrap"><table><thead><tr><th>조건 (L = 왼쪽 최소, R = 오른쪽 최소)</th><th>명령</th><th>잠금 시간</th><th><code>last_act</code></th></tr></thead><tbody><tr><td>L ≤ thr, R &gt; thr (왼쪽 막힘)</td><td>ωz = −w (우회전). 단 직전 <code>last_act</code>가 2 또는 3이면 +w</td><td>(π/2) / w / 2 = 0.65 s</td><td>1</td></tr><tr><td>L ≤ thr, R ≤ thr (양쪽 막힘)</td><td>ωz = +w (좌회전)</td><td>π / w / 2 = 1.31 s</td><td>3</td></tr><tr><td>L &gt; thr, R ≤ thr (오른쪽 막힘)</td><td>ωz = +w (좌회전). 단 직전 <code>last_act</code>가 1 또는 3이면 −w</td><td>0.65 s</td><td>2</td></tr><tr><td>둘 다 &gt; thr</td><td>vx = speed (직진)</td><td>없음</td><td>0</td></tr></tbody></table></div>
+<h3 id="타임스탬프-잠금-기다리지-않고-기다리기">타임스탬프 잠금 — 기다리지 않고 기다리기<a class="anchor" href="#타임스탬프-잠금-기다리지-않고-기다리기">#</a></h3>
+<p>회전 명령을 보낸 뒤 <code>self.timestamp = time.time() + 잠금 시간</code>을 기록하고, 다음 스캔부터는 <code>self.timestamp &lt;= time.time()</code>이 될 때까지 <strong>판단을 건너뜁니다.</strong> <code>time.sleep()</code>으로 기다리면 콜백 스레드가 멈추지만, 이 방식은 콜백이 즉시 돌아오므로 다른 서비스 호출도 처리됩니다. 잠금 동안은 아무것도 발행하지 않는데, 모터 보드가 <strong>마지막 명령을 유지</strong>하므로(M04) 로봇은 계속 돕니다.</p>
+<p>원본 주석은 "90° 회전", "180° 회전"이라고 적었지만 잠금 시간을 2로 나누므로 실제 회전량은 w × 시간 = <strong>45°</strong>, <strong>90°</strong> 입니다. 45° 돌고 나서도 여전히 막혀 있으면 다음 판단에서 다시 돌기 때문에 결과적으로 필요한 만큼 돕니다.</p>
+<h3 id="lastact-히스테리시스">last_act 히스테리시스<a class="anchor" href="#lastact-히스테리시스">#</a></h3>
+<p>모서리에서 "왼쪽 막힘 → 우회전 → 이제 오른쪽 막힘 → 좌회전 → 다시 왼쪽 막힘…"처럼 <strong>좌우로 떨며 갇히는</strong> 현상을 막기 위해, 직전에 다른 이유로 돌고 있었다면 새 판단을 무시하고 <strong>같은 방향으로 계속 돌게</strong> 합니다. 표의 "단 …" 조건이 그것입니다. 한 번 방향을 정하면 빠져나갈 때까지(직진 판단으로 <code>last_act = 0</code>이 될 때까지) 그 방향을 유지합니다. (양쪽 막힘 뒤 오른쪽 막힘이면 −w로 도는 등 완전히 대칭은 아닙니다. 원본 그대로입니다.)</p>
+<h3 id="애커만-버전의-회피">애커만 버전의 회피<a class="anchor" href="#애커만-버전의-회피">#</a></h3>
+<p>애커만은 제자리에서 돌 수 없어 규칙이 다릅니다(원본 <code>else</code> 분기).</p>
+<ul><li>왼쪽·오른쪽 막힘: <code>vx = speed</code>, <code>ωz = −vx / 0.1</code>(반경 0.1 m 우회전 요청 → 실제로는 29° 최대 조향), 1초 잠금.</li><li>양쪽 막힘: 서보를 가운데(1500)로 두고 <strong>0.3 m/s 후진</strong> 1초 → 이어서 0.5초 우회전 전진 → 0.1초 → 다시 판단.</li><li>직진: <code>vx = 0.3</code> 이고 <strong>서보 1500을 따로 발행</strong>합니다. ω = 0 명령만으로는 조향이 돌아오지 않는 문제(M02 함정 2) 때문입니다.</li></ul>
+<h2 id="행동-2-추종-mode-2">행동 2: 추종 (mode 2)<a class="anchor" href="#행동-2-추종-mode-2">#</a></h2>
+<figure class="fig" id="fig-m06-follow"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="라이다 추종과 경비의 제어 구조: 최근접점 각도와 거리를 각각 PD 제어기로 각속도와 선속도로 바꾼다">
+  <defs>
+    <marker id="arr-m06-follow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-m06-follow-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <text class="tag" x="360" y="18" text-anchor="middle">±45° 창 안에서 가장 가까운 점 (d, θ)</text>
+  <!-- row 1: yaw -->
+  <rect class="box" x="10" y="34" width="120" height="50" rx="6"/>
+  <text class="lbl mono" x="70" y="56" text-anchor="middle">θ</text>
+  <text class="sub" x="70" y="74" text-anchor="middle">최근접점 방향</text>
+  <rect class="box" x="150" y="34" width="150" height="50" rx="6"/>
+  <text class="sub" x="225" y="55" text-anchor="middle">d &lt; thr 이고</text>
+  <text class="sub" x="225" y="72" text-anchor="middle">|θ| &gt; 5° 일 때만</text>
+  <rect class="box-hi" x="320" y="34" width="160" height="50" rx="6"/>
+  <text class="lbl mono" x="400" y="56" text-anchor="middle">PID_yaw</text>
+  <text class="sub mono" x="400" y="74" text-anchor="middle">Kp 1.6, Ki 0, Kd 0.16</text>
+  <rect class="box" x="500" y="34" width="90" height="50" rx="6"/>
+  <text class="sub mono" x="545" y="64" text-anchor="middle">±1.2 제한</text>
+  <text class="lbl mono hi" x="650" y="64" text-anchor="middle">ωz</text>
+  <path d="M130 59 L148 59 M300 59 L318 59 M480 59 L498 59" style="stroke:var(--text-faint)" stroke-width="1.4" marker-end="url(#arr-m06-follow)"/>
+  <path d="M590 59 L630 59" style="stroke:var(--text-faint)" stroke-width="1.4" marker-end="url(#arr-m06-follow)"/>
+  <!-- row 2: distance -->
+  <rect class="box" x="10" y="124" width="120" height="50" rx="6"/>
+  <text class="lbl mono" x="70" y="146" text-anchor="middle">d</text>
+  <text class="sub" x="70" y="164" text-anchor="middle">최근접 거리</text>
+  <rect class="box" x="150" y="124" width="150" height="50" rx="6"/>
+  <text class="sub" x="225" y="145" text-anchor="middle">d &lt; thr 일 때만</text>
+  <text class="sub mono" x="225" y="162" text-anchor="middle">오차 = d − thr/2</text>
+  <rect class="box-hi" x="320" y="124" width="160" height="50" rx="6"/>
+  <text class="lbl mono" x="400" y="146" text-anchor="middle">PID_dist</text>
+  <text class="sub mono" x="400" y="164" text-anchor="middle">Kp 1.7, Ki 0, Kd 0.16</text>
+  <rect class="box" x="500" y="124" width="90" height="50" rx="6"/>
+  <text class="sub mono" x="545" y="154" text-anchor="middle">±speed 제한</text>
+  <text class="lbl mono hi" x="650" y="154" text-anchor="middle">vx</text>
+  <path d="M130 149 L148 149 M300 149 L318 149 M480 149 L498 149" style="stroke:var(--text-faint)" stroke-width="1.4" marker-end="url(#arr-m06-follow)"/>
+  <path d="M590 149 L630 149" style="stroke:var(--text-faint)" stroke-width="1.4" marker-end="url(#arr-m06-follow)"/>
+  <!-- merge -->
+  <path class="ln-hi" d="M672 64 L700 64 L700 214 L674 214" stroke-width="1.6" marker-end="url(#arr-m06-follow-hi)"/>
+  <path class="ln-hi" d="M672 154 L700 154" stroke-width="1.6"/>
+  <rect class="box-hi" x="470" y="194" width="200" height="40" rx="6"/>
+  <text class="lbl mono" x="570" y="219" text-anchor="middle">/controller/cmd_vel</text>
+  <text class="sub" x="20" y="212">추종 (mode 2): 두 줄 모두 사용 → 목표 거리 thr/2 = 0.3 m</text>
+  <text class="sub" x="20" y="232">경비 (mode 3): 윗줄만 사용 → 제자리에서 방향만 맞춤</text>
+  <text class="sub" x="20" y="262">데드밴드: |ωz| &lt; 0.008 → 0 , |vx| &lt; 0.05 → 0</text>
+  <text class="sub" x="20" y="282">PID 오차 = SetPoint(0) − 입력, 입력으로 −θ를 넣으므로 ωz ∝ +θ (물체 쪽으로 회전)</text>
+</svg><figcaption>추종·경비의 제어 구조. 최근접점의 각도와 거리가 각각 PD 제어기를 거쳐 ωz와 vx가 됩니다.</figcaption></figure>
+<p>좌·우 창을 이어 붙여(<code>np.append(right_range[::-1], left_range)</code>) 오른쪽 45°부터 왼쪽 45°까지 한 배열을 만들고, 유효한 값 중 최솟값 <code>dist</code>와 그 인덱스로 각도를 구합니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">angle = −scan_angle/2 + angle_increment · index        (−45° ~ +45°, + = 왼쪽)</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>제어</th><th>조건</th><th>계산 (원본)</th><th>출력 제한</th></tr></thead><tbody><tr><td>방향</td><td>dist &lt; thr 그리고 |angle| &gt; 5°</td><td><code>pid_yaw.update(-angle)</code> → 오차 = 0 − (−angle) = <strong>angle</strong></td><td>±speed·6 = ±1.2 rad/s</td></tr><tr><td>거리</td><td>dist &lt; thr 그리고 |0.2 − dist| &gt; 0.02</td><td><code>pid_dist.update(thr/2 − dist)</code> → 오차 = <strong>dist − thr/2</strong></td><td>±speed = ±0.2 m/s</td></tr><tr><td>데드밴드</td><td>—</td><td>|ωz| &lt; 0.008 → 0, |vx| &lt; 0.05 → 0</td><td>—</td></tr></tbody></table></div>
+<p>PID는 <code>sdk/pid.py</code>의 <code>PID(P, I, D)</code>로, <code>output = Kp·e + Ki·∫e + Kd·de/dt</code>(적분 누적 한계 ±20)입니다. 여기서는 Ki = 0이라 <strong>PD 제어</strong>입니다.</p>
+<ul><li>목표 거리는 <strong>thr/2 = 0.3 m</strong>입니다(교재 설명은 "약 0.35 m"). 거리 조건식의 0.2는 목표(0.3)와 다른 값이 남아 있는 것으로, 동작에는 큰 영향이 없습니다.</li><li>반응 범위 밖(dist ≥ thr)으로 물체가 멀어지면 추종을 포기합니다. 멀리 있는 사람을 따라가게 하려면 <code>set_param</code>으로 threshold를 키웁니다(최대 1.5 m → 목표 0.75 m).</li><li><code>|vx| &lt; 0.05</code> 데드밴드 때문에 오차가 0.05 / 1.7 ≈ 3 cm 안이면 멈춥니다. 떨림을 없애는 대신 3 cm 정도의 오차를 허용하는 설계입니다.</li></ul>
+<div class="callout callout-info"><div class="callout-title">움직이는 목표와 정상상태 오차</div><div class="callout-body"><p>목표가 속도 <span class="math">v_t</span>로 멀어지면, 로봇이 같은 속도로 따라가려면 <span class="math">vx = K_p · e = v_t</span>여야 하므로 <strong>오차가 <span class="math">e = v_t / K_p</span>만큼 남습니다.</strong> <span class="math">v_t</span> = 0.1 m/s, <span class="math">K_p</span> = 1.7이면 약 5.9 cm, 즉 목표 0.3 m보다 약 0.36 m 떨어져 따라갑니다. 교재가 말하는 "약 0.35 m"와 가깝습니다. 이 오차를 없애려면 적분항(Ki)이 필요합니다.</p></div></div>
+<p>애커만 추종은 목표 거리 0.5 m, 반응 거리 2 m, 속도 ±0.35 m/s, 조향각 ±0.316 rad(18.1°)로 제한하고 <code>ωz = vx · tan(조향각) / 0.145</code>로 바꿉니다(자전거 모델, M02). 각도 이력 15개로 평균·표준편차를 계산하는 코드가 있지만 결과는 쓰이지 않고 최신 각도가 그대로 쓰입니다.</p>
+<h2 id="행동-3-경비-mode-3">행동 3: 경비 (mode 3)<a class="anchor" href="#행동-3-경비-mode-3">#</a></h2>
+<p>추종에서 <strong>거리 제어를 뺀 것</strong>입니다. 가장 가까운 물체가 threshold 안에 있고 5°보다 옆에 있으면 방향 PD로 회전만 합니다. 메카넘은 제자리 회전이 되므로 카메라가 늘 물체를 향합니다. 애커만은 제자리 회전이 불가능해 원본 교재도 "애커만 버전은 경비를 지원하지 않는다"고 명시합니다(코드의 애커만 분기에도 mode 3이 없습니다).</p>
+<h2 id="파라미터-설계-정지-거리">파라미터 설계: 정지 거리<a class="anchor" href="#파라미터-설계-정지-거리">#</a></h2>
+<p>임계거리는 "멈추거나 돌기 시작해서 부딪히기 전까지 필요한 거리"보다 커야 합니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">d_필요 = r_로봇 + v·t_반응 + v² / (2·a)
+t_반응 ≈ 스캔 주기 0.1 s + 처리·통신 0.05 s</code></pre></div>
+<p>v = 0.2 m/s, a = 1.2 m/s², 로봇 반경 0.13 m이면 0.13 + 0.03 + 0.017 ≈ <strong>0.18 m</strong>입니다. 기본 0.6 m는 여유가 크고, 회피가 45°씩 돌며 판단을 반복할 시간을 줍니다. speed를 0.4로 올리면 필요 거리가 0.26 m로 늘고 회전 속도도 2.4 rad/s가 되어 스캔 한 장(0.1 s) 동안 14°를 돕니다. threshold와 speed는 <strong>함께</strong> 조정해야 합니다.</p>
+<h2 id="실습-시뮬레이션">실습 (시뮬레이션)<a class="anchor" href="#실습-시뮬레이션">#</a></h2>
+<p>시뮬레이터의 <code>/scan</code>은 인덱스 0이 후방이므로(M05), 원본의 인덱스 슬라이싱 대신 <strong>각도로 좌·우 창을 고르는</strong> 방식으로 같은 알고리즘을 옮깁니다.</p>
+<h3 id="1-장애물-회피-재현">1. 장애물 회피 재현<a class="anchor" href="#1-장애물-회피-재현">#</a></h3>
+<p>원본 mode 1(메카넘)의 판단·잠금·히스테리시스를 그대로 옮겼습니다. 원본처럼 <code>/controller/cmd_vel</code>에 발행합니다(ω = 1.2 rad/s는 <code>/cmd_vel</code>의 0.5 제한에 걸리기 때문).</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+import time
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist, Pose2D
+from sensor_msgs.msg import LaserScan
+import mentorpi_sim as sim                                        # 시뮬 전용
+sim.setup(chassis=&quot;mecanum&quot;, world=&quot;arena&quot;, duration=30.0,
+          start=(-1.5, -1.5, math.radians(45)), noise=True)       # 시뮬 전용
+
+THRESHOLD, SCAN_ANGLE, SPEED = 0.6, math.radians(90), 0.2
+NAMES = {0: &quot;직진&quot;, 1: &quot;왼쪽 막힘&quot;, 2: &quot;오른쪽 막힘&quot;, 3: &quot;양쪽 막힘&quot;}
+
+class Avoid(Node):
+    def __init__(self):
+        super().__init__(&quot;lidar_avoid&quot;)
+        self.pub = self.create_publisher(Twist, &quot;/controller/cmd_vel&quot;, 1)
+        self.create_subscription(LaserScan, &quot;/scan&quot;, self.on_scan, 1)
+        self.create_subscription(Pose2D, &quot;/ground_truth&quot;, self.on_gt, 10)
+        self.last_act, self.timestamp = 0, 0.0
+        self.count = {k: 0 for k in NAMES}
+        self.closest, self.path, self.prev = 9.9, 0.0, None
+
+    def on_gt(self, msg):
+        if self.prev:
+            self.path += math.hypot(msg.x - self.prev[0], msg.y - self.prev[1])
+        self.prev = (msg.x, msg.y)
+
+    def on_scan(self, msg):
+        r = np.array(msg.ranges)
+        th = msg.angle_min + np.arange(len(r)) * msg.angle_increment
+        ok = np.isfinite(r) &amp; (r &gt; 0)
+        left = r[ok &amp; (th &gt;= 0) &amp; (th &lt;= SCAN_ANGLE / 2)]
+        right = r[ok &amp; (th &lt; 0) &amp; (th &gt;= -SCAN_ANGLE / 2)]
+        if time.time() &lt; self.timestamp or len(left) &lt; 2 or len(right) &lt; 2:
+            return                                    # 잠금 중 또는 데이터 부족
+        dl, dr = left.min(), right.min()
+        self.closest = min(self.closest, dl, dr)
+        tw, w = Twist(), SPEED * 6.0
+        if dl &lt;= THRESHOLD and dr &gt; THRESHOLD:
+            tw.linear.x, tw.angular.z = SPEED / 6, (w if self.last_act in (2, 3) else -w)
+            self.last_act, self.timestamp = 1, time.time() + (math.pi / 2) / w / 2
+        elif dl &lt;= THRESHOLD and dr &lt;= THRESHOLD:
+            tw.linear.x, tw.angular.z = SPEED / 6, w
+            self.last_act, self.timestamp = 3, time.time() + math.pi / w / 2
+        elif dr &lt;= THRESHOLD:
+            tw.linear.x, tw.angular.z = SPEED / 6, (-w if self.last_act in (1, 3) else w)
+            self.last_act, self.timestamp = 2, time.time() + (math.pi / 2) / w / 2
+        else:
+            self.last_act, tw.linear.x = 0, SPEED
+        self.count[self.last_act] += 1
+        self.pub.publish(tw)
+
+rclpy.init()
+node = Avoid()
+try:
+    rclpy.spin(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    node.pub.publish(Twist())
+    print(&quot;판단 횟수:&quot;, {NAMES[k]: v for k, v in node.count.items()})
+    print(&quot;판단 시점 최소 거리 %.2f m, 실제 이동 거리 %.2f m&quot; % (node.closest, node.path))
+    node.destroy_node()
+    rclpy.shutdown()</code></pre></div>
+<p>(대략)</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">판단 횟수: {&#x27;직진&#x27;: 209, &#x27;왼쪽 막힘&#x27;: 4, &#x27;오른쪽 막힘&#x27;: 7, &#x27;양쪽 막힘&#x27;: 1}
+판단 시점 최소 거리 0.52 m, 실제 이동 거리 4.22 m</code></pre></div>
+<p>30초 동안 대부분은 직진 판단이고, 장애물 근처에서 좌·우 회피가 몇 번 일어납니다. 판단 시점의 최소 거리가 threshold(0.6 m)보다 조금 작은 0.5 m 안팎인 것은, 판단 사이(0.1 s 스캔 주기와 잠금 시간) 동안 로봇이 더 다가가기 때문입니다. 충돌이 나면 시뮬레이터가 <code>[sim …] 충돌!</code> 줄을 출력합니다. <code>THRESHOLD</code>를 0.3으로 줄이거나 <code>SPEED</code>를 0.4로 올려 충돌이 생기는지, <code>last_act</code> 조건을 지우면(항상 기본 방향) 모서리에서 떨림이 생기는지 비교해 보세요.</p>
+<h3 id="2-추종-움직이는-원통-따라가기">2. 추종 — 움직이는 원통 따라가기<a class="anchor" href="#2-추종-움직이는-원통-따라가기">#</a></h3>
+<p><code>sim.add_mover(0.8, 0, 0.1, 0)</code>은 로봇 앞 0.8 m에서 +x 방향으로 0.1 m/s로 움직이는 원통(반지름 0.1 m)입니다. <code>set_param</code>으로 threshold를 1.0 m로 키운 상황(목표 0.5 m)을 재현합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+import time
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist
+from sensor_msgs.msg import LaserScan
+import mentorpi_sim as sim                                        # 시뮬 전용
+sim.setup(chassis=&quot;mecanum&quot;, world=&quot;empty&quot;, duration=20.0,
+          start=(0.0, 0.0, 0.0), noise=True)                      # 시뮬 전용
+sim.add_mover(0.8, 0.0, 0.1, 0.0)                                 # 시뮬 전용
+
+THRESHOLD, HALF, SPEED = 1.0, math.radians(45), 0.2
+
+class PD:                                  # sdk/pid.py PID(P, 0, D)와 같은 계산
+    def __init__(self, kp, kd):
+        self.kp, self.kd, self.last_t = kp, kd, time.time()
+        self.clear()
+    def clear(self):
+        self.last_err, self.output = 0.0, 0.0
+    def update(self, feedback):
+        err, now = 0.0 - feedback, time.time()
+        dt = now - self.last_t
+        self.output = self.kp * err + (self.kd * (err - self.last_err) / dt if dt &gt; 0 else 0.0)
+        self.last_err, self.last_t = err, now
+
+class Follow(Node):
+    def __init__(self):
+        super().__init__(&quot;lidar_follow&quot;)
+        self.pub = self.create_publisher(Twist, &quot;/controller/cmd_vel&quot;, 1)
+        self.create_subscription(LaserScan, &quot;/scan&quot;, self.on_scan, 1)
+        self.pid_yaw, self.pid_dist = PD(1.6, 0.16), PD(1.7, 0.16)
+        self.t0, self.next_print = time.time(), 0.0
+
+    def on_scan(self, msg):
+        r = np.array(msg.ranges)
+        th = msg.angle_min + np.arange(len(r)) * msg.angle_increment
+        m = np.isfinite(r) &amp; (r &gt; 0) &amp; (np.abs(th) &lt;= HALF)
+        if not m.any():
+            return
+        i = np.argmin(np.where(m, r, np.inf))
+        dist, angle, tw = r[i], th[i], Twist()
+        if dist &lt; THRESHOLD and abs(math.degrees(angle)) &gt; 5:
+            self.pid_yaw.update(-angle)
+            tw.angular.z = max(-SPEED * 6, min(SPEED * 6, self.pid_yaw.output))
+        else:
+            self.pid_yaw.clear()
+        if dist &lt; THRESHOLD and abs(0.2 - dist) &gt; 0.02:
+            self.pid_dist.update(THRESHOLD / 2 - dist)
+            tw.linear.x = max(-SPEED, min(SPEED, self.pid_dist.output))
+        else:
+            self.pid_dist.clear()
+        tw.angular.z = 0.0 if abs(tw.angular.z) &lt; 0.008 else tw.angular.z
+        tw.linear.x = 0.0 if abs(tw.linear.x) &lt; 0.05 else tw.linear.x
+        self.pub.publish(tw)
+        t = time.time() - self.t0
+        if t &gt;= self.next_print:
+            print(&quot;t=%4.1f  거리 %.3f m  각도 %+5.1f°  vx %+.3f&quot; % (t, dist, math.degrees(angle), tw.linear.x))
+            self.next_print += 3.0
+
+rclpy.init()
+node = Follow()
+try:
+    rclpy.spin(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    node.pub.publish(Twist())
+    node.destroy_node()
+    rclpy.shutdown()</code></pre></div>
+<p>(대략)</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">t= 0.0  거리 0.698 m  각도  +0.0°  vx +0.200
+t= 3.0  거리 0.551 m  각도  +0.0°  vx +0.060
+t= 6.0  거리 0.564 m  각도  +0.0°  vx +0.120
+t= 9.0  거리 0.561 m  각도  +4.0°  vx +0.098
+t=12.0  거리 0.567 m  각도  -3.0°  vx +0.126
+t=15.0  거리 0.576 m  각도  +2.0°  vx +0.158
+t=18.0  거리 0.562 m  각도  +2.0°  vx +0.113</code></pre></div>
+<p>처음에는 0.7 m(표면까지)라 목표 0.5 m보다 멀어 0.2 m/s로 다가가고, 이후 원통 속도 0.1 m/s 근처로 따라갑니다. 거리가 0.5 m가 아니라 <strong>0.56 m 안팎</strong>에 머무는 것이 예측한 정상상태 오차 <span class="math">v_t/K_p</span> ≈ 0.06 m입니다. <code>PD(1.7, 0.16)</code>의 1.7을 3.4로 바꾸면 오차가 절반이 되는지 확인하세요.</p>
+<h3 id="3-경비-지나가는-물체를-향해-돌기">3. 경비 — 지나가는 물체를 향해 돌기<a class="anchor" href="#3-경비-지나가는-물체를-향해-돌기">#</a></h3>
+<p>원통이 로봇 앞을 가로질러 (0.7, 0.4)에서 −y 방향으로 0.08 m/s로 지나갑니다. 경비는 <strong>방향 제어만</strong> 하므로 로봇은 제자리에서 돕니다. 원통의 실제 방향은 <code>atan2(0.4 − 0.08t, 0.7)</code>로 계산할 수 있어 로봇 yaw와 비교합니다. threshold는 최대값 1.5 m로 둡니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+import time
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist, Pose2D
+from sensor_msgs.msg import LaserScan
+import mentorpi_sim as sim                                        # 시뮬 전용
+sim.setup(chassis=&quot;mecanum&quot;, world=&quot;empty&quot;, duration=20.0,
+          start=(0.0, 0.0, 0.0), noise=True)                      # 시뮬 전용
+sim.add_mover(0.7, 0.4, 0.0, -0.08)                               # 시뮬 전용
+
+THRESHOLD, HALF, SPEED, KP, KD = 1.5, math.radians(45), 0.2, 1.6, 0.16
+
+class Guard(Node):
+    def __init__(self):
+        super().__init__(&quot;lidar_guard&quot;)
+        self.pub = self.create_publisher(Twist, &quot;/controller/cmd_vel&quot;, 1)
+        self.create_subscription(LaserScan, &quot;/scan&quot;, self.on_scan, 1)
+        self.create_subscription(Pose2D, &quot;/ground_truth&quot;, self.on_gt, 10)
+        self.gt, self.last_err, self.last_t = None, 0.0, time.time()
+        self.t0, self.next_print = time.time(), 0.0
+
+    def on_gt(self, msg):
+        self.gt = msg
+
+    def on_scan(self, msg):
+        r = np.array(msg.ranges)
+        th = msg.angle_min + np.arange(len(r)) * msg.angle_increment
+        m = np.isfinite(r) &amp; (r &gt; 0) &amp; (np.abs(th) &lt;= HALF)
+        if not m.any() or self.gt is None:
+            return
+        i = np.argmin(np.where(m, r, np.inf))
+        dist, angle, tw = r[i], th[i], Twist()
+        now = time.time()
+        if dist &lt; THRESHOLD and abs(math.degrees(angle)) &gt; 5:
+            err = angle                                   # = 0 − (−angle)
+            d = (err - self.last_err) / (now - self.last_t) if now &gt; self.last_t else 0.0
+            tw.angular.z = max(-SPEED * 6, min(SPEED * 6, KP * err + KD * d))
+            self.last_err = err
+        else:
+            self.last_err = 0.0
+        self.last_t = now
+        self.pub.publish(tw)
+        t = now - self.t0
+        if t &gt;= self.next_print:
+            bearing = math.atan2(0.4 - 0.08 * t - self.gt.y, 0.7 - self.gt.x)
+            print(&quot;t=%4.1f  물체 방향 %+6.1f°  로봇 yaw %+6.1f°  라이다 각도 %+5.1f°&quot; % (
+                t, math.degrees(bearing), math.degrees(self.gt.theta), math.degrees(angle)))
+            self.next_print += 4.0
+
+rclpy.init()
+node = Guard()
+try:
+    rclpy.spin(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    node.pub.publish(Twist())
+    node.destroy_node()
+    rclpy.shutdown()</code></pre></div>
+<p>(대략)</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">t= 0.1  물체 방향  +29.2°  로봇 yaw   -0.0°  라이다 각도 +28.0°
+t= 4.0  물체 방향   +6.5°  로봇 yaw  +11.4°  라이다 각도  -6.0°
+t= 8.0  물체 방향  -19.0°  로봇 yaw  -11.4°  라이다 각도  -6.0°
+t=12.0  물체 방향  -38.7°  로봇 yaw  -34.5°  라이다 각도  -3.0°
+t=16.0  물체 방향  -51.6°  로봇 yaw  -46.5°  라이다 각도  -3.0°</code></pre></div>
+<p>처음 29° 옆에 있던 물체를 향해 돈 뒤, 로봇 yaw가 물체 방향을 <strong>4~8° 뒤처져</strong> 따라갑니다. ±5° 안에서는 제어하지 않는 <strong>데드밴드</strong> 때문에 오차가 0이 되지 않고, 물체가 움직이는 동안은 P 제어의 지연까지 더해집니다. 라이다 각도는 원통 <strong>표면의 최근접점</strong> 방향이라 중심 방향(물체 방향)과 1~2° 다를 수 있습니다.</p>
+<h3 id="2d-시뮬레이터의-라이다-모드">2D 시뮬레이터의 라이다 모드<a class="anchor" href="#2d-시뮬레이터의-라이다-모드">#</a></h3>
+<p class="cta-row"><a class="ghost-btn cta" href="../sim/index.html">2D 시뮬레이터 열기</a></p>
+<ol><li><strong>라이다 회피</strong> 모드를 켜고 경기장(arena)과 미로(maze)에서 각각 1분씩 관찰합니다. 미로의 막다른 곳에서 빠져나오는지, 갇혀서 제자리를 도는지 기록합니다.</li><li>회피 모드에서 threshold와 speed 설정을 바꿔(예: 0.3 m / 0.4 m/s) 충돌이 생기는 조합을 찾고, 위의 정지 거리 식으로 설명합니다.</li><li><strong>라이다 추종</strong> 모드에서 움직이는 물체를 추가하고, 물체가 threshold 밖으로 멀어지면 로봇이 추종을 포기하는 것을 확인합니다.</li><li><strong>라이다 경비</strong> 모드에서 물체를 로봇 옆(±45° 창 밖)으로 지나가게 하면 반응하지 않는 이유를 창 폭으로 설명합니다.</li></ol>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> 회피의 잠금 시간 0.65 s와 1.31 s가 어디서 나오는지, 실제 회전 각이 45°와 90°인 이유를 설명할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> 추종의 목표 거리(thr/2)와 움직이는 목표에서의 정상상태 오차를 계산할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> 애커만에서 경비가 안 되는 이유를 말할 수 있다.</label></li></ul></div></div>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">실물 라이다 앱 실행 전 확인</div><div class="callout-body"><ul><li>라이다 앱은 **제한 없는 <code>/controller/cmd_vel</code>** 로 회전 1.2 rad/s까지 냅니다. 사방 1.5 m를 비우고 깨지기 쉬운 물건을 치웁니다.</li><li>장애물은 라이다 높이(약 16 cm)보다 <strong>높은</strong> 물체(책, 상자)를 씁니다. 낮은 물체는 보이지 않아 그대로 부딪힙니다.</li><li>추종 실습에서 사람 다리를 따라가게 할 때 로봇이 발에 닿지 않도록 threshold를 너무 작게 하지 않습니다.</li><li>끝나면 반드시 <code>set_running 0</code> → <code>exit</code> 순서로 멈춥니다. Ctrl+C만 누르면 마지막 명령이 남아 로봇이 계속 갈 수 있습니다.</li></ul></div></div>
+<p>원본 Lesson 3~5의 명령행 절차입니다. <code>debug:=true</code>는 라이다(<code>lidar.launch.py</code>)와 섀시(<code>controller.launch.py</code>)까지 함께 띄웁니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">~/.stop_ros.sh
+ros2 launch app lidar_node.launch.py debug:=true</code></pre></div>
+<p>새 터미널에서 게임에 들어가고 모드를 고릅니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 service call /lidar_app/enter std_srvs/srv/Trigger {}
+ros2 service call /lidar_app/set_running interfaces/srv/SetInt64 &quot;{data: 1}&quot;   # 1 회피, 2 추종, 3 경비</code></pre></div>
+<p>파라미터는 <code>[threshold, scan_angle(°), speed]</code> 순서입니다. 예: 임계 0.5 m, 창 90°, 속도 0.15 m/s.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 service call /lidar_app/set_param interfaces/srv/SetFloat64List &quot;{data: [0.5, 90.0, 0.15]}&quot;</code></pre></div>
+<p>원본 코드는 값을 정상 적용한 경우에도 응답의 <code>success</code>를 True로 채우지 않아 <code>success=False</code>로 보입니다. 범위를 벗어난 경우에만 <code>message</code>에 이유가 담기므로 메시지로 판단하세요. 정지와 종료, 앱 서비스 복구:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 service call /lidar_app/set_running interfaces/srv/SetInt64 &quot;{data: 0}&quot;
+ros2 service call /lidar_app/exit std_srvs/srv/Trigger {}
+sudo systemctl restart start_node.service        # Docker 밖 시스템 터미널에서</code></pre></div>
+<p>여러분이 시뮬레이터에서 만든 노드(실습 1~3)를 실물에서 돌리려면 <code># 시뮬 전용</code> 줄과 <code>/ground_truth</code> 관련 줄을 지우고, 토픽을 <code>/scan_raw</code>로, QoS를 <code>qos_profile_sensor_data</code>로 바꿉니다. 원본 앱과 <strong>동시에 실행하지 않습니다</strong>(두 노드가 같은 <code>/controller/cmd_vel</code>에 서로 다른 명령을 보냄).</p>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td><code>set_running</code>을 불렀는데 로봇이 안 움직임</td><td><code>enter</code>를 먼저 호출하지 않아 <code>/scan_raw</code> 구독이 없음</td><td><code>enter</code> → <code>set_running</code> 순서</td></tr><tr><td>추종 모드에서 터미널이 숫자로 가득 참</td><td>원본 mode 2가 매 스캔 <code>ranges</code> 전체를 로그로 출력</td><td>정상(디버그 출력). 성능이 문제면 해당 로그 줄을 주석 처리</td></tr><tr><td>추종을 시작해도 물체를 따라가지 않음</td><td>물체가 threshold(기본 0.6 m) 밖 또는 ±45° 창 밖</td><td>물체를 앞 0.5 m 안에 두거나 <code>set_param</code>으로 threshold 증가</td></tr><tr><td>모서리에서 좌우로 떨며 갇힘</td><td>직접 구현에서 <code>last_act</code> 히스테리시스 누락</td><td>직전 회전 방향 유지 규칙 추가</td></tr><tr><td>회피 중 벽에 스침</td><td>라이다보다 낮은 부분·차체 폭, 너무 높은 speed</td><td>threshold 증가, speed 감소, 정지 거리 식으로 점검</td></tr><tr><td>앱으로 켠 게임이 몇 초 뒤 저절로 꺼짐</td><td>앱 하트비트(5 s) 끊김</td><td>앱 연결 유지, 명령행 사용 시에는 무관</td></tr><tr><td>애커만에서 mode 3이 아무 반응 없음</td><td>원본에 애커만 경비 분기가 없음</td><td>정상. 메카넘에서만 지원</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">개인 과제</div><div class="callout-body"><ol><li><strong>(기본)</strong> 실습 1의 <code>THRESHOLD</code>를 0.3, 0.45, 0.6, 0.9 m로 바꿔 30초 동안의 충돌 횟수·판단 횟수·이동 거리를 표로 정리하고, 정지 거리 식으로 결과를 설명하세요.</li><li><strong>(기본)</strong> 실습 2의 원통 속도를 0.05, 0.1, 0.15 m/s로 바꿔 정상상태 거리 오차를 측정하고 <span class="math">v_t/K_p</span> 예측과 비교하세요.</li><li><strong>(심화)</strong> 실습 2에 적분항(Ki = 0.5, 적분 한계 ±0.2)을 추가해 정상상태 오차가 사라지는지, 대신 무엇이 나빠지는지(오버슈트) 관찰하세요.</li><li><strong>(심화)</strong> 회피 알고리즘을 개선하세요: 좌·우 두 섹터 대신 5개 섹터의 최소거리를 구해 <strong>가장 트인 방향</strong>으로 도는 방식(간단한 VFH)으로 바꾸고, maze 월드에서 원본 방식과 60초 이동 거리를 비교하세요.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>10. Lidar Lesson — Lesson 3 Lidar Obstacle Avoidance</em>, <em>Lesson 4 Lidar Following</em>, <em>Lesson 5 Lidar Guarding</em></li><li>원본 소스: <code>src/app/app/lidar_controller.py</code>, <code>src/app/launch/lidar_node.launch.py</code>, <code>src/app/app/common.py</code>(Heart), <code>src/driver/sdk/sdk/pid.py</code></li><li>R. Arkin, <em>Behavior-Based Robotics</em>, MIT Press, 1998 (반응형·행동 기반 제어)</li><li>Borenstein &amp; Koren, <em>The Vector Field Histogram — Fast Obstacle Avoidance for Mobile Robots</em>, IEEE T-RA 1991: https://ieeexplore.ieee.org/document/88137</li><li>ROS 2 서비스 호출 (<code>ros2 service call</code>): https://docs.ros.org/en/humble/Tutorials/Beginner-CLI-Tools/Understanding-ROS2-Services/Understanding-ROS2-Services.html</li></ul>
+      <nav class="pager"><a class="pager-prev" href="m05.html"><span>이전 · M05</span>라이다 원리와 LaserScan</a><a class="pager-next" href="m07.html"><span>다음 · M07</span>깊이 카메라와 포인트 클라우드</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#반응형-행동이란">반응형 행동이란</a><a class="toc-l2" href="#원본-lidarcontroller-py-구조">원본 lidar_controller.py 구조</a><a class="toc-l3" href="#초기값과-데이터-전처리">초기값과 데이터 전처리</a><a class="toc-l2" href="#행동-1-장애물-회피-mode-1-메카넘">행동 1: 장애물 회피 (mode 1, 메카넘)</a><a class="toc-l3" href="#판단-규칙">판단 규칙</a><a class="toc-l3" href="#타임스탬프-잠금-기다리지-않고-기다리기">타임스탬프 잠금 — 기다리지 않고 기다리기</a><a class="toc-l3" href="#lastact-히스테리시스">last_act 히스테리시스</a><a class="toc-l3" href="#애커만-버전의-회피">애커만 버전의 회피</a><a class="toc-l2" href="#행동-2-추종-mode-2">행동 2: 추종 (mode 2)</a><a class="toc-l2" href="#행동-3-경비-mode-3">행동 3: 경비 (mode 3)</a><a class="toc-l2" href="#파라미터-설계-정지-거리">파라미터 설계: 정지 거리</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l3" href="#1-장애물-회피-재현">1. 장애물 회피 재현</a><a class="toc-l3" href="#2-추종-움직이는-원통-따라가기">2. 추종 — 움직이는 원통 따라가기</a><a class="toc-l3" href="#3-경비-지나가는-물체를-향해-돌기">3. 경비 — 지나가는 물체를 향해 돌기</a><a class="toc-l3" href="#2d-시뮬레이터의-라이다-모드">2D 시뮬레이터의 라이다 모드</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

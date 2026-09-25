@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A08. YOLOv5 데이터셋·학습·배포 · studyMentorPi</title>
+<meta name="description" content="사진 수집, labelImg 라벨링, 데이터셋 구성과 학습, 모델 변환 후 yolov5_ros2 노드로 로봇에서 추론.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-ai">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" class="active" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="a08" data-track="ai">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-ai">비전 AI·자율주행</span> A-3 머신러닝·YOLOv5 &middot; 약 120분 &middot; 고급</div>
+    <h1><span class="lesson-no">A08</span>YOLOv5 데이터셋·학습·배포</h1>
+    <p class="lede">사진 수집, labelImg 라벨링, 데이터셋 구성과 학습, 모델 변환 후 yolov5_ros2 노드로 로봇에서 추론.</p>
+    <div class="requires">선수 챕터: <a href="a07.html">A07</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>사진 수집(<code>collect_picture</code>) → 라벨링(<code>labelImg</code>) → 변환(<code>xml2yolo.py</code>) → 학습(<code>train.py</code>) → 배포(<code>yolov5_ros2</code>) 전체 흐름을 직접 수행합니다.</li><li>PASCAL VOC XML 라벨과 YOLO txt 라벨의 차이를 알고, 정규화 좌표 변환을 손으로 계산합니다.</li><li><code>--img</code>, <code>--batch</code>, <code>--epochs</code>, <code>--weights</code>와 <code>hyp.scratch-low.yaml</code>의 주요 하이퍼파라미터(학습률·워밍업·증강)가 무엇을 바꾸는지 설명합니다.</li><li><code>results.csv</code>의 손실·mAP 곡선을 읽고 과적합·과소적합을 판단합니다.</li><li>학습한 <code>best.pt</code>를 로봇의 YOLOv5 노드에 넣고 <code>/yolov5_ros2/object_detect</code> 토픽으로 결과를 확인합니다.</li></ul>
+<h2 id="전체-흐름">전체 흐름<a class="anchor" href="#전체-흐름">#</a></h2>
+<figure class="fig" id="fig-a08-workflow"><svg viewBox="0 0 720 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="YOLOv5 데이터셋 제작부터 배포까지의 흐름">
+  <defs>
+    <marker id="arr-a08-workflow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <!-- row 1 -->
+  <rect class="box" x="15" y="30" width="200" height="70" rx="6"/>
+  <text class="lbl" x="115" y="55" text-anchor="middle">① 수집 collect_picture</text>
+  <text class="sub mono" x="115" y="75" text-anchor="middle">JPEGImages/*.jpg</text>
+  <text class="tag" x="115" y="92" text-anchor="middle">640×480, 클래스당 200장+</text>
+
+  <rect class="box" x="260" y="30" width="200" height="70" rx="6"/>
+  <text class="lbl" x="360" y="55" text-anchor="middle">② 라벨링 labelImg</text>
+  <text class="sub mono" x="360" y="75" text-anchor="middle">Annotations/*.xml</text>
+  <text class="tag" x="360" y="92" text-anchor="middle">W 상자 · Ctrl+S 저장 · D 다음</text>
+
+  <rect class="box" x="505" y="30" width="200" height="70" rx="6"/>
+  <text class="lbl" x="605" y="55" text-anchor="middle">③④ xml2yolo.py</text>
+  <text class="sub mono" x="605" y="75" text-anchor="middle">*.txt · train/val.txt</text>
+  <text class="tag" x="605" y="92" text-anchor="middle">classes.names → data.yaml</text>
+
+  <path class="ln" d="M215 65 L258 65" marker-end="url(#arr-a08-workflow)"/>
+  <path class="ln" d="M460 65 L503 65" marker-end="url(#arr-a08-workflow)"/>
+  <path class="ln" d="M605 100 L605 150" marker-end="url(#arr-a08-workflow)"/>
+
+  <!-- row 2 -->
+  <rect class="box-hi" x="505" y="152" width="200" height="80" rx="6"/>
+  <text class="lbl" x="605" y="176" text-anchor="middle">⑤ train.py (PC 권장)</text>
+  <text class="sub mono" x="605" y="196" text-anchor="middle">--img 640 --batch 8</text>
+  <text class="sub mono" x="605" y="214" text-anchor="middle">--epochs 300 --weights yolov5n.pt</text>
+
+  <rect class="box" x="260" y="152" width="200" height="80" rx="6"/>
+  <text class="lbl" x="360" y="176" text-anchor="middle">runs/train/expN</text>
+  <text class="sub mono" x="360" y="196" text-anchor="middle">weights/best.pt</text>
+  <text class="tag" x="360" y="214" text-anchor="middle">results.csv · PR_curve.png</text>
+
+  <rect class="box" x="15" y="152" width="200" height="80" rx="6"/>
+  <text class="lbl" x="115" y="176" text-anchor="middle">⑥ yolov5_ros2</text>
+  <text class="sub mono" x="115" y="196" text-anchor="middle">config/best.pt → 빌드</text>
+  <text class="tag" x="115" y="214" text-anchor="middle">yolo_detect -p model:=best</text>
+
+  <path class="ln" d="M505 192 L462 192" marker-end="url(#arr-a08-workflow)"/>
+  <path class="ln" d="M260 192 L217 192" marker-end="url(#arr-a08-workflow)"/>
+  <text class="tag" x="238" y="184" text-anchor="middle">cp</text>
+
+  <path class="ln" d="M115 232 L115 262" marker-end="url(#arr-a08-workflow)"/>
+  <text class="sub mono" x="130" y="280">/yolov5_ros2/object_detect · /yolo_result · /result_img</text>
+</svg><figcaption>데이터셋 제작부터 로봇 배포까지. 각 단계의 도구와 만들어지는 파일을 함께 표시했습니다.</figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th>단계</th><th>도구 (로봇 경로)</th><th>결과물</th></tr></thead><tbody><tr><td>① 수집</td><td><code>~/software/collect_picture/main.py</code></td><td><code>my_data/JPEGImages/*.jpg</code> (640×480)</td></tr><tr><td>② 라벨링</td><td><code>~/software/labelImg/labelImg.py</code></td><td><code>my_data/Annotations/*.xml</code> (VOC 형식)</td></tr><tr><td>③ 클래스 정의</td><td>편집기</td><td><code>my_data/classes.names</code> (한 줄에 하나)</td></tr><tr><td>④ 변환·분할</td><td><code>~/software/collect_picture/xml2yolo.py</code></td><td><code>JPEGImages/*.txt</code>, <code>ImageSets/train.txt·val.txt·test.txt</code>, <code>data.yaml</code></td></tr><tr><td>⑤ 학습</td><td><code>~/software/yolov5/train.py</code></td><td><code>yolov5/runs/train/expN/weights/best.pt</code></td></tr><tr><td>⑥ 배포</td><td><code>~/ros2_ws/src/yolov5_ros2/config/</code></td><td><code>yolo_detect</code> 노드가 <code>.pt</code>를 불러 추론</td></tr></tbody></table></div>
+<div class="callout callout-warn"><div class="callout-title">로봇에서 학습해도 되나요?</div><div class="callout-body"><p>원본 교재도 밝히듯 Raspberry Pi의 CPU·메모리·저장장치 속도로는 학습이 매우 느립니다. 수십 장짜리 연습은 로봇에서 해 봐도 되지만, 클래스당 200장 이상인 실제 데이터셋은 <strong>GPU가 있는 PC나 클라우드</strong>에서 학습하고 <code>best.pt</code>만 로봇으로 복사하는 것이 정석입니다. 이때 <code>data.yaml</code>과 <code>train.txt</code>·<code>val.txt</code> 안의 경로를 PC 경로로 바꿔야 합니다.</p></div></div>
+<h2 id="사진-수집">① 사진 수집<a class="anchor" href="#사진-수집">#</a></h2>
+<p><code>collect_picture/main.py</code>는 카메라 토픽(<code>/ascamera/camera_publisher/rgb0/image</code>)을 받아 보여 주는 Qt 프로그램입니다. <code>Save(space)</code>를 누르거나 스페이스바를 치면 현재 프레임을 <code>config.ini</code>의 크기(640×480)로 맞춰 <code>저장경로/JPEGImages/</code>에 저장합니다. 화면 왼쪽 위의 <code>save number</code>는 이번 사진 번호, <code>existing</code>은 폴더에 있는 사진 수입니다.</p>
+<p>좋은 데이터셋의 조건:</p>
+<ul><li><strong>다양성</strong>: 거리(30 cm ~ 1.5 m), 각도(정면·비스듬히), 기울기, 조명(밝음·어두움·역광), 배경을 골고루 섞습니다. 모델은 <strong>본 적 있는 조건만</strong> 잘 맞힙니다.</li><li><strong>실제 사용 조건과 같게</strong>: 자율주행 표지판이라면 로봇 카메라 높이에서, 맵 위에 놓인 상태로 찍습니다. 손에 들고 찍은 사진만으로 학습하면 맵 위에서 성능이 떨어집니다.</li><li><strong>양</strong>: 원본 교재 권장은 <strong>클래스당 200장 이상</strong>입니다. 클래스 사이 장수가 크게 차이 나면(예: <code>go</code> 500장, <code>park</code> 50장) 모델이 많은 쪽으로 치우칩니다.</li><li><strong>음성 예</strong>: 표지판이 없는 맵 사진도 일부 넣으면 "아무것도 없음"을 배워 오검출이 줄어듭니다. 단, <code>xml2yolo.py</code>는 <strong>XML 파일이 있는 사진만</strong> 학습 목록에 넣으므로 음성 예에도 물체 없는 라벨 파일이 있어야 합니다.</li></ul>
+<h2 id="labelimg-라벨링">② labelImg 라벨링<a class="anchor" href="#labelimg-라벨링">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>단축키</th><th>기능</th></tr></thead><tbody><tr><td><code>Ctrl+U</code></td><td>사진 폴더(JPEGImages) 열기</td></tr><tr><td><code>Ctrl+R</code></td><td>라벨 저장 폴더(Annotations) 지정</td></tr><tr><td><code>W</code></td><td>상자 그리기 시작</td></tr><tr><td><code>Ctrl+S</code></td><td>현재 사진 라벨 저장</td></tr><tr><td><code>A</code> / <code>D</code></td><td>이전 / 다음 사진</td></tr></tbody></table></div>
+<p>상자를 그린 뒤 뜨는 창에 클래스 이름(예: <code>right</code>, <code>turn_around</code>)을 입력합니다. 이름은 대소문자·밑줄까지 <code>classes.names</code>와 <strong>글자 하나 다르지 않게</strong> 맞춰야 합니다. 상자는 물체 테두리에 딱 붙게 그립니다. 여백을 크게 잡으면 모델도 여백까지 물체로 배워 <code>mAP_0.5:0.95</code>가 낮아집니다.</p>
+<p>labelImg는 PASCAL VOC 형식 XML을 저장합니다. 사진 한 장당 파일 하나이고, 물체마다 <code>&lt;object&gt;</code>가 하나씩 들어갑니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">&lt;annotation&gt;
+  &lt;filename&gt;12.jpg&lt;/filename&gt;
+  &lt;size&gt;&lt;width&gt;640&lt;/width&gt;&lt;height&gt;480&lt;/height&gt;&lt;depth&gt;3&lt;/depth&gt;&lt;/size&gt;
+  &lt;object&gt;
+    &lt;name&gt;right&lt;/name&gt;&lt;pose&gt;Unspecified&lt;/pose&gt;&lt;truncated&gt;0&lt;/truncated&gt;&lt;difficult&gt;0&lt;/difficult&gt;
+    &lt;bndbox&gt;&lt;xmin&gt;250&lt;/xmin&gt;&lt;ymin&gt;120&lt;/ymin&gt;&lt;xmax&gt;330&lt;/xmax&gt;&lt;ymax&gt;210&lt;/ymax&gt;&lt;/bndbox&gt;
+  &lt;/object&gt;
+&lt;/annotation&gt;</code></pre></div>
+<h2 id="yolo-형식으로-변환">③④ YOLO 형식으로 변환<a class="anchor" href="#yolo-형식으로-변환">#</a></h2>
+<figure class="fig" id="fig-a08-yolo-label"><svg viewBox="0 0 720 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="VOC 라벨과 YOLO 라벨 좌표 비교">
+  <defs>
+    <marker id="arr-a08-yolo-label" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <!-- image frame 640x480 scaled 0.5 -->
+  <rect class="box" x="30" y="30" width="320" height="240"/>
+  <text class="tag" x="30" y="22">(0,0)</text>
+  <text class="tag" x="350" y="286" text-anchor="end">(640,480)</text>
+  <!-- bbox 250,120 - 330,210 → scaled 125,60 - 165,105 -->
+  <rect style="fill:none;stroke:var(--accent)" x="155" y="90" width="40" height="45" stroke-width="2.5"/>
+  <circle class="hi" cx="175" cy="112.5" r="4"/>
+  <circle class="box" cx="155" cy="90" r="3"/>
+  <circle class="box" cx="195" cy="135" r="3"/>
+  <text class="tag mono" x="40" y="70">(xmin, ymin) = (250, 120)</text>
+  <text class="tag mono" x="200" y="150">(xmax, ymax) = (330, 210)</text>
+  <text class="tag" x="183" y="116">중심</text>
+  <path class="ln" d="M30 112.5 L150 112.5" stroke-dasharray="3 3"/>
+  <!-- right side -->
+  <text class="lbl" x="390" y="50">VOC (labelImg XML)</text>
+  <text class="sub mono" x="390" y="72">픽셀 모서리: 250 120 330 210</text>
+  <path class="ln" d="M470 90 L470 120" marker-end="url(#arr-a08-yolo-label)"/>
+  <text class="tag" x="480" y="110">÷ 영상 크기 (W=640, H=480)</text>
+  <text class="lbl" x="390" y="148">YOLO (.txt 한 줄)</text>
+  <text class="sub mono" x="390" y="170">1 0.453125 0.34375 0.125 0.1875</text>
+  <text class="tag" x="390" y="192">클래스 · x중심 · y중심 · 폭 · 높이 (모두 0~1)</text>
+  <text class="sub" x="390" y="228">x중심 = (250+330)/(2·640) = 0.453</text>
+  <text class="sub" x="390" y="248">폭 = (330−250)/640 = 0.125</text>
+  <text class="sub" x="390" y="268">클래스 1 = classes.names 두 번째 줄 'right'</text>
+</svg><figcaption>VOC(픽셀 모서리 좌표)에서 YOLO(정규화 중심·크기)로의 변환.</figcaption></figure>
+<p>YOLOv5는 사진과 **같은 이름의 <code>.txt</code>** 파일을 라벨로 읽습니다. 한 줄이 물체 하나이고, 모든 좌표는 영상 크기로 나눈 0~1 값입니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">&lt;클래스번호&gt; &lt;x_center&gt; &lt;y_center&gt; &lt;width&gt; &lt;height&gt;
+x_center = (xmin + xmax) / (2·W)      width  = (xmax − xmin) / W
+y_center = (ymin + ymax) / (2·H)      height = (ymax − ymin) / H</code></pre></div>
+<p>정규화하는 이유는 학습 때 사진 크기를 바꾸거나(<code>--img 640</code>) 뒤집고 잘라도(증강) 라벨을 쉽게 따라 바꾸기 위해서입니다. 클래스 번호는 <code>classes.names</code>의 <strong>줄 순서(0부터)</strong>입니다.</p>
+<p><code>xml2yolo.py</code>가 하는 일을 그대로 옮긴 코드로 확인합니다.</p>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import xml.etree.ElementTree as ET
+
+xml_text = &quot;&quot;&quot;&lt;annotation&gt;
+  &lt;folder&gt;JPEGImages&lt;/folder&gt;&lt;filename&gt;12.jpg&lt;/filename&gt;
+  &lt;size&gt;&lt;width&gt;640&lt;/width&gt;&lt;height&gt;480&lt;/height&gt;&lt;depth&gt;3&lt;/depth&gt;&lt;/size&gt;
+  &lt;object&gt;&lt;name&gt;right&lt;/name&gt;&lt;pose&gt;Unspecified&lt;/pose&gt;&lt;truncated&gt;0&lt;/truncated&gt;
+    &lt;difficult&gt;0&lt;/difficult&gt;
+    &lt;bndbox&gt;&lt;xmin&gt;250&lt;/xmin&gt;&lt;ymin&gt;120&lt;/ymin&gt;&lt;xmax&gt;330&lt;/xmax&gt;&lt;ymax&gt;210&lt;/ymax&gt;&lt;/bndbox&gt;
+  &lt;/object&gt;
+  &lt;object&gt;&lt;name&gt;park&lt;/name&gt;&lt;pose&gt;Unspecified&lt;/pose&gt;&lt;truncated&gt;0&lt;/truncated&gt;
+    &lt;difficult&gt;0&lt;/difficult&gt;
+    &lt;bndbox&gt;&lt;xmin&gt;420&lt;/xmin&gt;&lt;ymin&gt;100&lt;/ymin&gt;&lt;xmax&gt;500&lt;/xmax&gt;&lt;ymax&gt;196&lt;/ymax&gt;&lt;/bndbox&gt;
+  &lt;/object&gt;
+&lt;/annotation&gt;&quot;&quot;&quot;
+class_names = [&quot;go&quot;, &quot;right&quot;, &quot;park&quot;, &quot;red&quot;, &quot;green&quot;, &quot;crosswalk&quot;]   # classes.names 순서
+
+root = ET.fromstring(xml_text)
+W = int(root.find(&quot;size&quot;)[0].text)
+H = int(root.find(&quot;size&quot;)[1].text)
+for member in root.findall(&quot;object&quot;):            # xml2yolo.single_xml_to_txt 와 같은 계산
+    cls = class_names.index(member[0].text)
+    xmin, ymin, xmax, ymax = (int(member[4][k].text) for k in range(4))
+    xc = (xmin + xmax) / (2 * W)
+    yc = (ymin + ymax) / (2 * H)
+    bw = (xmax - xmin) / W
+    bh = (ymax - ymin) / H
+    print(cls, xc, yc, bw, bh)
+
+def split_counts(n):                              # xml2yolo.split(): 5 % / 15 % / 80 %
+    o1, o2 = int(n * 0.05), int(n * 0.2)
+    return {&quot;test&quot;: o1, &quot;val&quot;: o2 - o1, &quot;train&quot;: n - o2}
+for n in (37, 200, 1200):
+    print(n, &quot;장 →&quot;, split_counts(n))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">1 0.453125 0.34375 0.125 0.1875
+2 0.71875 0.30833333333333335 0.125 0.2
+37 장 → {&#x27;test&#x27;: 1, &#x27;val&#x27;: 6, &#x27;train&#x27;: 30}
+200 장 → {&#x27;test&#x27;: 10, &#x27;val&#x27;: 30, &#x27;train&#x27;: 160}
+1200 장 → {&#x27;test&#x27;: 60, &#x27;val&#x27;: 180, &#x27;train&#x27;: 960}</code></pre></div>
+<p><code>xml2yolo.py</code>에서 알아 둘 동작:</p>
+<ul><li><code>member[4]</code>처럼 <strong>자식 순서</strong>로 <code>bndbox</code>를 찾습니다. labelImg가 만든 XML은 순서가 <code>name, pose, truncated, difficult, bndbox</code>로 고정이라 동작하지만, 다른 도구로 만든 XML은 순서가 달라 실패할 수 있습니다. 오류는 <code>except: pass</code>로 <strong>조용히 무시</strong>되므로 변환 후 클래스별 개수 출력(<code>right:120</code> 등)을 꼭 확인합니다.</li><li>사진을 무작위로 섞은 뒤 <strong>test 5 %, val 15 %, train 80 %</strong>로 나눕니다. <code>random.seed</code>를 고정하지 않아 실행할 때마다 분할이 달라집니다.</li><li><code>.txt</code> 라벨은 <code>Annotations</code>가 아니라 **<code>JPEGImages</code> 폴더의 사진 옆**에 씁니다. YOLOv5는 사진 경로의 <code>/images/</code>를 <code>/labels/</code>로 바꿔 라벨을 찾는데, 경로에 <code>images</code> 폴더가 없으면 사진과 같은 폴더에서 찾기 때문입니다.</li><li><code>train.txt</code>에는 <code>--data</code>로 준 경로를 이어 붙인 사진 경로가 들어갑니다. <strong>상대 경로로 실행하면 상대 경로가 기록</strong>되어, 다른 폴더에서 학습을 돌릴 때 사진을 못 찾습니다. 원본 교재가 <code>data.yaml</code>·<code>train.txt</code>·<code>val.txt</code>를 절대 경로로 고치게 하는 이유입니다. 처음부터 절대 경로로 실행하면 수정이 필요 없습니다.</li></ul>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">python3 ~/software/collect_picture/xml2yolo.py \
+  --data /home/ubuntu/software/collect_picture/my_data \
+  --yaml /home/ubuntu/software/collect_picture/my_data/data.yaml</code></pre></div>
+<p>생성된 <code>data.yaml</code>은 다음과 같습니다(키 순서는 yaml.dump가 알파벳순으로 씀).</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">names:
+- turn_around
+nc: 1
+train: /home/ubuntu/software/collect_picture/my_data/ImageSets/train.txt
+val: /home/ubuntu/software/collect_picture/my_data/ImageSets/val.txt</code></pre></div>
+<h2 id="학습">⑤ 학습<a class="anchor" href="#학습">#</a></h2>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">unzip software/yolov5.zip -d software/        # 처음 한 번
+python3 software/yolov5/train.py --img 640 --batch 8 --epochs 300 \
+  --data software/collect_picture/my_data/data.yaml --weights software/yolov5/yolov5n.pt</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>인자</th><th>의미</th><th>고르는 법</th></tr></thead><tbody><tr><td><code>--img 640</code></td><td>학습·검증 입력 크기(정사각형, 32의 배수)</td><td>작은 표지판을 멀리서 잡아야 하면 크게. 추론 속도는 크기²에 비례</td></tr><tr><td><code>--batch 8</code></td><td>한 번에 넣는 사진 수</td><td>메모리가 허락하는 만큼. 작으면 BN 통계가 흔들림</td></tr><tr><td><code>--epochs 300</code></td><td>전체 데이터를 몇 바퀴 학습</td><td>데이터가 적을수록 많이. <code>--patience 100</code>이면 100 epoch 동안 개선 없을 때 조기 종료</td></tr><tr><td><code>--weights yolov5n.pt</code></td><td>시작 가중치</td><td>COCO로 미리 학습한 가중치에서 출발(전이 학습). <code>n</code>(nano)은 가볍고 <code>s</code>(small)는 정확</td></tr><tr><td><code>--data</code></td><td><code>data.yaml</code> 경로</td><td>클래스 수 <code>nc</code>와 경로 확인</td></tr></tbody></table></div>
+<p><strong>전이 학습(transfer learning)</strong>이 핵심입니다. <code>yolov5n.pt</code>는 COCO 80개 클래스로 이미 "모서리·원·글자 모양" 같은 일반 특징을 배운 상태입니다. 백본의 이 지식을 그대로 두고 헤드를 새 클래스에 맞추므로 수백 장만으로도 학습이 됩니다. 처음부터(<code>--weights &#x27;&#x27;</code>) 학습하면 수만 장이 필요합니다.</p>
+<h3 id="하이퍼파라미터와-학습률-일정">하이퍼파라미터와 학습률 일정<a class="anchor" href="#하이퍼파라미터와-학습률-일정">#</a></h3>
+<p><code>--hyp</code>를 주지 않으면 <code>data/hyps/hyp.scratch-low.yaml</code>을 씁니다.</p>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>값</th><th>의미</th></tr></thead><tbody><tr><td><code>lr0</code> / <code>lrf</code></td><td>0.01 / 0.01</td><td>시작 학습률, 마지막 학습률 = lr0 × lrf</td></tr><tr><td><code>momentum</code>, <code>weight_decay</code></td><td>0.937, 0.0005</td><td>SGD 관성, 가중치 크기 벌점(과적합 억제)</td></tr><tr><td><code>warmup_epochs</code></td><td>3.0</td><td>처음에는 학습률을 0에서 천천히 올림</td></tr><tr><td><code>box</code>, <code>cls</code>, <code>obj</code></td><td>0.05, 0.5, 1.0</td><td>세 손실의 가중치(A07)</td></tr><tr><td><code>anchor_t</code></td><td>4.0</td><td>앵커 매칭 비율 한계</td></tr><tr><td><code>hsv_h/s/v</code></td><td>0.015/0.7/0.4</td><td>색상·채도·명도 무작위 변형 → 조명 변화에 강해짐</td></tr><tr><td><code>translate</code>, <code>scale</code></td><td>0.1, 0.5</td><td>위치 ±10 %, 크기 ±50 % 변형</td></tr><tr><td><code>fliplr</code></td><td>0.5</td><td>좌우 뒤집기 확률</td></tr><tr><td><code>mosaic</code></td><td>1.0</td><td>4장을 한 장으로 합치는 모자이크 증강</td></tr></tbody></table></div>
+<div class="callout callout-danger"><div class="callout-title">좌우 뒤집기와 방향 표지판</div><div class="callout-body"><p><code>fliplr: 0.5</code>는 사진의 절반을 좌우 반전합니다. <strong>우회전 표지판을 뒤집으면 좌회전 표지판</strong>이 됩니다. <code>left</code>와 <code>right</code>를 모두 학습하는 데이터셋이라면 두 클래스가 서로 섞여 버리므로, <code>hyp.yaml</code>을 복사해 <code>fliplr: 0.0</code>으로 바꾸고 <code>--hyp</code>로 지정해야 합니다. 원본 표지판 세트는 <code>right</code>만 있어 큰 문제가 드러나지 않을 뿐입니다.</p></div></div>
+<p>학습률은 워밍업 뒤 <strong>선형으로 감소</strong>합니다(<code>train.py</code>의 <code>lf = (1 − e/epochs)·(1 − lrf) + lrf</code>). 또 YOLOv5는 명목 배치 64(<code>nbs</code>)를 기준으로 <strong>기울기 누적(gradient accumulation)</strong>을 합니다. 배치 8이면 8번 모아서 한 번 가중치를 갱신하므로 작은 배치에서도 학습이 안정됩니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+
+epochs, lr0, lrf = 300, 0.01, 0.01            # hyp.scratch-low.yaml
+warmup_epochs, warmup_bias_lr = 3.0, 0.1
+n_train, batch, nbs = 160, 8, 64             # 학습 이미지 160장, --batch 8
+
+nb = math.ceil(n_train / batch)              # epoch당 반복(iteration) 수
+nw = max(round(warmup_epochs * nb), 100)     # 워밍업 반복 수 (최소 100)
+accumulate = max(round(nbs / batch), 1)      # 몇 배치마다 가중치를 갱신?
+print(&quot;epoch당 반복 %d, 워밍업 %d회(= %.1f epoch), %d배치마다 1회 갱신&quot;
+      % (nb, nw, nw / nb, accumulate))
+
+lf = lambda e: (1 - e / epochs) * (1.0 - lrf) + lrf    # 선형 감소
+for e in (0, 5, 50, 150, 250, 299):
+    print(&quot;epoch %3d  lr = %.6f&quot; % (e, lr0 * lf(e)))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">epoch당 반복 20, 워밍업 100회(= 5.0 epoch), 8배치마다 1회 갱신
+epoch   0  lr = 0.010000
+epoch   5  lr = 0.009835
+epoch  50  lr = 0.008350
+epoch 150  lr = 0.005050
+epoch 250  lr = 0.001750
+epoch 299  lr = 0.000133</code></pre></div>
+<p>사진이 적으면 워밍업이 설정값 3 epoch보다 길어집니다(최소 100회 반복 규칙). 160장·배치 8이면 5 epoch 동안 워밍업합니다.</p>
+<h3 id="결과-읽기-results-csv">결과 읽기: results.csv<a class="anchor" href="#결과-읽기-results-csv">#</a></h3>
+<p>학습이 끝나면 <code>runs/train/expN/</code>에 <code>weights/best.pt</code>(검증 성능이 가장 좋았던 가중치), <code>weights/last.pt</code>(마지막 가중치), <code>results.csv</code>, 곡선 그림(<code>results.png</code>, <code>PR_curve.png</code>, <code>confusion_matrix.png</code>)이 생깁니다. 로봇 이미지에 들어 있는 예시 학습(<code>yolov5/runs/train/exp4</code>, 클래스 1개 <code>turn_around</code>, yolov5n, 배치 8)의 마지막 줄은 다음과 같습니다.</p>
+<div class="table-wrap"><table><thead><tr><th>열</th><th>값</th><th>해석</th></tr></thead><tbody><tr><td>epoch</td><td>253</td><td>300으로 시작했으나 253에서 멈춤(중단 또는 조기 종료)</td></tr><tr><td>train/box_loss</td><td>0.0586</td><td>상자 손실</td></tr><tr><td>train/cls_loss</td><td>0</td><td><strong>클래스가 하나라 분류할 것이 없음</strong></td></tr><tr><td>metrics/precision, recall</td><td>0.918, 1.0</td><td>검증 세트의 모든 물체를 찾음</td></tr><tr><td>mAP_0.5</td><td>0.995</td><td>거의 완벽하게 찾음</td></tr><tr><td>mAP_0.5:0.95</td><td>0.249</td><td>하지만 상자 위치는 정밀하지 않음</td></tr><tr><td>val/box_loss</td><td>0.0335</td><td>검증 상자 손실</td></tr></tbody></table></div>
+<p><code>mAP_0.5</code>가 0.995인데 <code>mAP_0.5:0.95</code>가 0.25라는 것은 "어디 있는지는 알지만 테두리를 정확히 못 맞춘다"는 뜻입니다. 라벨 상자를 일관되게 그리지 않았거나 검증 사진이 너무 적을 때 흔히 나옵니다. 곡선으로는 이렇게 판단합니다.</p>
+<div class="table-wrap"><table><thead><tr><th>곡선 모양</th><th>진단</th><th>대응</th></tr></thead><tbody><tr><td>train 손실↓, val 손실↓, mAP↑</td><td>정상 학습 중</td><td>epoch 유지 또는 증가</td></tr><tr><td>train 손실↓, <strong>val 손실↑</strong>, mAP 정체·하락</td><td><strong>과적합</strong>(외워 버림)</td><td>데이터 추가, 증강 강화, epoch 줄이기(<code>best.pt</code> 사용)</td></tr><tr><td>둘 다 높게 정체</td><td><strong>과소적합</strong></td><td>더 큰 모델(<code>yolov5s</code>), epoch 증가, 라벨 품질 점검</td></tr></tbody></table></div>
+<h2 id="로봇에-배포">⑥ 로봇에 배포<a class="anchor" href="#로봇에-배포">#</a></h2>
+<p>YOLOv5 ROS 2 노드(<code>yolov5_ros2/yolo_detect.py</code>)는 다음처럼 동작합니다.</p>
+<ol><li>파라미터 <code>model</code>로 <code>&lt;패키지 share&gt;/config/&lt;model&gt;.pt</code>를 불러옵니다(pip <code>yolov5</code> 패키지의 <code>YOLOv5</code> 클래스).</li><li><code>image_topic</code>(기본 <code>/ascamera/camera_publisher/rgb0/image</code>) 영상이 올 때마다 추론합니다.</li><li>결과를 세 토픽으로 냅니다.</li></ol>
+<div class="table-wrap"><table><thead><tr><th>토픽</th><th>타입</th><th>내용</th></tr></thead><tbody><tr><td><code>/yolov5_ros2/object_detect</code></td><td><code>interfaces/ObjectsInfo</code></td><td><code>class_name</code>, <code>box</code>[x1,y1,x2,y2], <code>score</code>, 영상 <code>width</code>·<code>height</code></td></tr><tr><td><code>/yolo_result</code></td><td><code>vision_msgs/Detection2DArray</code></td><td>표준 검출 메시지(중심·크기·점수)</td></tr><tr><td><code>/result_img</code></td><td><code>sensor_msgs/Image</code></td><td>상자를 그린 결과 영상 (<code>pub_result_img: True</code>일 때)</td></tr></tbody></table></div>
+<div class="callout callout-warn"><div class="callout-title">ObjectsInfo는 물체마다 한 번씩 발행됩니다</div><div class="callout-body"><p><code>yolo_detect.py</code>는 검출 루프 <strong>안에서</strong> <code>objects_info = []</code>를 새로 만들고 메시지를 발행합니다. 그래서 한 프레임에 표지판 3개가 보이면 <code>/yolov5_ros2/object_detect</code>에 <strong>물체 1개짜리 메시지가 3번</strong> 옵니다. 한 프레임의 모든 물체를 한꺼번에 받아야 하는 코드라면 <code>/yolo_result</code>(Detection2DArray)를 구독하거나, 노드를 고쳐 발행을 루프 밖으로 옮기세요. 물체가 없으면 이 토픽에는 아무것도 오지 않습니다.</p></div></div>
+<p>배포 절차:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">~/.stop_ros.sh
+cd ~/software/yolov5/runs/train/exp5/weights     # 자신의 expN 폴더
+cp best.pt ~/ros2_ws/src/yolov5_ros2/config/
+ros2 launch peripherals depth_camera.launch.py</code></pre></div>
+<p>새 터미널에서 노드를 실행합니다. 원본 교재의 명령은 다음과 같습니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 launch yolov5_ros2 yolov5_ros2.launch.py model:=&quot;best&quot;</code></pre></div>
+<p>그런데 현재 <code>yolov5_ros2.launch.py</code>는 <code>model</code> 인자를 선언하지 않고 파라미터를 <code>&quot;traffic_signs_640s_7_0&quot;</code>으로 <strong>고정</strong>해 두었습니다. 위 명령으로 내 모델이 안 불린다면 launch 파일의 <code>&quot;model&quot;</code> 값을 <code>&quot;best&quot;</code>로 고치거나, 노드를 직접 실행합니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 run yolov5_ros2 yolo_detect --ros-args -p model:=best -p device:=cpu -p pub_result_img:=true
+ros2 topic echo /yolov5_ros2/object_detect
+rqt_image_view /result_img</code></pre></div>
+<div class="callout callout-info"><div class="callout-title">모델은 install 폴더에서 읽습니다</div><div class="callout-body"><p>노드는 <code>get_package_share_directory(&#x27;yolov5_ros2&#x27;)</code> + <code>/config/&lt;model&gt;.pt</code>, 즉 **<code>~/ros2_ws/install/yolov5_ros2/share/yolov5_ros2/config/</code>**에서 모델을 찾습니다. <code>setup.py</code>가 빌드할 때 <code>src/.../config/</code> 파일을 그곳으로 복사하므로, <code>--symlink-install</code>로 빌드한 환경이 아니라면 모델을 넣거나 launch를 고친 뒤 다시 빌드해야 반영됩니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">cd ~/ros2_ws &amp;&amp; colcon build --packages-select yolov5_ros2 &amp;&amp; source install/setup.zsh</code></pre></div></div></div>
+<p>검출 결과를 받아 가장 점수 높은 물체만 출력하는 확인용 노드입니다.</p>
+<div class="code-block code-robot"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-robot">실물 전용</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
+from rclpy.node import Node
+from interfaces.msg import ObjectsInfo
+
+class BestObject(Node):
+    def __init__(self):
+        super().__init__(&#x27;best_object&#x27;)
+        self.create_subscription(ObjectsInfo, &#x27;/yolov5_ros2/object_detect&#x27;, self.cb, 10)
+
+    def cb(self, msg):
+        for o in msg.objects:
+            if o.score &lt; 0.5:
+                continue
+            x1, y1, x2, y2 = o.box
+            area = (x2 - x1) * (y2 - y1)
+            self.get_logger().info(&#x27;%s %.2f 중심=(%d,%d) 면적=%d px²&#x27; % (
+                o.class_name, o.score, (x1 + x2) // 2, (y1 + y2) // 2, area))
+
+def main():
+    rclpy.init()
+    node = BestObject()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+
+if __name__ == &#x27;__main__&#x27;:
+    main()</code></pre></div>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">실물 실습 안전 수칙</div><div class="callout-body"><ul><li>이 장의 실습은 바퀴를 움직이지 않지만, 학습은 CPU를 오래 100 % 사용합니다. 로봇을 <strong>충전기에 연결</strong>하고 통풍이 되는 곳에 두며, 방열판이 뜨거우면 만지지 않습니다.</li><li>배터리가 부족하면 학습 중 전원이 꺼져 SD 카드가 손상될 수 있습니다. 긴 학습은 PC에서 합니다.</li><li>카메라 앞에서 표지판을 들 때 로봇이 책상에서 떨어지지 않게 바닥에 둡니다.</li></ul></div></div>
+<ol><li>표지판 1종(또는 손 모양, 컵 등)을 정해 <strong>최소 60장</strong>을 거리·각도를 바꿔 가며 수집합니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">~/.stop_ros.sh
+ros2 launch peripherals depth_camera.launch.py
+# 새 터미널
+cd ~/software/collect_picture &amp;&amp; python3 main.py</code></pre></div>
+<ol><li>labelImg로 모든 사진에 상자를 그립니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">python3 ~/software/labelImg/labelImg.py</code></pre></div>
+<ol><li><code>classes.names</code>에 클래스 이름을 적고 변환합니다. 출력의 <code>클래스:개수</code>가 라벨링한 개수와 같은지 확인합니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">gedit ~/software/collect_picture/my_data/classes.names
+python3 ~/software/collect_picture/xml2yolo.py --data /home/ubuntu/software/collect_picture/my_data --yaml /home/ubuntu/software/collect_picture/my_data/data.yaml</code></pre></div>
+<ol><li>연습 삼아 짧게 학습합니다(로봇에서 <code>--epochs 10</code> 정도). 제대로 된 모델은 PC에서 300 epoch로 학습합니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">python3 ~/software/yolov5/train.py --img 640 --batch 8 --epochs 10 --data /home/ubuntu/software/collect_picture/my_data/data.yaml --weights ~/software/yolov5/yolov5n.pt</code></pre></div>
+<ol><li><code>best.pt</code>를 배포하고 토픽으로 결과를 확인합니다. 실습이 끝나면 <code>sudo systemctl restart start_node.service</code>로 앱 서비스를 복구합니다.</li></ol>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> <code>JPEGImages</code> 폴더에 사진마다 같은 이름의 <code>.txt</code>가 생겼다.</label></li><li><label class="check-item"><input type="checkbox"> <code>results.csv</code>에서 <code>mAP_0.5</code>가 epoch에 따라 오르는 것을 확인했다.</label></li><li><label class="check-item"><input type="checkbox"> 내 모델로 <code>/yolov5_ros2/object_detect</code>에 내 클래스 이름이 나왔다.</label></li></ul></div></div>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td>변환 후 <code>클래스:0</code>으로 나옴</td><td><code>classes.names</code>와 labelImg 이름 불일치(대소문자·공백)</td><td>두 이름을 똑같이 맞추고 다시 변환</td></tr><tr><td><code>No labels found</code> / <code>images not found</code></td><td><code>train.txt</code>·<code>data.yaml</code>이 상대 경로</td><td>절대 경로로 다시 변환하거나 파일 안 경로를 <code>pwd</code> 결과로 수정</td></tr><tr><td>학습 시작 시 다운로드 오류</td><td><code>--weights yolov5n.pt</code>처럼 이름만 주면 인터넷에서 받으려 함</td><td>로컬 파일 경로 <code>software/yolov5/yolov5n.pt</code>를 지정</td></tr><tr><td>학습 중 OpenCV 버전 경고에서 멈춤</td><td>원본 교재가 언급한 호환성 검사</td><td><code>Ctrl+C</code>를 <strong>한 번만</strong> 누르면 계속 진행. 반복되면 <code>train.py</code>의 해당 검사 줄을 주석 처리</td></tr><tr><td><code>CUDA out of memory</code> (PC)</td><td>배치가 큼</td><td><code>--batch 4</code> 또는 <code>--img 512</code></td></tr><tr><td><code>model:=&quot;best&quot;</code>를 줬는데 기존 모델이 뜸</td><td>launch 파일이 모델 이름을 고정</td><td>launch 수정 또는 <code>ros2 run ... -p model:=best</code></td></tr><tr><td><code>FileNotFoundError: .../share/yolov5_ros2/config/best.pt</code></td><td><code>src</code>에만 복사하고 다시 빌드하지 않음</td><td><code>colcon build --packages-select yolov5_ros2</code> 후 <code>source</code></td></tr><tr><td>로봇에서 추론이 1~2 fps로 느림</td><td>CPU 추론 + 640 입력</td><td><code>yolov5n</code> 사용, 입력 크기 축소(<code>--img 416</code>로 학습), 불필요한 결과 영상 발행 끄기</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">과제</div><div class="callout-body"><ol><li><strong>(기본)</strong> 첫 번째 실습 코드에 세 번째 물체(<code>crosswalk</code>, xmin=0, ymin=300, xmax=640, ymax=360)를 추가하고 YOLO 줄을 손으로 먼저 계산한 뒤 실행해 맞춰 보세요.</li><li><strong>(기본)</strong> 학습률 코드에서 <code>n_train</code>을 1200으로 바꾸면 워밍업이 몇 epoch가 되는지 계산하세요.</li><li><strong>(심화)</strong> 자기 데이터셋을 <code>fliplr: 0.5</code>와 <code>fliplr: 0.0</code>으로 각각 학습해 <code>mAP_0.5</code>를 비교하세요. 좌우 대칭 물체와 비대칭 물체에서 결과가 어떻게 다른지 설명합니다.</li><li><strong>(심화)</strong> <code>yolo_detect.py</code>를 백업한 뒤 <code>ObjectsInfo</code>를 프레임당 한 번만 발행하도록 고치고, 물체 3개가 보일 때 메시지 수가 줄어드는 것을 <code>ros2 topic hz</code>로 확인하세요.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>16. Machine Learning</em> — Lesson 4 Yolov5 Model Training (1. Image Collecting &amp; Labeling, 2. Data Format Conversion, 3. Model Training, 4. Traffic Sign Model Training)</li><li>원본 소스: <code>software/collect_picture/main.py</code>, <code>xml2yolo.py</code>, <code>software/labelImg/</code>, <code>software/yolov5/train.py</code>, <code>data/hyps/hyp.scratch-low.yaml</code>, <code>src/yolov5_ros2/</code></li><li>Ultralytics — Train Custom Data: https://docs.ultralytics.com/yolov5/tutorials/train_custom_data/</li><li>Ultralytics — Tips for Best Training Results: https://docs.ultralytics.com/yolov5/tutorials/tips_for_best_training_results/</li><li>labelImg: https://github.com/HumanSignal/labelImg</li><li>PASCAL VOC 형식: http://host.robots.ox.ac.uk/pascal/VOC/</li><li>vision_msgs (Detection2DArray): https://github.com/ros-perception/vision_msgs</li></ul>
+      <nav class="pager"><a class="pager-prev" href="a07.html"><span>이전 · A07</span>머신러닝과 YOLOv5 이해</a><a class="pager-next" href="a09.html"><span>다음 · A09</span>자율주행 준비와 차선 유지</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#전체-흐름">전체 흐름</a><a class="toc-l2" href="#사진-수집">① 사진 수집</a><a class="toc-l2" href="#labelimg-라벨링">② labelImg 라벨링</a><a class="toc-l2" href="#yolo-형식으로-변환">③④ YOLO 형식으로 변환</a><a class="toc-l2" href="#학습">⑤ 학습</a><a class="toc-l3" href="#하이퍼파라미터와-학습률-일정">하이퍼파라미터와 학습률 일정</a><a class="toc-l3" href="#결과-읽기-results-csv">결과 읽기: results.csv</a><a class="toc-l2" href="#로봇에-배포">⑥ 로봇에 배포</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

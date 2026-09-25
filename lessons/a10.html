@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A10. 표지판·신호등 인식 · studyMentorPi</title>
+<meta name="description" content="YOLOv5로 교통 표지판·신호등을 검출하고, 거리·신뢰도 조건으로 정지·서행·방향 결정을 내립니다.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-ai">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" class="active" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="a10" data-track="ai">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-ai">비전 AI·자율주행</span> A-4 자율주행과 군집 &middot; 약 90분 &middot; 고급</div>
+    <h1><span class="lesson-no">A10</span>표지판·신호등 인식</h1>
+    <p class="lede">YOLOv5로 교통 표지판·신호등을 검출하고, 거리·신뢰도 조건으로 정지·서행·방향 결정을 내립니다.</p>
+    <div class="requires">선수 챕터: <a href="a08.html">A08</a> <a href="a09.html">A09</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>자율주행용 YOLOv5 모델(<code>traffic_signs_640s_7_0</code>)의 6개 클래스와 검출 결과 메시지 구조를 설명합니다.</li><li><code>self_driving.py</code>의 <code>get_object_callback()</code>이 검출 결과를 "횡단보도까지 거리·신호 상태·주차 표지 위치"로 요약하는 방식을 따라갑니다.</li><li>영상 y 좌표로 바닥 거리를 추정하는 기하(카메라 높이·기울기)와 박스 크기로 거리를 추정하는 핀홀 모델을 계산합니다.</li><li>연속 프레임 확인, 면적 조건, 시간 조건으로 이루어진 정지·감속 규칙을 시뮬레이션하고, 원본 규칙의 허점을 찾아 개선안을 냅니다.</li><li>카메라·YOLOv5 노드를 실행해 표지판·신호등 검출을 <code>rqt</code>로 확인합니다.</li></ul>
+<h2 id="모델과-클래스">모델과 클래스<a class="anchor" href="#모델과-클래스">#</a></h2>
+<p>자율주행 예제는 A08과 같은 <code>yolov5_ros2</code> 노드에 표지판 전용 모델을 넣어 씁니다.</p>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>값</th></tr></thead><tbody><tr><td>모델 파일</td><td><code>yolov5_ros2/config/traffic_signs_640s_7_0.pt</code> (이름으로 보아 입력 640, yolov5<strong>s</strong> 기반)</td></tr><tr><td>클래스 (순서대로)</td><td><code>go</code>, <code>right</code>, <code>park</code>, <code>red</code>, <code>green</code>, <code>crosswalk</code></td></tr><tr><td>추론 장치</td><td><code>device: cpu</code> (Raspberry Pi 5)</td></tr><tr><td>결과 토픽</td><td><code>/yolov5_ros2/object_detect</code> (<code>ObjectsInfo</code>), <code>/result_img</code></td></tr><tr><td>시작/정지 서비스</td><td><code>/yolov5/start</code>, <code>/yolov5/stop</code> (<code>std_srvs/Trigger</code>)</td></tr></tbody></table></div>
+<p><code>self_driving.launch.py</code>는 YOLOv5 노드에 <code>classes</code> 목록도 파라미터로 넘기지만, <code>.pt</code> 파일 안에 클래스 이름이 저장되어 있어 실제 이름은 모델에서 나옵니다. <strong>모델을 새로 학습할 때 클래스 이름을 똑같이</strong> 써야 <code>self_driving.py</code>의 문자열 비교(<code>class_name == &#x27;crosswalk&#x27;</code> 등)가 동작합니다.</p>
+<p>예제 폴더(<code>yolov5_detect/</code>)에는 같은 모델의 TensorRT 엔진(<code>traffic_signs_640s_7_0.engine</code>)과 <code>yolov5_trt.py</code>도 있습니다. 원본 교재의 "<code>yolov5_trt.py</code>에서 클래스 줄의 주석을 바꾸라"는 단계는 이 TensorRT 경로(NVIDIA Jetson 계열)용입니다. Raspberry Pi에서는 <code>yolov5_ros2</code>의 <code>.pt</code> 경로를 씁니다.</p>
+<h2 id="검출-결과를-상황으로-요약하기">검출 결과를 상황으로 요약하기<a class="anchor" href="#검출-결과를-상황으로-요약하기">#</a></h2>
+<figure class="fig" id="fig-a10-decision"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="검출 결과에서 상황 변수, 주행 명령으로 이어지는 판단 흐름">
+  <defs>
+    <marker id="arr-a10-decision" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <text class="lbl" x="95" y="24" text-anchor="middle">인식 (YOLOv5)</text>
+  <rect class="box" x="15" y="40" width="160" height="220" rx="6"/>
+  <text class="sub mono" x="95" y="70" text-anchor="middle">crosswalk</text>
+  <text class="sub mono" x="95" y="110" text-anchor="middle">red / green</text>
+  <text class="sub mono" x="95" y="150" text-anchor="middle">park</text>
+  <text class="sub mono" x="95" y="190" text-anchor="middle">right</text>
+  <text class="sub mono" x="95" y="230" text-anchor="middle">go</text>
+  <text class="tag" x="95" y="250" text-anchor="middle">/yolov5_ros2/object_detect</text>
+
+  <text class="lbl" x="340" y="24" text-anchor="middle">상황 변수 (get_object_callback)</text>
+  <rect class="box-hi" x="220" y="40" width="240" height="220" rx="6"/>
+  <text class="sub" x="235" y="70">crosswalk_distance = 중심 y 최댓값</text>
+  <text class="sub" x="235" y="110">traffic_signs_status = 신호 객체</text>
+  <text class="sub" x="235" y="150">park_x = 중심 x</text>
+  <text class="sub" x="235" y="190">count_right → turn_right (≥ 5)</text>
+  <text class="tag" x="235" y="230">(go는 별도 처리 없음 = 차선 유지)</text>
+
+  <path class="ln" d="M175 66 L218 66" marker-end="url(#arr-a10-decision)"/>
+  <path class="ln" d="M175 106 L218 106" marker-end="url(#arr-a10-decision)"/>
+  <path class="ln" d="M175 146 L218 146" marker-end="url(#arr-a10-decision)"/>
+  <path class="ln" d="M175 186 L218 186" marker-end="url(#arr-a10-decision)"/>
+
+  <text class="lbl" x="600" y="24" text-anchor="middle">판단 (main 루프)</text>
+  <rect class="box" x="505" y="40" width="200" height="60" rx="6"/>
+  <text class="sub" x="515" y="62">y &gt; 70, 3프레임 연속</text>
+  <text class="sub" x="515" y="84">→ 감속 (0.4 m / v 동안)</text>
+  <rect class="box" x="505" y="110" width="200" height="60" rx="6"/>
+  <text class="sub" x="515" y="132">감속 중 red, 면적 &lt; 1000</text>
+  <text class="sub" x="515" y="154">→ 정지 / green → 출발</text>
+  <rect class="box" x="505" y="180" width="200" height="60" rx="6"/>
+  <text class="sub" x="515" y="202">park_x &gt; 0, y &gt; 180 × 15회</text>
+  <text class="sub" x="515" y="224">→ 주차 동작 (A11)</text>
+  <path class="ln" d="M460 66 L503 70" marker-end="url(#arr-a10-decision)"/>
+  <path class="ln" d="M460 106 L503 138" marker-end="url(#arr-a10-decision)"/>
+  <path class="ln" d="M460 146 L503 206" marker-end="url(#arr-a10-decision)"/>
+  <text class="sub" x="360" y="290" text-anchor="middle">최종 명령: Twist → /controller/cmd_vel (차선 유지 각속도와 합쳐 발행)</text>
+</svg><figcaption>검출 결과 → 상황 변수 → 주행 명령. 인식(YOLO)과 판단(규칙)을 분리하면 각각 따로 시험하고 고칠 수 있습니다.</figcaption></figure>
+<p><code>get_object_callback(msg)</code>은 메시지가 올 때마다 다음 변수들을 갱신합니다.</p>
+<div class="table-wrap"><table><thead><tr><th>클래스</th><th>갱신하는 변수</th><th>의미</th></tr></thead><tbody><tr><td><code>crosswalk</code></td><td><code>crosswalk_distance</code> = 박스 중심 y의 <strong>최댓값</strong></td><td>영상 아래쪽일수록 가까움. <strong>거리의 대리값(proxy)</strong></td></tr><tr><td><code>right</code></td><td><code>count_right += 1</code>, 5번 이상이면 <code>turn_right = True</code></td><td>우회전 표지 확인</td></tr><tr><td><code>park</code></td><td><code>park_x</code> = 박스 중심 x</td><td>주차 표지의 좌우 위치</td></tr><tr><td><code>red</code>, <code>green</code></td><td><code>traffic_signs_status</code> = 그 검출 객체</td><td>신호 상태(박스 포함)</td></tr><tr><td>(빈 메시지)</td><td><code>traffic_signs_status = None</code>, <code>crosswalk_distance = 0</code></td><td>아무것도 안 보임</td></tr></tbody></table></div>
+<div class="callout callout-info"><div class="callout-title">원본 코드 읽기 팁</div><div class="callout-body"><ul><li>A08에서 본 대로 YOLOv5 노드는 <strong>물체마다 메시지를 따로</strong> 보냅니다. 그래서 한 프레임에 횡단보도와 신호등이 함께 보여도 콜백은 두 번 불리고, 신호등 메시지가 올 때는 횡단보도가 없으므로 <code>crosswalk_distance</code>가 0으로 덮어써집니다. 두 물체가 번갈아 들어오며 값이 깜빡일 수 있다는 뜻입니다.</li><li><code>turn_right</code> 표시는 세워지지만 주 루프에서 쓰이지 않습니다. 실제 우회전은 A09의 lane_x &gt; 150 규칙(차선이 휘는 것)으로 일어납니다(A11에서 자세히).</li></ul></div></div>
+<h2 id="거리-추정-영상-좌표에서-미터로">거리 추정: 영상 좌표에서 미터로<a class="anchor" href="#거리-추정-영상-좌표에서-미터로">#</a></h2>
+<p>원본은 "횡단보도 중심 y &gt; 70이면 가깝다"처럼 <strong>픽셀 값을 그대로</strong> 씁니다. 이 숫자가 실제 몇 m인지 알면 규칙을 설계하고 다른 카메라로 옮기기 쉬워집니다.</p>
+<figure class="fig" id="fig-a10-ground-ray"><svg viewBox="0 0 720 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="카메라 높이와 기울기로 바닥 거리 구하기">
+  <defs>
+    <marker id="arr-a10-ground-ray" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <!-- ground -->
+  <path class="ln" d="M20 210 L700 210" stroke-width="2"/>
+  <text class="tag" x="690" y="228" text-anchor="end">바닥</text>
+  <!-- robot and camera -->
+  <rect class="box" x="40" y="170" width="70" height="40" rx="4"/>
+  <circle class="hi" cx="100" cy="140" r="7"/>
+  <path class="ln" d="M100 147 L100 170"/>
+  <text class="tag" x="60" y="195">로봇</text>
+  <!-- horizontal line -->
+  <path class="ln" d="M100 140 L680 140" stroke-dasharray="4 4"/>
+  <text class="tag" x="676" y="132" text-anchor="end">수평선</text>
+  <!-- optical axis tilt 25 deg: slope tan25=0.466 → hits ground at dx = 70/0.466=150 -->
+  <path class="ln-hi" d="M100 140 L250 210" stroke-width="2"/>
+  <text class="tag" x="255" y="202">광축 (기울기 θ)</text>
+  <!-- ray to far point: angle 5.5 deg → dx = 70/0.0963 = 727 too far; draw to 600 at y=188 -->
+  <path class="ln" d="M100 140 L620 206" stroke-width="1.5"/>
+  <circle class="box" cx="620" cy="206" r="4"/>
+  <text class="tag" x="560" y="180" text-anchor="end">영상 y 행의 광선</text>
+  <!-- height -->
+  <path class="ln" d="M28 140 L28 210" marker-start="url(#arr-a10-ground-ray)" marker-end="url(#arr-a10-ground-ray)"/>
+  <text class="tag" x="24" y="178" text-anchor="end">h</text>
+  <!-- distance -->
+  <path class="ln" d="M100 240 L620 240" marker-start="url(#arr-a10-ground-ray)" marker-end="url(#arr-a10-ground-ray)"/>
+  <text class="sub" x="360" y="254" text-anchor="middle">Z = h / tan(θ + atan((y − cy)/f))</text>
+  <text class="lbl" x="300" y="40">광선 각 = θ + atan((y − cy)/f)</text>
+  <text class="sub" x="300" y="62">y가 작을수록(영상 위쪽) 각이 작아져 먼 곳</text>
+  <text class="sub" x="300" y="82">가정: h = 0.12 m, θ = 25°, f = 480 px, cy = 240</text>
+  <text class="sub" x="300" y="102">y = 70 → 1.25 m,  y = 180 → 0.37 m,  y = 400 → 0.13 m</text>
+</svg><figcaption>바닥 평면 위 점의 거리. 카메라 높이 h, 아래로 기운 각 θ, 영상 y에 해당하는 광선 각을 더하면 바닥과 만나는 거리 Z가 나옵니다.</figcaption></figure>
+<h3 id="바닥-평면-모델">바닥 평면 모델<a class="anchor" href="#바닥-평면-모델">#</a></h3>
+<p>카메라가 높이 <span class="math">h</span>에서 수평보다 <span class="math">θ</span>만큼 아래를 보고, 초점거리 <span class="math">f</span> [px], 영상 중심 <span class="math">c_y</span>라 하면 영상 행 <span class="math">y</span>로 들어오는 광선은 수평선 아래 <span class="math">θ + atan((y − c_y)/f)</span> 각도로 내려갑니다. 평평한 바닥과 만나는 전방 거리는</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">Z = h / tan( θ + atan((y − c_y) / f) )</code></pre></div>
+<p>입니다. 광선 각이 0 이하이면(수평선 위) 바닥과 만나지 않습니다.</p>
+<h3 id="핀홀-크기-모델">핀홀 크기 모델<a class="anchor" href="#핀홀-크기-모델">#</a></h3>
+<p>실제 높이 <span class="math">H</span>인 표지판이 영상에서 <span class="math">h_{px}</span> 픽셀이면 <span class="math">Z = f · H / h_{px}</span>입니다. 박스 높이가 절반이 되면 거리가 두 배입니다. 박스 <strong>면적</strong>은 거리의 제곱에 반비례합니다.</p>
+<p>아래 계산의 카메라 높이 0.12 m, 기울기 25°, 초점거리 480 px, 표지판 높이 0.10 m는 <strong>설명용 가정값</strong>입니다. 실제 값은 카메라 보정(<code>camera_info</code>)과 줄자로 재야 합니다.</p>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+
+# 가정값: 카메라 높이 h, 아래로 기운 각 tilt, 초점거리 f, 영상 중심 cy (640x480)
+h, tilt, f, cy = 0.12, math.radians(25), 480.0, 240.0
+
+def ground_distance(y):
+    &quot;&quot;&quot;영상 y(px)에 보이는 바닥 점까지의 전방 거리 [m] — 평평한 바닥 가정&quot;&quot;&quot;
+    ray = tilt + math.atan((y - cy) / f)          # 수평선 아래로 내려간 각
+    return h / math.tan(ray) if ray &gt; 0 else float(&quot;inf&quot;)
+
+for y in (70, 135, 180, 240, 400):
+    print(&quot;횡단보도 중심 y=%3d px → 약 %.2f m 앞&quot; % (y, ground_distance(y)))
+
+def sign_distance(h_px, H_real=0.10):              # 핀홀: Z = f·H / h
+    return f * H_real / h_px
+for hp in (30, 60, 120):
+    print(&quot;표지판 박스 높이 %3d px → 약 %.2f m&quot; % (hp, sign_distance(hp)))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">횡단보도 중심 y= 70 px → 약 1.25 m 앞
+횡단보도 중심 y=135 px → 약 0.53 m 앞
+횡단보도 중심 y=180 px → 약 0.37 m 앞
+횡단보도 중심 y=240 px → 약 0.26 m 앞
+횡단보도 중심 y=400 px → 약 0.13 m 앞
+표지판 박스 높이  30 px → 약 1.60 m
+표지판 박스 높이  60 px → 약 0.80 m
+표지판 박스 높이 120 px → 약 0.40 m</code></pre></div>
+<p>원본 규칙의 세 문턱값 70·135·180 px(감속 시작, 주차 준비, 주차 시작)이 이 가정에서는 약 1.25 m, 0.53 m, 0.37 m에 해당합니다. 영상 y와 거리의 관계는 <strong>비선형</strong>이어서, 영상 위쪽(먼 곳)에서는 1 px이 수 cm에 해당하고 아래쪽(가까운 곳)에서는 1 px이 1 mm 정도입니다. 먼 곳의 판단일수록 검출 박스가 몇 px만 흔들려도 거리 추정이 크게 흔들리므로 <strong>여러 프레임 확인</strong>이 필요합니다.</p>
+<h2 id="정지-감속-규칙">정지·감속 규칙<a class="anchor" href="#정지-감속-규칙">#</a></h2>
+<p>주 루프의 횡단보도·신호등 규칙을 정리합니다.</p>
+<div class="table-wrap"><table><thead><tr><th>단계</th><th>조건</th><th>동작</th></tr></thead><tbody><tr><td>감속 시작</td><td><code>crosswalk_distance &gt; 70</code>이 <strong>3프레임 연속</strong></td><td><code>start_slow_down = True</code>, 시각 기록</td></tr><tr><td>빨간불</td><td>감속 중 + <code>red</code> + 박스 면적 &lt; 1000 px²</td><td>정지 명령, <code>stop = True</code></td></tr><tr><td>초록불</td><td>감속 중 + <code>green</code></td><td><code>stop = False</code>, 서행</td></tr><tr><td>감속 해제</td><td>정지 아님 + 감속 시작 후 <code>crosswalk_length / v</code> 초 경과</td><td><code>start_slow_down = False</code></td></tr><tr><td>평상시</td><td></td><td><code>linear.x = normal_speed</code></td></tr></tbody></table></div>
+<p><code>crosswalk_length = 0.1 + 0.3 = 0.4 m</code>는 "횡단보도 폭 + 로봇 길이"입니다. 로봇 <strong>꼬리까지</strong> 횡단보도를 벗어나려면 그만큼 더 가야 하므로, 서행 속도 0.1 m/s면 4초 동안 감속을 유지합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python"># self_driving.py 의 횡단보도·신호등 규칙만 떼어 낸 시뮬레이션 (프레임 간격 0.1 s)
+def obj(name, box):
+    return {&quot;class_name&quot;: name, &quot;box&quot;: box}
+
+frames = ([[obj(&quot;crosswalk&quot;, [200, 40, 440, 60])]] * 3 +                       # 멀리
+          [[obj(&quot;crosswalk&quot;, [200, 70, 440, 100]), obj(&quot;red&quot;, [500, 60, 520, 100])]] * 4 +
+          [[obj(&quot;red&quot;, [500, 60, 520, 100])]] * 5 +                             # 빨간불 대기
+          [[obj(&quot;green&quot;, [500, 60, 520, 100])]] * 2 + [[]] * 40)
+
+normal, slow, cross_len = 0.1, 0.1, 0.1 + 0.3     # 원본 값: 횡단보도+로봇 길이 0.4 m
+count_cw, slowing, stop, t_slow, light = 0, False, False, None, None
+for i, objs in enumerate(frames):
+    t = i * 0.1
+    ys = [(o[&quot;box&quot;][1] + o[&quot;box&quot;][3]) / 2 for o in objs if o[&quot;class_name&quot;] == &quot;crosswalk&quot;]
+    cw_dist = max(ys) if ys else 0                 # 가장 가까운(아래쪽) 횡단보도 y
+    lights = [o for o in objs if o[&quot;class_name&quot;] in (&quot;red&quot;, &quot;green&quot;)]
+    light = lights[-1] if lights else (None if not objs else light)
+    if 70 &lt; cw_dist and not slowing:
+        count_cw += 1
+        if count_cw == 3:                          # 3프레임 연속 확인
+            count_cw, slowing, t_slow = 0, True, t
+            print(&quot;%.1fs 감속 시작 (y=%.0f)&quot; % (t, cw_dist))
+    else:
+        count_cw = 0
+    v = normal
+    if slowing:
+        if light:
+            b = light[&quot;box&quot;]
+            area = abs(b[0] - b[2]) * abs(b[1] - b[3])
+            if light[&quot;class_name&quot;] == &quot;red&quot; and area &lt; 1000:
+                if not stop: print(&quot;%.1fs 빨간불 정지 (면적 %d)&quot; % (t, area))
+                stop = True
+            elif light[&quot;class_name&quot;] == &quot;green&quot;:
+                if stop: print(&quot;%.1fs 초록불 출발&quot; % t)
+                stop = False
+        if not stop:
+            v = slow
+            if t - t_slow &gt; cross_len / v:         # 0.4 / 0.1 = 4 s 뒤 감속 해제
+                slowing = False
+                print(&quot;%.1fs 감속 해제&quot; % t)
+    if stop:
+        v = 0.0
+print(&quot;마지막 속도 %.1f m/s&quot; % v)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">0.5s 감속 시작 (y=85)
+0.5s 빨간불 정지 (면적 800)
+1.2s 초록불 출발
+4.6s 감속 해제
+마지막 속도 0.1 m/s</code></pre></div>
+<h3 id="원본-규칙의-허점">원본 규칙의 허점<a class="anchor" href="#원본-규칙의-허점">#</a></h3>
+<p>시뮬레이션을 돌려 보면 원본 규칙에서 고칠 점이 보입니다. 실제 자율주행 시스템 설계에서도 이런 <strong>규칙 검토(rule review)</strong>가 중요한 단계입니다.</p>
+<div class="table-wrap"><table><thead><tr><th>관찰</th><th>원인</th><th>개선안</th></tr></thead><tbody><tr><td>"감속"해도 속도가 그대로 0.1 m/s</td><td><code>normal_speed</code>와 <code>slow_down_speed</code>가 둘 다 0.1</td><td>서행을 0.05~0.06으로 낮춤</td></tr><tr><td>빨간불 대기 시간까지 감속 시간 4 s에 포함</td><td>시각을 감속 <strong>시작</strong> 시점에만 기록</td><td>초록불 출발 시점에 시각을 다시 기록</td></tr><tr><td>빨간불 박스가 <strong>작을 때만</strong>(면적 &lt; 1000) 정지</td><td>이 맵에서 신호등이 보이는 크기에 맞춘 값</td><td>면적 대신 바닥 거리(신호등 받침 y)나 박스 높이로 조건을 만들고 범위(최소~최대)로 지정</td></tr><tr><td>빨간불을 한 프레임만 봐도 정지</td><td>신호등에는 연속 확인이 없음</td><td>빨간불도 3프레임 확인. 반대로 <strong>초록불 출발은 더 신중하게</strong>(5프레임)</td></tr><tr><td>횡단보도가 안 보이면 신호등을 무시</td><td>신호 판단이 감속 상태 안에만 있음</td><td>신호등 거리가 가까우면 횡단보도와 무관하게 판단</td></tr></tbody></table></div>
+<div class="callout callout-tip"><div class="callout-title">비대칭 확인 횟수</div><div class="callout-body"><p>안전과 관련된 판단은 <strong>틀렸을 때의 손해가 비대칭</strong>입니다. 빨간불을 놓치는 것(멈춰야 할 때 안 멈춤)은 초록불을 늦게 보는 것(갈 수 있는데 조금 늦게 감)보다 훨씬 위험합니다. 그래서 "정지로 가는 판단"은 빠르게, "출발로 가는 판단"은 여러 프레임 확인 후에 내리는 것이 원칙입니다.</p></div></div>
+<h3 id="신호-상태를-한-번-더-확인하기">신호 상태를 한 번 더 확인하기<a class="anchor" href="#신호-상태를-한-번-더-확인하기">#</a></h3>
+<p>YOLO가 <code>red</code>와 <code>green</code>을 헷갈리는 일이 드물게 있습니다. 박스 안의 색을 A01의 방법(HSV/LAB 임계값)으로 한 번 더 세어 보면 교차 검증이 됩니다.</p>
+<div class="code-block code-robot"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-robot">실물 전용</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+import numpy as np
+
+def light_color(bgr_image, box):
+    &quot;&quot;&quot;YOLO 신호등 박스 안에서 빨강·초록 픽셀 수를 비교해 색을 확인한다.&quot;&quot;&quot;
+    x1, y1, x2, y2 = box
+    roi = cv2.cvtColor(bgr_image[y1:y2, x1:x2], cv2.COLOR_BGR2HSV)
+    red = cv2.inRange(roi, (0, 120, 120), (10, 255, 255)) | \
+          cv2.inRange(roi, (170, 120, 120), (180, 255, 255))    # 빨강은 H 양 끝
+    green = cv2.inRange(roi, (45, 100, 100), (90, 255, 255))
+    r, g = int(np.count_nonzero(red)), int(np.count_nonzero(green))
+    if max(r, g) &lt; 20:
+        return &quot;unknown&quot;
+    return &quot;red&quot; if r &gt; g else &quot;green&quot;</code></pre></div>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">실물 실습 안전 수칙</div><div class="callout-body"><ul><li>이 장의 기본 실습(검출 확인)은 바퀴를 움직이지 않습니다. 로봇을 맵 위에 두되 <strong>컨트롤러를 켜지 않거나</strong> 받침대에 올려 둡니다.</li><li>신호등 소품은 전원을 쓰는 경우가 있으니 배선이 바퀴에 걸리지 않게 정리합니다.</li><li>통합 주행으로 넘어갈 때는 A11의 안전 수칙을 따릅니다.</li></ul></div></div>
+<ol><li>맵에 표지판 4개와 신호등을 설치하고 앱 자동 실행을 멈춥니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">~/.stop_ros.sh</code></pre></div>
+<ol><li>카메라 노드를 켭니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 launch peripherals depth_camera.launch.py</code></pre></div>
+<ol><li>새 터미널에서 YOLOv5 노드를 켭니다. 현재 launch 파일은 모델을 <code>traffic_signs_640s_7_0</code>으로 고정하고 있어 <code>model:=</code> 인자가 없어도 표지판 모델이 로드됩니다(원본 Lesson 5에 적힌 <code>traffic_signs_640s_7_1</code>은 배포 이미지에 없는 이름이니 쓰지 않습니다).</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 launch yolov5_ros2 yolov5_ros2.launch.py model:=&quot;traffic_signs_640s_7_0&quot;</code></pre></div>
+<ol><li><code>rqt</code>의 Image View에서 <code>/result_img</code>를 선택하고, 표지판·신호등을 카메라 앞 여러 거리에 두어 봅니다. 검출 메시지도 확인합니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">rqt
+ros2 topic echo /yolov5_ros2/object_detect</code></pre></div>
+<ol><li>각 표지판을 30 cm, 60 cm, 1 m에 두고 박스 높이(<code>box[3] − box[1]</code>)를 기록해, 위의 핀홀 식으로 초점거리 f를 역산해 봅니다(<span class="math">f = h_{px} · Z / H</span>).</li></ol>
+<ol><li>끝나면 앱 서비스를 복구합니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">sudo systemctl restart start_node.service</code></pre></div>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> 6개 클래스를 모두 검출해 보고, 점수(<code>score</code>)가 가장 낮게 나오는 클래스와 거리를 기록했다.</label></li><li><label class="check-item"><input type="checkbox"> 박스 높이 × 거리가 거의 일정하다는 것(핀홀 모델)을 측정값으로 확인했다.</label></li><li><label class="check-item"><input type="checkbox"> 원본 규칙의 허점 하나를 골라 개선 코드를 설계했다.</label></li></ul></div></div>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td>표지판을 전혀 못 찾음</td><td>신뢰도 문턱이 높거나 조명이 어두움</td><td>조명 개선, 노드 코드에서 검출 신뢰도 문턱을 낮춤</td></tr><tr><td>없는 표지판이 자꾸 검출됨</td><td>신뢰도 문턱이 낮음, 배경에 비슷한 무늬</td><td>문턱을 올리고, 오검출 배경 사진을 넣어 재학습(A08)</td></tr><tr><td><code>red</code>/<code>green</code> 뒤바뀜</td><td>신호등 LED가 과노출되어 흰색으로 찍힘</td><td>카메라 노출 조정, 위의 색 재확인 함수 사용</td></tr><tr><td><code>model:=...</code>을 바꿔도 같은 모델</td><td>launch가 모델명을 고정</td><td>launch 파일 수정 또는 <code>ros2 run yolov5_ros2 yolo_detect --ros-args -p model:=...</code></td></tr><tr><td>검출이 1초에 한두 번뿐</td><td>CPU 추론 부하, 결과 영상 발행</td><td><code>pub_result_img</code>를 끄고 확인, 다른 무거운 노드 종료</td></tr><tr><td>신호등 가까이서 빨간불인데 안 멈춤</td><td>박스 면적이 1000 px²를 넘어 조건 불만족</td><td>면적 조건을 범위로 바꾸거나 거리 기반 조건 사용</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">과제</div><div class="callout-body"><ol><li><strong>(기본)</strong> 시뮬레이션에서 서행 속도를 0.05로 바꾸면 감속 해제 시각이 어떻게 달라지는지 계산하고 실행해 확인하세요.</li><li><strong>(기본)</strong> 바닥 거리 코드에서 카메라 기울기를 20°와 30°로 바꿔 y = 70 px이 몇 m가 되는지 표로 정리하세요. 카메라 각도가 조금만 바뀌어도 원본 문턱값의 의미가 크게 변한다는 점을 설명합니다.</li><li><strong>(심화)</strong> "원본 규칙의 허점" 표에서 두 가지를 골라 시뮬레이션 코드에 반영하고(예: 초록불 출발 시 시각 재설정, 빨간불 3프레임 확인), 결과 로그를 비교하세요.</li><li><strong>(심화)</strong> 핀홀 식으로 추정한 표지판 거리를 이용해 "표지판 0.5 m 앞에서 판단"하는 규칙을 설계하고, 픽셀 문턱 규칙과 장단점을 비교하세요.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>17. Autonomous Driving Lesson</em> — Lesson 2 Road Sign Detection, Lesson 3 Traffic Light Recognition</li><li>원본 소스: <code>src/example/example/self_driving/self_driving.py</code> (<code>get_object_callback</code>, <code>main</code>), <code>self_driving.launch.py</code>, <code>src/yolov5_ros2/</code>, <code>src/example/example/yolov5_detect/yolov5_trt.py</code></li><li>OpenCV — Camera Calibration and 3D Reconstruction (핀홀 모델): https://docs.opencv.org/4.x/d9/d0c/group__calib3d.html</li><li>ROS 2 camera_calibration: https://docs.ros.org/en/rolling/p/camera_calibration/</li><li>Ultralytics YOLOv5 — 추론 파라미터(conf, iou): https://docs.ultralytics.com/yolov5/tutorials/pytorch_hub_model_loading/</li></ul>
+      <nav class="pager"><a class="pager-prev" href="a09.html"><span>이전 · A09</span>자율주행 준비와 차선 유지</a><a class="pager-next" href="a11.html"><span>다음 · A11</span>회전 판단·자율 주차·통합 주행</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#모델과-클래스">모델과 클래스</a><a class="toc-l2" href="#검출-결과를-상황으로-요약하기">검출 결과를 상황으로 요약하기</a><a class="toc-l2" href="#거리-추정-영상-좌표에서-미터로">거리 추정: 영상 좌표에서 미터로</a><a class="toc-l3" href="#바닥-평면-모델">바닥 평면 모델</a><a class="toc-l3" href="#핀홀-크기-모델">핀홀 크기 모델</a><a class="toc-l2" href="#정지-감속-규칙">정지·감속 규칙</a><a class="toc-l3" href="#원본-규칙의-허점">원본 규칙의 허점</a><a class="toc-l3" href="#신호-상태를-한-번-더-확인하기">신호 상태를 한 번 더 확인하기</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

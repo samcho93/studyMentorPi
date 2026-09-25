@@ -1,0 +1,33 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="애커만과 메카넘의 주차 동작 궤적">
+  <defs>
+    <marker id="arr-a11-parking" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <text class="lbl" x="200" y="22" text-anchor="middle">애커만 park_action() (계산 궤적, 1 m = 400 px)</text>
+  <circle class="box" cx="150" cy="50" r="5"/>
+  <text class="tag" x="142" y="46" text-anchor="end">출발 (0, 0)</text>
+  <path class="ln" d="M110 50 L150 50" stroke-dasharray="3 3"/>
+  <text class="tag" x="112" y="64">진행 방향 →</text>
+  <polyline class="ln-hi" fill="none" stroke-width="3" points="150,50 156,50 162,51 168,52 174,53 180,54 185,56 191,58 196,61 202,64 207,67 212,70 216,74 221,78 225,82 229,86 233,91 237,96 240,101 243,106 245,112 248,117 250,123 251,129 253,134 254,140 254,146 255,152 255,158 254,164 254,170"/>
+  <polyline style="stroke:var(--ok);fill:none" stroke-width="3" points="254,170 253,176 252,182 252,188 253,194 253,200 254,206 256,212 257,218 259,223 262,229 264,234 267,239 270,244 274,249 278,254 282,258 286,263 291,267 295,270 300,274"/>
+  <polyline style="stroke:var(--warn);fill:none" stroke-width="3" stroke-dasharray="6 3" points="300,274 295,271 290,268 284,265 279,263 273,261 267,260 261,258 255,258 249,257 243,257 237,257 231,258 226,258 220,260 214,261"/>
+  <circle class="hi" cx="214" cy="261" r="5"/>
+  <text class="tag" x="262" y="98">① 전진 + 우조향 29°, 3 s</text>
+  <text class="tag" x="264" y="200">② 전진 + 좌조향, 2 s</text>
+  <text class="tag" x="206" y="285" text-anchor="end">③ 후진 + 우조향, 1.5 s</text>
+  <text class="tag" x="200" y="248" text-anchor="end">끝 (0.16, −0.53) θ = +16°</text>
+  <text class="sub" x="200" y="160" text-anchor="end">R = L / tan 29°</text>
+  <text class="sub" x="200" y="176" text-anchor="end">= 0.262 m</text>
+
+  <line class="ln" x1="400" y1="30" x2="400" y2="290" stroke-dasharray="4 4"/>
+
+  <text class="lbl" x="560" y="22" text-anchor="middle">메카넘 park_action()</text>
+  <rect class="box" x="505" y="40" width="30" height="40" rx="4"/>
+  <text class="tag" x="545" y="64">출발</text>
+  <path class="ln-hi" d="M520 82 L520 200" stroke-width="3" marker-end="url(#arr-a11-parking)"/>
+  <rect class="box-hi" x="505" y="204" width="30" height="40" rx="4"/>
+  <text class="tag" x="545" y="228">주차 칸</text>
+  <text class="sub" x="530" y="140">linear.y = −0.2 m/s</text>
+  <text class="sub" x="530" y="158">× 0.38/0.2 = 1.9 s</text>
+  <text class="sub" x="530" y="176">→ 오른쪽으로 0.38 m</text>
+  <text class="tag" x="560" y="275" text-anchor="middle">방향은 그대로, 옆으로만 이동</text>
+</svg>

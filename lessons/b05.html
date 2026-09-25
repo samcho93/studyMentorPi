@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>B05. 파이썬 기초: 문법·제어문·함수 · studyMentorPi</title>
+<meta name="description" content="Hello World부터 자료형·연산자·조건문·반복문·함수와 모듈, 컨테이너 자료형까지 로봇 코드를 읽고 쓰는 데 필요한 문법.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-base">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" class="active" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="b05" data-track="base">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-base">기초·하드웨어</span> B-2 리눅스·파이썬 &middot; 약 90분 &middot; 입문</div>
+    <h1><span class="lesson-no">B05</span>파이썬 기초: 문법·제어문·함수</h1>
+    <p class="lede">Hello World부터 자료형·연산자·조건문·반복문·함수와 모듈, 컨테이너 자료형까지 로봇 코드를 읽고 쓰는 데 필요한 문법.</p>
+    <div class="requires">선수 챕터: <a href="b04.html">B04</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      <a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>파이썬 프로그램을 터미널에서 작성·실행하고(<code>vim</code> → <code>python3</code>), <code>print()</code>의 <code>sep</code>·<code>end</code> 인자로 출력 형식을 조절합니다.</li><li>들여쓰기 규칙, 식별자 규칙, 기본 자료형(수·문자열·리스트·튜플·딕셔너리·집합)과 연산자를 사용합니다.</li><li><code>if/elif/else</code>, <code>while</code>, <code>for</code>, <code>break/continue</code>로 로봇 센서 값을 판단·반복 처리합니다.</li><li>함수를 정의하고 위치·기본값·가변·키워드 인자를 구분해 쓰며, 가변/불변 객체 전달의 차이를 설명합니다.</li><li>모듈을 <code>import</code>하고, 라이다 거리 목록·조이패드 입력처럼 로봇에서 실제로 나오는 데이터를 컨테이너 자료형으로 다룹니다.</li></ul>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
+<p>이 챕터의 <code>python run</code> 블록은 모두 <strong>순수 파이썬</strong>이라 Playground(브라우저), PC, 로봇 컨테이너 어디서든 똑같이 실행됩니다. 블록 오른쪽 위 <strong>Playground에서 열기</strong>를 눌러 직접 고쳐 가며 돌려 보세요.</p>
+<h2 id="파이썬-소개">파이썬 소개<a class="anchor" href="#파이썬-소개">#</a></h2>
+<p>파이썬(Python)은 1991년에 처음 발표된 <strong>인터프리터(interpreter) 방식</strong>의 범용 언어입니다. 소스를 기계어로 미리 컴파일하지 않고, 실행할 때 한 줄씩 해석하므로 <strong>수정 → 즉시 실행</strong>이 빠릅니다.</p>
+<div class="table-wrap"><table><thead><tr><th>특징</th><th>로봇 개발에서</th></tr></thead><tbody><tr><td>문법이 간결하고 읽기 쉬움</td><td>ROS 2 노드(<code>rclpy</code>)를 짧은 코드로 작성</td></tr><tr><td>동적 타이핑</td><td>변수 선언 없이 바로 사용(대신 오타·자료형 실수를 실행 중에 발견)</td></tr><tr><td>방대한 라이브러리</td><td>OpenCV, NumPy, MediaPipe, PyTorch를 그대로 사용</td></tr><tr><td>C/C++ 확장</td><td>무거운 계산은 C로 된 라이브러리가 대신 수행</td></tr></tbody></table></div>
+<p><strong>객체 지향(object-oriented)</strong>과 <strong>절차 지향(procedure-oriented)</strong>을 모두 지원합니다. 절차 지향은 "문제를 푸는 단계"를 함수로 차례대로 구현하고, 객체 지향은 문제를 이루는 "사물(객체)"과 그 행동을 정의합니다. ROS 2 노드는 <code>Node</code> 클래스를 상속하는 객체 지향 방식이라 B06에서 클래스를 배웁니다.</p>
+<div class="callout callout-info"><div class="callout-title">Python 2는 쓰지 않습니다</div><div class="callout-body"><p>Python 2.x는 2020년에 공식 지원이 끝났습니다. MentorPi 컨테이너와 라즈베리파이 OS 모두 <code>python3</code>를 씁니다. 원본 예제에도 <code>sys.version_info.major == 2</code>이면 종료하는 검사가 들어 있습니다.</p></div></div>
+<h2 id="첫-프로그램-hello-world">첫 프로그램: Hello World<a class="anchor" href="#첫-프로그램-hello-world">#</a></h2>
+<p>원본 절차대로 터미널에서 파일을 만들고 실행합니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">sudo apt install vim          # vim 편집기 설치(이미 있으면 생략)
+mkdir test &amp;&amp; cd test
+touch hello.py
+vim hello.py                  # i 로 편집 모드 → print(&quot;Hello World&quot;) 입력 → Esc → :wq
+python3 hello.py</code></pre></div>
+<p><code>print()</code>의 전체 형식은 <code>print(*objects, sep=&#x27; &#x27;, end=&#x27;\n&#x27;, file=sys.stdout, flush=False)</code>입니다.</p>
+<ul><li><code>objects</code>: 출력할 값들, 쉼표로 여러 개</li><li><code>sep</code>: 값 사이에 넣을 문자열(기본 공백)</li><li><code>end</code>: 마지막에 붙일 문자열(기본 줄바꿈)</li><li><code>flush</code>: 버퍼를 즉시 비울지. 원본 버튼 예제(<code>key.py</code>)가 <code>print(&#x27;\r…&#x27;, end=&#x27;&#x27;, flush=True)</code>로 <strong>같은 줄을 계속 덮어쓰는</strong> 것이 이 인자 덕분입니다.</li></ul>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">print(&quot;Hello World&quot;)
+print(100 + 100)                    # 수식은 따옴표 없이 → 계산 결과
+print(&quot;x&quot;, &quot;y&quot;, &quot;theta&quot;, sep=&quot;, &quot;)  # 구분자 바꾸기
+print(&quot;battery&quot;, end=&quot;: &quot;)          # 줄바꿈 대신 &#x27;: &#x27;
+print(7.65, &quot;V&quot;)
+
+# 자료형 확인
+for value in [42, 0.2, &quot;cmd_vel&quot;, True, None]:
+    print(repr(value), &quot;-&gt;&quot;, type(value).__name__)
+
+# f-string: 로봇 로그에 가장 많이 쓰는 형식
+x, y, yaw = 1.23456, -0.5, 1.5708
+print(f&quot;pose x={x:.2f} y={y:+.2f} yaw={yaw:.3f} rad&quot;)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">Hello World
+200
+x, y, theta
+battery: 7.65 V
+42 -&gt; int
+0.2 -&gt; float
+&#x27;cmd_vel&#x27; -&gt; str
+True -&gt; bool
+None -&gt; NoneType
+pose x=1.23 y=-0.50 yaw=1.571 rad</code></pre></div>
+<h2 id="기본-문법">기본 문법<a class="anchor" href="#기본-문법">#</a></h2>
+<h3 id="주석과-들여쓰기">주석과 들여쓰기<a class="anchor" href="#주석과-들여쓰기">#</a></h3>
+<ul><li><code>#</code> 뒤는 한 줄 주석, <code>&#x27;&#x27;&#x27;…&#x27;&#x27;&#x27;</code>/<code>&quot;&quot;&quot;…&quot;&quot;&quot;</code>는 여러 줄 문자열(함수 설명 docstring에 사용)</li><li>파이썬은 중괄호 대신 <strong>들여쓰기로 코드 블록</strong>을 구분합니다. 같은 블록은 같은 칸만큼, 관례상 <strong>공백 4칸</strong>. 탭과 공백을 섞으면 <code>IndentationError</code>/<code>TabError</code>가 납니다.</li><li>한 줄은 79자 안팎(PEP 8 권장), 긴 식은 괄호 안에서 줄을 나눕니다.</li></ul>
+<h3 id="식별자이름-규칙">식별자(이름) 규칙<a class="anchor" href="#식별자이름-규칙">#</a></h3>
+<ul><li>영문자·숫자·밑줄(<code>_</code>)로 구성, <strong>숫자로 시작 불가</strong>, 대소문자 구분(<code>Speed</code>≠<code>speed</code>)</li><li>예약어(<code>if</code>, <code>for</code>, <code>class</code>, <code>import</code>, <code>lambda</code> …)는 이름으로 못 씀</li><li>관례: 변수·함수 <code>snake_case</code>(<code>max_linear</code>), 클래스 <code>CamelCase</code>(<code>MecanumChassis</code>), 상수 <code>UPPER_CASE</code>(<code>WHEEL_DIAMETER</code>)</li></ul>
+<h3 id="자료형-한눈에">자료형 한눈에<a class="anchor" href="#자료형-한눈에">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>자료형</th><th>예</th><th>변경 가능?</th><th>로봇 예</th></tr></thead><tbody><tr><td><code>int</code>, <code>float</code></td><td><code>3</code>, <code>0.065</code></td><td>불변</td><td>서보 펄스 1500, 바퀴 지름</td></tr><tr><td><code>bool</code></td><td><code>True</code></td><td>불변</td><td>버튼 눌림 여부</td></tr><tr><td><code>str</code></td><td><code>&#x27;MentorPi_Mecanum&#x27;</code></td><td>불변</td><td>토픽 이름, 환경 변수</td></tr><tr><td><code>list</code></td><td><code>[0.8, 1.2, 0.4]</code></td><td><strong>가변</strong></td><td>라이다 거리 배열</td></tr><tr><td><code>tuple</code></td><td><code>(255, 0, 0)</code></td><td>불변</td><td>RGB 색, (x, y) 좌표</td></tr><tr><td><code>dict</code></td><td><code>{&#x27;id&#x27;: 1, &#x27;rps&#x27;: 0.5}</code></td><td><strong>가변</strong></td><td>파라미터, 설정</td></tr><tr><td><code>set</code></td><td><code>{1, 2}</code></td><td><strong>가변</strong></td><td>이미 처리한 ID 모음</td></tr></tbody></table></div>
+<h3 id="연산자">연산자<a class="anchor" href="#연산자">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>종류</th><th>연산자</th><th>주의</th></tr></thead><tbody><tr><td>산술</td><td><code>+ - * / // % **</code></td><td><code>/</code>는 항상 실수, <code>//</code>는 몫(내림), <code>**</code>는 거듭제곱</td></tr><tr><td>비교</td><td><code>== != &lt; &lt;= &gt; &gt;=</code></td><td>실수는 <code>==</code> 대신 오차 범위로 비교</td></tr><tr><td>논리</td><td><code>and or not</code></td><td>단락 평가: <code>a and b</code>에서 <code>a</code>가 거짓이면 <code>b</code>는 계산 안 함</td></tr><tr><td>소속</td><td><code>in</code>, <code>not in</code></td><td><code>&#x27;scan&#x27; in topic</code></td></tr><tr><td>비트</td><td><code>&amp; | ^ ~ &lt;&lt; &gt;&gt;</code></td><td>패킷 바이트 조립(B08)에 사용</td></tr></tbody></table></div>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python"># 산술: 나눗셈 종류
+print(7 / 2, 7 // 2, 7 % 2, 2 ** 10)
+print(-7 // 2)            # 몫은 &#x27;내림&#x27; → -4
+
+# 실수 비교는 오차 범위로
+print(0.1 + 0.2 == 0.3, abs((0.1 + 0.2) - 0.3) &lt; 1e-9)
+
+# 비트 연산: 16비트 값을 하위/상위 바이트로 쪼개기 (B08 패킷에서 사용)
+duration_ms = 1000
+low, high = duration_ms &amp; 0xFF, (duration_ms &gt;&gt; 8) &amp; 0xFF
+print(hex(low), hex(high), low + (high &lt;&lt; 8))
+
+# 문자열
+topic = &quot;/ros_robot_controller/set_rgb&quot;
+print(topic.split(&quot;/&quot;))
+print(topic.startswith(&quot;/ros&quot;), &quot;rgb&quot; in topic, len(topic))
+print(topic.upper()[-7:], topic.replace(&quot;rgb&quot;, &quot;buzzer&quot;))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">3.5 3 1 1024
+-4
+False True
+0xe8 0x3 1000
+[&#x27;&#x27;, &#x27;ros_robot_controller&#x27;, &#x27;set_rgb&#x27;]
+True True 29
+SET_RGB /ros_robot_controller/set_buzzer</code></pre></div>
+<h2 id="조건문">조건문<a class="anchor" href="#조건문">#</a></h2>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">if 조건1:
+    …
+elif 조건2:      # 0개 이상
+    …
+else:            # 생략 가능
+    …</code></pre></div>
+<p>조건은 위에서부터 검사해 <strong>처음 참인 블록 하나만</strong> 실행합니다. 따라서 범위를 나눌 때는 경계가 겹치지 않게 순서대로 씁니다.</p>
+<p>원본 예제(<code>conditional_statement.py</code>)는 <code>input()</code>으로 키·몸무게를 받아 BMI를 판정합니다. 여기서는 같은 구조를 <strong>배터리 전압 판정</strong>에도 적용해 봅니다. B01에서 본 "6.4 V 아래면 충전" 규칙을 코드로 옮긴 것입니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">def bmi_grade(height_m, weight_kg):
+    bmi = weight_kg / (height_m ** 2)
+    if bmi &lt; 18.5:
+        grade = &quot;저체중&quot;
+    elif bmi &lt; 24.9:          # 18.5 &lt;= bmi 는 위에서 이미 걸러짐
+        grade = &quot;정상&quot;
+    elif bmi &lt; 29.9:
+        grade = &quot;과체중&quot;
+    else:
+        grade = &quot;비만&quot;
+    return bmi, grade
+
+for h, w in [(1.75, 55), (1.75, 70), (1.60, 70)]:
+    bmi, g = bmi_grade(h, w)
+    print(f&quot;키 {h} m, 몸무게 {w} kg -&gt; BMI {bmi:.1f} {g}&quot;)
+
+# 같은 구조로 배터리 상태 판정 (mV 정수로 보고됨)
+for mv in [8200, 7400, 6600, 6300]:
+    v = mv / 1000
+    if v &gt;= 7.4:
+        state = &quot;충분&quot;
+    elif v &gt;= 6.8:
+        state = &quot;보통&quot;
+    elif v &gt;= 6.4:
+        state = &quot;곧 충전&quot;
+    else:
+        state = &quot;즉시 충전 (주행 금지)&quot;
+    print(f&quot;{mv} mV = {v:.2f} V : {state}&quot;)
+
+# 조건 표현식(삼항)과 범위 비교
+speed = 0.35
+limited = 0.2 if speed &gt; 0.2 else speed
+print(&quot;limited:&quot;, limited, &quot;| 0 &lt; speed &lt;= 0.5 ?&quot;, 0 &lt; speed &lt;= 0.5)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">키 1.75 m, 몸무게 55 kg -&gt; BMI 18.0 저체중
+키 1.75 m, 몸무게 70 kg -&gt; BMI 22.9 정상
+키 1.6 m, 몸무게 70 kg -&gt; BMI 27.3 과체중
+8200 mV = 8.20 V : 충분
+7400 mV = 7.40 V : 충분
+6600 mV = 6.60 V : 곧 충전
+6300 mV = 6.30 V : 즉시 충전 (주행 금지)
+limited: 0.2 | 0 &lt; speed &lt;= 0.5 ? True</code></pre></div>
+<div class="callout callout-tip"><div class="callout-title">`input()`은 Playground에서 쓰지 않습니다</div><div class="callout-body"><p>원본 예제는 <code>height = float(input(&quot;height(m)：&quot;))</code>처럼 키보드 입력을 받습니다. 터미널에서 <code>python3 conditional_statement.py</code>로 실행하면 그대로 동작합니다. 로봇 노드는 사람 입력 대신 <strong>센서 토픽</strong>에서 값을 받으므로, 여기서는 함수 인자로 값을 넘기는 형태로 바꿨습니다.</p></div></div>
+<h2 id="반복문">반복문<a class="anchor" href="#반복문">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>문</th><th>쓰임</th><th>로봇 예</th></tr></thead><tbody><tr><td><code>while 조건:</code></td><td>조건이 참인 동안 반복(횟수 미정)</td><td>"장애물이 사라질 때까지 회전"</td></tr><tr><td><code>for x in 반복가능객체:</code></td><td>요소를 하나씩 꺼내 반복</td><td>라이다 거리 360개 검사</td></tr><tr><td><code>range(start, stop, step)</code></td><td>정수 수열(stop은 <strong>미포함</strong>)</td><td>모터 ID 1~4: <code>range(1, 5)</code></td></tr><tr><td><code>break</code></td><td>반복 즉시 탈출</td><td>목표 발견 시 중단</td></tr><tr><td><code>continue</code></td><td>이번 회차만 건너뜀</td><td>잘못된 측정값(inf, 0) 무시</td></tr><tr><td><code>for … else</code></td><td><code>break</code> 없이 끝났을 때만 <code>else</code> 실행</td><td>"끝까지 못 찾음" 처리</td></tr></tbody></table></div>
+<p>원본 <code>loop_statement.py</code>의 계승(factorial)과 문자열 한 글자씩 출력을 먼저 재현하고, 라이다 데이터 처리로 확장합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python"># 원본 예제: while로 n! 계산
+n = 5
+fact, i = 1, 1
+while i &lt;= n:
+    fact = fact * i
+    i = i + 1
+print(&quot;n!={}&quot;.format(fact))
+
+# 원본 예제: for로 문자열 한 글자씩
+for c in &quot;ROS2&quot;:
+    print(c, end=&quot; &quot;)
+print()
+
+# 라이다 거리(m) 일부: inf = 반사 없음, 0.0 = 측정 실패
+ranges = [1.20, 0.95, float(&quot;inf&quot;), 0.0, 0.42, 0.38, 0.55, 2.10]
+valid = []
+for r in ranges:
+    if r == 0.0 or r == float(&quot;inf&quot;):
+        continue                 # 쓸 수 없는 값은 건너뛰기
+    valid.append(r)
+print(&quot;valid:&quot;, valid)
+print(&quot;min:&quot;, min(valid), &quot;at index&quot;, ranges.index(min(valid)))
+
+# 0.4 m 보다 가까운 점을 처음 찾으면 멈추기
+for idx, r in enumerate(ranges):
+    if 0.0 &lt; r &lt; 0.4:
+        print(&quot;장애물! index&quot;, idx, &quot;distance&quot;, r)
+        break
+else:
+    print(&quot;가까운 장애물 없음&quot;)
+
+# range: 모터 ID 1~4
+print([mid for mid in range(1, 5)], list(range(10, 0, -3)))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">n!=120
+R O S 2 
+valid: [1.2, 0.95, 0.42, 0.38, 0.55, 2.1]
+min: 0.38 at index 5
+장애물! index 5 distance 0.38
+[1, 2, 3, 4] [10, 7, 4, 1]</code></pre></div>
+<div class="callout callout-warn"><div class="callout-title">무한 루프와 로봇</div><div class="callout-body"><p><code>while True:</code>로 센서를 계속 읽는 프로그램은 반드시 <strong>빠져나갈 조건</strong>(Ctrl+C 처리, <code>break</code>)과 <strong>종료 시 정지 명령</strong>을 넣습니다. 원본 확장보드 예제들이 <code>signal.signal(signal.SIGINT, Stop)</code>으로 Ctrl+C를 잡아 모터를 0으로 만든 뒤 <code>break</code>하는 것이 바로 이 패턴입니다(B08·B09).</p></div></div>
+<h2 id="함수">함수<a class="anchor" href="#함수">#</a></h2>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">def 함수이름(매개변수들):
+    &quot;&quot;&quot;설명(docstring)&quot;&quot;&quot;
+    …
+    return 값        # 없으면 None 반환</code></pre></div>
+<ul><li><strong>매개변수(parameter)</strong>: 정의할 때의 이름, <strong>인자(argument)</strong>: 호출할 때 넘기는 실제 값</li><li><code>return a, b</code>처럼 여러 값을 돌려주면 튜플로 묶여 반환되고, 받을 때 풀 수 있습니다.</li></ul>
+<h3 id="인자-종류">인자 종류<a class="anchor" href="#인자-종류">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>종류</th><th>정의</th><th>호출</th><th>예</th></tr></thead><tbody><tr><td>위치 인자</td><td><code>def f(a, b)</code></td><td><code>f(1, 2)</code></td><td>순서대로 대입</td></tr><tr><td>기본값 인자</td><td><code>def f(a, b=0.2)</code></td><td><code>f(1)</code></td><td>생략 시 기본값</td></tr><tr><td>가변 위치 인자</td><td><code>def f(*args)</code></td><td><code>f(1, 2, 3)</code></td><td>튜플로 모임</td></tr><tr><td>키워드 인자</td><td>—</td><td><code>f(b=2, a=1)</code></td><td>이름으로 대입(순서 무관)</td></tr><tr><td>가변 키워드 인자</td><td><code>def f(**kwargs)</code></td><td><code>f(x=1, y=2)</code></td><td>딕셔너리로 모임</td></tr><tr><td>키워드 전용 인자</td><td><code>def f(a, *, unit)</code></td><td><code>f(1, unit=&#x27;m&#x27;)</code></td><td><code>*</code> 뒤는 이름으로만</td></tr></tbody></table></div>
+<p>아래 <code>val_map</code>은 원본 <code>sdk.common</code>의 같은 이름 함수와 같은 일을 합니다. 조이패드 스틱 값(−1~1)을 속도 범위로 선형 변환하는, 로봇 코드에서 가장 흔한 함수입니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">def val_map(x, in_min, in_max, out_min, out_max):
+    &quot;&quot;&quot;x 를 [in_min, in_max] 에서 [out_min, out_max] 로 선형 변환&quot;&quot;&quot;
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
+
+def clamp(v, limit=0.2):                 # 기본값 인자
+    return max(-limit, min(limit, v))
+
+def rps_of(speed, *, diameter=0.065):    # * 뒤는 키워드 전용
+    import math
+    return speed / (math.pi * diameter)
+
+def set_motors(*speeds, **options):      # 가변 인자
+    ids = list(range(1, len(speeds) + 1))
+    return list(zip(ids, speeds)), options
+
+for stick in [-1.0, -0.5, 0.0, 0.6, 1.0]:
+    v = val_map(stick, -1, 1, -0.5, 0.5)
+    print(f&quot;stick {stick:+.1f} -&gt; v {v:+.2f} -&gt; clamped {clamp(v):+.2f}&quot;)
+
+print(round(rps_of(0.2), 4), round(rps_of(0.2, diameter=0.067), 4))
+pairs, opts = set_motors(0.5, -0.5, 0.5, -0.5, unit=&quot;rps&quot;, verbose=True)
+print(pairs)
+print(opts)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">stick -1.0 -&gt; v -0.50 -&gt; clamped -0.20
+stick -0.5 -&gt; v -0.25 -&gt; clamped -0.20
+stick +0.0 -&gt; v +0.00 -&gt; clamped +0.00
+stick +0.6 -&gt; v +0.30 -&gt; clamped +0.20
+stick +1.0 -&gt; v +0.50 -&gt; clamped +0.20
+0.9794 0.9502
+[(1, 0.5), (2, -0.5), (3, 0.5), (4, -0.5)]
+{&#x27;unit&#x27;: &#x27;rps&#x27;, &#x27;verbose&#x27;: True}</code></pre></div>
+<h3 id="가변-객체와-불변-객체-전달">가변 객체와 불변 객체 전달<a class="anchor" href="#가변-객체와-불변-객체-전달">#</a></h3>
+<p>파이썬은 인자로 <strong>객체의 참조(이름표)</strong>를 넘깁니다. 그래서</p>
+<ul><li>불변 객체(<code>int</code>, <code>float</code>, <code>str</code>, <code>tuple</code>)를 함수 안에서 "바꾸면" 새 객체가 만들어질 뿐 <strong>호출한 쪽 값은 그대로</strong>입니다.</li><li>가변 객체(<code>list</code>, <code>dict</code>)를 함수 안에서 수정(<code>append</code>, 항목 대입)하면 <strong>호출한 쪽 객체도 바뀝니다.</strong></li></ul>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">def add_offset(value, offset):
+    value = value + offset          # 새 int 객체를 지역 이름에 붙임
+    return value
+
+def add_offset_all(values, offset):
+    for i in range(len(values)):
+        values[i] += offset         # 같은 list 객체를 직접 수정
+
+pulse = 1500
+print(add_offset(pulse, 45), pulse)         # pulse 는 그대로
+
+pulses = [1500, 1500, 1500]
+add_offset_all(pulses, 45)
+print(pulses)                               # 원본 리스트가 바뀜
+
+# 흔한 함정: 가변 기본값은 한 번만 만들어진다
+def log_bad(msg, history=[]):
+    history.append(msg)
+    return history
+
+def log_good(msg, history=None):
+    if history is None:
+        history = []
+    history.append(msg)
+    return history
+
+print(log_bad(&quot;a&quot;), log_bad(&quot;b&quot;))           # 같은 리스트가 계속 쌓임
+print(log_good(&quot;a&quot;), log_good(&quot;b&quot;))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">1545 1500
+[1545, 1545, 1545]
+[&#x27;a&#x27;, &#x27;b&#x27;] [&#x27;a&#x27;, &#x27;b&#x27;]
+[&#x27;a&#x27;] [&#x27;b&#x27;]</code></pre></div>
+<h2 id="컨테이너-자료형-다루기">컨테이너 자료형 다루기<a class="anchor" href="#컨테이너-자료형-다루기">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>자료형</th><th>만들기</th><th>꺼내기</th><th>바꾸기</th></tr></thead><tbody><tr><td>리스트</td><td><code>[1, 2]</code>, <code>list(range(3))</code></td><td><code>a[0]</code>, <code>a[-1]</code>, <code>a[1:3]</code></td><td><code>append</code>, <code>insert</code>, <code>pop</code>, <code>remove</code>, <code>a[i] = v</code>, <code>sort</code></td></tr><tr><td>튜플</td><td><code>(1, 2)</code>, <code>1, 2</code></td><td>리스트와 같음</td><td>불가(새로 만들어야 함)</td></tr><tr><td>딕셔너리</td><td><code>{&#x27;k&#x27;: v}</code>, <code>dict(k=v)</code></td><td><code>d[&#x27;k&#x27;]</code>, <code>d.get(&#x27;k&#x27;, 기본값)</code></td><td><code>d[&#x27;k&#x27;] = v</code>, <code>update</code>, <code>pop</code></td></tr><tr><td>집합</td><td><code>{1, 2}</code>, <code>set()</code></td><td><code>in</code> 검사(순서 없음)</td><td><code>add</code>, <code>discard</code>, <code>|</code> 합, <code>&amp;</code> 교, <code>-</code> 차</td></tr></tbody></table></div>
+<figure class="fig" id="fig-b05-slicing"><svg viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="리스트 인덱스와 슬라이싱 a[2:5]">
+  <text class="lbl mono" x="20" y="26">ranges = [0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5]</text>
+  <text class="tag" x="20" y="62">인덱스</text>
+  <text class="tag" x="20" y="132">음수</text>
+  <g>
+    <rect class="box" x="104" y="70" width="64" height="40" rx="4"/>
+    <rect class="box" x="170" y="70" width="64" height="40" rx="4"/>
+    <rect class="box-hi" x="236" y="70" width="64" height="40" rx="4"/>
+    <rect class="box-hi" x="302" y="70" width="64" height="40" rx="4"/>
+    <rect class="box-hi" x="368" y="70" width="64" height="40" rx="4"/>
+    <rect class="box" x="434" y="70" width="64" height="40" rx="4"/>
+    <rect class="box" x="500" y="70" width="64" height="40" rx="4"/>
+    <rect class="box" x="566" y="70" width="64" height="40" rx="4"/>
+  </g>
+  <g class="lbl mono" text-anchor="middle">
+    <text x="136" y="95">0.8</text><text x="202" y="95">0.9</text><text x="268" y="95">1.0</text><text x="334" y="95">1.1</text>
+    <text x="400" y="95">1.2</text><text x="466" y="95">1.3</text><text x="532" y="95">1.4</text><text x="598" y="95">1.5</text>
+  </g>
+  <g class="tag mono" text-anchor="middle">
+    <text x="136" y="62">0</text><text x="202" y="62">1</text><text x="268" y="62">2</text><text x="334" y="62">3</text>
+    <text x="400" y="62">4</text><text x="466" y="62">5</text><text x="532" y="62">6</text><text x="598" y="62">7</text>
+    <text x="136" y="132">-8</text><text x="202" y="132">-7</text><text x="268" y="132">-6</text><text x="334" y="132">-5</text>
+    <text x="400" y="132">-4</text><text x="466" y="132">-3</text><text x="532" y="132">-2</text><text x="598" y="132">-1</text>
+  </g>
+  <path d="M236 142 L236 150 L432 150 L432 142" style="stroke:var(--accent);fill:none" stroke-width="1.8"/>
+  <path d="M434 66 L434 150" style="stroke:var(--danger);fill:none" stroke-width="1.4" stroke-dasharray="4 3"/>
+  <text class="tag mono hi" x="334" y="170" text-anchor="middle">a[2:5] → [1.0, 1.1, 1.2]</text>
+  <text class="tag" x="442" y="170">stop = 5 는 미포함</text>
+  <text class="sub mono" x="360" y="204" text-anchor="middle">a[-1] → 1.5   ·   a[::2] → 0, 2, 4, 6번   ·   a[::-1] → 뒤집기   ·   len(a) = 8</text>
+</svg><figcaption>인덱스와 슬라이싱. <code>a[start:stop:step]</code>에서 stop은 포함되지 않고, 음수 인덱스는 뒤에서부터 셉니다.</figcaption></figure>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">ranges = [0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5]   # 8개 샘플
+print(ranges[0], ranges[-1], ranges[2:5], ranges[::2], ranges[::-1][:3])
+
+# 리스트 컴프리헨션: 조건에 맞는 값만 변환
+near = [round(r * 100) for r in ranges if r &lt; 1.2]
+print(&quot;near (cm):&quot;, near)
+
+# 딕셔너리: 모터 ID -&gt; rps
+motors = {1: -0.98, 2: -0.98, 3: 0.98, 4: 0.98}
+motors[2] = -0.5
+for mid, rps in motors.items():
+    print(f&quot;M{mid}: {rps:+.2f} rps&quot;)
+print(&quot;M5:&quot;, motors.get(5, 0.0), &quot;| keys:&quot;, list(motors.keys()))
+
+# 튜플 언패킹과 zip
+colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255)]
+names = [&quot;red&quot;, &quot;green&quot;, &quot;blue&quot;]
+for name, (r, g, b) in zip(names, colors):
+    print(name, &quot;-&gt;&quot;, [1, r, g, b])       # set_rgb 한 항목 형식 [index, r, g, b]
+
+# 집합: 중복 제거와 연산 (정렬해서 출력)
+seen = {3, 1, 2, 3, 1}
+print(sorted(seen), sorted(seen | {4, 5}), sorted(seen &amp; {2, 3, 9}))
+
+# 정렬: 거리 기준으로 가까운 순
+points = [(&quot;box&quot;, 1.3), (&quot;wall&quot;, 0.6), (&quot;chair&quot;, 0.9)]
+print(sorted(points, key=lambda p: p[1]))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">0.8 1.5 [1.0, 1.1, 1.2] [0.8, 1.0, 1.2, 1.4] [1.5, 1.4, 1.3]
+near (cm): [80, 90, 100, 110]
+M1: -0.98 rps
+M2: -0.50 rps
+M3: +0.98 rps
+M4: +0.98 rps
+M5: 0.0 | keys: [1, 2, 3, 4]
+red -&gt; [1, 255, 0, 0]
+green -&gt; [1, 0, 255, 0]
+blue -&gt; [1, 0, 0, 255]
+[1, 2, 3] [1, 2, 3, 4, 5] [2, 3]
+[(&#x27;wall&#x27;, 0.6), (&#x27;chair&#x27;, 0.9), (&#x27;box&#x27;, 1.3)]</code></pre></div>
+<h2 id="모듈">모듈<a class="anchor" href="#모듈">#</a></h2>
+<p><strong>모듈(module)</strong>은 함수·클래스·변수를 모은 <code>.py</code> 파일이고, 여러 모듈을 폴더로 묶은 것이 <strong>패키지(package)</strong>입니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math                              # 모듈 전체
+from math import pi, sqrt                # 필요한 이름만
+import ros_robot_controller_sdk as rrc   # 별칭 — 원본 확장보드 예제의 방식</code></pre></div>
+<p><code>import</code>하면 파이썬은 현재 폴더 → 설치된 라이브러리 경로(<code>sys.path</code>) 순으로 파일을 찾습니다. 원본 확장보드 예제를 <code>~/board_demo</code> 폴더 <strong>안에서</strong> 실행해야 하는 이유는 <code>ros_robot_controller_sdk.py</code>가 같은 폴더에 있기 때문입니다.</p>
+<p>자기 모듈을 만들 때는 테스트 코드를 <code>if __name__ == &#x27;__main__&#x27;:</code> 아래에 둡니다. 직접 실행하면 <code>__name__</code>이 <code>&#x27;__main__&#x27;</code>이라 실행되고, 다른 파일에서 <code>import</code>하면 실행되지 않습니다. 원본 SDK 파일 맨 아래의 시험 코드도 이 구조입니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+from math import degrees, radians, atan
+
+WHEEL_D = 0.065
+print(&quot;둘레:&quot;, round(math.pi * WHEEL_D, 4), &quot;m&quot;)
+
+# 애커만 조향: 회전 반경 R 에 필요한 조향각
+L = 0.145
+for R in [0.5, 0.3, 0.26]:
+    delta = atan(L / R)
+    pulse = 1500 + 2000 * degrees(-delta) / 180
+    print(f&quot;R={R} m -&gt; delta={degrees(delta):.1f} deg -&gt; servo pulse {pulse:.0f}&quot;)
+
+print(&quot;29도 =&quot;, round(radians(29), 4), &quot;rad, hypot(3,4) =&quot;, math.hypot(3, 4))
+print(__name__)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">둘레: 0.2042 m
+R=0.5 m -&gt; delta=16.2 deg -&gt; servo pulse 1320
+R=0.3 m -&gt; delta=25.8 deg -&gt; servo pulse 1213
+R=0.26 m -&gt; delta=29.1 deg -&gt; servo pulse 1176
+29도 = 0.5061 rad, hypot(3,4) = 5.0
+__main__</code></pre></div>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<p>로봇(또는 가상 머신)의 터미널에서 파이썬 파일을 직접 만들어 실행합니다. 하드웨어를 움직이지 않는 실습입니다.</p>
+<div class="callout callout-safety"><div class="callout-title">안전 확인 (실물 실습 전 필수)</div><div class="callout-body"><ul><li>이 실습은 모터·서보를 제어하지 않지만, 로봇 위에서 작업한다면 바퀴가 뜬 상태로 두고 전원 케이블·배터리 선을 건드리지 않습니다.</li><li>파일은 <code>~/py_lab</code>에만 만들고, 원본 예제 폴더(<code>~/board_demo</code>, <code>~/ros2_ws/src</code>)의 파일은 <strong>복사해서</strong> 고칩니다.</li></ul></div></div>
+<div class="callout callout-task"><div class="callout-title">따라 하기</div><div class="callout-body"><ol><li><code>mkdir -p ~/py_lab &amp;&amp; cd ~/py_lab</code></li><li><code>vim lidar_stats.py</code>로 위의 라이다 처리 코드를 입력하고 <code>python3 lidar_stats.py</code>로 실행합니다.</li><li><code>mytools.py</code>에 <code>val_map</code>과 <code>clamp</code>를 넣고, 같은 폴더의 <code>main.py</code>에서 <code>from mytools import val_map, clamp</code>로 불러 씁니다. <code>mytools.py</code> 맨 아래에 <code>if __name__ == &#x27;__main__&#x27;:</code> 테스트를 넣고, 직접 실행할 때와 import될 때의 차이를 확인합니다.</li><li>원본 <code>conditional_statement.py</code>, <code>loop_statement.py</code>를 공유 폴더에서 실행해 <code>input()</code> 입력을 넣어 봅니다.</li></ol></div></div>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> <code>print(..., end=&#x27;&#x27;, flush=True)</code>가 무엇에 쓰이는지 말할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> <code>range(1, 5)</code>가 만드는 수열을 말할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> 리스트를 함수에 넘겨 수정하면 호출한 쪽도 바뀌는 이유를 설명할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> <code>val_map</code>으로 스틱 값 0.6을 ±0.5 m/s 범위로 바꾼 값을 계산할 수 있다.</label></li></ul></div></div>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상(오류 메시지)</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td><code>IndentationError: expected an indented block</code></td><td><code>if</code>/<code>for</code>/<code>def</code> 뒤 블록을 들여쓰지 않음</td><td>콜론 다음 줄을 4칸 들여쓰기</td></tr><tr><td><code>TabError: inconsistent use of tabs and spaces</code></td><td>탭과 공백 혼용(원본 <code>loop_statement.py</code>는 탭 사용)</td><td>편집기에서 탭을 공백 4칸으로 통일</td></tr><tr><td><code>SyntaxError: invalid syntax</code> (<code>if x = 1</code>)</td><td>비교에 <code>=</code> 사용, 콜론 누락, 괄호 짝 불일치</td><td>비교는 <code>==</code>, 줄 끝 <code>:</code> 확인</td></tr><tr><td><code>NameError: name &#x27;x&#x27; is not defined</code></td><td>오타, 정의 전 사용, 다른 함수의 지역 변수</td><td>철자·정의 순서 확인</td></tr><tr><td><code>TypeError: can only concatenate str (not &quot;float&quot;) to str</code></td><td><code>&quot;BMI：&quot; + bmi</code>처럼 문자열과 숫자 결합</td><td><code>str(bmi)</code> 또는 f-string</td></tr><tr><td><code>ValueError: could not convert string to float</code></td><td><code>float(input())</code>에 숫자가 아닌 입력</td><td>입력 확인, <code>try/except</code>(B06)</td></tr><tr><td><code>IndexError: list index out of range</code></td><td>없는 인덱스 접근</td><td><code>len()</code> 확인, 음수 인덱스 활용</td></tr><tr><td><code>KeyError: 5</code></td><td>딕셔너리에 없는 키</td><td><code>d.get(5, 기본값)</code> 또는 <code>in</code>으로 먼저 검사</td></tr><tr><td><code>ModuleNotFoundError: No module named &#x27;ros_robot_controller_sdk&#x27;</code></td><td>모듈 파일이 없는 폴더에서 실행</td><td>예제 폴더로 <code>cd</code> 후 실행</td></tr><tr><td><code>0.1 + 0.2 == 0.3</code>이 <code>False</code></td><td>이진 부동소수점 오차</td><td><code>abs(a - b) &lt; 1e-9</code>로 비교</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">기본</div><div class="callout-body"><ol><li>라이다 거리 리스트에서 0과 <code>inf</code>를 제외한 값의 <strong>평균·최솟값·최댓값</strong>을 출력하는 함수 <code>scan_stats(ranges)</code>를 작성합니다(반환은 튜플).</li><li>배터리 mV 값을 받아 <code>(볼트, 상태 문자열)</code>을 반환하는 함수를 만들고, 경계값 6400·6399·6800 mV로 시험합니다.</li></ol></div></div>
+<div class="callout callout-task"><div class="callout-title">심화</div><div class="callout-body"><ol><li>조이패드 축 딕셔너리 <code>{&#x27;lx&#x27;: 0.05, &#x27;ly&#x27;: 0.8, &#x27;rx&#x27;: -0.3}</code>를 받아, 데드존 0.1을 적용한 뒤 메카넘용 <code>(linear_x, linear_y, angular_z)</code>를 반환하는 함수를 작성합니다(최대 0.5 m/s, 2.0 rad/s, <code>val_map</code> 사용).</li><li><code>for … else</code>를 써서 라이다 리스트에서 "0.3 m 이내 점이 연속 3개 이상"인 구간의 시작 인덱스를 찾고, 없으면 "안전"을 출력합니다.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: 3. Python Basic Lesson — <em>Lesson 1 Python Introduction and Installation</em>, <em>Lesson 2 First Program-"Hello World"</em>, <em>Lesson 3 Python Basic Syntax</em>, <em>Lesson 4 Python Condition Statement</em>, <em>Lesson 5 Python Loop Statement</em>, <em>Lesson 6 Python Function and Module</em>, <em>Lesson 7 Python Container Type and Related Operation</em></li><li>원본 예제: <code>Lesson 4 …/Routine Code/conditional_statement.py</code>, <code>Lesson 5 …/Routine Code/loop_statement.py</code></li><li>Python 공식 튜토리얼(한국어): https://docs.python.org/ko/3/tutorial/</li><li>PEP 8 스타일 가이드: https://peps.python.org/pep-0008/</li></ul>
+      <nav class="pager"><a class="pager-prev" href="b04.html"><span>이전 · B04</span>리눅스 기초: 설치·명령어·권한</a><a class="pager-next" href="b06.html"><span>다음 · B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#파이썬-소개">파이썬 소개</a><a class="toc-l2" href="#첫-프로그램-hello-world">첫 프로그램: Hello World</a><a class="toc-l2" href="#기본-문법">기본 문법</a><a class="toc-l3" href="#주석과-들여쓰기">주석과 들여쓰기</a><a class="toc-l3" href="#식별자이름-규칙">식별자(이름) 규칙</a><a class="toc-l3" href="#자료형-한눈에">자료형 한눈에</a><a class="toc-l3" href="#연산자">연산자</a><a class="toc-l2" href="#조건문">조건문</a><a class="toc-l2" href="#반복문">반복문</a><a class="toc-l2" href="#함수">함수</a><a class="toc-l3" href="#인자-종류">인자 종류</a><a class="toc-l3" href="#가변-객체와-불변-객체-전달">가변 객체와 불변 객체 전달</a><a class="toc-l2" href="#컨테이너-자료형-다루기">컨테이너 자료형 다루기</a><a class="toc-l2" href="#모듈">모듈</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

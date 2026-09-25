@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R10. 엣지·모폴로지·임계값 처리 · studyMentorPi</title>
+<meta name="description" content="Canny·Sobel 엣지, 침식·팽창·열림·닫힘, 전역·적응형·Otsu 이진화 — 색 인식과 라인 트레이싱의 전처리.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-ros">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" class="active" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="r10" data-track="ros">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-ros">ROS 2·OpenCV 기초</span> R-3 OpenCV 영상 처리 &middot; 약 80분 &middot; 중급</div>
+    <h1><span class="lesson-no">R10</span>엣지·모폴로지·임계값 처리</h1>
+    <p class="lede">Canny·Sobel 엣지, 침식·팽창·열림·닫힘, 전역·적응형·Otsu 이진화 — 색 인식과 라인 트레이싱의 전처리.</p>
+    <div class="requires">선수 챕터: <a href="r09.html">R09</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      <a class="ghost-btn" href="../tools/color-lab.html">HSV 색 실험실</a><a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>영상의 기울기(gradient)를 Sobel 연산자로 계산하고, Canny 엣지 검출의 4단계(잡음 제거 → 기울기 → 비최대 억제 → 이력 임계값)를 설명합니다.</li><li>구조 요소(structuring element)로 침식·팽창·열림·닫힘·탑햇·블랙햇을 적용하고, 마스크의 잡음과 구멍을 정리합니다.</li><li>전역·적응형·Otsu 이진화를 비교해 조명이 고르지 않은 영상에 맞는 방법을 고릅니다.</li><li>이 세 가지를 조합해 라인 트레이싱·색 인식에 쓰는 <strong>깨끗한 이진 마스크</strong>를 만듭니다.</li></ul>
+<h2 id="엣지-검출-edge-detection">엣지 검출 (Edge Detection)<a class="anchor" href="#엣지-검출-edge-detection">#</a></h2>
+<p>엣지(edge)는 밝기가 <strong>급하게 변하는 곳</strong>입니다. 물체의 경계, 바닥 위 검은 선의 가장자리, 차선의 양옆이 모두 엣지입니다. 엣지만 남기면 데이터 양은 크게 줄고 모양 정보는 남습니다.</p>
+<p>엣지를 찾는 방법은 두 갈래입니다.</p>
+<ul><li><strong>1차 미분 방식</strong>: 기울기의 크기가 극대인 곳을 찾습니다. Sobel, Scharr, Canny가 여기에 속합니다.</li><li><strong>2차 미분 방식</strong>: 2차 미분이 0을 지나는 곳(zero-crossing)을 찾습니다. Laplacian이 대표적입니다. 잡음에 더 민감합니다.</li></ul>
+<h3 id="기울기와-sobel-연산자">기울기와 Sobel 연산자<a class="anchor" href="#기울기와-sobel-연산자">#</a></h3>
+<p>영상 <span class="math">I(x, y)</span>의 기울기는 가로·세로 방향 미분 <span class="math">(G_x, G_y)</span>입니다. 디지털 영상에서는 3×3 <strong>Sobel 커널</strong>과의 합성곱으로 근사합니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">      Gx 커널              Gy 커널
+   [ -1  0  +1 ]        [ -1  -2  -1 ]
+   [ -2  0  +2 ]        [  0   0   0 ]
+   [ -1  0  +1 ]        [ +1  +2  +1 ]
+
+크기  G = sqrt(Gx² + Gy²)        방향  θ = atan2(Gy, Gx)</code></pre></div>
+<p><span class="math">G_x</span>는 <strong>세로로 서 있는 엣지</strong>(좌우 밝기 차)에, <span class="math">G_y</span>는 <strong>가로로 누운 엣지</strong>에 반응합니다. 기울기 방향 θ는 항상 엣지와 <strong>수직</strong>입니다. 가운데 행·열에 가중치 2를 주는 것은 가벼운 가우시안 평활을 함께 하기 위해서입니다.</p>
+<p><code>cv2.Sobel(src, ddepth, dx, dy, ksize)</code>에서 <code>ddepth</code>는 결과 자료형입니다. 밝→어두 경계는 음수 기울기를 만드는데 <code>uint8</code>로 받으면 <strong>음수가 0으로 잘려 엣지의 절반이 사라집니다.</strong> 그래서 <code>cv2.CV_16S</code>나 <code>cv2.CV_64F</code>로 받은 뒤 <code>cv2.convertScaleAbs</code>로 절댓값을 취합니다.</p>
+<h3 id="canny-엣지-검출">Canny 엣지 검출<a class="anchor" href="#canny-엣지-검출">#</a></h3>
+<p>1986년 John Canny가 제안한 Canny 검출기는 지금도 가장 널리 쓰이는 엣지 검출기로, 4단계로 동작합니다.</p>
+<figure class="fig" id="fig-r10-canny"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Canny 4단계와 이력 임계값 그래프">
+  <defs>
+    <marker id="arr-r10-canny" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <rect class="box" x="10" y="20" width="160" height="56" rx="6"/>
+  <text class="lbl" x="90" y="44" text-anchor="middle">① 가우시안 5×5</text>
+  <text class="sub" x="90" y="64" text-anchor="middle">잡음 제거</text>
+  <rect class="box" x="190" y="20" width="160" height="56" rx="6"/>
+  <text class="lbl" x="270" y="44" text-anchor="middle">② Sobel G, θ</text>
+  <text class="sub" x="270" y="64" text-anchor="middle">크기와 방향(4방향)</text>
+  <rect class="box" x="370" y="20" width="160" height="56" rx="6"/>
+  <text class="lbl" x="450" y="44" text-anchor="middle">③ 비최대 억제</text>
+  <text class="sub" x="450" y="64" text-anchor="middle">1픽셀 폭으로 얇게</text>
+  <rect class="box-hi" x="550" y="20" width="160" height="56" rx="6"/>
+  <text class="lbl" x="630" y="44" text-anchor="middle">④ 이력 임계값</text>
+  <text class="sub" x="630" y="64" text-anchor="middle">minVal · maxVal</text>
+  <path class="ln" d="M170 48 L186 48 M350 48 L366 48 M530 48 L546 48" stroke-width="1.6" marker-end="url(#arr-r10-canny)"/>
+  <path class="ln" d="M80 270 L80 110" stroke-width="1.4" marker-end="url(#arr-r10-canny)"/>
+  <text class="tag" x="86" y="118">기울기 G</text>
+  <path class="ln" d="M80 270 L520 270" stroke-width="1.4" marker-end="url(#arr-r10-canny)"/>
+  <text class="tag" x="480" y="288">엣지를 따라간 위치</text>
+  <path class="ln-hi" d="M80 160 L520 160" stroke-width="1.2" stroke-dasharray="6 4"/>
+  <text class="tag mono" x="526" y="164">maxVal</text>
+  <path class="ln-hi" d="M80 220 L520 220" stroke-width="1.2" stroke-dasharray="6 4"/>
+  <text class="tag mono" x="526" y="224">minVal</text>
+  <path class="ln" d="M90 250 Q130 130 170 140 Q210 150 240 195 Q270 235 300 200 Q330 170 360 205 Q390 240 420 250 Q450 256 500 240" stroke-width="2.2" fill="none"/>
+  <text class="sub" x="150" y="128" text-anchor="middle">확실한 엣지</text>
+  <text class="sub" x="300" y="190" text-anchor="middle">연결되어 유지</text>
+  <text class="sub" x="440" y="236" text-anchor="middle">버림</text>
+  <text class="sub" x="620" y="130" text-anchor="middle">G &gt; maxVal : 엣지</text>
+  <text class="sub" x="620" y="150" text-anchor="middle">minVal ~ maxVal :</text>
+  <text class="sub" x="620" y="168" text-anchor="middle">엣지와 이어지면 유지</text>
+  <text class="sub" x="620" y="188" text-anchor="middle">G &lt; minVal : 제거</text>
+</svg><figcaption>Canny 엣지 검출의 4단계와 이력 임계값(hysteresis)</figcaption></figure>
+<ol><li><strong>잡음 제거</strong>: 5×5 가우시안으로 흐립니다. 잡음 한 점도 큰 기울기를 만들기 때문입니다.</li><li><strong>기울기 크기·방향</strong>: Sobel로 <span class="math">G</span>와 θ를 구하고, θ를 0°·45°·90°·135° 네 방향으로 반올림합니다.</li><li><strong>비최대 억제(Non-Maximum Suppression)</strong>: 각 픽셀을 기울기 방향의 앞뒤 이웃과 비교해 <strong>최대가 아니면 0</strong>으로 만듭니다. 두꺼운 기울기 띠가 1픽셀 폭의 선이 됩니다.</li><li><strong>이력 임계값(Hysteresis Thresholding)</strong>: 두 임계값 <code>minVal &lt; maxVal</code>을 씁니다. <span class="math">G &gt;</span> <code>maxVal</code>이면 <strong>확실한 엣지</strong>, <span class="math">G &lt;</span> <code>minVal</code>이면 버리고, 그 사이는 <strong>확실한 엣지와 연결되어 있을 때만</strong> 남깁니다. 끊기지 않으면서도 잡음은 버리는 비결입니다.</li></ol>
+<p><code>cv2.Canny(image, threshold1, threshold2)</code>에서 <code>threshold1</code>이 <code>minVal</code>, <code>threshold2</code>가 <code>maxVal</code>입니다. 흔히 1:2 ~ 1:3 비율로 잡습니다. 원본 교재 예제(<code>edge_detection.py</code>)는 <code>Canny(img, 1, 80)</code>처럼 낮은 임계값을 아주 낮게 두어 약한 엣지까지 많이 남깁니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+import numpy as np
+
+img = np.full((100, 100), 50, np.uint8)
+cv2.rectangle(img, (30, 30), (69, 69), 200, -1)           # 밝은 사각형 (경계 x=30, x=69)
+
+gx = cv2.Sobel(img, cv2.CV_64F, 1, 0, ksize=3)
+gy = cv2.Sobel(img, cv2.CV_64F, 0, 1, ksize=3)
+print(&quot;가로줄 y=50의 Gx:&quot;, gx[50, 27:33].astype(int).tolist(), &quot;... &quot;, gx[50, 67:73].astype(int).tolist())
+print(&quot;같은 위치 Gy:&quot;, gy[50, 28:32].astype(int).tolist(), &quot;(세로 엣지에는 Gy가 반응하지 않음)&quot;)
+g8 = cv2.Sobel(img, cv2.CV_8U, 1, 0, ksize=3)
+print(&quot;CV_8U로 받으면 오른쪽 경계:&quot;, g8[50, 67:73].tolist(), &quot;→ 음수가 잘려 사라짐&quot;)
+
+mag = cv2.magnitude(gx, gy)
+print(&quot;기울기 최대 %.0f, 0이 아닌 픽셀 %d&quot; % (mag.max(), np.count_nonzero(mag)))
+edges = cv2.Canny(img, 50, 150)
+print(&quot;Canny 엣지 픽셀 %d (사각형 둘레 %d)&quot; % (np.count_nonzero(edges), 4 * 40 - 4))
+
+shapes = cv2.cvtColor(cv2.imread(&quot;shapes.png&quot;), cv2.COLOR_BGR2GRAY)
+for lo, hi in [(10, 30), (50, 150), (200, 400)]:
+    print(&quot;shapes.png Canny(%d, %d): %d 픽셀&quot; % (lo, hi, np.count_nonzero(cv2.Canny(shapes, lo, hi))))
+cv2.imshow(&quot;Canny 50/150&quot;, cv2.Canny(shapes, 50, 150))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">가로줄 y=50의 Gx: [0, 0, 600, 600, 0, 0] ...  [0, 0, -600, -600, 0, 0]
+같은 위치 Gy: [0, 0, 0, 0] (세로 엣지에는 Gy가 반응하지 않음)
+CV_8U로 받으면 오른쪽 경계: [0, 0, 0, 0, 0, 0] → 음수가 잘려 사라짐
+기울기 최대 636, 0이 아닌 픽셀 320
+Canny 엣지 픽셀 156 (사각형 둘레 156)
+shapes.png Canny(10, 30): 2089 픽셀
+shapes.png Canny(50, 150): 2089 픽셀
+shapes.png Canny(200, 400): 1521 픽셀</code></pre></div>
+<ul><li>왼쪽 경계(어두움 → 밝음)는 <span class="math">G_x</span>가 양수, 오른쪽 경계(밝음 → 어두움)는 음수입니다. 값 600은 밝기 차 150 × 커널 가중치 합 4에서 나옵니다.</li><li>비최대 억제 덕분에 Canny 결과는 경계를 따라 <strong>1픽셀 폭</strong>입니다. 기울기가 0이 아닌 픽셀 수보다 훨씬 적습니다.</li><li><code>shapes.png</code>에서 임계값을 크게 올리면 대비가 약한 도형(노란 타원은 흰 배경과 밝기 차가 작음)의 엣지부터 사라집니다.</li></ul>
+<div class="callout callout-tip"><div class="callout-title">Laplacian과 Scharr</div><div class="callout-body"><p><code>cv2.Laplacian(img, cv2.CV_64F)</code>은 2차 미분 하나로 모든 방향의 엣지를 찾지만 잡음에 약해 보통 가우시안 뒤에 씁니다(LoG). <code>cv2.Scharr</code>는 3×3 커널에서 Sobel보다 방향 정확도가 높은 대안입니다.</p></div></div>
+<h2 id="모폴로지-처리-morphological-processing">모폴로지 처리 (Morphological Processing)<a class="anchor" href="#모폴로지-처리-morphological-processing">#</a></h2>
+<p>모폴로지(형태학)는 <strong>모양</strong>을 기준으로 이진 영상을 다듬는 연산입니다. 색 임계값으로 만든 마스크에는 작은 흰 점(잡음), 물체 안의 검은 구멍, 가늘게 이어진 다리가 생기는데, 모폴로지로 정리합니다.</p>
+<h3 id="구조-요소-침식-팽창">구조 요소, 침식, 팽창<a class="anchor" href="#구조-요소-침식-팽창">#</a></h3>
+<p>구조 요소(structuring element, 커널)는 0과 1로 된 작은 모양입니다. <code>cv2.getStructuringElement(shape, (k, k))</code>로 만들고, 모양은 <code>MORPH_RECT</code>(사각형), <code>MORPH_ELLIPSE</code>(원), <code>MORPH_CROSS</code>(십자) 중에서 고릅니다. 원본 교재처럼 <code>np.ones((k, k), np.uint8)</code>로 만들어도 사각형 커널과 같습니다.</p>
+<figure class="fig" id="fig-r10-morph"><svg viewBox="0 0 720 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="3x3 구조 요소로 본 침식과 팽창">
+  <defs>
+    <marker id="arr-r10-morph" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <text class="lbl" x="120" y="24" text-anchor="middle">원본 (흰 물체 3×4 + 잡음 1)</text>
+  <g>
+    <rect class="box" x="40" y="40" width="160" height="160"/>
+    <rect class="hi" x="80" y="80" width="60" height="80"/>
+    <rect class="hi" x="180" y="60" width="20" height="20"/>
+    <path class="ln" d="M60 40 V200 M80 40 V200 M100 40 V200 M120 40 V200 M140 40 V200 M160 40 V200 M180 40 V200 M40 60 H200 M40 80 H200 M40 100 H200 M40 120 H200 M40 140 H200 M40 160 H200 M40 180 H200" stroke-width="0.5"/>
+    <rect class="ln-hi" x="60" y="60" width="60" height="60" fill="none" stroke-width="2"/>
+  </g>
+  <text class="tag" x="120" y="222" text-anchor="middle">강조 틀 = 3×3 구조 요소</text>
+  <path class="ln" d="M215 120 L260 90" stroke-width="1.4" marker-end="url(#arr-r10-morph)"/>
+  <path class="ln" d="M215 120 L260 170" stroke-width="1.4" marker-end="url(#arr-r10-morph)"/>
+  <text class="lbl" x="360" y="44" text-anchor="middle">침식 erode: 틀 안이 모두 1</text>
+  <g>
+    <rect class="box" x="300" y="56" width="120" height="70"/>
+    <rect class="hi" x="345" y="72" width="15" height="30"/>
+  </g>
+  <text class="sub" x="470" y="86">물체 1×2로 축소</text>
+  <text class="sub" x="470" y="106">잡음 점 사라짐</text>
+  <text class="lbl" x="360" y="152" text-anchor="middle">팽창 dilate: 틀 안에 1이 하나라도</text>
+  <g>
+    <rect class="box" x="300" y="164" width="120" height="70"/>
+    <rect class="hi" x="323" y="172" width="75" height="54"/>
+    <rect class="hi" x="398" y="164" width="22" height="30"/>
+  </g>
+  <text class="sub" x="470" y="194">물체 5×6으로 확대</text>
+  <text class="sub" x="470" y="214">잡음 점도 커짐</text>
+  <text class="sub mono" x="630" y="132" text-anchor="middle">열림 = 침식 → 팽창</text>
+  <text class="sub mono" x="630" y="152" text-anchor="middle">닫힘 = 팽창 → 침식</text>
+</svg><figcaption>3×3 구조 요소로 본 침식(모두 1일 때만 1)과 팽창(하나라도 1이면 1)</figcaption></figure>
+<ul><li><strong>침식(erosion)</strong> <code>cv2.erode</code>: 커널을 올렸을 때 커널의 1 위치가 <strong>모두 흰색</strong>일 때만 가운데를 흰색으로 둡니다. 물체가 <strong>깎이고</strong>, 커널보다 작은 점은 사라집니다.</li><li><strong>팽창(dilation)</strong> <code>cv2.dilate</code>: 커널의 1 위치 중 <strong>하나라도 흰색</strong>이면 가운데를 흰색으로 둡니다. 물체가 <strong>불어나고</strong>, 작은 구멍이 메워집니다.</li></ul>
+<p>두 연산 모두 <code>iterations</code>로 여러 번 반복할 수 있습니다. 3×3 커널로 한 번 침식하면 경계가 1픽셀씩 깎입니다.</p>
+<h3 id="조합-연산-morphologyex">조합 연산: morphologyEx<a class="anchor" href="#조합-연산-morphologyex">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>연산</th><th>정의</th><th>효과</th><th>상수</th></tr></thead><tbody><tr><td>열림 (opening)</td><td>침식 → 팽창</td><td>작은 흰 점 제거, 가는 연결 끊기, 큰 물체 크기는 유지</td><td><code>cv2.MORPH_OPEN</code></td></tr><tr><td>닫힘 (closing)</td><td>팽창 → 침식</td><td>물체 안의 작은 검은 구멍 메우기, 가까운 조각 잇기</td><td><code>cv2.MORPH_CLOSE</code></td></tr><tr><td>모폴로지 기울기</td><td>팽창 − 침식</td><td>윤곽선만 남기기</td><td><code>cv2.MORPH_GRADIENT</code></td></tr><tr><td>탑햇 (top hat)</td><td>원본 − 열림</td><td>어두운 배경 위 <strong>밝고 작은</strong> 부분 추출</td><td><code>cv2.MORPH_TOPHAT</code></td></tr><tr><td>블랙햇 (black hat)</td><td>닫힘 − 원본</td><td>밝은 배경 위 <strong>어둡고 작은</strong> 부분 추출</td><td><code>cv2.MORPH_BLACKHAT</code></td></tr></tbody></table></div>
+<p>MentorPi 색 인식·라인 트레이싱 노드는 모두 <code>inRange</code> 직후에 3×3 사각형 커널로 <strong>침식 한 번, 팽창 한 번</strong>(= 열림)을 합니다. 작은 잡음 점을 지워 가장 큰 윤곽선을 찾을 때 엉뚱한 조각이 잡히지 않게 하는 것입니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+import numpy as np
+
+rng = np.random.default_rng(1)
+mask = np.zeros((120, 160), np.uint8)
+cv2.rectangle(mask, (40, 30), (79, 69), 255, -1)             # 40x40 물체 = 1600 픽셀
+cv2.rectangle(mask, (100, 40), (139, 79), 255, -1)           # 두 번째 물체
+cv2.circle(mask, (120, 60), 4, 0, -1)                        # 두 번째 물체 안의 구멍
+ys, xs = rng.integers(0, 120, 60), rng.integers(0, 160, 60)
+mask[ys, xs] = 255                                           # 흰 점 잡음 60개
+
+k3 = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+def info(name, m):
+    outer = cv2.findContours(m, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+    allc = cv2.findContours(m, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)[-2]
+    print(&quot;%-14s 흰 픽셀 %5d, 덩어리 %2d, 구멍 %d&quot; % (name, cv2.countNonZero(m), len(outer), len(allc) - len(outer)))
+
+info(&quot;원본&quot;, mask)
+info(&quot;erode 3x3&quot;, cv2.erode(mask, k3))
+info(&quot;dilate 3x3&quot;, cv2.dilate(mask, k3))
+opened = cv2.morphologyEx(mask, cv2.MORPH_OPEN, k3)
+info(&quot;open&quot;, opened)
+info(&quot;open → close&quot;, cv2.morphologyEx(opened, cv2.MORPH_CLOSE, np.ones((9, 9), np.uint8)))
+cv2.imshow(&quot;mask | open&quot;, np.hstack([mask, opened]))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">원본             흰 픽셀  3201, 덩어리 51, 구멍 1
+erode 3x3      흰 픽셀  2799, 덩어리  2, 구멍 1
+dilate 3x3     흰 픽셀  3946, 덩어리 46, 구멍 1
+open           흰 픽셀  3151, 덩어리  2, 구멍 1
+open → close   흰 픽셀  3200, 덩어리  2, 구멍 0</code></pre></div>
+<ul><li>3×3 침식은 경계를 한 픽셀씩 깎습니다(40×40 사각형 → 38×38). 잡음 점은 사라지지만 <strong>물체도 작아져</strong> 흰 픽셀이 3201 → 2799로 줄었습니다. 팽창은 반대로 잡음 점까지 키웁니다.</li><li><strong>열림</strong>(침식 → 팽창)은 잡음 점만 지우고 물체 크기는 거의 되돌립니다(3151). 잡음 점 하나는 3×3 커널보다 작아 침식에서 사라진 뒤 다시 살아나지 못하기 때문입니다.</li><li>구멍(반지름 4)은 3×3 닫힘으로는 메워지지 않아 9×9 커널로 닫았습니다. <strong>커널은 없애려는 구조보다 커야</strong> 합니다.</li></ul>
+<h2 id="임계값-처리-thresholding">임계값 처리 (Thresholding)<a class="anchor" href="#임계값-처리-thresholding">#</a></h2>
+<p>이진화(binarization)는 각 픽셀을 두 값(보통 0과 255)으로 나누는 연산입니다. 데이터를 크게 줄이고 관심 영역의 윤곽을 뚜렷하게 만들어 윤곽선 검출(R11)의 입력이 됩니다.</p>
+<h3 id="전역-임계값">전역 임계값<a class="anchor" href="#전역-임계값">#</a></h3>
+<p><code>ret, dst = cv2.threshold(src, thresh, maxval, type)</code>은 영상 전체에 하나의 임계값을 적용합니다.</p>
+<div class="table-wrap"><table><thead><tr><th>type</th><th>thresh보다 큰 픽셀</th><th>나머지 픽셀</th></tr></thead><tbody><tr><td><code>THRESH_BINARY</code></td><td>maxval</td><td>0</td></tr><tr><td><code>THRESH_BINARY_INV</code></td><td>0</td><td>maxval</td></tr><tr><td><code>THRESH_TRUNC</code></td><td>thresh</td><td>그대로</td></tr><tr><td><code>THRESH_TOZERO</code></td><td>그대로</td><td>0</td></tr><tr><td><code>THRESH_TOZERO_INV</code></td><td>0</td><td>그대로</td></tr></tbody></table></div>
+<p><strong>검은 선을 흰색으로</strong> 만들어야 하는 라인 트레이싱에서는 <code>THRESH_BINARY_INV</code>를 씁니다. <code>findContours</code>는 <strong>검은 배경 위의 흰 물체</strong>를 찾기 때문입니다.</p>
+<h3 id="otsu-자동-임계값">Otsu 자동 임계값<a class="anchor" href="#otsu-자동-임계값">#</a></h3>
+<p>Otsu 방법은 히스토그램을 두 무리(배경·물체)로 나눌 때 <strong>두 무리 사이의 분산(between-class variance)이 최대</strong>가 되는 임계값 <span class="math">t</span>를 찾습니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">σ_B²(t) = ω0(t) · ω1(t) · (μ0(t) − μ1(t))²
+   ω0, ω1 : 임계값 아래/위 픽셀의 비율       μ0, μ1 : 각 무리의 평균 밝기</code></pre></div>
+<p><code>type</code>에 <code>cv2.THRESH_OTSU</code>를 더하고 <code>thresh</code>는 0으로 둡니다. 반환값 <code>ret</code>가 계산된 임계값입니다. 히스토그램이 <strong>두 봉우리(bimodal)</strong>일 때 잘 동작합니다.</p>
+<h3 id="적응형-임계값">적응형 임계값<a class="anchor" href="#적응형-임계값">#</a></h3>
+<p>조명이 한쪽에서 비치면 같은 흰 바닥도 왼쪽은 밝고 오른쪽은 어둡습니다. 적응형(adaptive) 임계값은 픽셀마다 <strong>주변 blockSize×blockSize 영역의 평균(또는 가우시안 가중 평균)에서 C를 뺀 값</strong>을 임계값으로 씁니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">dst = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+                            cv2.THRESH_BINARY, blockSize=31, C=5)</code></pre></div>
+<p><code>blockSize</code>는 홀수이고 <strong>찾으려는 물체보다 커야</strong> 합니다. 원본 예제의 <code>blockSize=5, C=3</code>은 글자 같은 가는 구조에 맞는 값이며, 굵은 선에 쓰면 선 내부가 비어 테두리만 남습니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+import numpy as np
+
+h, w = 120, 240
+light = np.tile(np.linspace(230, 60, w), (h, 1))            # 왼쪽 밝고 오른쪽 어두운 조명
+truth = np.zeros((h, w), np.uint8)
+for x in range(20, 240, 50):
+    cv2.rectangle(truth, (x, 40), (x + 19, 79), 255, -1)     # 어두운 표식 5개 (정답 마스크)
+img = light.copy()
+img[truth &gt; 0] *= 0.45                                       # 표식은 주변보다 55 % 어두움
+img = img.astype(np.uint8)
+
+def score(name, m):
+    acc = 100.0 * np.count_nonzero(m == truth) / truth.size
+    print(&quot;%-22s 정확도 %5.1f %%&quot; % (name, acc))
+
+_, g = cv2.threshold(img, 127, 255, cv2.THRESH_BINARY_INV)
+score(&quot;전역 127&quot;, g)
+t, o = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+score(&quot;Otsu (t=%d)&quot; % t, o)
+a = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 61, 10)
+score(&quot;적응형 mean 61, C=10&quot;, a)
+cv2.imshow(&quot;img&quot;, img)
+cv2.imshow(&quot;global | otsu | adaptive&quot;, np.vstack([g, o, a]))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">전역 127                 정확도  65.6 %
+Otsu (t=136)           정확도  61.4 %
+적응형 mean 61, C=10      정확도 100.0 %</code></pre></div>
+<p>전역 임계값과 Otsu는 <strong>한 개의 숫자</strong>로 나누기 때문에, 오른쪽의 어두운 바닥까지 표식으로 잘못 분류합니다. 적응형은 주변과 비교하므로 조명 기울기에 거의 영향을 받지 않습니다.</p>
+<h2 id="조합하기-라인-트레이싱-전처리">조합하기: 라인 트레이싱 전처리<a class="anchor" href="#조합하기-라인-트레이싱-전처리">#</a></h2>
+<p>지금까지의 도구를 이어 붙이면 라인 트레이싱(A03)의 전처리가 됩니다. 흐림 → 이진화(검은 선을 흰색으로) → 열림 → 화면 아래쪽 띠(ROI)에서 선의 중심 x를 구합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+import numpy as np
+
+img = cv2.imread(&quot;track.png&quot;)
+h, w = img.shape[:2]
+gray = cv2.GaussianBlur(cv2.cvtColor(img, cv2.COLOR_BGR2GRAY), (5, 5), 0)
+t, mask = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
+print(&quot;Otsu 임계값:&quot;, t)
+
+view = img.copy()
+for y0, y1 in [(430, 460), (330, 360), (230, 260)]:             # 아래 → 위 세 띠
+    band = mask[y0:y1]
+    m = cv2.moments(band, binaryImage=True)
+    if m[&quot;m00&quot;] &gt; 0:
+        cx = m[&quot;m10&quot;] / m[&quot;m00&quot;]
+        print(&quot;띠 y=%d~%d: 선 중심 x = %.1f, 화면 중앙과의 차 %+.1f px&quot; % (y0, y1, cx, cx - w / 2))
+        cv2.circle(view, (int(cx), (y0 + y1) // 2), 6, (0, 0, 255), -1)
+    cv2.rectangle(view, (0, y0), (w - 1, y1), (0, 200, 255), 1)
+cv2.imshow(&quot;mask&quot;, mask)
+cv2.imshow(&quot;rois&quot;, view)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">Otsu 임계값: 120.0
+띠 y=430~460: 선 중심 x = 320.0, 화면 중앙과의 차 +0.0 px
+띠 y=330~360: 선 중심 x = 326.3, 화면 중앙과의 차 +6.3 px
+띠 y=230~260: 선 중심 x = 376.4, 화면 중앙과의 차 +56.4 px</code></pre></div>
+<p>아래 띠는 선이 거의 화면 중앙에 있고, 위 띠로 갈수록 선이 오른쪽으로 휘어 있습니다. A03에서는 이 차이에 가중치를 주어 조향 각도를 계산합니다.</p>
+<h2 id="실습-시뮬레이션">실습 (시뮬레이션)<a class="anchor" href="#실습-시뮬레이션">#</a></h2>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
+<div class="callout callout-task"><div class="callout-title">Playground 실습</div><div class="callout-body"><ol><li>Canny 예제에서 <code>shapes.png</code>를 <code>GaussianBlur((5, 5), 0)</code>로 흐린 뒤 같은 임계값으로 엣지 픽셀 수가 어떻게 바뀌는지 비교합니다.</li><li>모폴로지 예제의 커널을 <code>MORPH_ELLIPSE</code>, <code>MORPH_CROSS</code>로 바꿔 침식 후 픽셀 수를 비교합니다. 왜 십자 커널이 가장 적게 깎을까요?</li><li>적응형 임계값의 <code>blockSize</code>를 11, 31, 61, 121로 바꿔 정확도를 표로 만들고, 표식 폭(20 px)과 어떤 관계인지 설명합니다.</li><li>라인 전처리 예제에 띠를 두 개 더 추가하고, 띠마다 구한 중심 x를 선으로 이어 그려 봅니다.</li></ol></div></div>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/color-lab.html">HSV 색 실험실 열기</a></p>
+<p>HSV 색 실험실의 <strong>모폴로지</strong> 옵션을 켜고 커널 크기를 바꿔 가며 마스크의 잡음이 사라지는 모습을 확인하세요. MentorPi 노드의 3×3 침식·팽창과 같은 설정부터 시작하면 됩니다.</p>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<p>로봇 카메라로 바닥의 검은 테이프를 비추고 전역·Otsu·적응형 이진화 결과를 나란히 비교합니다.</p>
+<div class="callout callout-safety"><div class="callout-title">실물 실습 전 확인</div><div class="callout-body"><ul><li>바퀴를 구동하지 않는 실습입니다. 로봇을 손으로 들어 테이프 위를 비출 때는 <strong>바퀴와 카메라 케이블을 잡지 말고</strong> 섀시를 잡습니다.</li><li><code>~/.stop_ros.sh</code>로 앱 서비스를 끄고 실습하며, 끝나면 컨테이너 밖에서 <code>sudo systemctl restart start_node.service</code>를 실행합니다.</li></ul></div></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">~/.stop_ros.sh
+ros2 launch peripherals depth_camera.launch.py</code></pre></div>
+<div class="code-block code-robot"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-robot">실물 전용</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from cv_bridge import CvBridge
+from sensor_msgs.msg import Image
+
+
+class ThresholdCompare(Node):
+    def __init__(self):
+        super().__init__(&#x27;threshold_compare&#x27;)
+        self.bridge = CvBridge()
+        self.create_subscription(Image, &#x27;/ascamera/camera_publisher/rgb0/image&#x27;, self.on_image, 1)
+
+    def on_image(self, msg):
+        frame = cv2.resize(self.bridge.imgmsg_to_cv2(msg, &#x27;bgr8&#x27;), (320, 240))
+        gray = cv2.GaussianBlur(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), (5, 5), 0)
+        _, g = cv2.threshold(gray, 80, 255, cv2.THRESH_BINARY_INV)
+        t, o = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+        a = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 51, 10)
+        k = np.ones((3, 3), np.uint8)
+        row = np.hstack([cv2.morphologyEx(m, cv2.MORPH_OPEN, k) for m in (g, o, a)])
+        cv2.putText(row, &#x27;global80 | otsu%d | adaptive&#x27; % t, (5, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, 128, 1)
+        cv2.imshow(&#x27;frame&#x27;, frame)
+        cv2.imshow(&#x27;compare&#x27;, row)
+        if cv2.waitKey(1) &amp; 0xFF == ord(&#x27;q&#x27;):
+            raise KeyboardInterrupt
+
+
+def main():
+    rclpy.init()
+    node = ThresholdCompare()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        cv2.destroyAllWindows()
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == &#x27;__main__&#x27;:
+    main()</code></pre></div>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> 방 조명을 켜고 끌 때 전역 임계값(80) 결과가 무너지고 Otsu·적응형은 버티는지 확인했다.</label></li><li><label class="check-item"><input type="checkbox"> 바닥에 그림자가 드리운 곳에서 세 방법의 차이를 캡처했다.</label></li></ul></div></div>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td>Sobel 결과에서 한쪽 엣지만 보임</td><td><code>ddepth=cv2.CV_8U</code>로 음수 기울기가 잘림</td><td><code>cv2.CV_16S</code>/<code>CV_64F</code>로 받고 <code>cv2.convertScaleAbs</code></td></tr><tr><td>Canny 결과가 잡음투성이</td><td>흐림 없이 낮은 임계값</td><td><code>GaussianBlur</code> 후 적용, <code>minVal</code>·<code>maxVal</code>을 올림(1:2~1:3)</td></tr><tr><td>Canny 선이 끊김</td><td><code>minVal</code>이 너무 높음</td><td><code>minVal</code>을 낮춰 이력 연결을 살림</td></tr><tr><td>열림 후 물체까지 사라짐</td><td>커널이 물체(선 폭)보다 큼</td><td>커널을 줄이거나 반복 횟수를 줄임</td></tr><tr><td><code>findContours</code>가 배경 전체를 하나의 윤곽으로 잡음</td><td>물체가 검정, 배경이 흰색</td><td><code>THRESH_BINARY_INV</code>로 뒤집어 물체를 흰색으로</td></tr><tr><td><code>adaptiveThreshold</code> 오류</td><td>입력이 컬러, <code>blockSize</code>가 짝수 또는 1</td><td>흑백 <code>uint8</code> 입력, 3 이상의 홀수</td></tr><tr><td>Otsu 임계값이 이상함</td><td>입력이 컬러, 또는 히스토그램이 한 봉우리</td><td>흑백으로 변환, 물체가 화면에 충분히 보이게 ROI 조정</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">기본 과제</div><div class="callout-body"><ol><li><code>coins.png</code>를 Otsu로 이진화하고, 열림 후 <code>connectedComponentsWithStats</code>로 동전 개수와 각 면적을 출력합니다.</li><li>Sobel 크기 영상에 직접 임계값을 걸어 만든 엣지와 Canny 엣지를 비교하고, 선 굵기가 왜 다른지 비최대 억제로 설명합니다.</li></ol></div></div>
+<div class="callout callout-task"><div class="callout-title">심화 과제</div><div class="callout-body"><ol><li>Otsu 식을 NumPy로 직접 구현(<code>np.histogram</code> → 모든 t에 대해 <span class="math">σ_B^2</span> 계산)해 <code>cv2.threshold(..., THRESH_OTSU)</code>와 같은 임계값이 나오는지 확인합니다.</li><li>실물 카메라로 검은 테이프 선을 비추며, 라인 전처리 파이프라인(흐림 → Otsu INV → 열림 → 띠별 중심)을 실시간으로 표시하는 노드를 작성합니다.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>4. OpenCV Computer Vision Course</em> — Lesson 10 Image Processing---Edge Detection, Lesson 11 Image Processing---Morphological Processing, Lesson 12 Image Processing---Threshold Processing (Routine Code: <code>edge_detection.py</code>, <code>morphology_operations.py</code>, <code>threshold_demo.py</code>, <code>adaptiveThreshold_demo.py</code>, <code>Otsu_demo.py</code>)</li><li>MentorPi 소스: <code>src/app/app/line_following.py</code>, <code>src/example/example/color_detect/color_detect_node.py</code> (inRange → erode → dilate)</li><li>OpenCV — Canny Edge Detection: https://docs.opencv.org/4.x/da/d22/tutorial_py_canny.html</li><li>OpenCV — Image Gradients: https://docs.opencv.org/4.x/d5/d0f/tutorial_py_gradients.html</li><li>OpenCV — Morphological Transformations: https://docs.opencv.org/4.x/d9/d61/tutorial_py_morphological_ops.html</li><li>OpenCV — Image Thresholding: https://docs.opencv.org/4.x/d7/d4d/tutorial_py_thresholding.html</li><li>N. Otsu, “A Threshold Selection Method from Gray-Level Histograms,” IEEE Trans. SMC, 1979.</li></ul>
+      <nav class="pager"><a class="pager-prev" href="r09.html"><span>이전 · R09</span>색 공간·기하 변환·스무딩</a><a class="pager-next" href="r11.html"><span>다음 · R11</span>윤곽선·특징 매칭·코너 검출</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#엣지-검출-edge-detection">엣지 검출 (Edge Detection)</a><a class="toc-l3" href="#기울기와-sobel-연산자">기울기와 Sobel 연산자</a><a class="toc-l3" href="#canny-엣지-검출">Canny 엣지 검출</a><a class="toc-l2" href="#모폴로지-처리-morphological-processing">모폴로지 처리 (Morphological Processing)</a><a class="toc-l3" href="#구조-요소-침식-팽창">구조 요소, 침식, 팽창</a><a class="toc-l3" href="#조합-연산-morphologyex">조합 연산: morphologyEx</a><a class="toc-l2" href="#임계값-처리-thresholding">임계값 처리 (Thresholding)</a><a class="toc-l3" href="#전역-임계값">전역 임계값</a><a class="toc-l3" href="#otsu-자동-임계값">Otsu 자동 임계값</a><a class="toc-l3" href="#적응형-임계값">적응형 임계값</a><a class="toc-l2" href="#조합하기-라인-트레이싱-전처리">조합하기: 라인 트레이싱 전처리</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

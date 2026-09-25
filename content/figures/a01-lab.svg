@@ -1,0 +1,34 @@
+<svg viewBox="0 0 720 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Lab a-b 평면의 기본 임계값 영역과 샘플 색의 위치">
+  <defs>
+    <marker id="arr-a01-lab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <rect class="box" x="60" y="30" width="240" height="240"/>
+  <rect x="215" y="30" width="85" height="142" style="fill:var(--danger);opacity:0.18"/>
+  <rect x="60" y="30" width="98" height="113" style="fill:var(--ok);opacity:0.18"/>
+  <rect x="60" y="166" width="240" height="104" style="fill:var(--accent);opacity:0.15"/>
+  <path class="ln" d="M180 30 V270 M60 150 H300" stroke-width="0.8" stroke-dasharray="4 4"/>
+  <path class="ln" d="M60 285 L310 285" stroke-width="1.2" marker-end="url(#arr-a01-lab)"/>
+  <text class="tag" x="62" y="300">초록 ← a → 빨강</text>
+  <text class="tag mono" x="180" y="300" text-anchor="middle">128</text>
+  <path class="ln" d="M45 270 L45 25" stroke-width="1.2" marker-end="url(#arr-a01-lab)"/>
+  <text class="tag" x="40" y="160" text-anchor="end">b</text>
+  <text class="tag" x="40" y="40" text-anchor="end">노랑</text>
+  <text class="tag" x="40" y="268" text-anchor="end">파랑</text>
+  <text class="tag" x="257" y="48" text-anchor="middle">red</text>
+  <text class="tag" x="109" y="48" text-anchor="middle">green</text>
+  <text class="tag" x="120" y="262" text-anchor="middle">blue</text>
+  <circle class="hi" cx="248" cy="93" r="5"/>
+  <circle class="hi" cx="113" cy="85" r="5"/>
+  <circle class="hi" cx="246" cy="240" r="5"/>
+  <circle cx="180" cy="150" r="5" style="fill:var(--text-faint)"/>
+  <text class="tag" x="188" y="146">회색 (128,128)</text>
+  <text class="lbl" x="350" y="50">Stereo 기본 임계값 (L은 생략)</text>
+  <text class="sub mono" x="350" y="76">red   : a ≥ 165, b ≥ 104</text>
+  <text class="sub mono" x="350" y="98">green : a ≤ 104, b ≥ 135, L ≥ 47</text>
+  <text class="sub mono" x="350" y="120">blue  : b ≤ 110 (L·a 제한 없음)</text>
+  <text class="lbl" x="350" y="160">점 = colors.png 블록의 Lab 값</text>
+  <text class="sub mono" x="350" y="186">red   (L 117, a 200, b 188)</text>
+  <text class="sub mono" x="350" y="208">green (L 180, a  56, b 197)</text>
+  <text class="sub mono" x="350" y="230">blue  (L  70, a 198, b  32)</text>
+  <text class="sub" x="350" y="262">색 축(a, b)은 좁게, 밝기 L은 넓게 잡습니다</text>
+</svg>

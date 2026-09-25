@@ -1,0 +1,61 @@
+<svg viewBox="0 0 720 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="MentorPi 오도메트리 데이터 흐름: odom_publisher, IMU 보정·필터, 선택적 레이저 오도메트리가 EKF로 융합되어 /odom과 TF를 만든다">
+  <defs>
+    <marker id="arr-m03-pipeline" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-m03-pipeline-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <text class="tag" x="100" y="20" text-anchor="middle">입력 토픽</text>
+  <text class="tag" x="300" y="20" text-anchor="middle">노드</text>
+  <text class="tag" x="470" y="20" text-anchor="middle">중간 토픽</text>
+  <text class="tag" x="640" y="20" text-anchor="middle">융합</text>
+  <!-- row 1 : wheel odometry -->
+  <rect class="box" x="10" y="34" width="180" height="52" rx="6"/>
+  <text class="tag mono" x="100" y="55" text-anchor="middle">/cmd_vel (속도 제한)</text>
+  <text class="tag mono" x="100" y="74" text-anchor="middle">/controller/cmd_vel</text>
+  <rect class="box-hi" x="220" y="34" width="160" height="52" rx="6"/>
+  <text class="lbl mono" x="300" y="56" text-anchor="middle">odom_publisher</text>
+  <text class="sub" x="300" y="74" text-anchor="middle">명령 속도 적분 · 보정계수</text>
+  <rect class="box" x="410" y="34" width="120" height="52" rx="6"/>
+  <text class="lbl mono" x="470" y="56" text-anchor="middle">/odom_raw</text>
+  <text class="sub mono" x="470" y="74" text-anchor="middle">vx, vy, ωz 사용</text>
+  <path d="M190 60 L218 60" style="stroke:var(--text-faint)" stroke-width="1.4" marker-end="url(#arr-m03-pipeline)"/>
+  <path d="M380 60 L408 60" style="stroke:var(--text-faint)" stroke-width="1.4" marker-end="url(#arr-m03-pipeline)"/>
+  <path d="M300 86 L300 112" style="stroke:var(--text-faint)" stroke-width="1.4" marker-end="url(#arr-m03-pipeline)"/>
+  <text class="tag mono" x="300" y="126" text-anchor="middle">set_motor [rps] → RRC Lite 보드</text>
+  <!-- row 2 : IMU -->
+  <rect class="box" x="10" y="146" width="180" height="52" rx="6"/>
+  <text class="tag mono" x="100" y="167" text-anchor="middle">/ros_robot_controller</text>
+  <text class="tag mono" x="100" y="185" text-anchor="middle">/imu_raw</text>
+  <rect class="box-hi" x="220" y="146" width="160" height="52" rx="6"/>
+  <text class="lbl mono" x="300" y="167" text-anchor="middle">imu_calib</text>
+  <text class="sub" x="300" y="185" text-anchor="middle">+ complementary_filter</text>
+  <rect class="box" x="410" y="146" width="120" height="52" rx="6"/>
+  <text class="lbl mono" x="470" y="168" text-anchor="middle">/imu</text>
+  <text class="sub mono" x="470" y="186" text-anchor="middle">yaw, ωz 사용</text>
+  <path d="M190 172 L218 172" style="stroke:var(--text-faint)" stroke-width="1.4" marker-end="url(#arr-m03-pipeline)"/>
+  <path d="M380 172 L408 172" style="stroke:var(--text-faint)" stroke-width="1.4" marker-end="url(#arr-m03-pipeline)"/>
+  <!-- row 3 : laser odometry (optional) -->
+  <rect class="box" x="10" y="240" width="180" height="52" rx="6" stroke-dasharray="5 4"/>
+  <text class="tag mono" x="100" y="263" text-anchor="middle">/scan_raw (LD19)</text>
+  <text class="tag" x="100" y="281" text-anchor="middle">라이다</text>
+  <rect class="box" x="220" y="240" width="160" height="52" rx="6" stroke-dasharray="5 4"/>
+  <text class="lbl mono" x="300" y="262" text-anchor="middle">rf2o_laser_odometry</text>
+  <text class="sub" x="300" y="280" text-anchor="middle">별도 launch 시에만</text>
+  <rect class="box" x="410" y="240" width="120" height="52" rx="6" stroke-dasharray="5 4"/>
+  <text class="lbl mono" x="470" y="262" text-anchor="middle">/odom_rf2o</text>
+  <text class="sub mono" x="470" y="280" text-anchor="middle">x, y, yaw 사용</text>
+  <path d="M190 266 L218 266" style="stroke:var(--text-faint)" stroke-width="1.4" marker-end="url(#arr-m03-pipeline)"/>
+  <path d="M380 266 L408 266" style="stroke:var(--text-faint)" stroke-width="1.4" marker-end="url(#arr-m03-pipeline)"/>
+  <!-- EKF -->
+  <rect class="box-hi" x="570" y="110" width="140" height="96" rx="8"/>
+  <text class="lbl mono" x="640" y="136" text-anchor="middle">ekf_filter_node</text>
+  <text class="sub" x="640" y="156" text-anchor="middle">robot_localization</text>
+  <text class="sub" x="640" y="174" text-anchor="middle">100 Hz, two_d_mode</text>
+  <text class="sub" x="640" y="192" text-anchor="middle">odom0 · imu0 · odom1</text>
+  <path d="M530 60 L566 128" style="stroke:var(--text-faint)" stroke-width="1.4" marker-end="url(#arr-m03-pipeline)"/>
+  <path d="M530 172 L566 164" style="stroke:var(--text-faint)" stroke-width="1.4" marker-end="url(#arr-m03-pipeline)"/>
+  <path d="M530 266 L566 196" style="stroke:var(--text-faint)" stroke-width="1.4" stroke-dasharray="4 4" marker-end="url(#arr-m03-pipeline)"/>
+  <path class="ln-hi" d="M640 206 L640 250" stroke-width="2.2" marker-end="url(#arr-m03-pipeline-hi)"/>
+  <text class="lbl mono hi" x="640" y="272" text-anchor="middle">/odom</text>
+  <text class="sub mono" x="714" y="290" text-anchor="end">TF odom → base_footprint</text>
+  <text class="sub" x="360" y="326" text-anchor="middle">점선 = 기본 controller.launch.py에는 포함되지 않음 (EKF 설정에는 odom1로 등록되어 있음)</text>
+</svg>

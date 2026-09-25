@@ -1,0 +1,43 @@
+<svg viewBox="0 0 720 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="라이다 회피 알고리즘의 좌우 섹터(각 45도), 임계거리 0.6 m, 사용 각도 240도와 판단 규칙">
+  <defs>
+    <marker id="arr-m06-sectors" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text)"/></marker>
+  </defs>
+  <!-- usable 240 deg boundary -->
+  <path d="M200 210 L70 285 M200 210 L330 285" style="stroke:var(--text-faint)" stroke-width="1.2" stroke-dasharray="5 5"/>
+  <text class="tag" x="200" y="304" text-anchor="middle">뒤쪽 120°는 버림 (MAX_SCAN_ANGLE = 240°)</text>
+  <!-- sectors -->
+  <path class="box-hi" d="M200 210 L200 100 A110 110 0 0 0 122.2 132.2 Z"/>
+  <path d="M200 210 L200 100 A110 110 0 0 1 277.8 132.2 Z" style="fill:var(--warn);opacity:0.22;stroke:var(--warn)"/>
+  <!-- threshold arc beyond sectors -->
+  <path d="M122.2 132.2 A110 110 0 0 0 90 210" style="stroke:var(--text-faint)" stroke-width="1" stroke-dasharray="3 4" fill="none"/>
+  <path d="M277.8 132.2 A110 110 0 0 1 310 210" style="stroke:var(--text-faint)" stroke-width="1" stroke-dasharray="3 4" fill="none"/>
+  <text class="sub mono" x="318" y="200" text-anchor="start">threshold</text>
+  <text class="sub mono" x="318" y="216" text-anchor="start">0.6 m</text>
+  <!-- labels -->
+  <text class="lbl" x="150" y="88" text-anchor="end">왼쪽 섹터</text>
+  <text class="sub mono" x="150" y="104" text-anchor="end">0 ~ +45°</text>
+  <text class="lbl" x="250" y="88" text-anchor="start">오른쪽 섹터</text>
+  <text class="sub mono" x="250" y="104" text-anchor="start">0 ~ −45°</text>
+  <text class="tag" x="200" y="40" text-anchor="middle">scan_angle = 90° (enter 시 기본값)</text>
+  <path d="M200 210 L200 58" style="stroke:var(--text)" stroke-width="1.6" marker-end="url(#arr-m06-sectors)"/>
+  <text class="tag" x="206" y="66" text-anchor="start">전방</text>
+  <!-- robot -->
+  <rect class="box" x="180" y="192" width="40" height="44" rx="6"/>
+  <!-- obstacle example in left sector -->
+  <circle cx="160" cy="140" r="9" class="dg"/>
+  <text class="tag" x="146" y="160" text-anchor="end">장애물</text>
+  <!-- decision panel -->
+  <rect class="box" x="392" y="24" width="320" height="282" rx="8"/>
+  <text class="lbl" x="406" y="50">회피 규칙 (메카넘, running_mode = 1)</text>
+  <text class="sub" x="406" y="78">L = 왼쪽 최소거리, R = 오른쪽 최소거리</text>
+  <text class="lbl" x="406" y="106">L ≤ thr, R &gt; thr</text>
+  <text class="sub mono" x="422" y="124">ωz = −1.2 (우회전), 0.65 s 유지</text>
+  <text class="lbl" x="406" y="150">L &gt; thr, R ≤ thr</text>
+  <text class="sub mono" x="422" y="168">ωz = +1.2 (좌회전), 0.65 s 유지</text>
+  <text class="lbl" x="406" y="194">L ≤ thr, R ≤ thr</text>
+  <text class="sub mono" x="422" y="212">ωz = +1.2 (좌회전), 1.31 s 유지</text>
+  <text class="lbl" x="406" y="238">둘 다 &gt; thr</text>
+  <text class="sub mono" x="422" y="256">vx = 0.2 직진, last_act = 0</text>
+  <text class="sub" x="406" y="282">회전 중 vx = speed/6 ≈ 0.033 m/s</text>
+  <text class="sub" x="406" y="298">직전 회전 방향이면 방향 유지(떨림 방지)</text>
+</svg>

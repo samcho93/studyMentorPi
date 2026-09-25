@@ -1,0 +1,53 @@
+<svg viewBox="0 0 720 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="애커만 섀시의 자전거 모델: 순간 회전 중심, 회전 반경 R, 휠베이스 L, 조향각 δ, 좌우 뒷바퀴 반경">
+  <defs>
+    <marker id="arr-m02-bicycle" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+    <marker id="arr-m02-bicycle-f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <!-- path arc around ICR -->
+  <path d="M330 240 A220 220 0 0 0 251.4 71.5" style="stroke:var(--text-faint)" stroke-width="1.2" stroke-dasharray="5 5" fill="none"/>
+  <text class="tag" x="236" y="64" text-anchor="end">뒷차축 중심의 궤적 (반경 R)</text>
+  <!-- body outline -->
+  <rect x="282" y="78" width="96" height="186" rx="10" style="fill:none;stroke:var(--border)" stroke-width="1.4"/>
+  <!-- lines from ICR -->
+  <path d="M110 240 L372 240" style="stroke:var(--text-faint)" stroke-width="1.4"/>
+  <path d="M110 240 L330 100" style="stroke:var(--text-faint)" stroke-width="1.4"/>
+  <circle cx="110" cy="240" r="5" class="hi"/>
+  <text class="lbl" x="110" y="266" text-anchor="middle">ICR</text>
+  <text class="sub" x="110" y="282" text-anchor="middle">순간 회전 중심</text>
+  <!-- delta at ICR -->
+  <path class="ln-hi" d="M160 240 A50 50 0 0 0 152.2 213.2" stroke-width="1.8"/>
+  <text class="lbl hi" x="168" y="230">δ</text>
+  <text class="lbl mono" x="220" y="258" text-anchor="middle">R = v / ω</text>
+  <!-- rear wheels -->
+  <rect class="box-hi" x="283" y="218" width="14" height="44" rx="4"/>
+  <rect class="box-hi" x="363" y="218" width="14" height="44" rx="4"/>
+  <text class="tag mono" x="290" y="290" text-anchor="middle">v_L</text>
+  <text class="tag mono" x="370" y="290" text-anchor="middle">v_R</text>
+  <text class="sub" x="330" y="310" text-anchor="middle">R_L = R − D/2 ,  R_R = R + D/2</text>
+  <!-- rear axle velocity -->
+  <circle cx="330" cy="240" r="3.5" style="fill:var(--text)"/>
+  <path class="ln-hi" d="M330 240 L330 184" stroke-width="2.4" marker-end="url(#arr-m02-bicycle)"/>
+  <text class="lbl mono hi" x="338" y="200">v</text>
+  <!-- front (virtual) wheel -->
+  <path d="M330 100 L330 48" style="stroke:var(--text-faint)" stroke-width="1.2" stroke-dasharray="4 4"/>
+  <path d="M330 100 L303 58" class="ln-hi" stroke-width="1.6"/>
+  <rect class="box-hi" x="323" y="78" width="14" height="44" rx="4" transform="rotate(-32.5 330 100)"/>
+  <path class="ln-hi" d="M330 70 A30 30 0 0 0 313.9 74.7" stroke-width="1.8"/>
+  <text class="lbl hi" x="300" y="68" text-anchor="end">δ</text>
+  <text class="tag" x="344" y="60">앞바퀴 (가상 1개)</text>
+  <!-- wheelbase dimension -->
+  <path d="M404 100 L404 240" style="stroke:var(--text-faint)" stroke-width="1.2" marker-start="url(#arr-m02-bicycle-f)" marker-end="url(#arr-m02-bicycle-f)"/>
+  <text class="sub mono" x="412" y="174">L</text>
+  <!-- formula panel -->
+  <rect class="box" x="440" y="28" width="272" height="276" rx="8"/>
+  <text class="lbl" x="454" y="54">자전거 모델 (뒷차축 기준)</text>
+  <text class="lbl mono" x="454" y="80">R = v / ω</text>
+  <text class="lbl mono" x="454" y="104">tan δ = L / R</text>
+  <text class="lbl mono hi" x="454" y="128">δ = atan(L·ω / v)</text>
+  <text class="lbl mono" x="454" y="156">v_L = v − ω·D/2</text>
+  <text class="lbl mono" x="454" y="180">v_R = v + ω·D/2</text>
+  <text class="sub mono" x="454" y="204">L = 0.145 m , D = 0.133 m</text>
+  <text class="lbl" x="454" y="232">|δ| ≤ 29° 이므로</text>
+  <text class="lbl mono" x="454" y="254">R_min = L / tan 29° = 0.262 m</text>
+  <text class="sub mono" x="454" y="282">서보 펄스 = 1500 + 2000·(−δ°)/180</text>
+</svg>

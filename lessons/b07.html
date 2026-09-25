@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>B07. 라즈베리파이 5: 하드웨어와 시스템 · studyMentorPi</title>
+<meta name="description" content="RPi 5 사양과 포트(GPIO·PCIe·CSI/DSI·UART·RTC), OS 설치, 원격 접속·파일 전송, raspi-config·config.txt, 네트워크 설정.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-base">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" class="active" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="b07" data-track="base">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-base">기초·하드웨어</span> B-3 라즈베리파이 5와 확장보드 &middot; 약 70분 &middot; 초급</div>
+    <h1><span class="lesson-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</h1>
+    <p class="lede">RPi 5 사양과 포트(GPIO·PCIe·CSI/DSI·UART·RTC), OS 설치, 원격 접속·파일 전송, raspi-config·config.txt, 네트워크 설정.</p>
+    <div class="requires">선수 챕터: <a href="b04.html">B04</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>라즈베리파이 5의 주요 사양(CPU·메모리·RP1·전원)을 읽고, 로봇 두뇌로서의 장단점을 설명합니다.</li><li>GPIO·PCIe·MIPI CSI/DSI·UART·RTC·PoE 포트의 위치와 용도를 구분합니다.</li><li>Raspberry Pi Imager 또는 이미지 굽기 도구로 SD 카드에 OS를 설치하고, 올바르게 부팅·종료합니다.</li><li>SSH·VNC로 원격 접속하고 파일을 주고받으며, <code>raspi-config</code>·<code>config.txt</code>·소스 목록·네트워크 설정의 역할을 구분합니다.</li><li>온도·전원 상태·ACT LED로 보드의 건강 상태를 점검합니다.</li></ul>
+<h2 id="라즈베리파이-5-개요">라즈베리파이 5 개요<a class="anchor" href="#라즈베리파이-5-개요">#</a></h2>
+<p>라즈베리파이(Raspberry Pi)는 영국 라즈베리파이 재단이 교육용으로 만든 <strong>신용카드 크기의 컴퓨터</strong>입니다. 키보드·마우스·모니터를 연결하면 일반 PC처럼 쓸 수 있고, 40핀 GPIO로 전자 부품을 직접 제어할 수 있어 로봇·IoT의 표준 플랫폼이 되었습니다.</p>
+<p>라즈베리파이 5는 이전 세대(4B)보다 CPU 성능이 2~3배 높고, 처음으로 <strong>자체 설계 I/O 칩 RP1</strong>을 넣어 주변장치 성능이 크게 좋아졌습니다.</p>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>사양</th><th>MentorPi에서의 의미</th></tr></thead><tbody><tr><td>CPU</td><td>64비트 Arm Cortex-A76 4코어 2.4 GHz, 코어당 L2 512 KB, L3 2 MB, AES 가속</td><td>SLAM·내비게이션·영상 처리를 로봇 위에서 직접 수행</td></tr><tr><td>메모리</td><td>LPDDR4X-4267, 4 GB / 8 GB</td><td>ROS 2 노드 여러 개 + Docker 동시 실행</td></tr><tr><td>GPU</td><td>VideoCore VII 800 MHz, OpenGL ES 3.1, Vulkan 1.2</td><td>데스크톱(VNC), RViz 표시</td></tr><tr><td>영상 출력</td><td>마이크로 HDMI 2개, 4Kp60 동시, HEVC 디코딩</td><td>모니터 연결 시</td></tr><tr><td>카메라·디스플레이</td><td>4레인 MIPI 송수신기 2개(CSI/DSI 겸용)</td><td>CSI 카메라 확장</td></tr><tr><td>USB</td><td>USB 3.0 ×2(파랑), USB 2.0 ×2(검정)</td><td>깊이 카메라·라이다·조이패드 수신기</td></tr><tr><td>네트워크</td><td>기가비트 이더넷(PoE+ 지원, HAT 필요), 듀얼 밴드 802.11ac Wi-Fi, Bluetooth 5.0/BLE</td><td>핫스팟(AP)·LAN(STA) 모드</td></tr><tr><td>확장</td><td>PCIe 2.0 ×1(전용 커넥터), 40핀 GPIO</td><td>NVMe SSD, 센서</td></tr><tr><td>기타</td><td>팬 커넥터, <strong>RTC</strong>(배터리 커넥터), <strong>전원 버튼</strong>, 디버그 UART 커넥터</td><td></td></tr><tr><td>전원</td><td>USB-C <strong>5.1 V / 5 A</strong></td><td>MentorPi에서는 확장보드의 5 V 5 A 출력으로 공급</td></tr></tbody></table></div>
+<figure class="fig" id="fig-b07-board"><svg viewBox="0 0 720 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="라즈베리파이 5 주요 포트 배치 간략도">
+  <rect x="140" y="20" width="440" height="280" rx="14" style="fill:var(--bg-elev-2);stroke:var(--text-faint)" stroke-width="1.5"/>
+  <rect class="box-hi" x="190" y="30" width="300" height="26" rx="3"/>
+  <text class="tag" x="340" y="47" text-anchor="middle">GPIO 40핀 헤더 (신호 3.3 V)</text>
+  <rect class="box" x="500" y="66" width="40" height="14" rx="2"/>
+  <path d="M540 73 L604 73" style="stroke:var(--text-faint);fill:none" stroke-width="1"/>
+  <text class="tag" x="608" y="77">팬 커넥터</text>
+
+  <rect class="box" x="520" y="90" width="84" height="50" rx="4"/>
+  <text class="tag" x="562" y="119" text-anchor="middle">USB 2.0 ×2</text>
+  <rect class="box-hi" x="520" y="150" width="84" height="50" rx="4"/>
+  <text class="tag" x="562" y="179" text-anchor="middle">USB 3.0 ×2</text>
+  <rect class="box" x="520" y="210" width="84" height="60" rx="4"/>
+  <text class="tag" x="562" y="237" text-anchor="middle">기가비트 LAN</text>
+  <text class="sub" x="562" y="254" text-anchor="middle">PoE+ (HAT)</text>
+
+  <rect class="box-hi" x="226" y="104" width="100" height="84" rx="6"/>
+  <text class="lbl" x="276" y="140" text-anchor="middle">BCM2712</text>
+  <text class="sub" x="276" y="158" text-anchor="middle">A76 ×4, 2.4 GHz</text>
+  <rect class="box" x="246" y="200" width="60" height="30" rx="3"/>
+  <text class="tag" x="276" y="219" text-anchor="middle">RAM</text>
+  <rect class="box" x="380" y="116" width="76" height="60" rx="6"/>
+  <text class="lbl" x="418" y="142" text-anchor="middle">RP1</text>
+  <text class="sub" x="418" y="160" text-anchor="middle">I/O 칩</text>
+
+  <rect class="box" x="140" y="110" width="16" height="90" rx="2"/>
+  <text class="tag" x="132" y="159" text-anchor="end">PCIe 2.0 ×1</text>
+  <rect x="160" y="70" width="44" height="30" rx="3" style="fill:none;stroke:var(--text-faint)" stroke-dasharray="3 3"/>
+  <text class="tag" x="132" y="89" text-anchor="end">microSD (뒷면)</text>
+  <circle class="box" cx="150" cy="236" r="7"/>
+  <text class="tag" x="132" y="240" text-anchor="end">전원 버튼</text>
+  <rect class="box" x="166" y="252" width="22" height="12" rx="2"/>
+  <text class="tag" x="132" y="263" text-anchor="end">RTC 배터리</text>
+
+  <rect class="box-hi" x="160" y="276" width="50" height="34" rx="4"/>
+  <rect class="box" x="236" y="282" width="40" height="24" rx="3"/>
+  <rect class="box" x="283" y="286" width="20" height="14" rx="2"/>
+  <rect class="box" x="310" y="282" width="40" height="24" rx="3"/>
+  <rect class="box" x="384" y="252" width="56" height="20" rx="2"/>
+  <rect class="box" x="446" y="252" width="56" height="20" rx="2"/>
+  <rect class="box" x="506" y="276" width="10" height="20" rx="1"/>
+  <text class="tag" x="185" y="324" text-anchor="middle">USB-C 5.1 V 5 A</text>
+  <text class="tag" x="293" y="324" text-anchor="middle">UART</text>
+  <text class="tag" x="293" y="338" text-anchor="middle">마이크로 HDMI ×2</text>
+  <text class="tag" x="443" y="290" text-anchor="middle">MIPI CSI/DSI ×2</text>
+  <text class="tag" x="511" y="324" text-anchor="middle">PoE 핀</text>
+</svg><figcaption>라즈베리파이 5 주요 포트 배치(간략도). 실제 위치는 공식 기계 도면을 참고하세요.</figcaption></figure>
+<h2 id="포트별-용도">포트별 용도<a class="anchor" href="#포트별-용도">#</a></h2>
+<h3 id="gpio-40핀">GPIO 40핀<a class="anchor" href="#gpio-40핀">#</a></h3>
+<ul><li>GPIO0~GPIO27의 디지털 입출력과 5 V·3.3 V·GND 전원 핀</li><li>일부 핀은 <strong>I2C, SPI, UART, PWM</strong> 같은 통신·신호 기능을 겸합니다(B08).</li><li><strong>신호 전압은 3.3 V입니다.</strong> 5 V를 직접 넣으면 칩이 손상됩니다. 5 V 장치는 레벨 변환기를 거칩니다.</li><li>터미널에서 <code>pinout</code> 명령으로 핀 배치를 볼 수 있습니다.</li></ul>
+<h3 id="pcie-2-0">PCIe 2.0<a class="anchor" href="#pcie-2-0">#</a></h3>
+<p>라즈베리파이 5에 새로 생긴 1레인 PCIe 커넥터입니다. 전용 HAT(어댑터)를 달아 <strong>NVMe SSD</strong>, 고속 네트워크 카드, AI 가속기 등을 연결합니다. SD 카드보다 훨씬 빠른 저장장치가 필요할 때 씁니다.</p>
+<h3 id="mipi-csi-dsi">MIPI CSI/DSI<a class="anchor" href="#mipi-csi-dsi">#</a></h3>
+<p>카메라(CSI, Camera Serial Interface)나 디스플레이(DSI, Display Serial Interface)를 연결하는 고속 직렬 인터페이스입니다. 두 커넥터 모두 4레인, 레인당 1.5 Gbps(합계 최대 6 Gbps)이며, 카메라 2대 / 디스플레이 2대 / 카메라 1 + 디스플레이 1 조합이 가능합니다. MentorPi는 USB 카메라를 쓰므로 비어 있지만, CSI 카메라로 확장할 수 있습니다.</p>
+<h3 id="디버그-uart">디버그 UART<a class="anchor" href="#디버그-uart">#</a></h3>
+<p>보드 가장자리의 3핀 전용 UART 커넥터로, 부팅 초기 메시지와 리눅스 콘솔에 접근할 수 있습니다. 부팅이 안 될 때 원인을 찾는 데 유용합니다. 송신(TX)은 상대의 수신(RX)에 <strong>엇갈려</strong> 연결합니다.</p>
+<h3 id="rtc실시간-시계">RTC(실시간 시계)<a class="anchor" href="#rtc실시간-시계">#</a></h3>
+<p>라즈베리파이 5에는 시계 칩이 내장되어 있고, 전용 커넥터에 충전식 코인 배터리를 달면 <strong>전원이 꺼져도 시간을 유지</strong>합니다(대기 전류 µA 수준으로 수개월). 인터넷이 없는 AP 모드 로봇에서 로그 시간을 정확히 남기려면 유용합니다.</p>
+<h3 id="poe">PoE<a class="anchor" href="#poe">#</a></h3>
+<p>이더넷 포트는 IEEE 802.3at(PoE+) 규격을 지원해, PoE HAT을 달면 <strong>랜선 하나로 데이터와 전원</strong>을 함께 받습니다. 고정 설치 카메라·게이트웨이에 쓰이며, 배터리로 움직이는 MentorPi에서는 쓰지 않습니다.</p>
+<h2 id="사용-수칙">사용 수칙<a class="anchor" href="#사용-수칙">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>수칙</th><th>이유</th></tr></thead><tbody><tr><td>전원은 <strong>5.1 V / 5 A</strong>. 부족하면 부팅 시 "USB 전류 600 mA로 제한" 경고</td><td>5 A 전원이 감지되어야 USB 주변장치 전류 한도가 1.6 A로 올라감 → 깊이 카메라·라이다 동시 구동</td></tr><tr><td>모니터는 <strong>전원 먼저, HDMI 나중</strong></td><td>순서가 바뀌면 화면이 켜지지 않을 수 있음</td></tr><tr><td>원격 접속 중 모니터를 꽂으면 연결이 끊길 수 있음</td><td>해상도가 모니터 기준으로 바뀜 → 재부팅으로 해결</td></tr><tr><td>방열판·팬 장착</td><td>고부하 시 온도 상승 → 성능 저하(스로틀링)</td></tr><tr><td>만지기 전 정전기 방전</td><td>부품 손상 방지</td></tr><tr><td>GPIO는 3.3 V</td><td>5 V 입력 금지</td></tr><tr><td>동작 온도 0~50 °C</td><td>범위 밖에서는 수명·성능 저하</td></tr></tbody></table></div>
+<p>방열판은 보호 필름을 떼고 SoC 위에 붙이고, 냉각 팬은 <strong>4핀 JST 팬 커넥터</strong>에 연결합니다. 보호 케이스를 조립할 때 SD 카드는 글자 면이 바닥판 쪽을 향하게 끼웁니다.</p>
+<h2 id="os-설치">OS 설치<a class="anchor" href="#os-설치">#</a></h2>
+<h3 id="운영체제-선택">운영체제 선택<a class="anchor" href="#운영체제-선택">#</a></h3>
+<p>라즈베리파이용 OS로는 공식 <strong>Raspberry Pi OS</strong>(과거 명칭 Raspbian, Debian 기반), Ubuntu(MATE 등), Kali Linux, 미디어센터용 OSMC, 멀티 부팅 관리자 NOOBS(구형) 등이 있습니다. MentorPi는 Hiwonder가 <strong>Raspberry Pi OS + Docker + ROS 2 컨테이너</strong>를 미리 넣은 이미지를 제공합니다.</p>
+<h3 id="방법-1-raspberry-pi-imager새-os">방법 1: Raspberry Pi Imager(새 OS)<a class="anchor" href="#방법-1-raspberry-pi-imager새-os">#</a></h3>
+<ol><li>https://www.raspberrypi.com/software/ 에서 Imager 설치</li><li><strong>CHOOSE DEVICE</strong> → Raspberry Pi 5</li><li><strong>CHOOSE OS</strong> → Raspberry Pi OS (64-bit)</li><li>SD 카드(8 GB 이상, 32 GB 권장)를 카드 리더로 연결 → <strong>CHOOSE STORAGE</strong></li><li>NEXT → <strong>EDIT SETTINGS</strong>: 사용자 이름·비밀번호, Wi-Fi, 호스트 이름, 시간대, 키보드 / <strong>SERVICES → Enable SSH</strong></li><li>Yes → 기록 완료 후 "포맷하시겠습니까?" 창이 뜨면 <strong>취소</strong>(포맷하면 방금 쓴 OS가 지워짐)</li></ol>
+<h3 id="방법-2-제공-이미지-굽기mentorpi-복구">방법 2: 제공 이미지 굽기(MentorPi 복구)<a class="anchor" href="#방법-2-제공-이미지-굽기mentorpi-복구">#</a></h3>
+<p>원본 부록 "Burn Image"의 절차입니다. SD 카드가 망가졌거나 공장 상태로 되돌릴 때 씁니다.</p>
+<ol><li>이미지 압축 파일을 <strong>영문 경로</strong>에 풀어 <code>.img</code> 파일 얻기(한글 경로 금지)</li><li>SD Card Formatter로 카드 초기화(빈 카드면 생략)</li><li>Win32DiskImager에서 이미지 선택 → 장치(드라이브 문자) 확인 → Write → "Write Successful"</li><li>Windows가 "포맷해야 합니다"라고 물으면 <strong>취소</strong></li></ol>
+<div class="callout callout-warn"><div class="callout-title">이미지를 굽기 전에</div><div class="callout-body"><p>SD 카드의 모든 데이터가 지워집니다. 특히 직접 만든 지도·코드·학습 모델이 있다면 먼저 백업하세요. 드라이브 문자를 잘못 고르면 PC의 USB 메모리가 지워질 수 있습니다.</p></div></div>
+<h2 id="기본-운용">기본 운용<a class="anchor" href="#기본-운용">#</a></h2>
+<h3 id="부팅과-종료">부팅과 종료<a class="anchor" href="#부팅과-종료">#</a></h3>
+<ul><li>SD 카드는 금속 단자가 보드 쪽을 향하게 끼웁니다.</li><li>전원을 넣으면 LED가 빨강 → 초록으로 바뀌고, 초록이 불규칙하게 깜빡이다가(부팅·데스크톱 로딩) 안정됩니다.</li><li><strong>전원 선을 바로 뽑지 않습니다.</strong> SD 카드에는 OS와 시스템 파일이 있어 쓰기 도중 전원이 끊기면 파일 시스템이 손상됩니다.</li></ul>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">sudo shutdown -h now      # 즉시 종료(halt)
+sudo shutdown -h 30       # 30분 뒤 종료
+sudo shutdown -h 12:30    # 12시 30분에 종료
+sudo reboot               # 재시작 (= sudo shutdown -r now)</code></pre></div>
+<h3 id="act-led-깜빡임-코드">ACT LED 깜빡임 코드<a class="anchor" href="#act-led-깜빡임-코드">#</a></h3>
+<p>라즈베리파이 5는 LED가 하나(ACT)만 남았고, 부팅 문제를 깜빡임 횟수로 알려 줍니다(1초 간격 반복, 원본 표 기준).</p>
+<div class="table-wrap"><table><thead><tr><th>깜빡임</th><th>의미</th><th>확인할 것</th></tr></thead><tbody><tr><td>1회</td><td>SD 카드 읽기 오류</td><td>카드 삽입 상태, 카드 손상</td></tr><tr><td>2회</td><td>SD 카드 쓰기 오류</td><td>쓰기 보호, 가득 참, 파일 시스템 오류</td></tr><tr><td>3회</td><td>부트 파일 시스템 오류</td><td>부트 파티션 손상, 부트 파일 누락</td></tr><tr><td>4회</td><td>부팅 시간 초과</td><td>부팅 과정 중 멈춤</td></tr><tr><td>5회</td><td>루트 파일 시스템을 찾지 못함</td><td>루트 파티션 손상 → 이미지 재설치</td></tr></tbody></table></div>
+<p>깜빡임 패턴은 펌웨어 버전에 따라 다를 수 있으니 공식 문서와 함께 확인합니다.</p>
+<h3 id="온도와-전원-상태">온도와 전원 상태<a class="anchor" href="#온도와-전원-상태">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">vcgencmd measure_temp                       # temp=60.9&#x27;C
+cat /sys/class/thermal/thermal_zone0/temp   # 60050 → 60.05 °C (1/1000 단위)
+vcgencmd get_throttled                      # throttled=0x0 이면 정상</code></pre></div>
+<p><code>get_throttled</code>의 비트 0은 "지금 저전압", 비트 16은 "부팅 이후 저전압이 있었음"을 뜻합니다(0x50000처럼 나오면 과거에 저전압과 스로틀링이 있었던 것). 로봇이 주행 중 가끔 재부팅된다면 배터리 전압(B01)과 이 값을 함께 보세요. 데스크톱 상태 표시줄에 <strong>CPU Temp</strong> 플러그인을 추가하면 온도를 실시간으로 볼 수 있습니다.</p>
+<h3 id="기타-설정">기타 설정<a class="anchor" href="#기타-설정">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>작업</th><th>방법</th></tr></thead><tbody><tr><td>외장 저장장치 마운트</td><td><code>sudo fdisk -l</code>로 장치 확인 → <code>sudo mkdir /home/pi/test</code> → <code>sudo mount /dev/sda2 /home/pi/test</code></td></tr><tr><td>호스트 이름 변경</td><td><code>sudo vim /etc/hosts</code>에서 <code>127.0.1.1 raspberrypi</code> 수정(함께 <code>/etc/hostname</code>도 수정) → 재부팅</td></tr><tr><td>USB 카메라 시험</td><td><code>sudo apt install fswebcam</code> → <code>sudo usermod -a -G video pi</code> → <code>fswebcam /dev/video0 /home/pi/img1.jpg</code></td></tr><tr><td>해상도·회전</td><td>메뉴 → Preferences → Screen Configuration(모니터), Raspberry Pi Configuration → Display(VNC)</td></tr><tr><td>화면 꺼짐 해제</td><td>Raspberry Pi Configuration → Display → Screen Blanking, 또는 <code>/etc/lightdm/lightdm.conf</code>의 <code>xserver-command=X -s 0 -dpms</code></td></tr></tbody></table></div>
+<h2 id="원격-접속과-파일-전송">원격 접속과 파일 전송<a class="anchor" href="#원격-접속과-파일-전송">#</a></h2>
+<ol><li>PC와 라즈베리파이를 <strong>같은 네트워크</strong>에 연결(MentorPi는 <code>HW-…</code> 핫스팟 또는 같은 공유기)</li><li>IP 찾기: 순정 라즈베리파이는 PC의 명령 프롬프트에서 <code>ping raspberrypi -4</code>(호스트 이름으로 찾기), MentorPi는 AP 모드 <code>192.168.149.1</code></li><li><strong>MobaXterm</strong>: Session → SSH → Remote host에 IP, Specify username <code>pi</code> → 비밀번호 입력(화면에 표시되지 않음)</li><li>파일 전송: MobaXterm 왼쪽 파일 창에 PC 파일을 <strong>끌어다 놓으면</strong> 라즈베리파이로, 반대로 끌면 PC로 복사</li><li>VNC가 꺼져 있다면 SSH에서 <code>sudo raspi-config</code> → Interface Options → VNC → Yes 후 VNC Viewer로 접속</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash"># 명령행으로 파일 전송(PC → 로봇)
+scp my_node.py pi@192.168.149.1:/home/pi/
+# 로봇 → PC
+scp pi@192.168.149.1:/home/pi/map.pgm .</code></pre></div>
+<h2 id="시스템-설정-도구">시스템 설정 도구<a class="anchor" href="#시스템-설정-도구">#</a></h2>
+<h3 id="소스-목록과-업데이트">소스 목록과 업데이트<a class="anchor" href="#소스-목록과-업데이트">#</a></h3>
+<p>패키지를 받는 서버(미러)는 <code>/etc/apt/sources.list</code>와 <code>/etc/apt/sources.list.d/raspi.list</code>에 적혀 있습니다. 원본은 가까운 미러로 바꾸는 예를 듭니다(bookworm 기준). 한 줄 형식은 <code>deb &lt;미러 주소&gt; &lt;배포판 코드명&gt; &lt;구성요소&gt;</code>입니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">sudo nano /etc/apt/sources.list     # 기존 줄은 # 으로 주석 처리 후 미러 줄 추가
+# 예) deb https://&lt;미러&gt;/debian/ bookworm main contrib
+sudo apt update                     # 패키지 목록 갱신
+sudo apt full-upgrade               # 설치된 패키지 업그레이드</code></pre></div>
+<div class="callout callout-warn"><div class="callout-title">MentorPi에서 업그레이드는 신중하게</div><div class="callout-body"><p>원본도 "개발자가 무작위로 업데이트하는 것은 권장하지 않는다"고 강조합니다. MentorPi 이미지는 커널·드라이버·Docker·컨테이너가 서로 맞춰진 상태라, <code>full-upgrade</code> 후 카메라·시리얼 장치 이름이 바뀌거나 컨테이너가 장치를 못 찾을 수 있습니다. 필요한 패키지만 <code>apt install</code>하고, 전체 업그레이드는 SD 카드 백업 후에 합니다.</p></div></div>
+<h3 id="raspi-config">raspi-config<a class="anchor" href="#raspi-config">#</a></h3>
+<p><code>sudo raspi-config</code>로 여는 텍스트 메뉴입니다. ↑↓로 이동, Enter 선택, Esc 뒤로.</p>
+<div class="table-wrap"><table><thead><tr><th>메뉴</th><th>내용</th></tr></thead><tbody><tr><td>System Options</td><td>부팅·자동 로그인, 네트워크, 소리</td></tr><tr><td>Display Options</td><td>해상도, 화면 여백</td></tr><tr><td>Interface Options</td><td><strong>SSH, VNC, SPI, I2C, Serial Port</strong>, 1-Wire, 원격 GPIO 켜기/끄기</td></tr><tr><td>Performance Options</td><td>오버클럭, 팬 제어 등</td></tr><tr><td>Localisation Options</td><td>로캘, 시간대, 키보드, <strong>WLAN Country</strong>(무선 채널 법규)</td></tr><tr><td>Advanced Options</td><td>파일 시스템 확장, 부트 설정</td></tr><tr><td>Update / About</td><td>도구 업데이트, 정보</td></tr></tbody></table></div>
+<h3 id="config-txt">config.txt<a class="anchor" href="#config-txt">#</a></h3>
+<p>라즈베리파이에는 PC의 BIOS가 없고, 대신 부트 파티션의 **<code>config.txt</code>**를 GPU 펌웨어가 커널보다 먼저 읽어 하드웨어를 설정합니다. 한 줄에 한 설정(<code>이름=값</code>), <code>#</code>은 주석, 한 줄 최대 98자.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">camera_auto_detect=1        # 인식한 CSI 카메라의 오버레이 자동 로드 (끄려면 0)
+display_auto_detect=1       # 인식한 DSI 디스플레이의 오버레이 자동 로드
+dtoverlay=vc4-kms-v3d       # 장치 트리 오버레이: KMS 그래픽 드라이버
+dtparam=i2c_arm=on          # I2C 켜기 (raspi-config가 쓰는 줄)</code></pre></div>
+<p>원본은 경로를 <code>/boot/config.txt</code>로 적었지만, **Raspberry Pi OS bookworm부터는 <code>/boot/firmware/config.txt</code>**가 실제 파일입니다(옛 경로에는 안내문만 있음). 편집 전에 <code>ls /boot/firmware/config.txt</code>로 확인하세요.</p>
+<h3 id="네트워크-설정">네트워크 설정<a class="anchor" href="#네트워크-설정">#</a></h3>
+<p>라즈베리파이 5(bookworm)는 <strong>NetworkManager</strong>가 네트워크를 관리하며, 연결 설정은 <code>/etc/NetworkManager/system-connections/*.nmconnection</code> 파일에 저장됩니다. 원본은 이 파일을 vim으로 만들어 세 가지 모드를 구성합니다.</p>
+<div class="table-wrap"><table><thead><tr><th>모드</th><th>원본 예</th><th>설명</th></tr></thead><tbody><tr><td>AP</td><td>SSID <code>pi5</code>, 비밀번호 <code>12345678</code>, 고정 IP <code>192.168.149.1</code></td><td>라즈베리파이가 핫스팟</td></tr><tr><td>STA</td><td>SSID <code>WWW</code>, 비밀번호 <code>hiwonder</code>, 고정 IP <code>192.168.1.111</code></td><td>공유기에 접속</td></tr><tr><td>유선</td><td>고정 IP <code>192.168.1.112</code></td><td>랜선 직결</td></tr></tbody></table></div>
+<p>파일을 고친 뒤 <code>sudo systemctl restart NetworkManager</code> → <code>sudo reboot</code>로 적용합니다. 명령으로 확인·연결할 때는 <code>nmcli</code>가 편합니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">nmcli device status                    # 장치별 연결 상태
+nmcli connection show                  # 저장된 연결 목록
+nmcli device wifi list                 # 주변 Wi-Fi</code></pre></div>
+<div class="callout callout-danger"><div class="callout-title">MentorPi의 네트워크는 도구로 바꾸세요</div><div class="callout-body"><p>MentorPi의 AP/STA 전환은 앱과 <code>hiwonder-toolbox</code>가 관리합니다(B02). <code>nmconnection</code> 파일을 직접 고치면 <strong>로봇 핫스팟이 사라져 원격 접속이 끊길 수</strong> 있고, 그러면 모니터·키보드를 직접 연결해야 복구할 수 있습니다. 위 설정 실습은 순정 라즈베리파이나 백업한 SD 카드에서 하세요.</p></div></div>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<p>MentorPi 호스트(라즈베리파이 OS) 터미널에서 <strong>읽기 위주로</strong> 보드 상태를 점검합니다.</p>
+<div class="callout callout-safety"><div class="callout-title">안전 확인 (실물 실습 전 필수)</div><div class="callout-body"><ul><li>네트워크 설정 파일, <code>config.txt</code>는 <strong>열람만</strong> 합니다. 수정은 담당자 확인 후 백업한 SD 카드에서.</li><li>전원을 끌 때는 <code>sudo shutdown -h now</code> 후 확장보드 스위치를 내립니다.</li><li>보드를 만지기 전 금속에 손을 대 정전기를 방전하고, 전원이 켜진 상태에서 GPIO 핀에 점퍼선을 꽂지 않습니다.</li></ul></div></div>
+<div class="callout callout-task"><div class="callout-title">따라 하기</div><div class="callout-body"><ol><li><code>cat /proc/device-tree/model; echo</code> — 보드 모델 확인</li><li><code>lscpu | head -15</code>, <code>free -h</code>, <code>df -h /</code> — CPU 코어·메모리·SD 카드 용량</li><li><code>vcgencmd measure_temp</code>와 <code>cat /sys/class/thermal/thermal_zone0/temp</code> 비교</li><li><code>vcgencmd get_throttled</code> — 0x0이 아니면 비트를 해석해 기록</li><li>라이다·앱 게임을 1분 돌린 뒤 다시 온도 측정 → 부하에 따른 온도 변화 관찰</li><li><code>lsusb</code> — 깊이 카메라·라이다(USB 시리얼 변환기)·조이패드 수신기가 USB로 보이는지 확인</li><li><code>ls -l /dev/ttyAMA* /dev/video* 2&gt;/dev/null</code> — 시리얼·카메라 장치 파일 확인</li><li><code>sudo raspi-config</code> → Interface Options 메뉴까지만 들어가 현재 SSH·VNC·I2C·Serial 설정을 확인하고 <strong>Esc로 변경 없이</strong> 나오기</li><li><code>grep -v &quot;^#&quot; /boot/firmware/config.txt | grep -v &quot;^$&quot;</code> — 활성화된 설정 줄만 보기</li><li>PC에서 <code>scp</code>나 MobaXterm으로 파일 하나를 로봇에 보내고 다시 받아 오기</li></ol></div></div>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> GPIO 신호 전압과 5 V 입력 금지 이유를 말할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> 로봇이 가끔 재부팅될 때 확인할 두 가지(배터리 전압, <code>get_throttled</code>)를 안다.</label></li><li><label class="check-item"><input type="checkbox"> <code>config.txt</code>의 실제 위치를 확인했다.</label></li><li><label class="check-item"><input type="checkbox"> SSH로 접속해 파일을 주고받았다.</label></li></ul></div></div>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td>부팅 시 "USB current limited to 600 mA" 경고</td><td>5 V 5 A 전원이 감지되지 않음</td><td>정격 전원 사용, MentorPi는 배터리 충전 상태 확인</td></tr><tr><td>ACT LED가 일정 횟수로 반복 깜빡이고 부팅 안 됨</td><td>SD 카드·부트 파일 문제</td><td>표의 횟수로 원인 판별, 필요 시 이미지 재설치</td></tr><tr><td>모니터가 켜지지 않음</td><td>HDMI를 전원보다 먼저 연결, 해상도 불일치</td><td>모니터 전원 → HDMI 순서, 재부팅</td></tr><tr><td>VNC가 검은 화면</td><td>모니터 연결 상태 변경, 데스크톱 세션 문제</td><td>재부팅 후 재접속</td></tr><tr><td><code>ping raspberrypi</code> 응답 없음</td><td>다른 네트워크, mDNS 미지원</td><td>같은 네트워크 확인, 공유기 관리 화면·앱에서 IP 확인</td></tr><tr><td>SSH 비밀번호가 계속 거부됨</td><td>사용자 이름·비밀번호 불일치(Imager에서 바꾼 값)</td><td>Imager에서 설정한 계정 사용, MentorPi 기본값 확인</td></tr><tr><td><code>apt update</code> 실패</td><td>AP 모드(인터넷 없음), 미러 주소 오타</td><td>LAN 모드로 전환, sources.list 확인</td></tr><tr><td>성능이 갑자기 떨어짐</td><td>과열 스로틀링</td><td>방열판·팬 확인, <code>vcgencmd measure_temp</code></td></tr><tr><td><code>config.txt</code>를 고쳤는데 반영 안 됨</td><td>bookworm에서 <code>/boot/config.txt</code>를 수정함</td><td><code>/boot/firmware/config.txt</code> 수정 후 재부팅</td></tr><tr><td>네트워크 설정 후 원격 접속 불가</td><td>nmconnection 오류로 핫스팟/Wi-Fi 연결 실패</td><td>모니터·키보드 연결해 파일 복구, 또는 SD 카드 재설치</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">기본</div><div class="callout-body"><ol><li><code>vcgencmd get_throttled</code> 결과가 <code>0x50005</code>일 때 켜진 비트(0, 2, 16, 18)가 각각 무엇을 뜻하는지 공식 문서에서 찾아 정리합니다.</li><li>MentorPi에서 USB 3.0 포트(파랑)에 꽂아야 유리한 장치와 USB 2.0에 꽂아도 되는 장치를 대역폭 기준으로 나눕니다.</li></ol></div></div>
+<div class="callout callout-task"><div class="callout-title">심화</div><div class="callout-body"><ol><li>라즈베리파이 5의 PCIe 커넥터에 NVMe SSD를 달면 SD 카드 대비 무엇이 좋아지는지(부팅 시간, 지도·rosbag 저장, 수명) 조사해 정리합니다.</li><li>순정 라즈베리파이(또는 백업 SD 카드)에서 <code>nmcli</code>로 STA 연결을 하나 만들고, 생성된 <code>.nmconnection</code> 파일의 <code>[wifi]</code>, <code>[wifi-security]</code>, <code>[ipv4]</code> 섹션을 해석합니다.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: 6. Raspberry Pi 5 &amp; Expansion Board / Raspberry Pi 5 Controller / 1. Raspberry Pi 5 Hardware &amp; System Introduction — <em>Lesson 1 Raspberry 5 Introduction</em> ~ <em>Lesson 10 Power over Ethernet (PoE) Connection Instructions</em></li><li>원본 교재: 2. Raspberry Pi 5 Basic Operation and Configuration — <em>Lesson 1 Initial Setup and External Device Connection</em> ~ <em>Lesson 16 Correct Startup Method</em></li><li>원본 부록: Appendix/System Image — <em>Burn Image</em></li><li>Raspberry Pi 5 공식 문서: https://www.raspberrypi.com/documentation/computers/raspberry-pi-5.html</li><li>config.txt 문서: https://www.raspberrypi.com/documentation/computers/config_txt.html</li><li><code>vcgencmd</code> (get_throttled 비트): https://www.raspberrypi.com/documentation/computers/os.html#vcgencmd</li><li>NetworkManager <code>nmcli</code>: https://networkmanager.dev/docs/api/latest/nmcli.html</li></ul>
+      <nav class="pager"><a class="pager-prev" href="b06.html"><span>이전 · B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a><a class="pager-next" href="b08.html"><span>다음 · B08</span>GPIO·UART·I2C와 확장보드 입출력</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#라즈베리파이-5-개요">라즈베리파이 5 개요</a><a class="toc-l2" href="#포트별-용도">포트별 용도</a><a class="toc-l3" href="#gpio-40핀">GPIO 40핀</a><a class="toc-l3" href="#pcie-2-0">PCIe 2.0</a><a class="toc-l3" href="#mipi-csi-dsi">MIPI CSI/DSI</a><a class="toc-l3" href="#디버그-uart">디버그 UART</a><a class="toc-l3" href="#rtc실시간-시계">RTC(실시간 시계)</a><a class="toc-l3" href="#poe">PoE</a><a class="toc-l2" href="#사용-수칙">사용 수칙</a><a class="toc-l2" href="#os-설치">OS 설치</a><a class="toc-l3" href="#운영체제-선택">운영체제 선택</a><a class="toc-l3" href="#방법-1-raspberry-pi-imager새-os">방법 1: Raspberry Pi Imager(새 OS)</a><a class="toc-l3" href="#방법-2-제공-이미지-굽기mentorpi-복구">방법 2: 제공 이미지 굽기(MentorPi 복구)</a><a class="toc-l2" href="#기본-운용">기본 운용</a><a class="toc-l3" href="#부팅과-종료">부팅과 종료</a><a class="toc-l3" href="#act-led-깜빡임-코드">ACT LED 깜빡임 코드</a><a class="toc-l3" href="#온도와-전원-상태">온도와 전원 상태</a><a class="toc-l3" href="#기타-설정">기타 설정</a><a class="toc-l2" href="#원격-접속과-파일-전송">원격 접속과 파일 전송</a><a class="toc-l2" href="#시스템-설정-도구">시스템 설정 도구</a><a class="toc-l3" href="#소스-목록과-업데이트">소스 목록과 업데이트</a><a class="toc-l3" href="#raspi-config">raspi-config</a><a class="toc-l3" href="#config-txt">config.txt</a><a class="toc-l3" href="#네트워크-설정">네트워크 설정</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

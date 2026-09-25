@@ -1,0 +1,32 @@
+<svg viewBox="0 0 720 270" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="윤곽 하나에 대한 외접 사각형, 최소 회전 사각형, 최소 외접원, 볼록 껍질">
+  <g transform="translate(20,20)">
+    <text class="lbl" x="75" y="0" text-anchor="middle">boundingRect</text>
+    <polygon class="box-hi" points="30,120 100,40 125,62 55,142"/>
+    <rect class="ln-hi" x="30" y="40" width="95" height="102" fill="none" stroke-width="2"/>
+    <text class="sub mono" x="75" y="175" text-anchor="middle">(x, y, w, h)</text>
+    <text class="sub" x="75" y="195" text-anchor="middle">축 정렬, 빈 곳 많음</text>
+  </g>
+  <g transform="translate(200,20)">
+    <text class="lbl" x="75" y="0" text-anchor="middle">minAreaRect</text>
+    <polygon class="box-hi" points="30,120 100,40 125,62 55,142"/>
+    <polygon class="ln-hi" points="30,120 100,40 125,62 55,142" fill="none" stroke-width="2"/>
+    <circle class="hi" cx="77" cy="91" r="4"/>
+    <text class="sub mono" x="75" y="175" text-anchor="middle">((cx,cy),(w,h),θ)</text>
+    <text class="sub" x="75" y="195" text-anchor="middle">기울기까지 표현</text>
+  </g>
+  <g transform="translate(380,20)">
+    <text class="lbl" x="75" y="0" text-anchor="middle">minEnclosingCircle</text>
+    <polygon class="box-hi" points="30,120 100,40 125,62 55,142"/>
+    <circle class="ln-hi" cx="77" cy="91" r="68" fill="none" stroke-width="2"/>
+    <text class="sub mono" x="75" y="175" text-anchor="middle">((cx,cy), r)</text>
+    <text class="sub" x="75" y="195" text-anchor="middle">공·원형 표식 크기</text>
+  </g>
+  <g transform="translate(560,20)">
+    <text class="lbl" x="75" y="0" text-anchor="middle">convexHull</text>
+    <polygon class="box-hi" points="20,40 130,40 130,150 100,150 100,70 20,70"/>
+    <polygon class="ln-hi" points="20,40 130,40 130,150 100,150 20,70" fill="none" stroke-width="2" stroke-dasharray="5 3"/>
+    <text class="sub mono" x="75" y="175" text-anchor="middle">solidity = A / A_hull</text>
+    <text class="sub" x="75" y="195" text-anchor="middle">오목한 부분 찾기</text>
+  </g>
+  <text class="sub" x="360" y="255" text-anchor="middle">채운 영역 = 윤곽선 내부 · 강조 선 = 각 함수가 돌려주는 도형</text>
+</svg>

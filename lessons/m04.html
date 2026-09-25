@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M04. cmd_vel 속도 제어 프로그래밍 · studyMentorPi</title>
+<meta name="description" content="geometry_msgs/Twist로 메카넘·애커만 속도 제어 노드를 작성하고, 정사각형·원·8자 주행과 속도 제한을 구현합니다.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-mobile">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" class="active" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="m04" data-track="mobile">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-mobile">이동로봇 핵심</span> M-1 섀시와 모션 제어 &middot; 약 90분 &middot; 중급</div>
+    <h1><span class="lesson-no">M04</span>cmd_vel 속도 제어 프로그래밍</h1>
+    <p class="lede">geometry_msgs/Twist로 메카넘·애커만 속도 제어 노드를 작성하고, 정사각형·원·8자 주행과 속도 제한을 구현합니다.</p>
+    <div class="requires">선수 챕터: <a href="m01.html">M01</a> <a href="m02.html">M02</a> <a href="m03.html">M03</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      <a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a><a class="ghost-btn" href="../sim/index.html">2D 시뮬레이터</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li><code>geometry_msgs/Twist</code>의 필드가 메카넘·애커만 섀시에서 각각 어떻게 해석되는지, <code>/cmd_vel</code>과 <code>/controller/cmd_vel</code>의 차이를 원본 소스로 설명합니다.</li><li>타이머 기반 <strong>상태 기계(state machine)</strong> 로 속도 제어 노드를 작성하고, 종료 시 반드시 정지 명령을 보내는 구조를 갖춥니다.</li><li>시간 기반(개방 루프)과 <code>/odom</code> 피드백 기반(폐루프) 정사각형 주행의 오차를 비교합니다.</li><li>원·8자 주행을 곡률 <span class="math">κ = ω/v</span>로 설계하고, 두 섀시에서 같은 명령이 통하는 조건을 설명합니다.</li><li>속도·가속도 제한(slew-rate limiter)을 구현해 안전한 명령을 만듭니다.</li></ul>
+<h2 id="twist-메시지와-두-입력-토픽">Twist 메시지와 두 입력 토픽<a class="anchor" href="#twist-메시지와-두-입력-토픽">#</a></h2>
+<p><code>geometry_msgs/msg/Twist</code>는 <code>linear</code>(x, y, z) [m/s]와 <code>angular</code>(x, y, z) [rad/s] 두 벡터입니다. 로봇 좌표계(x 전방, y 왼쪽) 기준이며, 평면 로봇은 세 값만 씁니다.</p>
+<div class="table-wrap"><table><thead><tr><th>필드</th><th>메카넘</th><th>애커만</th></tr></thead><tbody><tr><td><code>linear.x</code></td><td>전후 속도 <span class="math">v_x</span></td><td>뒷차축 속도 <span class="math">v</span></td></tr><tr><td><code>linear.y</code></td><td>좌우 속도 <span class="math">v_y</span> (+ = 왼쪽)</td><td><strong>무시</strong></td></tr><tr><td><code>angular.z</code></td><td>회전 속도 <span class="math">ω</span> (+ = 반시계)</td><td><span class="math">δ = atan(Lω/v)</span>로 바뀌어 서보 조향, <span class="math">v = 0</span>이면 무시</td></tr><tr><td>나머지</td><td>무시</td><td>무시</td></tr></tbody></table></div>
+<p>원본 <code>odom_publisher_node.py</code>는 속도 명령을 <strong>두 토픽</strong>에서 받습니다.</p>
+<div class="table-wrap"><table><thead><tr><th>토픽</th><th>콜백</th><th>제한</th><th>누가 쓰나</th></tr></thead><tbody><tr><td><code>/cmd_vel</code></td><td><code>app_cmd_vel_callback</code> → <code>cmd_vel_callback</code></td><td><span class="math">|v_x|, |v_y|</span> ≤ 0.2 m/s, <span class="math">|ω|</span> ≤ 0.5 rad/s로 <strong>자름</strong></td><td>앱, 조이패드, 학생 코드</td></tr><tr><td><code>/controller/cmd_vel</code></td><td><code>cmd_vel_callback</code></td><td><strong>없음</strong></td><td>Nav2, 라이다 앱, 보정 노드, 키보드 노드</td></tr></tbody></table></div>
+<p>교재(Lesson 5·6)는 <code>/controller/cmd_vel</code>로 직접 명령을 보내며 선속도 −0.6 ~ 0.6 m/s, 메카넘 각속도 −2 ~ 2 rad/s 범위를 안내합니다. 처음 작성하는 코드는 **제한이 걸린 <code>/cmd_vel</code>** 을 쓰고, 빠른 반응이 꼭 필요할 때만 <code>/controller/cmd_vel</code>을 쓰세요.</p>
+<h2 id="명령은-계속-유지된다">명령은 계속 유지된다<a class="anchor" href="#명령은-계속-유지된다">#</a></h2>
+<p>MentorPi 기본 스택에는 <strong>명령 타임아웃(watchdog)이 없습니다.</strong> <code>cmd_vel_callback</code>은 받은 속도를 모터 보드에 rps로 보내고, 보드는 새 명령이 올 때까지 그 속도를 유지합니다. 교재 FAQ에 "Ctrl+C를 눌러도 계속 간다"는 항목이 있는 이유입니다. 그래서 모든 주행 노드는 다음 세 가지를 지킵니다.</p>
+<ol><li><strong>주기적으로 발행</strong>합니다(10~20 Hz). 한 번만 보내고 기다리는 코드는 중간에 죽으면 멈추지 않습니다.</li><li><strong>종료 경로에서 정지 Twist를 발행</strong>합니다. <code>try / except KeyboardInterrupt / finally</code>의 <code>finally</code>에 둡니다.</li><li>가능하면 <strong>자체 워치독</strong>을 둡니다. 예: 센서 콜백이 0.5초 이상 안 오면 정지.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">rclpy.init()
+node = MyDriver()
+try:
+    rclpy.spin(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    node.pub.publish(Twist())      # 모든 필드 0 = 정지
+    node.destroy_node()
+    rclpy.shutdown()</code></pre></div>
+<h2 id="속도-제어-노드의-구조">속도 제어 노드의 구조<a class="anchor" href="#속도-제어-노드의-구조">#</a></h2>
+<h3 id="sleep-루프-대신-타이머-상태-기계">sleep 루프 대신 타이머 + 상태 기계<a class="anchor" href="#sleep-루프-대신-타이머-상태-기계">#</a></h3>
+<p>"0.2 m/s로 2.5초 가고, 0.5 rad/s로 3.14초 돌고…"를 <code>time.sleep()</code>으로 나열하면 쉽지만, 그동안 콜백이 돌지 못해 센서(<code>/odom</code>, <code>/scan</code>)를 받을 수 없습니다. ROS 2 노드는 <strong>타이머 콜백이 짧게 한 번 판단하고 돌아오는</strong> 구조가 기본입니다. 현재 무엇을 하는 중인지는 상태 변수로 기억합니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">          거리 ≥ 0.5 m                  |yaw 오차| &lt; 1°
+[drive] ─────────────────▶ [turn] ─────────────────────▶ [drive] … 4번 후 [done]
+ vx = P(남은 거리)            ωz = P(yaw 오차)
+ ωz = P(방향 유지)</code></pre></div>
+<h3 id="개방-루프와-폐루프">개방 루프와 폐루프<a class="anchor" href="#개방-루프와-폐루프">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>방식</th><th>판단 기준</th><th>장점</th><th>단점</th></tr></thead><tbody><tr><td>시간 기반(개방 루프)</td><td>"2.5초 지났나?"</td><td>센서 불필요, 단순</td><td>가감속·미끄럼·배터리 전압에 따라 매번 달라짐, 오차 누적</td></tr><tr><td>오도메트리 기반(폐루프)</td><td>"0.5 m 갔나? 90° 돌았나?"</td><td>명령 오차·가감속을 자동 보정</td><td>오도메트리 자체 드리프트(M03)는 못 고침</td></tr><tr><td>외부 기준(라이다·지도)</td><td>"벽에서 0.3 m인가?"</td><td>드리프트까지 보정</td><td>센서 처리 필요(M05·M06, M11)</td></tr></tbody></table></div>
+<p>폐루프에서는 목표에 가까워질수록 속도를 줄이는 <strong>비례 제어(P control)</strong> 를 씁니다: <span class="math">v = min(v_max, k·남은 거리)</span>. 그대로 두면 목표 근처에서 속도가 0에 가까워져 영원히 도착하지 못하므로, 작은 최소 속도(예: 0.05 m/s)를 더하거나 허용 오차 안이면 멈춥니다.</p>
+<figure class="fig" id="fig-m04-paths"><svg viewBox="0 0 720 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="cmd_vel 주행 과제 세 가지: 정사각형, 원, 8자 경로와 각각의 명령 값">
+  <defs>
+    <marker id="arr-m04-paths" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <!-- panel 1: square -->
+  <text class="lbl" x="125" y="30" text-anchor="middle">① 정사각형 (한 변 0.5 m)</text>
+  <path class="ln-hi" d="M65 240 L180 240" stroke-width="2.4" marker-end="url(#arr-m04-paths)"/>
+  <path class="ln-hi" d="M185 235 L185 120" stroke-width="2.4" marker-end="url(#arr-m04-paths)"/>
+  <path class="ln-hi" d="M180 115 L65 115" stroke-width="2.4" marker-end="url(#arr-m04-paths)"/>
+  <path class="ln-hi" d="M60 120 L60 235" stroke-width="2.4" marker-end="url(#arr-m04-paths)"/>
+  <circle cx="60" cy="240" r="6" class="hi"/>
+  <text class="tag" x="60" y="262" text-anchor="middle">시작</text>
+  <text class="sub" x="125" y="182" text-anchor="middle">직진 0.5 m</text>
+  <text class="sub" x="125" y="198" text-anchor="middle">→ 좌회전 90°</text>
+  <text class="sub" x="125" y="214" text-anchor="middle">× 4</text>
+  <text class="sub" x="125" y="290" text-anchor="middle">/odom 피드백으로 거리·각도 판정</text>
+  <text class="sub" x="125" y="308" text-anchor="middle">(시간 기반은 오차 누적)</text>
+  <!-- panel 2: circle -->
+  <text class="lbl" x="360" y="30" text-anchor="middle">② 원 (v = 0.2, ω = 0.5)</text>
+  <circle cx="360" cy="160" r="80" style="fill:none;stroke:var(--accent)" stroke-width="2.4"/>
+  <path class="ln-hi" d="M360 240 L372 240" stroke-width="2.4" marker-end="url(#arr-m04-paths)"/>
+  <circle cx="360" cy="240" r="6" class="hi"/>
+  <circle cx="360" cy="160" r="3" style="fill:var(--text-faint)"/>
+  <path d="M360 160 L417 103" style="stroke:var(--text-faint)" stroke-width="1.2" stroke-dasharray="4 4"/>
+  <text class="sub mono" x="392" y="146">R = 0.4 m</text>
+  <text class="sub" x="360" y="290" text-anchor="middle">R = v / ω ,  한 바퀴 2πR / v = 12.6 s</text>
+  <text class="sub" x="360" y="308" text-anchor="middle">메카넘·애커만 모두 같은 명령</text>
+  <!-- panel 3: figure-8 -->
+  <text class="lbl" x="600" y="30" text-anchor="middle">③ 8자 (ω 부호 반전)</text>
+  <circle cx="600" cy="105" r="58" style="fill:none;stroke:var(--accent)" stroke-width="2.4"/>
+  <circle cx="600" cy="221" r="58" style="fill:none;stroke:var(--accent)" stroke-width="2.4" stroke-dasharray="7 5"/>
+  <circle cx="600" cy="163" r="6" class="hi"/>
+  <path class="ln-hi" d="M600 163 L612 163" stroke-width="2.4" marker-end="url(#arr-m04-paths)"/>
+  <text class="tag" x="662" y="105" text-anchor="start">ω = +0.5</text>
+  <text class="tag" x="662" y="225" text-anchor="start">ω = −0.5</text>
+  <text class="sub" x="600" y="298" text-anchor="middle">위 원 12.6 s → 아래 원 12.6 s</text>
+  <text class="sub" x="600" y="316" text-anchor="middle">교차점에서 부호 전환</text>
+</svg><figcaption>이 장의 세 가지 주행 과제와 명령 값</figcaption></figure>
+<h3 id="원과-8자-곡률로-설계하기">원과 8자: 곡률로 설계하기<a class="anchor" href="#원과-8자-곡률로-설계하기">#</a></h3>
+<p>원 주행은 <span class="math">v</span>와 <span class="math">ω</span>를 일정하게 두면 됩니다. 반경 <span class="math">R = v/ω</span>, 곡률 <span class="math">κ = 1/R = ω/v</span>입니다.</p>
+<ul><li>메카넘·애커만 <strong>모두</strong> 같은 명령(v = 0.2, ω = 0.5)으로 반경 0.4 m 원을 그립니다. 애커만은 <span class="math">R ≥ 0.262</span> m(M02)이므로 가능합니다.</li><li>8자는 한 바퀴(2πR/v = 12.6 s)마다 ω의 부호만 바꿉니다. 두 원이 출발점에서 접하므로 부호를 바꾸는 순간 로봇 방향이 두 원의 공통 접선 방향입니다.</li><li>애커만으로 정사각형을 그리려면 제자리 회전이 불가능하므로 모서리를 <strong>반경 ≥ 0.262 m인 원호</strong>로 둥글게 돌아야 합니다.</li></ul>
+<h3 id="속도-가속도-제한">속도·가속도 제한<a class="anchor" href="#속도-가속도-제한">#</a></h3>
+<p>속도를 계단처럼 바꾸면 바퀴가 미끄러지고(오도메트리 오차), 차체가 앞뒤로 흔들리고, 애커만은 조향 서보가 크게 튑니다. <strong>가속도 제한(slew-rate limit)</strong> 은 한 주기에 바뀔 수 있는 속도의 양을 <span class="math">a_{max}·Δt</span>로 묶습니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">target ← clamp(target, −v_max, +v_max)
+cmd    ← cmd + clamp(target − cmd, −a_max·Δt, +a_max·Δt)</code></pre></div>
+<p>참고로 원본 <code>ekf.yaml</code>에도 <code>acceleration_limits: [1.3, …, 3.4]</code>(선 1.3 m/s², 회전 3.4 rad/s²)가 적혀 있지만, <code>use_control: false</code>라서 실제 명령을 제한하지는 않습니다. Nav2(M11)에서는 <code>velocity_smoother</code>가 이 역할을 합니다.</p>
+<h2 id="실습-시뮬레이션">실습 (시뮬레이션)<a class="anchor" href="#실습-시뮬레이션">#</a></h2>
+<h3 id="1-오도메트리-피드백-정사각형-메카넘">1. 오도메트리 피드백 정사각형 (메카넘)<a class="anchor" href="#1-오도메트리-피드백-정사각형-메카넘">#</a></h3>
+<p>한 변 0.5 m 정사각형을 <code>/odom</code> 기반 상태 기계로 주행합니다. 직진 중에는 목표 방향을 유지하도록 ω에 P 제어를 걸고, 회전 목표는 <strong>이전 목표 방향 + 90°</strong> 로 잡아 방향 오차가 쌓이지 않게 합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist, Pose2D
+from nav_msgs.msg import Odometry
+from tf_transformations import euler_from_quaternion
+import mentorpi_sim as sim                                        # 시뮬 전용
+sim.setup(chassis=&quot;mecanum&quot;, world=&quot;empty&quot;, duration=29.0,
+          start=(-0.25, -0.25, 0.0), noise=True)                  # 시뮬 전용
+
+SIDE, V, W = 0.5, 0.2, 0.5
+
+def wrap(a):
+    return math.atan2(math.sin(a), math.cos(a))
+
+class Square(Node):
+    def __init__(self):
+        super().__init__(&quot;square&quot;)
+        self.pub = self.create_publisher(Twist, &quot;/cmd_vel&quot;, 10)
+        self.create_subscription(Odometry, &quot;/odom&quot;, self.on_odom, 10)
+        self.create_subscription(Pose2D, &quot;/ground_truth&quot;, self.on_gt, 10)
+        self.pose = self.gt = self.heading = None
+        self.state, self.leg = &quot;start&quot;, 0
+        self.create_timer(0.05, self.tick)
+
+    def on_odom(self, msg):
+        p, q = msg.pose.pose.position, msg.pose.pose.orientation
+        self.pose = (p.x, p.y, euler_from_quaternion([q.x, q.y, q.z, q.w])[2])
+
+    def on_gt(self, msg):
+        self.gt = msg
+
+    def tick(self):
+        if self.pose is None or self.gt is None:
+            return
+        x, y, yaw = self.pose
+        cmd = Twist()
+        if self.state == &quot;start&quot;:
+            self.heading = yaw if self.heading is None else self.heading
+            self.ref, self.state = (x, y), &quot;drive&quot;
+        if self.state == &quot;drive&quot;:
+            d = math.hypot(x - self.ref[0], y - self.ref[1])
+            if d &lt; SIDE:
+                cmd.linear.x = min(V, 1.0 * (SIDE - d) + 0.05)     # 끝에서 감속
+                cmd.angular.z = 2.0 * wrap(self.heading - yaw)     # 방향 유지
+            else:
+                self.heading, self.state = wrap(self.heading + math.pi / 2), &quot;turn&quot;
+        elif self.state == &quot;turn&quot;:
+            e = wrap(self.heading - yaw)
+            if abs(e) &gt; math.radians(1.0):
+                cmd.angular.z = max(-W, min(W, 2.0 * e + math.copysign(0.05, e)))
+            else:
+                self.leg += 1
+                print(&quot;변 %d  odom (%+.3f, %+.3f)  실제 (%+.3f, %+.3f)&quot;
+                      % (self.leg, x, y, self.gt.x, self.gt.y))
+                self.state = &quot;start&quot; if self.leg &lt; 4 else &quot;done&quot;
+        if self.state == &quot;done&quot; and self.leg == 4:
+            err = math.hypot(self.gt.x + 0.25, self.gt.y + 0.25)
+            print(&quot;출발점 대비 실제 위치 오차 = %.3f m&quot; % err)
+            self.leg = 5
+        self.pub.publish(cmd)
+
+rclpy.init()
+node = Square()
+try:
+    rclpy.spin(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    node.pub.publish(Twist())
+    node.destroy_node()
+    rclpy.shutdown()</code></pre></div>
+<p>(대략 — 잡음 설정에 따라 실제 좌표는 몇 cm 달라질 수 있습니다)</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">변 1  odom (+0.503, +0.000)  실제 (+0.229, -0.250)
+변 2  odom (+0.504, +0.503)  실제 (+0.250, +0.228)
+변 3  odom (+0.002, +0.504)  실제 (-0.222, +0.274)
+변 4  odom (+0.001, +0.002)  실제 (-0.291, -0.200)
+출발점 대비 실제 위치 오차 = 0.065 m</code></pre></div>
+<p>odom 좌표는 <strong>출발점이 원점</strong>인 odom 프레임 값이라 (0, 0) → (0.5, 0) → (0.5, 0.5) → (0, 0.5) → (0, 0)의 거의 완벽한 정사각형입니다(실물 EKF도 켤 때의 자세를 원점으로 삼습니다). 반면 실제 좌표(출발 (−0.25, −0.25))는 변마다 2 cm 남짓 짧고 방향도 조금씩 틀어져 6~7 cm 벗어났습니다. <strong>제어는 odom을 완벽히 따랐고, 남은 오차는 odom 자체의 오차</strong>(M03의 미끄럼)입니다. <code>W</code>와 P 이득을 바꿔 보거나 <code>noise=False</code>로 두고 비교해 보세요.</p>
+<h3 id="2-원과-8자-애커만">2. 원과 8자 (애커만)<a class="anchor" href="#2-원과-8자-애커만">#</a></h3>
+<p>같은 명령 체계를 애커만 섀시에서 돌립니다. 한 바퀴 <span class="math">T = 2π/ω</span> = 12.57 s마다 ω의 부호를 바꿉니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+import time
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist, Pose2D
+import mentorpi_sim as sim                                        # 시뮬 전용
+sim.setup(chassis=&quot;ackermann&quot;, world=&quot;empty&quot;, duration=25.6,
+          start=(0.0, 0.0, 0.0), noise=False)                     # 시뮬 전용
+
+V, W = 0.2, 0.5
+T_LAP = 2 * math.pi / W
+
+class FigureEight(Node):
+    def __init__(self):
+        super().__init__(&quot;figure_eight&quot;)
+        self.pub = self.create_publisher(Twist, &quot;/cmd_vel&quot;, 10)
+        self.create_subscription(Pose2D, &quot;/ground_truth&quot;, self.on_gt, 10)
+        self.xs, self.ys = [], []
+        self.t0, self.switched = time.time(), False
+        self.create_timer(0.05, self.tick)
+
+    def on_gt(self, msg):
+        self.xs.append(msg.x)
+        self.ys.append(msg.y)
+
+    def tick(self):
+        t = time.time() - self.t0
+        cmd = Twist()
+        if t &lt; 2 * T_LAP:
+            cmd.linear.x = V
+            cmd.angular.z = W if t &lt; T_LAP else -W
+        if t &gt;= T_LAP and not self.switched and self.xs:
+            print(&quot;t=%.2f s 부호 전환 지점 (%+.3f, %+.3f)&quot; % (t, self.xs[-1], self.ys[-1]))
+            self.switched = True
+        self.pub.publish(cmd)
+
+rclpy.init()
+node = FigureEight()
+try:
+    rclpy.spin(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    node.pub.publish(Twist())
+    print(&quot;y 범위 %+.3f ~ %+.3f m&quot; % (min(node.ys), max(node.ys)))
+    print(&quot;끝점 (%+.3f, %+.3f)&quot; % (node.xs[-1], node.ys[-1]))
+    sim.plot(node.xs, node.ys, &quot;8자 주행 (애커만)&quot;)                  # 시뮬 전용
+    node.destroy_node()
+    rclpy.shutdown()</code></pre></div>
+<p>(대략)</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">t=12.60 s 부호 전환 지점 (-0.020, +0.001)
+y 범위 -0.799 ~ +0.800 m
+끝점 (-0.007, -0.000)</code></pre></div>
+<p>위쪽 원(중심 (0, +0.4))과 아래쪽 원(중심 (0, −0.4))이 원점에서 만나는 8자가 그려집니다. 끝점이 원점에서 조금 뒤처진 것은 출발 가속과 조향 전환 순간의 과도 응답 때문입니다. 같은 코드를 <code>chassis=&quot;mecanum&quot;</code>으로 바꿔도 거의 같은 그림이 나옵니다.</p>
+<h3 id="3-속도-가속도-제한기">3. 속도·가속도 제한기<a class="anchor" href="#3-속도-가속도-제한기">#</a></h3>
+<p><code>SafeCmd</code>는 목표 속도를 받아 ① 최대 속도로 자르고 ② 가속도 한계만큼만 따라가게 합니다. 제한 없는 <code>/controller/cmd_vel</code>에 0.5 m/s를 요청해도 제한기를 거치면 안전한 명령만 나갑니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import time
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
+import mentorpi_sim as sim                                        # 시뮬 전용
+sim.setup(chassis=&quot;mecanum&quot;, world=&quot;empty&quot;, duration=5.0,
+          start=(-2.0, 0.0, 0.0), noise=False)                    # 시뮬 전용
+
+class SafeCmd:
+    def __init__(self, v_max=0.2, w_max=0.5, a_max=0.2, alpha_max=1.0):
+        self.lim = (v_max, v_max, w_max)
+        self.rate = (a_max, a_max, alpha_max)
+        self.cur = [0.0, 0.0, 0.0]
+
+    def step(self, target, dt):
+        for i in range(3):
+            t = max(-self.lim[i], min(self.lim[i], target[i]))
+            dv = max(-self.rate[i] * dt, min(self.rate[i] * dt, t - self.cur[i]))
+            self.cur[i] += dv
+        msg = Twist()
+        msg.linear.x, msg.linear.y, msg.angular.z = self.cur
+        return msg
+
+class RampDemo(Node):
+    def __init__(self):
+        super().__init__(&quot;ramp_demo&quot;)
+        self.pub = self.create_publisher(Twist, &quot;/controller/cmd_vel&quot;, 10)
+        self.create_subscription(Odometry, &quot;/odom&quot;, self.on_odom, 10)
+        self.safe, self.v_meas, self.n = SafeCmd(), 0.0, 0
+        self.t0 = time.time()
+        self.create_timer(0.05, self.tick)
+
+    def on_odom(self, msg):
+        self.v_meas = msg.twist.twist.linear.x
+
+    def tick(self):
+        t = time.time() - self.t0
+        want = 0.5 if t &lt; 3.0 else 0.0            # 과한 요청 → 0 요청
+        cmd = self.safe.step((want, 0.0, 0.0), 0.05)
+        self.pub.publish(cmd)
+        if self.n % 10 == 0:
+            print(&quot;t=%.1f  요청 %.2f  명령 %.3f  측정 %.3f&quot; % (self.n * 0.05, want, cmd.linear.x, self.v_meas))
+        self.n += 1
+
+rclpy.init()
+node = RampDemo()
+try:
+    rclpy.spin(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    node.pub.publish(Twist())
+    node.destroy_node()
+    rclpy.shutdown()</code></pre></div>
+<p>(대략 — 측정값은 시뮬레이터의 모터 응답만큼 명령보다 조금 늦습니다)</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">t=0.0  요청 0.50  명령 0.010  측정 0.000
+t=0.5  요청 0.50  명령 0.110  측정 0.100
+t=1.0  요청 0.50  명령 0.200  측정 0.200
+t=1.5  요청 0.50  명령 0.200  측정 0.200
+t=2.0  요청 0.50  명령 0.200  측정 0.200
+t=2.5  요청 0.50  명령 0.200  측정 0.200
+t=3.0  요청 0.00  명령 0.180  측정 0.190
+t=3.5  요청 0.00  명령 0.080  측정 0.090
+t=4.0  요청 0.00  명령 0.000  측정 0.000
+t=4.5  요청 0.00  명령 0.000  측정 0.000</code></pre></div>
+<p>요청은 0.5였지만 명령은 0.2를 넘지 않고, 0 → 0.2와 0.2 → 0이 각각 1초(= 0.2 / 0.2 m/s²)에 걸쳐 바뀝니다.</p>
+<h3 id="2d-시뮬레이터에서-확인하기">2D 시뮬레이터에서 확인하기<a class="anchor" href="#2d-시뮬레이터에서-확인하기">#</a></h3>
+<p class="cta-row"><a class="ghost-btn cta" href="../sim/index.html">2D 시뮬레이터 열기</a></p>
+<ol><li><strong>수동 주행</strong>으로 빈 월드에서 정사각형을 눈대중으로 그려 보고, <strong>오도메트리 오차 표시</strong>를 켜서 실습 1의 코드 주행과 비교합니다.</li><li>섀시를 <strong>애커만</strong>으로 바꿔 좁은 방(room)에서 8자를 그려 봅니다. 벽에 닿지 않는 가장 작은 8자의 반경은 얼마인가요?</li><li>가상 조이스틱을 갑자기 끝까지 밀었을 때와 천천히 밀었을 때 odom 오차(유령 로봇과의 차이)가 어떻게 다른지 봅니다. 가속도 제한이 필요한 이유입니다.</li></ol>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> <code>/cmd_vel</code>과 <code>/controller/cmd_vel</code>의 차이와 각각을 쓰는 상황을 설명할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> 실습 1이 네 변을 모두 돌고 <code>출발점 대비 실제 위치 오차</code>를 출력했다.</label></li><li><label class="check-item"><input type="checkbox"> 애커만으로 정사각형 대신 둥근 모서리 사각형을 그려야 하는 이유를 말할 수 있다.</label></li></ul></div></div>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">실물 주행 전 확인</div><div class="callout-body"><ul><li>정사각형·8자는 사방 1.5 m 이상, 애커만 8자는 2 m × 1.2 m 이상의 빈 공간이 필요합니다. 케이블·발이 주행 경로에 없는지 봅니다.</li><li>처음에는 <code>/cmd_vel</code>(자동 제한) 토픽으로 실행합니다. <code>/controller/cmd_vel</code>을 쓸 때는 실습 3의 <code>SafeCmd</code>를 반드시 거칩니다.</li><li>코드가 예외로 죽어도 로봇은 마지막 명령을 유지합니다. 다른 터미널에 정지 명령을 미리 입력해 두고 언제든 Enter를 누를 수 있게 합니다.</li></ul></div></div>
+<p>Playground 코드를 실물에서 돌릴 때는 <code># 시뮬 전용</code> 줄(두 줄)을 지우고, <code>/ground_truth</code> 구독과 관련 출력도 지웁니다. 실물에는 실제 위치 토픽이 없으므로 줄자·테이프로 대신 잽니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">~/.stop_ros.sh
+ros2 launch controller controller.launch.py        # 터미널 1: 섀시 + EKF(/odom)
+python3 ~/square.py                                # 터미널 2: 여러분의 노드
+ros2 topic pub --once /cmd_vel geometry_msgs/msg/Twist &quot;{}&quot;   # 터미널 3: 비상 정지용(미리 입력)</code></pre></div>
+<p>명령이 제대로 나가는지 다른 터미널에서 봅니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 topic echo /cmd_vel
+ros2 topic hz /cmd_vel               # 20 Hz 근처여야 함</code></pre></div>
+<p>끝나면 <code>sudo systemctl restart start_node.service</code>(Docker 밖)로 앱 서비스를 되살립니다.</p>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td>노드를 Ctrl+C로 끝냈는데 로봇이 계속 감</td><td><code>finally</code>에서 정지 명령을 안 보냄 또는 보내기 전에 <code>rclpy.shutdown()</code></td><td><code>publish(Twist())</code> → <code>destroy_node()</code> → <code>shutdown()</code> 순서 지키기</td></tr><tr><td><code>linear.y</code>를 보냈는데 애커만이 옆으로 안 감</td><td>애커만은 <code>linear.y</code> 무시</td><td>정상. 옆 이동은 메카넘만 가능</td></tr><tr><td>정사각형이 점점 돌아감</td><td>회전 목표를 "현재 yaw + 90°"로 잡아 오차 누적</td><td>"이전 목표 방향 + 90°"로 잡기</td></tr><tr><td>목표 근처에서 로봇이 안 멈추고 떨림</td><td>P 제어 + 허용 오차가 너무 작음</td><td>허용 오차(1°, 1 cm)와 최소 속도 조합 조정</td></tr><tr><td><code>time.sleep()</code> 루프 중 센서 값이 안 바뀜</td><td>콜백이 실행될 기회가 없음</td><td>타이머 + 상태 기계 구조로 변경</td></tr><tr><td>0.5 m/s를 보냈는데 0.2 m/s만 나옴</td><td><code>/cmd_vel</code> 제한</td><td>의도한 동작. 필요하면 <code>/controller/cmd_vel</code> + 자체 제한기</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">개인 과제</div><div class="callout-body"><ol><li><strong>(기본)</strong> 실습 1을 시간 기반(개방 루프)으로 다시 작성하고, 같은 잡음 조건에서 출발점 복귀 오차를 5회씩 측정해 폐루프와 비교하세요.</li><li><strong>(기본)</strong> 메카넘으로 <strong>회전하지 않고</strong> 정사각형을 그리는 코드(전진 → 왼쪽 → 후진 → 오른쪽)를 작성하고, 회전하는 정사각형과 오차를 비교하세요.</li><li><strong>(심화)</strong> 애커만으로 모서리 반경 0.3 m인 둥근 사각형(직선 0.5 m × 4 + 1/4 원 × 4)을 그리는 상태 기계를 작성하세요. 원호 구간은 odom yaw 변화 90°로 끝냅니다.</li><li><strong>(심화)</strong> <code>SafeCmd</code>에 워치독을 추가하세요: <code>step()</code>이 0.5초 이상 호출되지 않으면 다음 호출에서 목표를 0으로 바꾸고 경고를 출력합니다. 타이머를 일부러 멈추는 시험 코드로 확인하세요.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>9. Motion Control Lesson — Lesson 5 Mecanum Wheel Chassis Speed Control</em>, <em>Lesson 6 Ackerman Chassis Speed Control</em></li><li>원본 소스: <code>src/driver/controller/controller/odom_publisher_node.py</code> (<code>app_cmd_vel_callback</code>, <code>cmd_vel_callback</code>), <code>src/driver/controller/config/ekf.yaml</code></li><li>geometry_msgs/Twist (ROS 2 Humble): https://docs.ros2.org/humble/api/geometry_msgs/msg/Twist.html</li><li>ROS 2 Humble 튜토리얼 — Writing a simple publisher and subscriber (Python): https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Writing-A-Simple-Py-Publisher-And-Subscriber.html</li><li>Nav2 Velocity Smoother: https://docs.nav2.org/configuration/packages/configuring-velocity-smoother.html</li></ul>
+      <nav class="pager"><a class="pager-prev" href="m03.html"><span>이전 · M03</span>IMU·오도메트리 보정과 발행</a><a class="pager-next" href="m05.html"><span>다음 · M05</span>라이다 원리와 LaserScan</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#twist-메시지와-두-입력-토픽">Twist 메시지와 두 입력 토픽</a><a class="toc-l2" href="#명령은-계속-유지된다">명령은 계속 유지된다</a><a class="toc-l2" href="#속도-제어-노드의-구조">속도 제어 노드의 구조</a><a class="toc-l3" href="#sleep-루프-대신-타이머-상태-기계">sleep 루프 대신 타이머 + 상태 기계</a><a class="toc-l3" href="#개방-루프와-폐루프">개방 루프와 폐루프</a><a class="toc-l3" href="#원과-8자-곡률로-설계하기">원과 8자: 곡률로 설계하기</a><a class="toc-l3" href="#속도-가속도-제한">속도·가속도 제한</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l3" href="#1-오도메트리-피드백-정사각형-메카넘">1. 오도메트리 피드백 정사각형 (메카넘)</a><a class="toc-l3" href="#2-원과-8자-애커만">2. 원과 8자 (애커만)</a><a class="toc-l3" href="#3-속도-가속도-제한기">3. 속도·가속도 제한기</a><a class="toc-l3" href="#2d-시뮬레이터에서-확인하기">2D 시뮬레이터에서 확인하기</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

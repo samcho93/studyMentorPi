@@ -114,8 +114,8 @@ export class LineFollower {
   reset() { this.pid.clear(); this.stop = false; this.count = 0; }
   // isLine(x, y) -> bool ; returns [vx, vy, wz] or [0,0,0]
   step(pose, isLine, ranges, chassis) {
-    // lidar stop (±45°, stop_threshold 0.4)
-    const w = window(ranges, Math.PI / 4);
+    // lidar stop: scan_angle 45° total (±22.5°), stop_threshold 0.4 m
+    const w = window(ranges, Math.PI / 8);
     const minD = w.length ? Math.min(...w.map((p) => p.r)) : Infinity;
     if (minD < this.stopTh) { this.stop = true; this.count = 0; } else if (++this.count > 5) { this.count = 0; this.stop = false; }
     let sum = 0, wsum = 0;
