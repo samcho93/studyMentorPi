@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MentorPi 3D 시뮬레이터 — studyMentorPi</title>
+<meta name="description" content="MentorPi URDF(메카넘·애커만)를 3D 월드에서 주행시키며 라이다 회피·추종·경비, 라인 트레이싱, 목표 지점 내비게이션을 해 보는 three.js 시뮬레이터.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/file-guard.js"></script>
+<link rel="stylesheet" href="../assets/css/sim.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.0/examples/jsm/",
+    "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.186.0/examples/jsm/",
+    "urdf-loader": "https://cdn.jsdelivr.net/npm/urdf-loader@0.13.1/src/URDFLoader.js"
+  }
+}
+</script>
+<style>
+  .sim-page { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+  .scene-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px 16px 4px; border-bottom: 1px solid var(--border-soft); }
+  .scene-bar label, .tab-body label.sel { display: flex; flex-direction: column; gap: 3px; font-size: 11.5px; font-weight: 600; color: var(--text-dim); }
+  .scene-bar select, .tab-body select { font: inherit; font-size: 12.5px; padding: 6px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+  .scene-bar .row { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding-bottom: 8px; }
+  .scene-bar .chk { background: none; border: 0; padding: 0; backdrop-filter: none; }
+  .tabs button { font-size: 12px; padding: 10px 2px; }
+  .hud { font: 12px/1.55 var(--mono); background: var(--overlay); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 10px; min-width: 230px; color: var(--text); }
+  .hud b { color: var(--text-faint); font-weight: 600; display: inline-block; min-width: 50px; }
+  .pip { background: var(--overlay); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px; font-size: 11px; color: var(--text-faint); }
+  .pip canvas { display: block; width: 256px; height: 192px; border-radius: 6px; background: #222; }
+  .info-box { font-size: 12.5px; background: var(--overlay); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px 10px; max-width: 460px; color: var(--text); }
+  .keys { display: grid; grid-template-columns: repeat(3, 34px); gap: 4px; margin: 6px 0 10px; }
+  .keys kbd { display: grid; place-items: center; height: 30px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); font: 600 12px var(--mono); color: var(--text-dim); }
+  .keys kbd.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .wheels { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0; }
+  .wheels div { background: var(--bg); border: 1px solid var(--border-soft); border-radius: var(--radius-sm); padding: 6px 8px; font: 12px var(--mono); }
+  .wheels span { display: block; font: 600 10.5px var(--sans); color: var(--text-faint); }
+  .modebtns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 8px 0 12px; }
+  .modebtns button.on, .s-btn.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .tab-body .hint { font-size: 12.5px; color: var(--text-faint); line-height: 1.6; }
+  .stat-line { font: 12px var(--mono); color: var(--text-dim); margin: 6px 0; }
+  .no-gl { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: var(--text-dim); }
+  .tool-nav { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tool-nav a[aria-current="page"] { color: var(--accent); border-color: var(--accent-dim); }
+  @media (max-width: 900px) {
+    .sim-page { height: auto; overflow: auto; }
+    .sim-layout { grid-template-columns: 1fr; }
+    .sim-stage { height: 62vh; min-height: 380px; }
+    .sim-panel { border-left: 0; border-top: 1px solid var(--border); }
+    .pip canvas { width: 160px; height: 120px; }
+    .hud { min-width: 0; font-size: 11px; }
+    .sim-top { flex-wrap: wrap; } .sim-top-actions { margin-left: 0; flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body class="sim-page">
+<header class="sim-top">
+  <a class="sim-back" href="../index.html">&larr; 강의</a>
+  <div class="sim-title"><strong>MentorPi 3D 시뮬레이터</strong><span id="subTitle">URDF 불러오는 중…</span></div>
+  <div class="sim-top-actions">
+    <nav class="tool-nav" aria-label="도구">
+      <a class="sim-back" href="index.html" aria-current="page">3D 시뮬레이터</a>
+      <a class="sim-back" href="../sim/index.html">2D 시뮬레이터</a>
+      <a class="sim-back" href="../tools/playground.html">Playground</a>
+      <a class="sim-back" href="../tools/kinematics-lab.html">기구학 실험실</a>
+      <a class="sim-back" href="../tools/urdf-viewer.html">URDF 뷰어</a>
+    </nav>
+    <button class="theme-btn" type="button" data-theme-toggle aria-label="테마 전환">테마</button>
+  </div>
+</header>
+<main class="sim-layout">
+  <section class="sim-stage" id="stage">
+    <div class="viewport" id="viewport"></div>
+    <div class="no-gl" id="noGL" hidden></div>
+    <div class="stage-overlay stage-tl"><div class="hud" id="hud"></div></div>
+    <div class="stage-overlay stage-tr"><div class="pip" id="pipBox"><canvas id="pip" width="320" height="240"></canvas><div id="pipCap">로봇 카메라 (depth_cam)</div></div></div>
+    <div class="stage-overlay stage-br"><div class="info-box" id="info">W/S 전후 · A/D 회전 · Q/E 옆으로(메카넘) · Space 정지 · 마우스로 시점 회전</div></div>
+  </section>
+  <aside class="sim-panel">
+    <div class="scene-bar">
+      <label>월드<select id="selWorld"></select></label>
+      <label>섀시 (URDF)<select id="selChassis"><option value="mecanum">메카넘 mentorpi_mecanum.urdf</option><option value="ackermann">애커만 mentorpi_ackermann.urdf</option></select></label>
+      <label>시점<select id="selCam"><option value="orbit">자유 궤도</option><option value="follow">뒤따라가기</option><option value="top">위에서</option><option value="fpv">1인칭 (카메라)</option></select></label>
+      <label>배속<select id="selSpeed"><option value="1">1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
+      <div class="row">
+        <label class="chk"><input type="checkbox" id="chkNoise" checked> 잡음·미끄러짐</label>
+        <label class="chk"><input type="checkbox" id="chkRays" checked> 라이다 레이</label>
+        <label class="chk"><input type="checkbox" id="chkTrail" checked> 궤적</label>
+        <button class="s-btn" id="btnReset" type="button">&#8634; 리셋</button>
+      </div>
+    </div>
+    <div class="tabs" role="tablist">
+      <button type="button" data-tab="drive" class="active">주행</button>
+      <button type="button" data-tab="lidar">라이다</button>
+      <button type="button" data-tab="line">라인</button>
+      <button type="button" data-tab="nav">내비</button>
+    </div>
+    <div class="tab-body active" data-body="drive">
+      <div class="sub-title">수동 주행</div>
+      <div class="keys" aria-hidden="true"><kbd data-k="q">Q</kbd><kbd data-k="w">W</kbd><kbd data-k="e">E</kbd><kbd data-k="a">A</kbd><kbd data-k="s">S</kbd><kbd data-k="d">D</kbd></div>
+      <div class="field-grid two">
+        <label>최대 선속도 <output id="oV">0.20</output><input type="range" id="rV" min="0.05" max="0.6" step="0.05" value="0.2"></label>
+        <label>최대 각속도 <output id="oW">0.50</output><input type="range" id="rW" min="0.1" max="3" step="0.1" value="0.5"></label>
+      </div>
+      <label class="chk block"><input type="checkbox" id="chkUnlimited"> /controller/cmd_vel (제한 해제)</label>
+      <div class="sub-title">바퀴 · 조향 (URDF 조인트)</div>
+      <div class="wheels" id="wheels"></div>
+      <p class="hint">바퀴 조인트(<code>wheel_lf_Joint</code> …)는 <code>mecanum.py</code>/<code>ackermann.py</code>와 같은 식으로 구한 각속도로 돌아갑니다. 애커만의 앞바퀴 조향은 URDF에 조향 조인트가 없어 시각화로만 돌립니다.</p>
+    </div>
+    <div class="tab-body" data-body="lidar">
+      <div class="sub-title">라이다 앱 (app/lidar_controller.py)</div>
+      <div class="modebtns">
+        <button class="s-btn" type="button" data-lmode="avoid">회피</button>
+        <button class="s-btn" type="button" data-lmode="follow">추종</button>
+        <button class="s-btn" type="button" data-lmode="guard">경비</button>
+      </div>
+      <div class="field-grid two">
+        <label>임계값 m <output id="oTh">0.60</output><input type="range" id="rTh" min="0.3" max="1.5" step="0.05" value="0.6"></label>
+        <label>속도 m/s <output id="oSp">0.20</output><input type="range" id="rSp" min="0.05" max="0.4" step="0.05" value="0.2"></label>
+      </div>
+      <div class="panel-actions">
+        <button class="s-btn primary" id="btnStop" type="button">&#9632; 정지</button>
+        <button class="s-btn" id="btnMover" type="button">움직이는 목표 추가</button>
+      </div>
+      <p class="hint">라이다는 <code>lidar_frame</code>(base_link 위 9.25 cm) 높이에서 360°를 쏩니다. 빨간 점이 반사점, 반투명 선이 레이입니다.</p>
+    </div>
+    <div class="tab-body" data-body="line">
+      <div class="sub-title">라인 트레이싱 (app/line_following.py)</div>
+      <p class="hint">“라인 트랙” 월드의 바닥에 검은 선이 그려집니다. 오른쪽 위 작은 화면은 <code>depth_cam</code> 위치에서 본 실제 3D 렌더링이고, ROI 3개(가중치 0.7/0.2/0.1)의 선 중심으로 PID(1.1, 0, 0) 조향을 합니다.</p>
+      <div class="panel-actions">
+        <button class="s-btn primary" id="btnLineGo" type="button">&#9654; 시작</button>
+        <button class="s-btn" id="btnLineStop" type="button">&#9632; 정지</button>
+        <button class="s-btn" id="btnLineObs" type="button">트랙 위 장애물</button>
+      </div>
+      <div class="stat-line" id="lineStat">—</div>
+    </div>
+    <div class="tab-body" data-body="nav">
+      <div class="sub-title">목표 지점 내비게이션</div>
+      <p class="hint">바닥을 <b>클릭</b>하면 목표가 됩니다 (시점은 “자유 궤도” 또는 “위에서” 권장). 알려진 지도에서 팽창 코스트맵 → A* 전역 경로 → Pure Pursuit로 따라갑니다(<code>/controller/cmd_vel</code>).</p>
+      <label class="chk block"><input type="checkbox" id="chkGoalClick" checked> 클릭으로 목표 지정</label>
+      <div class="panel-actions"><button class="s-btn" id="btnNavCancel" type="button">&#9632; 취소</button></div>
+      <div class="stat-line" id="navStat">—</div>
+    </div>
+  </aside>
+</main>
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    import('./sim3d.js').catch((err) => {
+      const box = document.getElementById('noGL');
+      box.hidden = false;
+      box.innerHTML = location.protocol === 'file:'
+        ? '파일로 직접 열면 URDF를 불러올 수 없습니다. <code>python build.py --serve</code> 후 <b>http://localhost:8000/sim3d/</b>로 접속하세요.'
+        : '3D 라이브러리를 불러오지 못했습니다: ' + err.message;
+      console.error(err);
+    });
+  });
+</script>
+</body>
+</html>

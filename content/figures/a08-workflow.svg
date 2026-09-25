@@ -26,7 +26,7 @@
   <rect class="box-hi" x="505" y="152" width="200" height="80" rx="6"/>
   <text class="lbl" x="605" y="176" text-anchor="middle">⑤ train.py (PC 권장)</text>
   <text class="sub mono" x="605" y="196" text-anchor="middle">--img 640 --batch 8</text>
-  <text class="sub mono" x="605" y="214" text-anchor="middle">--epochs 300 --weights yolov5n.pt</text>
+  <text class="sub mono" x="605" y="214" text-anchor="middle">--epochs 300 · yolov5n.pt</text>
 
   <rect class="box" x="260" y="152" width="200" height="80" rx="6"/>
   <text class="lbl" x="360" y="176" text-anchor="middle">runs/train/expN</text>

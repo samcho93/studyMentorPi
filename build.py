@@ -38,6 +38,7 @@ FIGURES = CONTENT / "figures"
 
 TOOL_LINKS = {
     "sim": ("sim/index.html", "2D 시뮬레이터"),
+    "sim3d": ("sim3d/index.html", "3D 시뮬레이터"),
     "playground": ("tools/playground.html", "ROS 2 Playground"),
     "lab": ("tools/kinematics-lab.html", "섀시 기구학 실험실"),
     "color": ("tools/color-lab.html", "HSV 색 실험실"),
@@ -352,11 +353,13 @@ def sidebar_html(cur: dict, current, rel: str) -> str:
                'aria-label="테마 전환"></button>'
                "</div>" % rel)
     out.append('<div class="side-tools">'
+               '<a class="side-tool" href="%ssim3d/index.html">3D 시뮬레이터</a>'
                '<a class="side-tool" href="%ssim/index.html">2D 시뮬레이터</a>'
                '<a class="side-tool" href="%stools/playground.html">ROS 2 Playground</a>'
                '<a class="side-tool" href="%stools/kinematics-lab.html">기구학 실험실</a>'
                '<a class="side-tool" href="%stools/color-lab.html">HSV 색 실험실</a>'
-               "</div>" % (rel, rel, rel, rel))
+               '<a class="side-tool" href="%stools/urdf-viewer.html">URDF 뷰어</a>'
+               "</div>" % (rel, rel, rel, rel, rel, rel))
     for track in cur["tracks"]:
         out.append('<div class="nav-track" data-track="%s">' % track["id"])
         out.append('<div class="nav-track-title track-%s">%s</div>'
@@ -520,10 +523,11 @@ def index_page(cur: dict) -> str:
       <b>이동로봇 인터랙티브 강의</b>입니다. 리눅스·파이썬·OpenCV·ROS 2 기초에서 출발해
       <b>섀시 기구학 &rarr; 오도메트리 &rarr; 라이다 &rarr; SLAM &rarr; 내비게이션</b>을 차례로 쌓고,
       색 인식·MediaPipe·YOLOv5·자율주행·군집 제어까지 이어집니다. 모든 핵심 알고리즘은 브라우저의
-      <b>2D 시뮬레이터</b>와 <b>ROS 2 Playground</b>(rclpy 호환 Python)에서 먼저 돌려 보고 실물로 옮깁니다. 총 {total}개 챕터.
+      실제 URDF로 움직이는 <b>3D 시뮬레이터</b>, <b>2D 시뮬레이터</b>와 <b>ROS 2 Playground</b>(rclpy 호환 Python)에서 먼저 돌려 보고 실물로 옮깁니다. 총 {total}개 챕터.
     </p>
     <div class="hero-cta">
       <a class="btn primary" href="lessons/b01.html">B01부터 시작</a>
+      <a class="btn" href="sim3d/index.html">3D 시뮬레이터 (URDF)</a>
       <a class="btn" href="sim/index.html">2D 시뮬레이터</a>
       <a class="btn" href="tools/playground.html">ROS 2 Playground</a>
       <a class="btn" href="tools/kinematics-lab.html">섀시 기구학 실험실</a>

@@ -8,10 +8,40 @@
       "title": "기초·하드웨어",
       "desc": "MentorPi 구성과 첫 구동, 개발 환경, 리눅스·파이썬 기초, 라즈베리파이 5와 확장보드(RRC Lite)로 LED·버튼·서보·모터를 직접 제어하고 Docker로 ROS 2 환경을 다룹니다.",
       "parts": [
-        { "no": "B-1", "title": "MentorPi 시작하기", "chapters": ["b01", "b02", "b03"] },
-        { "no": "B-2", "title": "리눅스·파이썬", "chapters": ["b04", "b05", "b06"] },
-        { "no": "B-3", "title": "라즈베리파이 5와 확장보드", "chapters": ["b07", "b08", "b09"] },
-        { "no": "B-4", "title": "컨테이너", "chapters": ["b10"] }
+        {
+          "no": "B-1",
+          "title": "MentorPi 시작하기",
+          "chapters": [
+            "b01",
+            "b02",
+            "b03"
+          ]
+        },
+        {
+          "no": "B-2",
+          "title": "리눅스·파이썬",
+          "chapters": [
+            "b04",
+            "b05",
+            "b06"
+          ]
+        },
+        {
+          "no": "B-3",
+          "title": "라즈베리파이 5와 확장보드",
+          "chapters": [
+            "b07",
+            "b08",
+            "b09"
+          ]
+        },
+        {
+          "no": "B-4",
+          "title": "컨테이너",
+          "chapters": [
+            "b10"
+          ]
+        }
       ]
     },
     {
@@ -20,9 +50,35 @@
       "title": "ROS 2·OpenCV 기초",
       "desc": "노드·토픽·서비스·액션·파라미터·launch·TF2·URDF까지 ROS 2 핵심을 익히고, OpenCV로 영상 처리의 기본기를 쌓습니다. 모든 ROS 2 예제는 브라우저 Playground에서 먼저 실행해 봅니다.",
       "parts": [
-        { "no": "R-1", "title": "ROS 2 통신", "chapters": ["r01", "r02", "r03", "r04"] },
-        { "no": "R-2", "title": "ROS 2 시스템", "chapters": ["r05", "r06", "r07"] },
-        { "no": "R-3", "title": "OpenCV 영상 처리", "chapters": ["r08", "r09", "r10", "r11"] }
+        {
+          "no": "R-1",
+          "title": "ROS 2 통신",
+          "chapters": [
+            "r01",
+            "r02",
+            "r03",
+            "r04"
+          ]
+        },
+        {
+          "no": "R-2",
+          "title": "ROS 2 시스템",
+          "chapters": [
+            "r05",
+            "r06",
+            "r07"
+          ]
+        },
+        {
+          "no": "R-3",
+          "title": "OpenCV 영상 처리",
+          "chapters": [
+            "r08",
+            "r09",
+            "r10",
+            "r11"
+          ]
+        }
       ]
     },
     {
@@ -31,10 +87,43 @@
       "title": "이동로봇 핵심",
       "desc": "메카넘·애커만 섀시 기구학, IMU·오도메트리 보정, 라이다 응용, 깊이 카메라, URDF와 SLAM 지도 작성, AMCL·경로계획·다중 지점 내비게이션까지 — 이동로봇의 중심 기술을 시뮬레이터와 실물로 익힙니다.",
       "parts": [
-        { "no": "M-1", "title": "섀시와 모션 제어", "chapters": ["m01", "m02", "m03", "m04"] },
-        { "no": "M-2", "title": "센서: 라이다·깊이 카메라", "chapters": ["m05", "m06", "m07"] },
-        { "no": "M-3", "title": "SLAM 지도 작성", "chapters": ["m08", "m09", "m10"] },
-        { "no": "M-4", "title": "자율 내비게이션", "chapters": ["m11", "m12", "m13"] }
+        {
+          "no": "M-1",
+          "title": "섀시와 모션 제어",
+          "chapters": [
+            "m01",
+            "m02",
+            "m03",
+            "m04"
+          ]
+        },
+        {
+          "no": "M-2",
+          "title": "센서: 라이다·깊이 카메라",
+          "chapters": [
+            "m05",
+            "m06",
+            "m07"
+          ]
+        },
+        {
+          "no": "M-3",
+          "title": "SLAM 지도 작성",
+          "chapters": [
+            "m08",
+            "m09",
+            "m10"
+          ]
+        },
+        {
+          "no": "M-4",
+          "title": "자율 내비게이션",
+          "chapters": [
+            "m11",
+            "m12",
+            "m13"
+          ]
+        }
       ]
     },
     {
@@ -43,62 +132,453 @@
       "title": "비전 AI·자율주행",
       "desc": "ROS 2 + OpenCV 색 인식·QR·라인 트레이싱·색 추적, MediaPipe 인간-로봇 상호작용, YOLOv5 학습과 배포, 차선 유지·표지판·신호등·주차를 묶은 자율주행, 여러 대를 함께 움직이는 군집 제어.",
       "parts": [
-        { "no": "A-1", "title": "ROS 2 + OpenCV 응용", "chapters": ["a01", "a02", "a03", "a04"] },
-        { "no": "A-2", "title": "MediaPipe 상호작용", "chapters": ["a05", "a06"] },
-        { "no": "A-3", "title": "머신러닝·YOLOv5", "chapters": ["a07", "a08"] },
-        { "no": "A-4", "title": "자율주행과 군집", "chapters": ["a09", "a10", "a11", "a12"] }
+        {
+          "no": "A-1",
+          "title": "ROS 2 + OpenCV 응용",
+          "chapters": [
+            "a01",
+            "a02",
+            "a03",
+            "a04"
+          ]
+        },
+        {
+          "no": "A-2",
+          "title": "MediaPipe 상호작용",
+          "chapters": [
+            "a05",
+            "a06"
+          ]
+        },
+        {
+          "no": "A-3",
+          "title": "머신러닝·YOLOv5",
+          "chapters": [
+            "a07",
+            "a08"
+          ]
+        },
+        {
+          "no": "A-4",
+          "title": "자율주행과 군집",
+          "chapters": [
+            "a09",
+            "a10",
+            "a11",
+            "a12"
+          ]
+        }
       ]
     }
   ],
   "chapters": {
-    "b01": { "title": "MentorPi 소개와 하드웨어 구성", "summary": "메카넘/애커만 두 섀시, 라즈베리파이 5, RRC Lite 확장보드, 라이다·깊이 카메라 — 이동로봇을 이루는 블록과 배터리·충전 규칙을 익힙니다.", "duration": 50, "level": "입문", "tools": ["urdf"] },
-    "b02": { "title": "첫 구동: 앱과 무선 조이패드 제어", "summary": "전원 켜기부터 WonderPi 앱 연결, 핫스팟/LAN 모드, 무선 조이패드 조작까지 — 로봇을 처음 움직여 봅니다.", "duration": 50, "level": "입문", "tools": ["sim"] },
-    "b03": { "title": "개발 환경: VNC·버전 설정·시스템 구조", "summary": "VNC 원격 접속, 섀시/라이다/카메라 버전 설정, 공식 이미지의 폴더 구조와 Docker 기반 ROS 2 실행 흐름, 서보 편차 보정.", "duration": 60, "level": "입문", "tools": [] },
-    "b04": { "title": "리눅스 기초: 설치·명령어·권한", "summary": "리눅스 소개, VirtualBox에 Ubuntu 설치와 소스 변경, 디렉터리 구조, 자주 쓰는 명령, 사용자와 권한(chmod·sudo)을 실습합니다.", "duration": 90, "level": "입문", "tools": [] },
-    "b05": { "title": "파이썬 기초: 문법·제어문·함수", "summary": "Hello World부터 자료형·연산자·조건문·반복문·함수와 모듈, 컨테이너 자료형까지 로봇 코드를 읽고 쓰는 데 필요한 문법.", "duration": 90, "level": "입문", "tools": ["playground"] },
-    "b06": { "title": "파이썬 심화: 클래스·예외·스레드·NumPy", "summary": "클래스와 파일 입출력, 예외 처리, 내장 함수, 멀티스레딩, pip, NumPy 배열 연산 — ROS 2 노드 작성의 발판.", "duration": 90, "level": "초급", "tools": ["playground"] },
-    "b07": { "title": "라즈베리파이 5: 하드웨어와 시스템", "summary": "RPi 5 사양과 포트(GPIO·PCIe·CSI/DSI·UART·RTC), OS 설치, 원격 접속·파일 전송, raspi-config·config.txt, 네트워크 설정.", "duration": 70, "level": "초급", "tools": [] },
-    "b08": { "title": "GPIO·UART·I2C와 확장보드 입출력", "summary": "gpiozero로 입력·출력·풀업/풀다운, UART·I2C 통신, RRC Lite 확장보드의 RGB LED·버튼·부저를 ros_robot_controller_sdk로 제어합니다.", "duration": 90, "level": "초급", "tools": [] },
-    "b09": { "title": "서보와 DC 모터 제어", "summary": "PWM 서보(각도·속도·다중 제어), 버스 서보 상태 읽기·속도 조정, 엔코더 DC 모터 구동 — 섀시 구동의 최하위 계층.", "duration": 90, "level": "초급", "tools": ["lab"] },
-    "b10": { "title": "Docker 기초와 ROS 2 컨테이너", "summary": "이미지와 컨테이너, 생성·실행·관리, Dockerfile, 장치·볼륨 연결, 컨테이너 안의 ROS, 저장소 — MentorPi가 ROS 2를 돌리는 방식.", "duration": 90, "level": "초급", "tools": [] },
-
-    "r01": { "title": "ROS 2 개요·설치·명령행 도구", "summary": "ROS 1과 ROS 2의 차이, DDS 기반 구조, Humble 설치, ros2 node/topic/service/param/bag 명령으로 그래프를 관찰합니다.", "duration": 70, "level": "초급", "tools": ["playground"] },
-    "r02": { "title": "워크스페이스·패키지·노드", "summary": "colcon 워크스페이스, ament_python 패키지 생성, rclpy Node 클래스와 타이머, 실행 진입점(entry_points)을 만듭니다.", "duration": 80, "level": "초급", "tools": ["playground"] },
-    "r03": { "title": "토픽: 발행과 구독", "summary": "Publisher/Subscriber, 메시지 타입(std_msgs·geometry_msgs), QoS 기초 — /cmd_vel을 발행해 시뮬레이터 로봇을 움직입니다.", "duration": 90, "level": "초급", "tools": ["playground", "sim"] },
-    "r04": { "title": "서비스·액션·커스텀 인터페이스", "summary": "요청-응답 서비스, 피드백이 있는 액션, .msg/.srv/.action 인터페이스 정의와 빌드.", "duration": 90, "level": "중급", "tools": ["playground"] },
-    "r05": { "title": "파라미터·launch·DDS·분산 통신", "summary": "declare_parameter와 YAML, Python launch 파일로 여러 노드 기동, DDS QoS, ROS_DOMAIN_ID로 PC-로봇 분산 통신.", "duration": 90, "level": "중급", "tools": ["playground"] },
-    "r06": { "title": "TF2 좌표계와 URDF 모델링", "summary": "map→odom→base_footprint→base_link→laser_frame 트리, 정적/동적 브로드캐스터와 리스너, URDF link·joint로 로봇을 기술합니다.", "duration": 100, "level": "중급", "tools": ["urdf", "playground"] },
-    "r07": { "title": "RViz2·RQT·Gazebo 도구", "summary": "RViz2 디스플레이(TF·LaserScan·Map·Path), rqt_graph·rqt_plot·rqt_console, Gazebo 물리 시뮬레이션 개요.", "duration": 60, "level": "초급", "tools": ["sim"] },
-    "r08": { "title": "OpenCV 시작: 이미지·영상·그리기", "summary": "컴퓨터 비전 개요, OpenCV 모듈 구조, 이미지·동영상·카메라 읽기와 표시, 도형·글자 그리기, 픽셀·ROI·채널 기본 연산.", "duration": 80, "level": "초급", "tools": ["color"] },
-    "r09": { "title": "색 공간·기하 변환·스무딩", "summary": "BGR↔HSV·GRAY 변환, 이동·회전·어파인·원근 변환, 평균·가우시안·미디언·양방향 필터.", "duration": 80, "level": "초급", "tools": ["color"] },
-    "r10": { "title": "엣지·모폴로지·임계값 처리", "summary": "Canny·Sobel 엣지, 침식·팽창·열림·닫힘, 전역·적응형·Otsu 이진화 — 색 인식과 라인 트레이싱의 전처리.", "duration": 80, "level": "중급", "tools": ["color"] },
-    "r11": { "title": "윤곽선·특징 매칭·코너 검출", "summary": "findContours와 면적·중심·외접 도형, ORB/SIFT 특징점 매칭, Harris·Shi-Tomasi 코너.", "duration": 80, "level": "중급", "tools": ["color"] },
-
-    "m01": { "title": "메카넘 휠 섀시 기구학", "summary": "45° 롤러가 만드는 전방향 이동, (vx, vy, ωz) → 네 바퀴 속도 역기구학과 순기구학, MentorPi mecanum.py 해설.", "duration": 90, "level": "중급", "tools": ["lab", "sim", "playground"] },
-    "m02": { "title": "애커만 조향 섀시 기구학", "summary": "자전거 모델, 회전 반경과 조향각 δ = atan(L·ω/v), 좌·우 바퀴 속도차, 최대 조향각 제한과 최소 회전 반경.", "duration": 90, "level": "중급", "tools": ["lab", "sim", "playground"] },
-    "m03": { "title": "IMU·오도메트리 보정과 발행", "summary": "IMU 캘리브레이션, 선속도·각속도 보정 계수, 휠 오도메트리 적분과 /odom·/imu 발행, EKF 융합 개념.", "duration": 90, "level": "중급", "tools": ["sim", "playground"] },
-    "m04": { "title": "cmd_vel 속도 제어 프로그래밍", "summary": "geometry_msgs/Twist로 메카넘·애커만 속도 제어 노드를 작성하고, 정사각형·원·8자 주행과 속도 제한을 구현합니다.", "duration": 90, "level": "중급", "tools": ["playground", "sim"] },
-    "m05": { "title": "라이다 원리와 LaserScan", "summary": "삼각측량·ToF 거리 측정, 360° 스캔, sensor_msgs/LaserScan 필드(angle_min·increment·ranges) 해석과 좌표 변환.", "duration": 70, "level": "중급", "tools": ["sim", "playground"] },
-    "m06": { "title": "라이다 응용: 회피·추종·경비", "summary": "섹터 최소거리로 장애물 회피, 가장 가까운 물체 추종(P 제어), 경비 모드(물체를 향해 회전) — 세 가지 반응형 행동.", "duration": 100, "level": "중급", "tools": ["sim", "playground"] },
-    "m07": { "title": "깊이 카메라와 포인트 클라우드", "summary": "구조광/스테레오 깊이 카메라 구성, ROS 2 SDK 설치, RGB·Depth·PointCloud2 토픽, 웹 실시간 모니터링.", "duration": 80, "level": "중급", "tools": [] },
-    "m08": { "title": "MentorPi URDF 모델", "summary": "URDF 문법 복습, mentorpi_description의 xacro 구조(메카넘/애커만), base_footprint·lidar·imu 링크와 RViz 표시.", "duration": 70, "level": "중급", "tools": ["urdf"] },
-    "m09": { "title": "SLAM 원리와 slam_toolbox 지도 작성", "summary": "위치추정과 지도작성의 닭-달걀 문제, 점유 격자, 스캔 매칭과 루프 클로저, slam_toolbox로 2D 지도 작성·저장.", "duration": 100, "level": "중급", "tools": ["sim"] },
-    "m10": { "title": "RTAB-Map 3D 비주얼 SLAM", "summary": "깊이 카메라 기반 RTAB-Map의 구조(메모리 관리·루프 클로저), 3D 지도 작성과 저장, 2D SLAM과의 비교.", "duration": 70, "level": "고급", "tools": [] },
-    "m11": { "title": "Nav2 자율 내비게이션과 AMCL", "summary": "Nav2 구성(맵 서버·코스트맵·플래너·컨트롤러·BT), 파티클 필터 AMCL 위치추정, 초기 위치 지정과 목표 전송.", "duration": 100, "level": "고급", "tools": ["sim"] },
-    "m12": { "title": "경로 계획: 전역 A*와 지역 DWA", "summary": "코스트맵 팽창, A*/Dijkstra 전역 경로, DWA 속도 공간 샘플링과 평가 함수, 파라미터 튜닝.", "duration": 100, "level": "고급", "tools": ["sim", "playground"] },
-    "m13": { "title": "다중 지점 내비게이션과 3D 내비게이션", "summary": "단일·다중 목표 순회, 동적 장애물 회피, Python으로 목표 전송(Simple Commander), RTAB-Map 3D 내비게이션.", "duration": 90, "level": "고급", "tools": ["sim", "playground"] },
-
-    "a01": { "title": "색 임계값 조정과 색 인식", "summary": "LAB/HSV 임계값 도구로 색 범위를 정하고, 마스크·윤곽선·중심점으로 색을 인식해 ROS 2 토픽으로 발행합니다.", "duration": 80, "level": "중급", "tools": ["color"] },
-    "a02": { "title": "QR 코드 생성과 인식", "summary": "qrcode로 생성, OpenCV QRCodeDetector로 인식하고 내용에 따라 로봇 동작을 바꾸는 노드를 만듭니다.", "duration": 60, "level": "초급", "tools": [] },
-    "a03": { "title": "자율 라인 트레이싱", "summary": "ROI 분할과 색 이진화로 선의 중심을 찾고, PID로 각속도를 계산해 선을 따라가며 라이다로 장애물에서 멈춥니다.", "duration": 90, "level": "중급", "tools": ["sim", "color"] },
-    "a04": { "title": "색 추적", "summary": "목표 색의 중심 오차(x)와 크기(면적)를 PID 입력으로 삼아 회전·전후진을 제어하는 추적 노드.", "duration": 80, "level": "중급", "tools": ["color", "playground"] },
-    "a05": { "title": "MediaPipe 소개와 손끝 궤적 인식", "summary": "MediaPipe 솔루션(Hands·Pose·Face), 21개 손 랜드마크, 손끝 궤적을 그리고 제스처로 로봇을 움직입니다.", "duration": 80, "level": "중급", "tools": [] },
-    "a06": { "title": "손 추종·자세 제어·포즈 감지", "summary": "손 위치 추종, 손가락 개수/자세로 동작 명령, 인체 포즈 랜드마크로 쓰러짐 감지 등 상호작용 응용.", "duration": 90, "level": "중급", "tools": [] },
-    "a07": { "title": "머신러닝과 YOLOv5 이해", "summary": "지도·비지도·강화 학습, 딥러닝 라이브러리(PyTorch·TensorFlow·ONNX), YOLO 계열 구조와 출력(박스·신뢰도·NMS).", "duration": 80, "level": "중급", "tools": [] },
-    "a08": { "title": "YOLOv5 데이터셋·학습·배포", "summary": "사진 수집, labelImg 라벨링, 데이터셋 구성과 학습, 모델 변환 후 yolov5_ros2 노드로 로봇에서 추론.", "duration": 120, "level": "고급", "tools": [] },
-    "a09": { "title": "자율주행 준비와 차선 유지", "summary": "맵 깔기와 소품 설치, 카메라 원근 변환·차선 검출, 차선 중심 오차 PID로 차선을 유지합니다.", "duration": 100, "level": "고급", "tools": ["sim"] },
-    "a10": { "title": "표지판·신호등 인식", "summary": "YOLOv5로 교통 표지판·신호등을 검출하고, 거리·신뢰도 조건으로 정지·서행·방향 결정을 내립니다.", "duration": 90, "level": "고급", "tools": [] },
-    "a11": { "title": "회전 판단·자율 주차·통합 주행", "summary": "교차로 회전 결정, 주차 구역 인식과 주차 동작, 상태 기계로 모든 기능을 엮은 통합 자율주행.", "duration": 120, "level": "고급", "tools": ["sim"] },
-    "a12": { "title": "군집 제어: 마스터-슬레이브", "summary": "여러 대의 MentorPi 네트워크·환경변수 구성, 네임스페이스와 대형 유지, 조이패드로 군집을 함께 조종합니다.", "duration": 80, "level": "고급", "tools": [] }
+    "b01": {
+      "title": "MentorPi 소개와 하드웨어 구성",
+      "summary": "메카넘/애커만 두 섀시, 라즈베리파이 5, RRC Lite 확장보드, 라이다·깊이 카메라 — 이동로봇을 이루는 블록과 배터리·충전 규칙을 익힙니다.",
+      "duration": 50,
+      "level": "입문",
+      "tools": [
+        "urdf"
+      ]
+    },
+    "b02": {
+      "title": "첫 구동: 앱과 무선 조이패드 제어",
+      "summary": "전원 켜기부터 WonderPi 앱 연결, 핫스팟/LAN 모드, 무선 조이패드 조작까지 — 로봇을 처음 움직여 봅니다.",
+      "duration": 50,
+      "level": "입문",
+      "tools": [
+        "sim3d",
+        "sim"
+      ]
+    },
+    "b03": {
+      "title": "개발 환경: VNC·버전 설정·시스템 구조",
+      "summary": "VNC 원격 접속, 섀시/라이다/카메라 버전 설정, 공식 이미지의 폴더 구조와 Docker 기반 ROS 2 실행 흐름, 서보 편차 보정.",
+      "duration": 60,
+      "level": "입문",
+      "tools": []
+    },
+    "b04": {
+      "title": "리눅스 기초: 설치·명령어·권한",
+      "summary": "리눅스 소개, VirtualBox에 Ubuntu 설치와 소스 변경, 디렉터리 구조, 자주 쓰는 명령, 사용자와 권한(chmod·sudo)을 실습합니다.",
+      "duration": 90,
+      "level": "입문",
+      "tools": []
+    },
+    "b05": {
+      "title": "파이썬 기초: 문법·제어문·함수",
+      "summary": "Hello World부터 자료형·연산자·조건문·반복문·함수와 모듈, 컨테이너 자료형까지 로봇 코드를 읽고 쓰는 데 필요한 문법.",
+      "duration": 90,
+      "level": "입문",
+      "tools": [
+        "playground"
+      ]
+    },
+    "b06": {
+      "title": "파이썬 심화: 클래스·예외·스레드·NumPy",
+      "summary": "클래스와 파일 입출력, 예외 처리, 내장 함수, 멀티스레딩, pip, NumPy 배열 연산 — ROS 2 노드 작성의 발판.",
+      "duration": 90,
+      "level": "초급",
+      "tools": [
+        "playground"
+      ]
+    },
+    "b07": {
+      "title": "라즈베리파이 5: 하드웨어와 시스템",
+      "summary": "RPi 5 사양과 포트(GPIO·PCIe·CSI/DSI·UART·RTC), OS 설치, 원격 접속·파일 전송, raspi-config·config.txt, 네트워크 설정.",
+      "duration": 70,
+      "level": "초급",
+      "tools": []
+    },
+    "b08": {
+      "title": "GPIO·UART·I2C와 확장보드 입출력",
+      "summary": "gpiozero로 입력·출력·풀업/풀다운, UART·I2C 통신, RRC Lite 확장보드의 RGB LED·버튼·부저를 ros_robot_controller_sdk로 제어합니다.",
+      "duration": 90,
+      "level": "초급",
+      "tools": []
+    },
+    "b09": {
+      "title": "서보와 DC 모터 제어",
+      "summary": "PWM 서보(각도·속도·다중 제어), 버스 서보 상태 읽기·속도 조정, 엔코더 DC 모터 구동 — 섀시 구동의 최하위 계층.",
+      "duration": 90,
+      "level": "초급",
+      "tools": [
+        "lab"
+      ]
+    },
+    "b10": {
+      "title": "Docker 기초와 ROS 2 컨테이너",
+      "summary": "이미지와 컨테이너, 생성·실행·관리, Dockerfile, 장치·볼륨 연결, 컨테이너 안의 ROS, 저장소 — MentorPi가 ROS 2를 돌리는 방식.",
+      "duration": 90,
+      "level": "초급",
+      "tools": []
+    },
+    "r01": {
+      "title": "ROS 2 개요·설치·명령행 도구",
+      "summary": "ROS 1과 ROS 2의 차이, DDS 기반 구조, Humble 설치, ros2 node/topic/service/param/bag 명령으로 그래프를 관찰합니다.",
+      "duration": 70,
+      "level": "초급",
+      "tools": [
+        "playground"
+      ]
+    },
+    "r02": {
+      "title": "워크스페이스·패키지·노드",
+      "summary": "colcon 워크스페이스, ament_python 패키지 생성, rclpy Node 클래스와 타이머, 실행 진입점(entry_points)을 만듭니다.",
+      "duration": 80,
+      "level": "초급",
+      "tools": [
+        "playground"
+      ]
+    },
+    "r03": {
+      "title": "토픽: 발행과 구독",
+      "summary": "Publisher/Subscriber, 메시지 타입(std_msgs·geometry_msgs), QoS 기초 — /cmd_vel을 발행해 시뮬레이터 로봇을 움직입니다.",
+      "duration": 90,
+      "level": "초급",
+      "tools": [
+        "playground",
+        "sim"
+      ]
+    },
+    "r04": {
+      "title": "서비스·액션·커스텀 인터페이스",
+      "summary": "요청-응답 서비스, 피드백이 있는 액션, .msg/.srv/.action 인터페이스 정의와 빌드.",
+      "duration": 90,
+      "level": "중급",
+      "tools": [
+        "playground"
+      ]
+    },
+    "r05": {
+      "title": "파라미터·launch·DDS·분산 통신",
+      "summary": "declare_parameter와 YAML, Python launch 파일로 여러 노드 기동, DDS QoS, ROS_DOMAIN_ID로 PC-로봇 분산 통신.",
+      "duration": 90,
+      "level": "중급",
+      "tools": [
+        "playground"
+      ]
+    },
+    "r06": {
+      "title": "TF2 좌표계와 URDF 모델링",
+      "summary": "map→odom→base_footprint→base_link→laser_frame 트리, 정적/동적 브로드캐스터와 리스너, URDF link·joint로 로봇을 기술합니다.",
+      "duration": 100,
+      "level": "중급",
+      "tools": [
+        "urdf",
+        "playground"
+      ]
+    },
+    "r07": {
+      "title": "RViz2·RQT·Gazebo 도구",
+      "summary": "RViz2 디스플레이(TF·LaserScan·Map·Path), rqt_graph·rqt_plot·rqt_console, Gazebo 물리 시뮬레이션 개요.",
+      "duration": 60,
+      "level": "초급",
+      "tools": [
+        "sim"
+      ]
+    },
+    "r08": {
+      "title": "OpenCV 시작: 이미지·영상·그리기",
+      "summary": "컴퓨터 비전 개요, OpenCV 모듈 구조, 이미지·동영상·카메라 읽기와 표시, 도형·글자 그리기, 픽셀·ROI·채널 기본 연산.",
+      "duration": 80,
+      "level": "초급",
+      "tools": [
+        "color"
+      ]
+    },
+    "r09": {
+      "title": "색 공간·기하 변환·스무딩",
+      "summary": "BGR↔HSV·GRAY 변환, 이동·회전·어파인·원근 변환, 평균·가우시안·미디언·양방향 필터.",
+      "duration": 80,
+      "level": "초급",
+      "tools": [
+        "color"
+      ]
+    },
+    "r10": {
+      "title": "엣지·모폴로지·임계값 처리",
+      "summary": "Canny·Sobel 엣지, 침식·팽창·열림·닫힘, 전역·적응형·Otsu 이진화 — 색 인식과 라인 트레이싱의 전처리.",
+      "duration": 80,
+      "level": "중급",
+      "tools": [
+        "color"
+      ]
+    },
+    "r11": {
+      "title": "윤곽선·특징 매칭·코너 검출",
+      "summary": "findContours와 면적·중심·외접 도형, ORB/SIFT 특징점 매칭, Harris·Shi-Tomasi 코너.",
+      "duration": 80,
+      "level": "중급",
+      "tools": [
+        "color"
+      ]
+    },
+    "m01": {
+      "title": "메카넘 휠 섀시 기구학",
+      "summary": "45° 롤러가 만드는 전방향 이동, (vx, vy, ωz) → 네 바퀴 속도 역기구학과 순기구학, MentorPi mecanum.py 해설.",
+      "duration": 90,
+      "level": "중급",
+      "tools": [
+        "sim3d",
+        "lab",
+        "sim",
+        "playground"
+      ]
+    },
+    "m02": {
+      "title": "애커만 조향 섀시 기구학",
+      "summary": "자전거 모델, 회전 반경과 조향각 δ = atan(L·ω/v), 좌·우 바퀴 속도차, 최대 조향각 제한과 최소 회전 반경.",
+      "duration": 90,
+      "level": "중급",
+      "tools": [
+        "sim3d",
+        "lab",
+        "sim",
+        "playground"
+      ]
+    },
+    "m03": {
+      "title": "IMU·오도메트리 보정과 발행",
+      "summary": "IMU 캘리브레이션, 선속도·각속도 보정 계수, 휠 오도메트리 적분과 /odom·/imu 발행, EKF 융합 개념.",
+      "duration": 90,
+      "level": "중급",
+      "tools": [
+        "sim",
+        "playground"
+      ]
+    },
+    "m04": {
+      "title": "cmd_vel 속도 제어 프로그래밍",
+      "summary": "geometry_msgs/Twist로 메카넘·애커만 속도 제어 노드를 작성하고, 정사각형·원·8자 주행과 속도 제한을 구현합니다.",
+      "duration": 90,
+      "level": "중급",
+      "tools": [
+        "sim3d",
+        "playground",
+        "sim"
+      ]
+    },
+    "m05": {
+      "title": "라이다 원리와 LaserScan",
+      "summary": "삼각측량·ToF 거리 측정, 360° 스캔, sensor_msgs/LaserScan 필드(angle_min·increment·ranges) 해석과 좌표 변환.",
+      "duration": 70,
+      "level": "중급",
+      "tools": [
+        "sim",
+        "playground"
+      ]
+    },
+    "m06": {
+      "title": "라이다 응용: 회피·추종·경비",
+      "summary": "섹터 최소거리로 장애물 회피, 가장 가까운 물체 추종(P 제어), 경비 모드(물체를 향해 회전) — 세 가지 반응형 행동.",
+      "duration": 100,
+      "level": "중급",
+      "tools": [
+        "sim3d",
+        "sim",
+        "playground"
+      ]
+    },
+    "m07": {
+      "title": "깊이 카메라와 포인트 클라우드",
+      "summary": "구조광/스테레오 깊이 카메라 구성, ROS 2 SDK 설치, RGB·Depth·PointCloud2 토픽, 웹 실시간 모니터링.",
+      "duration": 80,
+      "level": "중급",
+      "tools": []
+    },
+    "m08": {
+      "title": "MentorPi URDF 모델",
+      "summary": "URDF 문법 복습, mentorpi_description의 xacro 구조(메카넘/애커만), base_footprint·lidar·imu 링크와 RViz 표시.",
+      "duration": 70,
+      "level": "중급",
+      "tools": [
+        "sim3d",
+        "urdf"
+      ]
+    },
+    "m09": {
+      "title": "SLAM 원리와 slam_toolbox 지도 작성",
+      "summary": "위치추정과 지도작성의 닭-달걀 문제, 점유 격자, 스캔 매칭과 루프 클로저, slam_toolbox로 2D 지도 작성·저장.",
+      "duration": 100,
+      "level": "중급",
+      "tools": [
+        "sim"
+      ]
+    },
+    "m10": {
+      "title": "RTAB-Map 3D 비주얼 SLAM",
+      "summary": "깊이 카메라 기반 RTAB-Map의 구조(메모리 관리·루프 클로저), 3D 지도 작성과 저장, 2D SLAM과의 비교.",
+      "duration": 70,
+      "level": "고급",
+      "tools": []
+    },
+    "m11": {
+      "title": "Nav2 자율 내비게이션과 AMCL",
+      "summary": "Nav2 구성(맵 서버·코스트맵·플래너·컨트롤러·BT), 파티클 필터 AMCL 위치추정, 초기 위치 지정과 목표 전송.",
+      "duration": 100,
+      "level": "고급",
+      "tools": [
+        "sim"
+      ]
+    },
+    "m12": {
+      "title": "경로 계획: 전역 A*와 지역 DWA",
+      "summary": "코스트맵 팽창, A*/Dijkstra 전역 경로, DWA 속도 공간 샘플링과 평가 함수, 파라미터 튜닝.",
+      "duration": 100,
+      "level": "고급",
+      "tools": [
+        "sim",
+        "playground"
+      ]
+    },
+    "m13": {
+      "title": "다중 지점 내비게이션과 3D 내비게이션",
+      "summary": "단일·다중 목표 순회, 동적 장애물 회피, Python으로 목표 전송(Simple Commander), RTAB-Map 3D 내비게이션.",
+      "duration": 90,
+      "level": "고급",
+      "tools": [
+        "sim3d",
+        "sim",
+        "playground"
+      ]
+    },
+    "a01": {
+      "title": "색 임계값 조정과 색 인식",
+      "summary": "LAB/HSV 임계값 도구로 색 범위를 정하고, 마스크·윤곽선·중심점으로 색을 인식해 ROS 2 토픽으로 발행합니다.",
+      "duration": 80,
+      "level": "중급",
+      "tools": [
+        "color"
+      ]
+    },
+    "a02": {
+      "title": "QR 코드 생성과 인식",
+      "summary": "qrcode로 생성, OpenCV QRCodeDetector로 인식하고 내용에 따라 로봇 동작을 바꾸는 노드를 만듭니다.",
+      "duration": 60,
+      "level": "초급",
+      "tools": []
+    },
+    "a03": {
+      "title": "자율 라인 트레이싱",
+      "summary": "ROI 분할과 색 이진화로 선의 중심을 찾고, PID로 각속도를 계산해 선을 따라가며 라이다로 장애물에서 멈춥니다.",
+      "duration": 90,
+      "level": "중급",
+      "tools": [
+        "sim3d",
+        "sim",
+        "color"
+      ]
+    },
+    "a04": {
+      "title": "색 추적",
+      "summary": "목표 색의 중심 오차(x)와 크기(면적)를 PID 입력으로 삼아 회전·전후진을 제어하는 추적 노드.",
+      "duration": 80,
+      "level": "중급",
+      "tools": [
+        "color",
+        "playground"
+      ]
+    },
+    "a05": {
+      "title": "MediaPipe 소개와 손끝 궤적 인식",
+      "summary": "MediaPipe 솔루션(Hands·Pose·Face), 21개 손 랜드마크, 손끝 궤적을 그리고 제스처로 로봇을 움직입니다.",
+      "duration": 80,
+      "level": "중급",
+      "tools": []
+    },
+    "a06": {
+      "title": "손 추종·자세 제어·포즈 감지",
+      "summary": "손 위치 추종, 손가락 개수/자세로 동작 명령, 인체 포즈 랜드마크로 쓰러짐 감지 등 상호작용 응용.",
+      "duration": 90,
+      "level": "중급",
+      "tools": []
+    },
+    "a07": {
+      "title": "머신러닝과 YOLOv5 이해",
+      "summary": "지도·비지도·강화 학습, 딥러닝 라이브러리(PyTorch·TensorFlow·ONNX), YOLO 계열 구조와 출력(박스·신뢰도·NMS).",
+      "duration": 80,
+      "level": "중급",
+      "tools": []
+    },
+    "a08": {
+      "title": "YOLOv5 데이터셋·학습·배포",
+      "summary": "사진 수집, labelImg 라벨링, 데이터셋 구성과 학습, 모델 변환 후 yolov5_ros2 노드로 로봇에서 추론.",
+      "duration": 120,
+      "level": "고급",
+      "tools": []
+    },
+    "a09": {
+      "title": "자율주행 준비와 차선 유지",
+      "summary": "맵 깔기와 소품 설치, 카메라 원근 변환·차선 검출, 차선 중심 오차 PID로 차선을 유지합니다.",
+      "duration": 100,
+      "level": "고급",
+      "tools": [
+        "sim"
+      ]
+    },
+    "a10": {
+      "title": "표지판·신호등 인식",
+      "summary": "YOLOv5로 교통 표지판·신호등을 검출하고, 거리·신뢰도 조건으로 정지·서행·방향 결정을 내립니다.",
+      "duration": 90,
+      "level": "고급",
+      "tools": []
+    },
+    "a11": {
+      "title": "회전 판단·자율 주차·통합 주행",
+      "summary": "교차로 회전 결정, 주차 구역 인식과 주차 동작, 상태 기계로 모든 기능을 엮은 통합 자율주행.",
+      "duration": 120,
+      "level": "고급",
+      "tools": [
+        "sim"
+      ]
+    },
+    "a12": {
+      "title": "군집 제어: 마스터-슬레이브",
+      "summary": "여러 대의 MentorPi 네트워크·환경변수 구성, 네임스페이스와 대형 유지, 조이패드로 군집을 함께 조종합니다.",
+      "duration": 80,
+      "level": "고급",
+      "tools": []
+    }
   }
 }

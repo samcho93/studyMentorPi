@@ -18,7 +18,7 @@
 <aside class="sidebar" id="sidebar">
 <nav class="sidebar-nav">
 <div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
-<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="side-tools"><a class="side-tool" href="../sim3d/index.html">3D 시뮬레이터</a><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a><a class="side-tool" href="../tools/urdf-viewer.html">URDF 뷰어</a></div>
 <div class="nav-track" data-track="base">
 <div class="nav-track-title track-base">기초·하드웨어</div>
 <div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
@@ -356,7 +356,7 @@ for name, kp, lim, kd in ((&quot;원본 Kp=0.4 ±0.1&quot;, 0.4, 0.1, 0.05),
   <path d="M621.5 30 L621.5 246" style="stroke:var(--text-faint)" stroke-width="4"/>
   <circle class="hi" cx="549" cy="241.5" r="4"/>
   <path class="ln" d="M554 60 L554 246" stroke-dasharray="4 3"/>
-  <text class="tag" x="558" y="72">차로 중심 320</text>
+  <text class="tag" x="550" y="72" text-anchor="end">차로 중심 320</text>
   <text class="tag" x="545" y="232" text-anchor="end">309.3</text>
   <text class="sub" x="554" y="268" text-anchor="middle">차선이 평행, 1 px = 1.5 mm → 횡오차 −0.016 m</text>
 </svg><figcaption>원근 변환. 바닥의 직사각형(차로)이 영상에서는 사다리꼴로 보입니다. 네 점 대응으로 호모그래피 H를 구하면 차선을 위에서 본 모양으로 펼 수 있습니다.</figcaption></figure>

@@ -7,7 +7,7 @@
 
 GitHub Pages로 배포되는 **정적 강의 사이트**에서
 ① Hiwonder MentorPi(메카넘/애커만, Raspberry Pi 5, ROS 2 Humble) 공식 교재 18개 강좌를 4개 트랙 46챕터로 재구성한 한국어 강의,
-② 섀시·라이다·SLAM·내비게이션·라인트레이싱을 돌려 보는 **2D 시뮬레이터**(`sim/`),
+② 실제 MentorPi URDF로 움직이는 **3D 시뮬레이터**(`sim3d/`)와 섀시·라이다·SLAM·내비게이션·라인트레이싱을 돌려 보는 **2D 시뮬레이터**(`sim/`) — 둘은 `sim/physics.js`·`behaviors.js`·`nav.js`를 공유한다,
 ③ rclpy 호환 shim으로 ROS 2 노드 코드를 브라우저에서 실행하는 **ROS 2 Playground**(Pyodide, `python/mentorpi_sim`),
 ④ 섀시 기구학 실험실, HSV 색 실험실, URDF 뷰어를 제공한다.
 

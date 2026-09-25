@@ -18,7 +18,7 @@
 <aside class="sidebar" id="sidebar">
 <nav class="sidebar-nav">
 <div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
-<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="side-tools"><a class="side-tool" href="../sim3d/index.html">3D 시뮬레이터</a><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a><a class="side-tool" href="../tools/urdf-viewer.html">URDF 뷰어</a></div>
 <div class="nav-track" data-track="base">
 <div class="nav-track-title track-base">기초·하드웨어</div>
 <div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
@@ -151,13 +151,13 @@
 <figure class="fig" id="fig-b02-network"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AP 직접 연결 모드와 STA LAN 모드의 네트워크 구조 비교">
   <rect x="10" y="10" width="340" height="280" rx="10" style="fill:none;stroke:var(--border)" stroke-dasharray="5 4"/>
   <rect x="370" y="10" width="340" height="280" rx="10" style="fill:none;stroke:var(--border)" stroke-dasharray="5 4"/>
-  <text class="lbl" x="180" y="36" text-anchor="middle" font-weight="700">AP 직접 연결 모드 (기본)</text>
-  <text class="lbl" x="540" y="36" text-anchor="middle" font-weight="700">STA LAN 모드</text>
+  <text class="lbl" x="180" y="34" text-anchor="middle" font-weight="700">AP 직접 연결 모드 (기본)</text>
+  <text class="lbl" x="540" y="34" text-anchor="middle" font-weight="700">STA LAN 모드</text>
 
   <rect class="box-hi" x="105" y="62" width="150" height="58" rx="8"/>
   <text class="lbl" x="180" y="86" text-anchor="middle">MentorPi = 공유기</text>
   <text class="sub mono" x="180" y="106" text-anchor="middle">192.168.149.1</text>
-  <text class="tag mono" x="180" y="142" text-anchor="middle">SSID HW-… · pw hiwonder</text>
+  <text class="tag mono" x="180" y="55" text-anchor="middle">SSID HW-… · pw hiwonder</text>
   <path d="M150 120 L95 198" style="stroke:var(--accent);fill:none" stroke-width="1.8" stroke-dasharray="6 4"/>
   <path d="M210 120 L265 198" style="stroke:var(--accent);fill:none" stroke-width="1.8" stroke-dasharray="6 4"/>
   <rect class="box" x="40" y="200" width="110" height="44" rx="6"/>
@@ -196,6 +196,15 @@
 <div class="table-wrap"><table><thead><tr><th>모드</th><th>동작</th><th>쓰는 센서·기술</th><th>관련 챕터</th></tr></thead><tbody><tr><td>Robot Control</td><td>버튼·중력 센서로 주행, 화면 드래그로 팬틸트 회전</td><td>카메라 스트림, 모터</td><td>M04</td></tr><tr><td>Lidar</td><td>장애물 회피 / 라이다 추종 / 라이다 경비</td><td>LD19 라이다</td><td>M06</td></tr><tr><td>Object Tracking</td><td>화면에서 색을 찍으면 그 색 물체를 따라감</td><td>카메라, 색 임계값</td><td>A01, A04</td></tr><tr><td>Line Following</td><td>바닥 테이프 색을 찍으면 선을 따라감</td><td>카메라, 색 이진화</td><td>A03</td></tr><tr><td>Gesture Control</td><td>손 궤적(상하좌우)으로 이동 명령(메카넘만)</td><td>카메라, MediaPipe</td><td>A05</td></tr></tbody></table></div>
 <p>실행 팁(원본 요약):</p>
 <ul><li><strong>라이다 게임</strong>은 넓은 곳에서. 회피는 계속 전진하다 장애물 앞에서 방향을 틀고, 추종은 물체와 일정 거리를 유지하고, 경비는 물체 쪽으로 몸을 돌립니다(애커만은 경비 미지원).</li><li><strong>물체 추적·라인 추종</strong>은 Pick 버튼으로 색을 찍고 OK로 확정한 뒤 Start. 색 범위(0.05~1.00)는 너무 넓으면 배경까지 잡히고, 너무 좁으면 대상을 놓칩니다. 화면 안에 비슷한 색 물체가 없어야 합니다.</li><li><strong>제스처</strong>는 오른손만, 손바닥 전체가 화면에 보이게, 천천히. 주먹 쥐고 화면 중앙 → "삑" 후 손을 펴고 한 방향으로 이동 → 다시 주먹 → "삑" 후 그 방향으로 움직임.</li><li>단안 카메라 팬틸트는 끝까지 돌리면 <strong>진동 피드백</strong>이 옵니다. 서보 한계 보호가 걸린 것이니 더 돌리지 않습니다.</li></ul>
+<h3 id="앱-버튼-뒤에서-일어나는-일">앱 버튼 뒤에서 일어나는 일<a class="anchor" href="#앱-버튼-뒤에서-일어나는-일">#</a></h3>
+<p>앱의 게임 버튼은 결국 로봇 안의 ROS 2 <strong>서비스</strong>를 호출합니다. 원본 "Lidar Obstacle Avoidance"는 같은 게임을 명령으로 실행하는 방법도 보여 줍니다(VNC 터미널, B03 이후 실습).</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">~/.stop_ros.sh                                            # 앱 자동 실행 서비스 중지
+ros2 launch app lidar_node.launch.py debug:=true          # 라이다 게임 + 섀시 제어 노드 실행
+# 새 터미널에서
+ros2 service call /lidar_app/enter std_srvs/srv/Trigger {}                    # 게임 진입
+ros2 service call /lidar_app/set_running interfaces/srv/SetInt64 &quot;{data: 1}&quot;   # 1 = 장애물 회피 시작
+ros2 service call /lidar_app/set_running interfaces/srv/SetInt64 &quot;{data: 0}&quot;   # 정지</code></pre></div>
+<p>끝나면 호스트 터미널에서 <code>sudo systemctl restart start_node.service</code>(또는 재부팅)로 앱 서비스를 되살립니다. 앱으로 실행하든 명령으로 실행하든 로봇의 동작은 같습니다. 게임을 끄지 않으면 계속 메모리를 차지하므로, 다른 게임으로 넘어가기 전에 반드시 종료하세요.</p>
 <h2 id="무선-조이패드">무선 조이패드<a class="anchor" href="#무선-조이패드">#</a></h2>
 <h3 id="페어링">페어링<a class="anchor" href="#페어링">#</a></h3>
 <ol><li>로봇 전원을 먼저 켜고(수신기는 출고 시 장착됨), 조이패드 전원 ON → 빨강·초록 LED 동시 깜빡임</li><li>몇 초 뒤 자동 페어링 → <strong>초록 LED 켜짐 유지, 빨강 꺼짐</strong></li><li>켠 뒤 30초 안에 연결되지 않거나, 연결 후 5분간 조작이 없으면 절전 모드 → <strong>START</strong> 버튼으로 깨움</li><li>조이패드 제어는 앱 자동 실행 서비스에 포함되어 있어 별도 명령 없이 동작합니다.</li></ol>
@@ -227,7 +236,7 @@ twist.angular.z = val_map(axes[&#x27;rx&#x27;], -1, 1, -max_angular, max_angular
 <ul><li>원본 교재: 1. Getting Ready — <em>Lesson 3 Get Started</em>, <em>Lesson 4 APP Control</em>, <em>Lesson 5 Wireless Handle Control</em></li><li>원본 소스: <code>src/peripherals/peripherals/joystick_control.py</code>, <code>src/peripherals/launch/joystick_control.launch.py</code></li><li>ROS 2 <code>joy</code> 패키지: https://index.ros.org/p/joy/</li><li><code>geometry_msgs/Twist</code> 정의: https://docs.ros2.org/humble/api/geometry_msgs/msg/Twist.html</li></ul>
       <nav class="pager"><a class="pager-prev" href="b01.html"><span>이전 · B01</span>MentorPi 소개와 하드웨어 구성</a><a class="pager-next" href="b03.html"><span>다음 · B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></nav>
     </div>
-    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#부팅-순서와-상태-신호">부팅 순서와 상태 신호</a><a class="toc-l2" href="#네트워크-모드-ap와-sta">네트워크 모드: AP와 STA</a><a class="toc-l2" href="#wonderpi-앱-연결">WonderPi 앱 연결</a><a class="toc-l3" href="#설치">설치</a><a class="toc-l3" href="#ap-직접-연결">AP 직접 연결</a><a class="toc-l3" href="#lan-모드">LAN 모드</a><a class="toc-l2" href="#앱-게임-모드">앱 게임 모드</a><a class="toc-l2" href="#무선-조이패드">무선 조이패드</a><a class="toc-l3" href="#페어링">페어링</a><a class="toc-l3" href="#조작과-속도-명령">조작과 속도 명령</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#부팅-순서와-상태-신호">부팅 순서와 상태 신호</a><a class="toc-l2" href="#네트워크-모드-ap와-sta">네트워크 모드: AP와 STA</a><a class="toc-l2" href="#wonderpi-앱-연결">WonderPi 앱 연결</a><a class="toc-l3" href="#설치">설치</a><a class="toc-l3" href="#ap-직접-연결">AP 직접 연결</a><a class="toc-l3" href="#lan-모드">LAN 모드</a><a class="toc-l2" href="#앱-게임-모드">앱 게임 모드</a><a class="toc-l3" href="#앱-버튼-뒤에서-일어나는-일">앱 버튼 뒤에서 일어나는 일</a><a class="toc-l2" href="#무선-조이패드">무선 조이패드</a><a class="toc-l3" href="#페어링">페어링</a><a class="toc-l3" href="#조작과-속도-명령">조작과 속도 명령</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
   </div>
 </article>
 

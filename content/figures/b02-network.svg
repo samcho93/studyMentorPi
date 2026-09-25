@@ -1,13 +1,13 @@
 <svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AP 직접 연결 모드와 STA LAN 모드의 네트워크 구조 비교">
   <rect x="10" y="10" width="340" height="280" rx="10" style="fill:none;stroke:var(--border)" stroke-dasharray="5 4"/>
   <rect x="370" y="10" width="340" height="280" rx="10" style="fill:none;stroke:var(--border)" stroke-dasharray="5 4"/>
-  <text class="lbl" x="180" y="36" text-anchor="middle" font-weight="700">AP 직접 연결 모드 (기본)</text>
-  <text class="lbl" x="540" y="36" text-anchor="middle" font-weight="700">STA LAN 모드</text>
+  <text class="lbl" x="180" y="34" text-anchor="middle" font-weight="700">AP 직접 연결 모드 (기본)</text>
+  <text class="lbl" x="540" y="34" text-anchor="middle" font-weight="700">STA LAN 모드</text>
 
   <rect class="box-hi" x="105" y="62" width="150" height="58" rx="8"/>
   <text class="lbl" x="180" y="86" text-anchor="middle">MentorPi = 공유기</text>
   <text class="sub mono" x="180" y="106" text-anchor="middle">192.168.149.1</text>
-  <text class="tag mono" x="180" y="142" text-anchor="middle">SSID HW-… · pw hiwonder</text>
+  <text class="tag mono" x="180" y="55" text-anchor="middle">SSID HW-… · pw hiwonder</text>
   <path d="M150 120 L95 198" style="stroke:var(--accent);fill:none" stroke-width="1.8" stroke-dasharray="6 4"/>
   <path d="M210 120 L265 198" style="stroke:var(--accent);fill:none" stroke-width="1.8" stroke-dasharray="6 4"/>
   <rect class="box" x="40" y="200" width="110" height="44" rx="6"/>

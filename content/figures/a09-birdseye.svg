@@ -28,7 +28,7 @@
   <path d="M621.5 30 L621.5 246" style="stroke:var(--text-faint)" stroke-width="4"/>
   <circle class="hi" cx="549" cy="241.5" r="4"/>
   <path class="ln" d="M554 60 L554 246" stroke-dasharray="4 3"/>
-  <text class="tag" x="558" y="72">차로 중심 320</text>
+  <text class="tag" x="550" y="72" text-anchor="end">차로 중심 320</text>
   <text class="tag" x="545" y="232" text-anchor="end">309.3</text>
   <text class="sub" x="554" y="268" text-anchor="middle">차선이 평행, 1 px = 1.5 mm → 횡오차 −0.016 m</text>
 </svg>

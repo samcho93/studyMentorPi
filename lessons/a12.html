@@ -18,7 +18,7 @@
 <aside class="sidebar" id="sidebar">
 <nav class="sidebar-nav">
 <div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
-<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="side-tools"><a class="side-tool" href="../sim3d/index.html">3D 시뮬레이터</a><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a><a class="side-tool" href="../tools/urdf-viewer.html">URDF 뷰어</a></div>
 <div class="nav-track" data-track="base">
 <div class="nav-track-title track-base">기초·하드웨어</div>
 <div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
@@ -183,7 +183,8 @@
   <text class="lbl" x="560" y="212" text-anchor="middle">/robot_2 네임스페이스</text>
   <text class="sub mono" x="560" y="232" text-anchor="middle">controller → 모터</text>
   <path class="ln-hi" d="M340 113 L560 113 L560 188" fill="none" marker-end="url(#arr-a12-network-hi)"/>
-  <text class="tag mono" x="566" y="150">/robot_2/controller/cmd_vel</text>
+  <text class="tag mono" x="566" y="145">/robot_2/</text>
+  <text class="tag mono" x="566" y="160">controller/cmd_vel</text>
   <text class="sub" x="360" y="292" text-anchor="middle">두 로봇 모두 ros2 launch multi multi_controller.launch.py — 조이패드 부분은 HOST == MASTER 일 때만</text>
 </svg><figcaption>마스터가 Wi-Fi 핫스팟과 조이패드를 맡고, 각 로봇의 컨트롤러는 자기 네임스페이스의 토픽만 구독합니다.</figcaption></figure>
 <div class="table-wrap"><table><thead><tr><th>역할</th><th>하는 일</th></tr></thead><tbody><tr><td>마스터(host)</td><td>Wi-Fi 핫스팟 제공, 조이패드 수신(<code>joy_node</code>), 명령 분배(<code>joystick_control_multi.py</code>), 자기 섀시 제어</td></tr><tr><td>슬레이브(slave)</td><td>마스터 핫스팟에 접속, 자기 섀시 제어(<code>multi_controller.launch.py</code>)만 실행</td></tr></tbody></table></div>
