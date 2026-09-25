@@ -15,7 +15,8 @@ from .core import RT, CHASSIS, SimTimeUp  # noqa: F401
 from .world import load_worlds
 
 __all__ = ["setup", "add_box", "add_cylinder", "add_wall", "add_mover", "plot", "pose",
-           "world_names", "SimTimeUp", "CHASSIS", "add_walker", "movers", "add_object", "objects"]
+           "world_names", "SimTimeUp", "CHASSIS", "add_walker", "movers", "add_object", "objects",
+           "camera", "camera_intrinsics"]
 
 _real_sleep = _time.sleep
 _real_time = _time.time
@@ -23,7 +24,8 @@ _real_monotonic = _time.monotonic
 _EPOCH = 1_750_000_000.0
 
 
-def setup(chassis="mecanum", world="room", duration=20.0, start=None, noise=True, seed=None):
+def setup(chassis="mecanum", world="room", duration=20.0, start=None, noise=True, seed=None,
+          camera=(160, 120), camera_hz=5.0):
     """Configure the virtual robot. Call before creating nodes."""
     subs, nodes = dict(RT.subs), list(RT.nodes)
     inited, preview = RT.inited, RT.preview
@@ -31,6 +33,8 @@ def setup(chassis="mecanum", world="room", duration=20.0, start=None, noise=True
         duration = 0.0          # preview: build the scene, stop before the first time step
     RT.reset(chassis=chassis, world=world, duration=duration, start=start, noise=noise, seed=seed)
     RT.preview = preview
+    RT.cam_res = (int(camera[0]), int(camera[1]))
+    RT.cam_hz = float(camera_hz)
     RT.subs.update(subs)          # keep subscriptions made before setup()
     RT.nodes.extend(nodes)
     RT.inited = inited
@@ -79,6 +83,21 @@ def movers():
     """Ground-truth positions of moving objects [(x, y, r), ...] — stands in for a vision
     detector (e.g. MediaPipe person position) in simulation only."""
     return [(m[0], m[1], m[4]) for m in RT.world.movers]
+
+
+def camera(depth_colormap=False):
+    """Render the robot's RGB-D camera right now (simulation only, no ROS needed).
+    Returns (bgr uint8 [h,w,3], depth float32 [h,w] in metres, 0 = invalid) — OpenCV-ready."""
+    from . import rgbd as _cam
+    r = RT.robot
+    rgb, depth = _cam.render(RT.world, (r.x, r.y, r.yaw), RT.cam_res[0], RT.cam_res[1], RT.noise, RT.rng)
+    return rgb[..., ::-1].copy(), depth
+
+
+def camera_intrinsics():
+    """(fx, fy, cx, cy) of the simulated camera at the current resolution."""
+    from . import rgbd as _cam
+    return _cam.intrinsics(*RT.cam_res)
 
 
 def pose():

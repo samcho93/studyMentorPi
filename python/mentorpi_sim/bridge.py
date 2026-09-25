@@ -6,7 +6,7 @@ import numpy as np
 from builtin_interfaces.msg import Time
 from geometry_msgs.msg import Pose2D, TransformStamped
 from nav_msgs.msg import Odometry
-from sensor_msgs.msg import Imu, LaserScan
+from sensor_msgs.msg import CameraInfo, Image, Imu, LaserScan
 
 N_RAYS = 360
 ANGLES = -math.pi + np.arange(N_RAYS) * (2 * math.pi / N_RAYS)
@@ -77,3 +77,50 @@ def publish_scan(rt, r):
     sc.intensities = [0.0 if math.isinf(v) else 100.0 for v in d]
     rt.publish("/scan", sc)
     return d
+
+
+CAM_NS = "/ascamera/camera_publisher"
+
+
+def publish_camera(rt, r):
+    """RGB (rgb8), depth (16UC1, mm), camera_info and an xyz point cloud — HP60C topic names."""
+    from . import rgbd as camera
+    from sensor_msgs_py.point_cloud2 import create_cloud_xyz32
+    w, h = rt.cam_res
+    rgb, depth = camera.render(rt.world, (r.x, r.y, r.yaw), w, h, rt.noise, rt.rng)
+    st = stamp(rt.t)
+    fx, fy, cx, cy = camera.intrinsics(w, h)
+    subs = rt.subs
+
+    def info(frame):
+        ci = CameraInfo()
+        ci.header.stamp, ci.header.frame_id = st, frame
+        ci.height, ci.width, ci.distortion_model = h, w, "plumb_bob"
+        ci.d = [0.0] * 5
+        ci.k = [fx, 0.0, cx, 0.0, fy, cy, 0.0, 0.0, 1.0]
+        ci.r = [1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0]
+        ci.p = [fx, 0.0, cx, 0.0, 0.0, fy, cy, 0.0, 0.0, 0.0, 1.0, 0.0]
+        return ci
+
+    def image(arr, enc, frame):
+        m = Image()
+        m.header.stamp, m.header.frame_id = st, frame
+        m.height, m.width, m.encoding = arr.shape[0], arr.shape[1], enc
+        m.step = arr.strides[0]
+        m.data = arr.tobytes()
+        return m
+
+    if CAM_NS + "/rgb0/image" in subs:
+        rt.publish(CAM_NS + "/rgb0/image", image(np.ascontiguousarray(rgb), "rgb8", "ascamera_color_0"))
+    if CAM_NS + "/depth0/image_raw" in subs:
+        mm = np.clip(depth * 1000.0, 0, 65535).astype(np.uint16)
+        rt.publish(CAM_NS + "/depth0/image_raw", image(mm, "16UC1", "ascamera_camera_link_0"))
+    if CAM_NS + "/rgb0/camera_info" in subs:
+        rt.publish(CAM_NS + "/rgb0/camera_info", info("ascamera_color_0"))
+    if CAM_NS + "/depth0/camera_info" in subs:
+        rt.publish(CAM_NS + "/depth0/camera_info", info("ascamera_camera_link_0"))
+    if CAM_NS + "/depth0/points" in subs:
+        from std_msgs.msg import Header
+        hd = Header()
+        hd.stamp, hd.frame_id = st, "ascamera_camera_link_0"
+        rt.publish(CAM_NS + "/depth0/points", create_cloud_xyz32(hd, camera.backproject(depth, step=2)))

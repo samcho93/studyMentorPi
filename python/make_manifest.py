@@ -12,7 +12,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 PACKAGES = ["mentorpi_sim", "rclpy", "builtin_interfaces", "std_msgs", "geometry_msgs", "sensor_msgs",
-            "nav_msgs", "std_srvs", "example_interfaces", "tf2_ros", "rcl_interfaces"]
+            "nav_msgs", "std_srvs", "example_interfaces", "tf2_ros", "rcl_interfaces", "cv_bridge", "sensor_msgs_py"]
 MODULES = ["tf_transformations.py"]
 NL = chr(10)
 

@@ -28,6 +28,7 @@ class World:
         self.boxes = [list(b) for b in spec["boxes"]]
         self.cylinders = [list(c) for c in spec["cylinders"]]
         self.walls = [list(w) for w in spec["walls"]]
+        self.track_spec = spec.get("track")
         self.movers = []            # [x, y, vx, vy, r]
         self.objects = []           # (label, x, y, r) — see mentorpi_sim.add_object
         self._rebuild()

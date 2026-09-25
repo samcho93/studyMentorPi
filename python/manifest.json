@@ -1,11 +1,12 @@
 {
- "version": "c29fd955267b",
+ "version": "a690ee44da6e",
  "files": [
   "tf_transformations.py",
   "mentorpi_sim/__init__.py",
   "mentorpi_sim/_msg.py",
   "mentorpi_sim/bridge.py",
   "mentorpi_sim/core.py",
+  "mentorpi_sim/rgbd.py",
   "mentorpi_sim/world.py",
   "mentorpi_sim/worlds.json",
   "rclpy/__init__.py",
@@ -39,7 +40,10 @@
   "example_interfaces/srv/__init__.py",
   "tf2_ros/__init__.py",
   "rcl_interfaces/__init__.py",
-  "rcl_interfaces/msg.py"
+  "rcl_interfaces/msg.py",
+  "cv_bridge/__init__.py",
+  "sensor_msgs_py/__init__.py",
+  "sensor_msgs_py/point_cloud2.py"
  ],
  "samples": [
   "samples/coins.png",

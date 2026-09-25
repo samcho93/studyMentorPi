@@ -53,7 +53,7 @@ rclpy.spin_until_future_complete(node, future, timeout_sec=None)
 |---|---|
 | `std_msgs.msg` | `String, Bool, Int32, Int64, Float32, Float64, Header, ColorRGBA` |
 | `geometry_msgs.msg` | `Twist, Vector3, Point, Quaternion, Pose, PoseStamped, Pose2D, PoseWithCovarianceStamped, Transform, TransformStamped` |
-| `sensor_msgs.msg` | `LaserScan, Imu` |
+| `sensor_msgs.msg` | `LaserScan, Imu, Image, CompressedImage, CameraInfo, PointCloud2, PointField, RegionOfInterest` |
 | `nav_msgs.msg` | `Odometry, Path, OccupancyGrid` |
 | `std_srvs.srv` | `Trigger, SetBool, Empty` |
 | `example_interfaces.srv` | `AddTwoInts` |
@@ -73,6 +73,12 @@ rclpy.spin_until_future_complete(node, future, timeout_sec=None)
 | `/imu` | Imu | 발행 50 Hz | orientation(쿼터니언), angular_velocity.z, linear_acceleration |
 | `/tf` | TransformStamped | 발행 | odom→base_footprint |
 | `/ground_truth` | Pose2D | 발행 10 Hz | 시뮬 전용 실제 자세 (오도메트리 오차 비교용) |
+| `/ascamera/camera_publisher/rgb0/image` | Image `rgb8` | 발행 5 Hz* | 깊이 카메라(HP60C)의 컬러 영상, frame `ascamera_color_0` |
+| `/ascamera/camera_publisher/depth0/image_raw` | Image `16UC1`(mm) | 발행 5 Hz* | 컬러와 정렬된 깊이 영상, 0 = 무효, frame `ascamera_camera_link_0` |
+| `/ascamera/camera_publisher/rgb0/camera_info`, `depth0/camera_info` | CameraInfo | 발행 5 Hz* | K = [fx 0 cx; 0 fy cy; 0 0 1] (실물 camera_info.yaml을 해상도에 맞춰 축소) |
+| `/ascamera/camera_publisher/depth0/points` | PointCloud2 (x,y,z float32) | 발행 5 Hz* | 광학 좌표계(x 오른쪽, y 아래, z 앞) 포인트 클라우드(2픽셀 간격) |
+
+\* 카메라 토픽은 **구독자가 있을 때만** 렌더링된다. 기본 160×120 (실물 640×480, 15 fps) — `sim.setup(camera=(320, 240), camera_hz=5)`로 변경. 깊이 모델: 0.15~4.0 m, 잡음 σ = 1 mm + 2.5 mm·d², 1 % 결측. 장면 높이: 벽 0.30 m, 상자 0.25 m, 원통 0.30 m, 이름 붙은 물체 2r, 걷는 사람 1.6 m.
 
 애커만 섀시에서는 `linear.y`가 무시되고, `angular.z`는 조향각으로 바뀐다(δ = atan(L·ω/v), |δ| ≤ 29°, 정지 상태에서는 회전 불가).
 
@@ -85,6 +91,9 @@ rclpy.spin_until_future_complete(node, future, timeout_sec=None)
 - `cv2.imshow(name, img)` → 오른쪽 이미지 패널에 표시, `cv2.waitKey()` → -1, `cv2.imread("shapes.png")`로 샘플 이미지 사용:
   `shapes.png`(도형), `colors.png`(색 블록), `track.png`(검은 선 트랙), `lane.png`(차선 원근), `qr.png`(QR "MentorPi"), `lena.png` 대체 `scene.png`(실내 장면), `coins.png`(원형 물체)
 - `mentorpi_sim.plot(xs, ys, label)` — 결과 그래프 패널에 선 추가 (시뮬 전용)
+- `mentorpi_sim.camera()` → `(bgr uint8, depth float32 m)` 지금 이 순간의 RGB-D 영상(ROS 없이, 시뮬 전용), `mentorpi_sim.camera_intrinsics()` → `(fx, fy, cx, cy)`
+- `cv_bridge.CvBridge().imgmsg_to_cv2(msg, "bgr8"|"rgb8"|"mono8"|"passthrough"|"32FC1")`, `cv2_to_imgmsg(arr, encoding)`
+- `sensor_msgs_py.point_cloud2.read_points_numpy(cloud, ("x","y","z"))`, `read_points(...)`, `create_cloud_xyz32(header, points)`
 
 ## 6. 실행 코드 작성 규칙
 

@@ -159,10 +159,16 @@ class Runtime:
             "lidar_frame": ("base_link", (-0.012242, -0.00008533, 0.092501), (0.0, 0.0, 0.0, 1.0)),
             "imu_link": ("base_link", (0.0, 0.0, 0.0), (0.0, 0.0, math.sin(-1.57 / 2), math.cos(-1.57 / 2))),
             "depth_cam": ("base_link", (0.061376, -0.00013463, 0.051154), (0.0, 0.0, 0.0, 1.0)),
+            # ascamera optical frames: static_transform_publisher 0 0 0 -1.57 0 -1.57 (x right, y down, z forward)
+            "ascamera_camera_link_0": ("depth_cam", (0.0, 0.0, 0.0), (-0.5, 0.5, -0.5, 0.5)),
+            "ascamera_color_0": ("depth_cam", (0.0, 0.0, 0.0), (-0.5, 0.5, -0.5, 0.5)),
         }
         self._next_odom = 0.0
         self._next_scan = 0.0
         self._next_frame = 0.0
+        self._next_cam = 0.0
+        self.cam_res = (160, 120)       # simulated HP60C resolution (real: 640x480)
+        self.cam_hz = 5.0
         self._last_scan = None
         self._pubs_seen = set()
         self.configured = False
@@ -224,6 +230,10 @@ class Runtime:
         if self.t + 1e-9 >= self._next_odom:
             self._next_odom += 0.02
             bridge.publish_odom(self, r)
+        if self.t + 1e-9 >= self._next_cam:
+            self._next_cam += 1.0 / self.cam_hz
+            if any(t.startswith("/ascamera/") for t in self.subs):
+                bridge.publish_camera(self, r)
         if self.t + 1e-9 >= self._next_scan:
             self._next_scan += 0.1
             self._last_scan = bridge.publish_scan(self, r)
