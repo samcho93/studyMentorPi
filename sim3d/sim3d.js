@@ -31,7 +31,7 @@ const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
 host.appendChild(renderer.domElement);
-const pipRenderer = new THREE.WebGLRenderer({ canvas: $('pip'), antialias: true });
+const pipRenderer = new THREE.WebGLRenderer({ canvas: $('pip'), antialias: true, preserveDrawingBuffer: true });   // offscreen; copied into the view windows
 pipRenderer.setSize(320, 240, false);
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xdfe6ee);
@@ -50,12 +50,31 @@ const depthVisMat = new THREE.ShaderMaterial({
     void main(){ if (vZ < 0.15 || vZ > 4.0) { gl_FragColor = vec4(0.0,0.0,0.0,1.0); return; }
       gl_FragColor = vec4(turbo((vZ - 0.15) / 3.85), 1.0); }`,
 });
-let pipMode = 'rgb';
-document.querySelectorAll('[data-pip]').forEach((b) => b.addEventListener('click', () => {
-  pipMode = b.dataset.pip;
-  document.querySelectorAll('[data-pip]').forEach((x) => x.classList.toggle('on', x === b));
-  document.getElementById('pipCap').textContent = pipMode === 'depth' ? '깊이 0.15~4 m (파랑=가까움, 빨강=멂)' : '로봇 카메라 (depth_cam)';
-}));
+// ------------------------------------------------------------------ sensor view windows (camera / depth / lidar)
+const VW_KEY = 'studymentorpi.sim3d.views.v1';
+const views = (() => { try { return { cam: true, depth: true, lidar: true, ...JSON.parse(localStorage.getItem(VW_KEY) || '{}') }; } catch (e) { return { cam: true, depth: true, lidar: true }; } })();
+for (const [k, id, box] of [['cam', 'vwCam', 'vwCamBox'], ['depth', 'vwDepth', 'vwDepthBox'], ['lidar', 'vwLidar', 'vwLidarBox']]) {
+  $(id).checked = views[k]; $(box).hidden = !views[k];
+  $(id).addEventListener('change', () => {
+    views[k] = $(id).checked; $(box).hidden = !views[k];
+    try { localStorage.setItem(VW_KEY, JSON.stringify(views)); } catch (e) { /* ignore */ }
+  });
+}
+const ctxCam = $('cvCam').getContext('2d'), ctxDep = $('cvDep').getContext('2d'), ctxLid = $('cvLid').getContext('2d');
+function drawLidarWindow() {
+  const cv = $('cvLid'), W = cv.width, c = W / 2, k = (W / 2 - 6) / 4;          // 4 m to the edge
+  ctxLid.fillStyle = '#0b0f14'; ctxLid.fillRect(0, 0, W, W);
+  ctxLid.strokeStyle = 'rgba(148,163,184,.35)'; ctxLid.lineWidth = 1;
+  for (let r = 1; r <= 4; r++) { ctxLid.beginPath(); ctxLid.arc(c, c, r * k, 0, 7); ctxLid.stroke(); }
+  ctxLid.beginPath(); ctxLid.moveTo(c, 4); ctxLid.lineTo(c, W - 4); ctxLid.moveTo(4, c); ctxLid.lineTo(W - 4, c); ctxLid.stroke();
+  ctxLid.fillStyle = '#ef4444';
+  for (let i = 0; i < N_RAYS; i++) {
+    const r = ranges[i]; if (!isFinite(r) || r > 4.2) continue;
+    const a = rayAngle(i);                              // 0 = forward, CCW +  → screen: forward up, left = left
+    ctxLid.fillRect(c - r * Math.sin(a) * k - 1, c - r * Math.cos(a) * k - 1, 2.5, 2.5);
+  }
+  ctxLid.fillStyle = '#22c55e'; ctxLid.beginPath(); ctxLid.moveTo(c, c - 7); ctxLid.lineTo(c - 5, c + 5); ctxLid.lineTo(c + 5, c + 5); ctxLid.closePath(); ctxLid.fill();
+}
 pipCam.up.set(0, 0, 1);
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
@@ -420,7 +439,7 @@ function syncCameras() {
   }
   if (view !== 'top') syncCameras.topSet = false;
   // robot camera (depth_cam), pitched down for line following
-  const pitchDown = mode === 'line' || lineMask ? 0.5 : (pipMode === 'depth' ? 0.0 : 0.15);   // real HP60C looks level
+  const pitchDown = mode === 'line' || lineMask ? 0.5 : 0.0;   // real HP60C looks level; tilted down for line following
   pipCam.position.set(robot.x + CAM_POS[0] * c, robot.y + CAM_POS[0] * s, CAM_POS[2]);
   pipCam.lookAt(robot.x + (CAM_POS[0] + Math.cos(pitchDown)) * c, robot.y + (CAM_POS[0] + Math.cos(pitchDown)) * s, CAM_POS[2] - Math.sin(pitchDown));
 }
@@ -461,12 +480,14 @@ function render(dt = 0) {
   renderer.render(scene, camera);
   if (++frameNo % 2 === 0) {
     rayLines.visible = hitPts.visible = false; trailLine.visible = false;
-    if (pipMode === 'depth') {
+    if (views.cam) { pipRenderer.render(scene, pipCam); ctxCam.drawImage($('pip'), 0, 0); }
+    if (views.depth) {
       const bg = scene.background; scene.background = new THREE.Color(0x000000); scene.overrideMaterial = depthVisMat;
-      pipRenderer.render(scene, pipCam);
+      pipRenderer.render(scene, pipCam); ctxDep.drawImage($('pip'), 0, 0);
       scene.overrideMaterial = null; scene.background = bg;
-    } else pipRenderer.render(scene, pipCam);
+    }
     rayLines.visible = hitPts.visible = $('chkRays').checked; trailLine.visible = $('chkTrail').checked;
+    if (views.lidar) drawLidarWindow();
   }
 }
 

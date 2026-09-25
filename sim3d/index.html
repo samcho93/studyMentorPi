@@ -6,12 +6,12 @@
 <title>MentorPi 3D 시뮬레이터 — studyMentorPi</title>
 <meta name="description" content="MentorPi URDF(메카넘·애커만)를 3D 월드에서 주행시키며 라이다 회피·추종·경비, 라인 트레이싱, 목표 지점 내비게이션을 해 보는 three.js 시뮬레이터.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css?v=5d0b572b">
-<link rel="stylesheet" href="../assets/css/mentorpi.css?v=5d0b572b">
-<script src="../assets/js/theme.js?v=5d0b572b"></script>
-<script src="../assets/js/file-guard.js?v=5d0b572b"></script>
-<link rel="stylesheet" href="../assets/css/sim.css?v=5d0b572b">
-<link rel="stylesheet" href="../assets/css/ml-theme.css?v=5d0b572b">
+<link rel="stylesheet" href="../assets/css/main.css?v=386fe569">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=386fe569">
+<script src="../assets/js/theme.js?v=386fe569"></script>
+<script src="../assets/js/file-guard.js?v=386fe569"></script>
+<link rel="stylesheet" href="../assets/css/sim.css?v=386fe569">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=386fe569">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
 <script type="importmap">
@@ -34,12 +34,15 @@
   .tabs button { font-size: 12px; padding: 10px 2px; }
   .hud { font: 12px/1.55 var(--mono); background: var(--overlay); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 10px; min-width: 230px; color: var(--text); }
   .hud b { color: var(--text-faint); font-weight: 600; display: inline-block; min-width: 50px; }
-  .pip { background: var(--overlay); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px; font-size: 11px; color: var(--text-faint); }
-  .pip-bar { display: flex; align-items: center; gap: 4px; margin-top: 4px; }
-  .pip-bar span { margin-right: auto; }
-  .pip-bar button { font: inherit; font-size: 11px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg); color: var(--text-dim); cursor: pointer; }
-  .pip-bar button.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
-  .pip canvas { display: block; width: 256px; height: 192px; border-radius: 6px; background: #222; }
+  .sim-stage .stage-tr { display: flex !important; align-items: flex-end; gap: 6px !important; }   /* sensor windows stay visible on narrow screens / in the lesson panel */
+  .vw-bar { display: flex; gap: 8px; align-items: center; font-size: 11.5px; color: var(--text-dim); background: var(--overlay); border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; }
+  .vw-bar span { font-weight: 700; color: var(--text-faint); }
+  .vw-bar label { display: inline-flex; gap: 3px; align-items: center; cursor: pointer; }
+  .vw-bar input { accent-color: var(--accent); margin: 0; }
+  .vw { background: var(--overlay); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 4px; font-size: 10.5px; color: var(--text-faint); }
+  .vw canvas { display: block; width: 208px; height: 156px; border-radius: 5px; background: #111; }
+  #vwLidarBox canvas { width: 156px; height: 156px; }
+  .vw-cap { margin-top: 2px; max-width: 208px; }
   .info-box { font-size: 12.5px; background: var(--overlay); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px 10px; max-width: 460px; color: var(--text); }
   .keys { display: grid; grid-template-columns: repeat(3, 34px); gap: 4px; margin: 6px 0 10px; }
   .keys kbd { display: grid; place-items: center; height: 30px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); font: 600 12px var(--mono); color: var(--text-dim); }
@@ -53,7 +56,10 @@
   .stat-line { font: 12px var(--mono); color: var(--text-dim); margin: 6px 0; }
   .no-gl { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: var(--text-dim); }
   body.embed .sim-top { display: none; }
-  body.embed.embed-replay .sim-panel, body.embed.embed-replay .stage-tr { display: none; }
+  body.embed.embed-replay .sim-panel { display: none; }
+  body.embed.embed-replay .vw canvas { width: 160px; height: 120px; }
+  body.embed.embed-replay #vwLidarBox canvas { width: 120px; height: 120px; }
+  body.embed.embed-replay .vw-cap { max-width: 160px; }
   body.embed.embed-replay .sim-layout { grid-template-columns: 1fr; }
   body.embed.embed-replay .sim-stage { height: 100vh; min-height: 0; }
   body.embed.embed-replay .hud { font-size: 11px; min-width: 0; }
@@ -68,7 +74,7 @@
     .sim-layout { grid-template-columns: 1fr; }
     .sim-stage { height: 62vh; min-height: 380px; }
     .sim-panel { border-left: 0; border-top: 1px solid var(--border); }
-    .pip canvas { width: 160px; height: 120px; }
+    .vw canvas { width: 132px; height: 99px; } #vwLidarBox canvas { width: 99px; height: 99px; } .vw-cap { display: none; }
     .hud { min-width: 0; font-size: 11px; }
     .sim-top { flex-wrap: wrap; } .sim-top-actions { margin-left: 0; flex-wrap: wrap; }
   }
@@ -95,7 +101,18 @@
     <div class="viewport" id="viewport"></div>
     <div class="no-gl" id="noGL" hidden></div>
     <div class="stage-overlay stage-tl"><div class="hud" id="hud"></div></div>
-    <div class="stage-overlay stage-tr"><div class="pip" id="pipBox"><canvas id="pip" width="320" height="240"></canvas><div class="pip-bar"><span id="pipCap">로봇 카메라 (depth_cam)</span><button type="button" class="on" data-pip="rgb">RGB</button><button type="button" data-pip="depth">깊이</button></div></div></div>
+    <div class="stage-overlay stage-tr">
+      <div class="vw-bar" role="group" aria-label="센서 창 보기">
+        <span>보기</span>
+        <label><input type="checkbox" id="vwCam" checked> 카메라</label>
+        <label><input type="checkbox" id="vwDepth" checked> 깊이</label>
+        <label><input type="checkbox" id="vwLidar" checked> 라이다</label>
+      </div>
+      <div class="vw" id="vwCamBox"><canvas id="cvCam" width="320" height="240"></canvas><div class="vw-cap" id="capCam">카메라 · rgb0/image</div></div>
+      <div class="vw" id="vwDepthBox"><canvas id="cvDep" width="320" height="240"></canvas><div class="vw-cap">깊이 · 0.15~4 m (파랑 가까움 → 빨강 멂)</div></div>
+      <div class="vw" id="vwLidarBox"><canvas id="cvLid" width="240" height="240"></canvas><div class="vw-cap">라이다 · /scan (위 = 전방, 링 1 m)</div></div>
+      <canvas id="pip" width="320" height="240" hidden></canvas>
+    </div>
     <div class="stage-overlay stage-br"><div class="info-box" id="info">W/S 전후 · A/D 회전 · Q/E 옆으로(메카넘) · Space 정지 · 마우스로 시점 회전</div></div>
   </section>
   <aside class="sim-panel">
