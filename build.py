@@ -616,6 +616,7 @@ def refresh_manifest() -> None:
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     mod.main()
+    mod.write_examples()
 
 
 def main() -> int:

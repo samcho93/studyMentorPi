@@ -53,6 +53,7 @@ class Robot:
         self.collisions = 0
         self.distance = 0.0
         self._in_contact = False
+        self._last_hit = -10.0
 
     def set_cmd(self, twist, limit):
         vx = max(-limit[0], min(limit[0], float(twist.linear.x)))
@@ -95,18 +96,28 @@ class Robot:
         nx = self.x + (tvx * c - tvy * s) * dt
         ny = self.y + (tvx * s + tvy * c) * dt
         nyaw = wrap(self.yaw + twz * dt)
-        if self.rt.world.collides(nx, ny, self.p["radius"]):
-            if not self._in_contact:
+        col = self.rt.world.collides
+        rad = self.p["radius"]
+        if col(nx, ny, rad):
+            # slide along the obstacle if one axis is free, otherwise stop
+            if not col(nx, self.y, rad):
+                ny = self.y
+            elif not col(self.x, ny, rad):
+                nx = self.x
+            else:
+                nx, ny = self.x, self.y
+                self.v[0] = self.v[1] = 0.0
+            if not self._in_contact and self.rt.t - self._last_hit > 1.0:
                 self.collisions += 1
-                self.rt.log_event("충돌! (%.2f, %.2f) — 로봇 정지" % (self.x, self.y))
+                self.rt.log_event("충돌! (%.2f, %.2f) — 장애물에 닿았습니다" % (self.x, self.y))
             self._in_contact = True
-            self.v = [0.0, 0.0, 0.0]
-            if not self.rt.world.collides(self.x, self.y, self.p["radius"]):
-                self.yaw = nyaw if self.chassis == "mecanum" else self.yaw
+            self._last_hit = self.rt.t
+            if col(nx, ny, rad):
+                nx, ny = self.x, self.y
         else:
             self._in_contact = False
-            self.distance += math.hypot(nx - self.x, ny - self.y)
-            self.x, self.y, self.yaw = nx, ny, nyaw
+        self.distance += math.hypot(nx - self.x, ny - self.y)
+        self.x, self.y, self.yaw = nx, ny, nyaw
 
 
 class Runtime:

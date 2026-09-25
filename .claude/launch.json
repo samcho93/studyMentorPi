@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "mentorpi", "runtimeExecutable": "python", "runtimeArgs": ["-m", "http.server", "8140", "--directory", "D:/Work/Web/studyMentorPi"], "port": 8140 }
+  ]
+}
