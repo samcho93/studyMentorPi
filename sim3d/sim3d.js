@@ -542,6 +542,13 @@ function replayTick(dt) {
 window.addEventListener('message', (ev) => {
   const m = ev.data || {};
   if (m.type === 'mp-replay' && m.result) loadReplay(m.result).catch((e) => { $('info').textContent = '재생 실패: ' + e.message; });
+  if (m.type === 'mp-reset') {
+    rp.res = null; rp.playing = false; rp.i = 0;
+    ranges = new Array(N_RAYS).fill(Infinity); trail = []; if (world) world.movers = [];
+    $('rpSeek').max = 0; $('rpSeek').value = 0; $('rpT').textContent = '대기 중'; $('rpPlay').innerHTML = '&#9654;';
+    $('info').textContent = '코드를 실행하면 결과가 3D로 재생됩니다.';
+    if (world && robot) { [robot.x, robot.y, robot.yaw] = world.start; robot.v = [0, 0, 0]; render(0); }
+  }
 });
 
 (async () => {

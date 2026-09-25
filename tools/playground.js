@@ -300,6 +300,26 @@ function stop() {
   startWorker();
 }
 
+// ------------------------------------------------------------------ idle state (after loading an example)
+const SUMMARY0 = $('summary').innerHTML;
+function resetView() {
+  playing = false;
+  result = null;
+  frameIdx = 0;
+  $('btnPlay').innerHTML = '&#9654;';
+  $('seek').max = 0; $('seek').value = 0;
+  $('playT').textContent = '— / — s';
+  showImages([]);
+  $('plotCount').textContent = '';
+  $('summary').innerHTML = SUMMARY0;
+  pending3d = null;
+  const f = $('f3d');
+  if (f3dReady && f.contentWindow) f.contentWindow.postMessage({ type: 'mp-reset' }, '*');
+  showPane('paneWorld');
+  view.resize(); render(); drawChart();
+  setStatus(ready ? '준비됨 — Ctrl+Enter로 실행' : '준비 중…', ready ? 'ok' : '');
+}
+
 // ------------------------------------------------------------------ UI
 let editor = null;
 const doc0 = initialCode();
@@ -331,8 +351,16 @@ const sel = $('examples');
 const groups = [...new Set(EXAMPLES.map((e) => e.group || '예제'))];
 sel.innerHTML += groups.map((g) => `<optgroup label="${g}">` + EXAMPLES.filter((e) => (e.group || '예제') === g)
   .map((e) => `<option value="${e.id}">${e.title}</option>`).join('') + '</optgroup>').join('');
+// the dropdown shows the example that is loaded in the editor
+const norm = (t) => t.replace(/\r\n/g, '\n').trim();
+const exFor = (code) => EXAMPLES.find((e) => norm(e.code) === norm(code));
+sel.value = (exFor(editor.getValue()) || { id: '' }).id;
 sel.addEventListener('change', () => {
   const ex = EXAMPLES.find((e) => e.id === sel.value);
-  if (ex) { editor.setValue(ex.code); out(`예제 불러옴: ${ex.title}`, 'info'); }
-  sel.value = '';
+  if (!ex) return;
+  if (running) stop();
+  editor.setValue(ex.code);
+  resetView();
+  out(`예제 불러옴: ${ex.title}`, 'info');
+  sel.value = ex.id;
 });
