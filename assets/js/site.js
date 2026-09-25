@@ -19,7 +19,7 @@
     } catch (e) { /* 프라이빗 모드 등에서는 조용히 무시 */ }
   }
 
-  var progress = load();
+  var progress = {};   // 학습 완료 표시 기능 제거 — 완료 표시를 그리지 않음
 
   // ------------------------------------------------------------ 모바일 내비
   var toggle = document.getElementById('navToggle');

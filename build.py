@@ -487,7 +487,6 @@ def lesson_page(cur: dict, cid: str, meta: dict, body_md: str) -> str:
     <p class="lede">{summary}</p>
     {req}
     <div class="lesson-actions">
-      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
       {tools}
     </div>
   </div>
@@ -533,7 +532,7 @@ def index_page(cur: dict) -> str:
                     '<div class="lc-main"><div class="lc-title">%s</div>'
                     '<div class="lc-sum">%s</div>'
                     '<div class="lc-meta"><span class="lc-min">%s분 · %s</span>%s</div></div>'
-                    '<div class="lc-check" aria-hidden="true"></div></a>'
+                    '</a>'
                     % (cid, cid, cid.upper(), html.escape(ch["title"]),
                        html.escape(ch.get("summary", "")), ch.get("duration", 60),
                        html.escape(ch.get("level", "")), tools))
@@ -567,11 +566,6 @@ def index_page(cur: dict) -> str:
       <a class="btn" href="tools/playground.html">ROS 2 Playground</a>
       <a class="btn" href="tools/kinematics-lab.html">섀시 기구학 실험실</a>
       <a class="btn" href="tools/color-lab.html">HSV 색 실험실</a>
-    </div>
-    <div class="progress-wrap">
-      <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
-      <div class="progress-text"><span id="progText">0 / {total} 챕터 완료</span>
-      <button class="link-btn" id="resetProg" type="button">진행률 초기화</button></div>
     </div>
   </div>
   <div class="hero-art">
