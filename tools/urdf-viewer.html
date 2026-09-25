@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>URDF 뷰어 — studyMentorPi</title>
+<meta name="description" content="MentorPi(메카넘·애커만) URDF를 3D로 보고 링크·조인트·TF 좌표를 확인하며 섀시 속도에 따라 바퀴가 도는 모습을 보는 뷰어.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/file-guard.js"></script>
+<link rel="stylesheet" href="../assets/css/sim.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.0/examples/jsm/",
+    "three/examples/jsm/": "https://cdn.jsdelivr.net/npm/three@0.186.0/examples/jsm/",
+    "urdf-loader": "https://cdn.jsdelivr.net/npm/urdf-loader@0.13.1/src/URDFLoader.js"
+  }
+}
+</script>
+<style>
+  .sim-page { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+  .tab-body select { font: inherit; font-size: 12.5px; padding: 6px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg); color: var(--text); width: 100%; }
+  .tf-table { width: 100%; border-collapse: collapse; font: 11.5px var(--mono); }
+  .tf-table th, .tf-table td { text-align: left; padding: 4px 6px; border-bottom: 1px solid var(--border-soft); }
+  .tf-table th { color: var(--text-faint); font-weight: 600; font-family: var(--sans); }
+  .tf-table tr.hl td { color: var(--accent); }
+  .tree { font: 12px/1.7 var(--mono); color: var(--text-dim); white-space: pre; overflow-x: auto; background: var(--bg); border: 1px solid var(--border-soft); border-radius: var(--radius-sm); padding: 8px 10px; }
+  .no-gl { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: var(--text-dim); }
+  .tool-nav { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tool-nav a[aria-current="page"] { color: var(--accent); border-color: var(--accent-dim); }
+  @media (max-width: 900px) {
+    .sim-page { height: auto; overflow: auto; }
+    .sim-layout { grid-template-columns: 1fr; }
+    .sim-stage { height: 56vh; min-height: 340px; }
+    .sim-top { flex-wrap: wrap; } .sim-top-actions { margin-left: 0; flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body class="sim-page">
+<header class="sim-top">
+  <a class="sim-back" href="../index.html">&larr; 강의</a>
+  <div class="sim-title"><strong>URDF 뷰어</strong><span id="viewerStatus" class="vstat">불러오는 중…</span></div>
+  <div class="sim-top-actions">
+    <nav class="tool-nav" aria-label="도구">
+      <a class="sim-back" href="../sim/index.html">2D 시뮬레이터</a>
+      <a class="sim-back" href="playground.html">Playground</a>
+      <a class="sim-back" href="kinematics-lab.html">기구학 실험실</a>
+      <a class="sim-back" href="color-lab.html">HSV 색 실험실</a>
+      <a class="sim-back" href="urdf-viewer.html" aria-current="page">URDF 뷰어</a>
+    </nav>
+    <button class="theme-btn" type="button" data-theme-toggle aria-label="테마 전환">테마</button>
+  </div>
+</header>
+<main class="sim-layout">
+  <section class="sim-stage">
+    <div class="viewport" id="viewport"></div>
+    <div class="no-gl" id="noGL" hidden></div>
+    <div class="stage-overlay stage-tl"><div class="pose-readout" id="readout"><div class="pr-row"><span>링크</span><code id="hoverLink">—</code></div></div></div>
+  </section>
+  <aside class="sim-panel">
+    <div class="tabs"><button type="button" class="active" data-tab="model">모델</button><button type="button" data-tab="tf">TF 좌표</button></div>
+    <div class="tab-body active" data-body="model">
+      <div class="sub-title">섀시</div>
+      <select id="variant"><option value="mecanum">MentorPi 메카넘 (mecanum.xacro)</option><option value="ackermann">MentorPi 애커만 (ack.xacro)</option></select>
+      <div class="sub-title">표시</div>
+      <label class="chk block"><input type="checkbox" id="chkAxes" checked> 좌표축 (base_footprint · lidar_frame · depth_cam · imu_link)</label>
+      <label class="chk block"><input type="checkbox" id="chkGhost"> 반투명 몸체 (바퀴·센서 보기)</label>
+      <div class="sub-title">속도 명령 → 바퀴 회전</div>
+      <div class="field-grid">
+        <label>vx m/s <output id="oVx">0.00</output><input type="range" id="vx" min="-0.3" max="0.3" step="0.01" value="0"></label>
+        <label>vy m/s <output id="oVy">0.00</output><input type="range" id="vy" min="-0.3" max="0.3" step="0.01" value="0"></label>
+        <label>ωz rad/s <output id="oWz">0.00</output><input type="range" id="wz" min="-1.5" max="1.5" step="0.05" value="0"></label>
+      </div>
+      <div class="kv" id="wheelKv"></div>
+      <div class="panel-actions"><button class="s-btn" id="btnZero" type="button">정지</button></div>
+      <p class="hint">메카넘은 <code>controller/mecanum.py</code>, 애커만은 <code>controller/ackermann.py</code>와 같은 식으로 바퀴 속도(rps)와 조향각을 계산해 3D 모델의 바퀴를 돌립니다. 애커만 URDF에는 조향 조인트가 없어 앞바퀴 조향은 시각화용으로만 회전시킵니다.</p>
+      <div class="sub-title">링크 트리</div>
+      <div class="tree" id="tree">—</div>
+    </div>
+    <div class="tab-body" data-body="tf">
+      <div class="sub-title">base_footprint 기준 좌표 (m)</div>
+      <table class="tf-table"><thead><tr><th>frame</th><th>x</th><th>y</th><th>z</th><th>yaw°</th></tr></thead><tbody id="tfBody"></tbody></table>
+      <p class="hint">ROS에서는 <code>ros2 run tf2_ros tf2_echo base_footprint lidar_frame</code>으로 같은 값을 확인할 수 있습니다. 라이다는 몸체 중심보다 약간 뒤(−x)·위(+z)에 있습니다.</p>
+    </div>
+  </aside>
+</main>
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    import('../assets/js/urdf-viewer.js').catch((err) => {
+      const box = document.getElementById('noGL');
+      box.hidden = false;
+      box.innerHTML = location.protocol === 'file:'
+        ? '파일로 직접 열면 3D 모델을 불러올 수 없습니다. 저장소 폴더에서 <code>python build.py --serve</code> 후 <b>http://localhost:8000/tools/urdf-viewer.html</b>로 접속하세요.'
+        : '3D 라이브러리(three.js / urdf-loader)를 불러오지 못했습니다: ' + err.message;
+    });
+  });
+</script>
+</body>
+</html>
