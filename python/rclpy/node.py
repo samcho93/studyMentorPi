@@ -8,8 +8,16 @@ from .parameter import Parameter, SetParametersResult
 from .task import Future
 
 
-def _topic(name):
+def _topic(name, node=None):
+    if name.startswith("~") and node is not None:
+        return "/" + node.get_name() + name[1:]
     return name if name.startswith("/") else "/" + name
+
+
+def _reliability(qos):
+    from .qos import ReliabilityPolicy
+    r = getattr(qos, "reliability", ReliabilityPolicy.RELIABLE)
+    return "best_effort" if r == ReliabilityPolicy.BEST_EFFORT else "reliable"
 
 
 def _depth(qos):
@@ -21,14 +29,15 @@ def _depth(qos):
 class Publisher:
     def __init__(self, node, msg_type, topic, qos):
         self.msg_type = msg_type
-        self.topic_name = _topic(topic)
+        self.topic_name = _topic(topic, node)
         self.node = node
+        self.reliability = _reliability(qos)
 
     def publish(self, msg):
         if not isinstance(msg, self.msg_type):
             raise TypeError("The message type provided is not the same as the publisher's type: "
                             "expected %s, got %s" % (self.msg_type.__name__, type(msg).__name__))
-        RT.publish(self.topic_name, msg)
+        RT.publish(self.topic_name, msg, reliability=self.reliability)
 
     def get_subscription_count(self):
         return len(RT.subs.get(self.topic_name, [])) + len(RT.internal.get(self.topic_name, []))
@@ -40,13 +49,17 @@ class Publisher:
 class Subscription:
     def __init__(self, node, msg_type, topic, callback, qos):
         self.msg_type = msg_type
-        self.topic_name = _topic(topic)
+        self.topic_name = _topic(topic, node)
         self.callback = callback
         self.depth = _depth(qos)
+        self.reliability = _reliability(qos)
         self.queue = []
         RT.subs.setdefault(self.topic_name, []).append(self)
 
-    def _enqueue(self, msg):
+    def _enqueue(self, msg, reliability="reliable"):
+        # QoS compatibility: a RELIABLE subscription never matches a BEST_EFFORT publisher
+        if self.reliability == "reliable" and reliability == "best_effort":
+            return
         self.queue.append((RT.t, msg))
         if len(self.queue) > self.depth:
             self.queue.pop(0)
@@ -84,9 +97,9 @@ class Timer:
 
 
 class Service:
-    def __init__(self, srv_type, name, callback):
+    def __init__(self, srv_type, name, callback, node=None):
         self.srv_type = srv_type
-        self.srv_name = _topic(name)
+        self.srv_name = _topic(name, node)
         self.callback = callback
         RT.services[self.srv_name] = self
 
@@ -98,9 +111,9 @@ class Service:
 
 
 class Client:
-    def __init__(self, srv_type, name):
+    def __init__(self, srv_type, name, node=None):
         self.srv_type = srv_type
-        self.srv_name = _topic(name)
+        self.srv_name = _topic(name, node)
 
     def service_is_ready(self):
         return self.srv_name in RT.services
@@ -181,10 +194,10 @@ class Node:
         return t
 
     def create_service(self, srv_type, srv_name, callback, **kwargs):
-        return Service(srv_type, srv_name, callback)
+        return Service(srv_type, srv_name, callback, self)
 
     def create_client(self, srv_type, srv_name, **kwargs):
-        return Client(srv_type, srv_name)
+        return Client(srv_type, srv_name, self)
 
     def destroy_publisher(self, p):
         return True

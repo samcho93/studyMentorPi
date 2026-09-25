@@ -35,6 +35,15 @@
     "cylinders": [],
     "start": [-3.5, 0, 0]
   },
+  "track": {
+    "title": "라인 트랙 6×4 m",
+    "bounds": [-3, -2, 3, 2],
+    "walls": [],
+    "boxes": [],
+    "cylinders": [],
+    "track": { "type": "stadium", "width": 0.035, "half": 1.5, "r": 1.1, "wiggle": 0.35 },
+    "start": [0, -1.1, 0]
+  },
   "arena": {
     "title": "경기장 4×4 m",
     "bounds": [-2, -2, 2, 2],

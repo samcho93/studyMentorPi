@@ -42,7 +42,7 @@ class Message:
         return new
 
 
-def msg(pkg, kind, name, **fields):
+def msg(pkg, kind, name, /, **fields):
     """Create a message class. fields: name -> default value or zero-arg factory."""
     table = []
     for n, d in fields.items():

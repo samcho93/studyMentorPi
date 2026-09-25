@@ -173,12 +173,12 @@ class Runtime:
         print("[sim %.2f s] %s" % (self.t, text))
 
     # ---------------------------------------------------------------- bus
-    def publish(self, topic, msg):
+    def publish(self, topic, msg, reliability="reliable"):
         self._pubs_seen.add(topic)
         for cb in self.internal.get(topic, []):
             cb(msg)
         for sub in self.subs.get(topic, []):
-            sub._enqueue(copy.deepcopy(msg))
+            sub._enqueue(copy.deepcopy(msg), reliability)
         if topic == "/tf" or topic == "/tf_static":
             tfs = getattr(msg, "transforms", None) or [msg]
             for ts in tfs:

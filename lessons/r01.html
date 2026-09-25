@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R01. ROS 2 개요·설치·명령행 도구 · studyMentorPi</title>
+<meta name="description" content="ROS 1과 ROS 2의 차이, DDS 기반 구조, Humble 설치, ros2 node/topic/service/param/bag 명령으로 그래프를 관찰합니다.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-ros">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" class="active" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="r01" data-track="ros">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-ros">ROS 2·OpenCV 기초</span> R-1 ROS 2 통신 &middot; 약 70분 &middot; 초급</div>
+    <h1><span class="lesson-no">R01</span>ROS 2 개요·설치·명령행 도구</h1>
+    <p class="lede">ROS 1과 ROS 2의 차이, DDS 기반 구조, Humble 설치, ros2 node/topic/service/param/bag 명령으로 그래프를 관찰합니다.</p>
+    <div class="requires">선수 챕터: <a href="b10.html">B10</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      <a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>ROS 2가 "운영체제"가 아니라 노드 사이의 통신을 맡는 <strong>미들웨어(middleware)</strong> 라는 점을 설명하고, ROS 1과의 차이(마스터 유무, DDS, 빌드 도구, Python 버전)를 표로 정리합니다.</li><li>노드(node)·토픽(topic)·서비스(service)·액션(action)·파라미터(parameter)로 이루어진 <strong>ROS 2 계산 그래프</strong>를 그림으로 그릴 수 있습니다.</li><li>MentorPi가 ROS 2 Humble을 <strong>Docker 컨테이너</strong> 안에서 실행하는 구조를 이해하고, 컨테이너에 들어가 환경을 불러올(<code>source</code>) 수 있습니다.</li><li><code>ros2 pkg / run / node / topic / service / param / interface / bag</code> 명령으로 실행 중인 로봇의 그래프를 관찰합니다.</li><li>Playground에서 첫 rclpy 노드를 실행하고, <code>ros2 topic echo</code>·<code>ros2 topic hz</code>가 하는 일을 Python 코드로 흉내 냅니다.</li></ul>
+<h2 id="ros-2란-무엇인가">ROS 2란 무엇인가<a class="anchor" href="#ros-2란-무엇인가">#</a></h2>
+<p>ROS(Robot Operating System)는 이름과 달리 Linux 같은 운영체제가 아닙니다. 로봇 소프트웨어를 <strong>작은 프로그램(노드) 여러 개</strong>로 나누고, 그 프로그램들이 정해진 형식의 데이터를 주고받게 해 주는 <strong>통신 프레임워크 + 도구 모음 + 패키지 생태계</strong>입니다.</p>
+<p>MentorPi를 예로 들면 다음 프로그램들이 <strong>각각 독립된 노드</strong>로 동시에 돌아갑니다.</p>
+<div class="table-wrap"><table><thead><tr><th>노드(예)</th><th>하는 일</th><th>주고받는 데이터</th></tr></thead><tbody><tr><td>라이다 드라이버</td><td>LD19 라이다에서 거리값을 읽음</td><td><code>LaserScan</code> 발행</td></tr><tr><td><code>odom_publisher</code> (controller 패키지)</td><td>속도 명령을 바퀴 속도로 바꾸고 오도메트리 계산</td><td><code>Twist</code> 구독, <code>Odometry</code> 발행</td></tr><tr><td><code>ros_robot_controller</code></td><td>확장보드(RRC Lite)와 시리얼 통신</td><td>모터·서보 명령 구독, IMU·배터리 발행</td></tr><tr><td>앱 노드 (라이다 회피 등)</td><td>센서를 보고 판단</td><td><code>LaserScan</code> 구독, <code>Twist</code> 발행</td></tr></tbody></table></div>
+<p>노드를 나누면 한 노드가 죽어도 나머지는 살아 있고, 라이다 드라이버처럼 <strong>남이 만든 노드를 그대로 가져다 쓸 수</strong> 있습니다. 이 "느슨한 결합"이 ROS를 쓰는 가장 큰 이유입니다.</p>
+<h3 id="ros-1과-ros-2">ROS 1과 ROS 2<a class="anchor" href="#ros-1과-ros-2">#</a></h3>
+<p>ROS 2는 2017년 첫 배포판(Ardent)이 나온 <strong>2세대 ROS</strong>입니다. ROS 1의 구조적 한계(단일 마스터, 실시간성 부족, 불안정한 무선망 대응)를 해결하려고 통신 계층을 처음부터 다시 설계했습니다.</p>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>ROS 1</th><th>ROS 2</th></tr></thead><tbody><tr><td>노드 연결</td><td><code>roscore</code>(마스터)에 등록한 뒤 연결</td><td>마스터 없음. <strong>DDS 탐색(discovery)</strong> 으로 서로 찾음</td></tr><tr><td>통신 계층</td><td>자체 TCPROS/UDPROS</td><td>DDS(Data Distribution Service) 표준, RTPS 프로토콜</td></tr><tr><td>통신 품질 설정</td><td>큐 크기 정도</td><td><strong>QoS</strong> 정책(신뢰성·내구성·이력·기한 등)</td></tr><tr><td>지원 OS</td><td>사실상 Ubuntu</td><td>Ubuntu, Windows, macOS, 임베디드</td></tr><tr><td>언어</td><td>C++03, Python 2</td><td>C++11/14 이상, Python 3</td></tr><tr><td>빌드</td><td><code>catkin_make</code></td><td><code>colcon build</code></td></tr><tr><td>실행 파일 묶음</td><td><code>.launch</code>(XML)</td><td><code>.launch.py</code>(Python), XML, YAML</td></tr><tr><td>여러 로봇 분리</td><td><code>ROS_MASTER_URI</code></td><td><code>ROS_DOMAIN_ID</code></td></tr></tbody></table></div>
+<p>마스터가 없다는 것은 <strong>마스터가 죽으면 전체가 멈추는 단일 장애점(single point of failure)이 없다</strong>는 뜻입니다. 대신 같은 네트워크·같은 도메인 ID의 노드는 자동으로 서로를 찾으므로, 여러 명이 한 교실에서 실습할 때는 도메인 ID를 나눠야 합니다(R05).</p>
+<h3 id="배포판과-ubuntu-버전">배포판과 Ubuntu 버전<a class="anchor" href="#배포판과-ubuntu-버전">#</a></h3>
+<p>ROS 2는 배포판(distribution)마다 대응하는 Ubuntu 버전이 정해져 있습니다.</p>
+<div class="table-wrap"><table><thead><tr><th>ROS 2 배포판</th><th>Ubuntu</th><th>비고</th></tr></thead><tbody><tr><td>Foxy Fitzroy</td><td>20.04</td><td>LTS, 지원 종료(2023-05)</td></tr><tr><td>Galactic Geochelone</td><td>20.04</td><td>단기 지원, 종료</td></tr><tr><td><strong>Humble Hawksbill</strong></td><td><strong>22.04</strong></td><td>LTS, 2027-05까지 지원 — <strong>MentorPi 사용</strong></td></tr><tr><td>Jazzy Jalisco</td><td>24.04</td><td>차기 LTS</td></tr></tbody></table></div>
+<p>MentorPi의 Raspberry Pi 5는 호스트 OS가 Raspberry Pi OS(Debian 계열)입니다. Humble은 Ubuntu 22.04용으로 배포되므로, 공식 이미지는 <strong>Ubuntu 22.04 + ROS 2 Humble이 설치된 Docker 컨테이너</strong>를 띄워 그 안에서 모든 ROS 프로그램을 돌립니다(B10에서 배운 구조).</p>
+<h2 id="ros-2-계산-그래프">ROS 2 계산 그래프<a class="anchor" href="#ros-2-계산-그래프">#</a></h2>
+<p>실행 중인 노드와 그 사이의 연결 전체를 <strong>계산 그래프(computation graph)</strong> 라고 부릅니다.</p>
+<figure class="fig" id="fig-r01-graph"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="MentorPi ROS 2 계산 그래프: 노드들이 DDS 데이터 버스를 통해 토픽으로 연결">
+  <defs>
+    <marker id="arr-r01-graph" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <rect class="box-hi" x="30" y="136" width="660" height="30" rx="6"/>
+  <text class="lbl" x="360" y="156" text-anchor="middle">DDS 데이터 버스 — RTPS, 자동 탐색(discovery), 중앙 마스터 없음</text>
+
+  <rect class="box" x="40" y="40" width="150" height="48" rx="12"/>
+  <text class="lbl" x="115" y="60" text-anchor="middle">라이다 드라이버</text>
+  <text class="sub" x="115" y="77" text-anchor="middle">peripherals</text>
+  <rect class="box" x="285" y="40" width="150" height="48" rx="12"/>
+  <text class="lbl" x="360" y="60" text-anchor="middle">앱 노드</text>
+  <text class="sub" x="360" y="77" text-anchor="middle">lidar_controller</text>
+  <rect class="box" x="530" y="40" width="150" height="48" rx="12"/>
+  <text class="lbl" x="605" y="60" text-anchor="middle">ros2 CLI · rqt</text>
+  <text class="sub" x="605" y="77" text-anchor="middle">사용자 도구</text>
+
+  <rect class="box" x="120" y="210" width="190" height="48" rx="12"/>
+  <text class="lbl" x="215" y="230" text-anchor="middle">odom_publisher</text>
+  <text class="sub" x="215" y="247" text-anchor="middle">controller · 기구학·오도메트리</text>
+  <rect class="box" x="420" y="210" width="200" height="48" rx="12"/>
+  <text class="lbl" x="520" y="230" text-anchor="middle">ros_robot_controller</text>
+  <text class="sub" x="520" y="247" text-anchor="middle">확장보드 시리얼 통신</text>
+
+  <path class="ln-hi" d="M115 90 L115 133" stroke-width="2" marker-end="url(#arr-r01-graph)"/>
+  <text class="tag mono" x="122" y="118">/scan_raw</text>
+  <path class="ln-hi" d="M330 134 L330 92" stroke-width="2" marker-end="url(#arr-r01-graph)"/>
+  <text class="tag mono" x="323" y="118" text-anchor="end">/scan</text>
+  <path class="ln-hi" d="M390 90 L390 133" stroke-width="2" marker-end="url(#arr-r01-graph)"/>
+  <text class="tag mono" x="397" y="118">/controller/cmd_vel</text>
+  <path class="ln-hi" d="M605 90 L605 133" stroke-width="2" marker-end="url(#arr-r01-graph)"/>
+  <text class="tag mono" x="612" y="118">/cmd_vel</text>
+
+  <path class="ln-hi" d="M170 168 L170 207" stroke-width="2" marker-end="url(#arr-r01-graph)"/>
+  <text class="tag mono" x="163" y="192" text-anchor="end">cmd_vel 구독</text>
+  <path class="ln-hi" d="M260 208 L260 169" stroke-width="2" marker-end="url(#arr-r01-graph)"/>
+  <text class="tag mono" x="267" y="192">/odom</text>
+  <path class="ln-hi" d="M470 168 L470 207" stroke-width="2" marker-end="url(#arr-r01-graph)"/>
+  <text class="tag mono" x="463" y="192" text-anchor="end">set_motor</text>
+  <path class="ln-hi" d="M570 208 L570 169" stroke-width="2" marker-end="url(#arr-r01-graph)"/>
+  <text class="tag mono" x="577" y="192">/imu · 배터리</text>
+
+  <text class="sub" x="360" y="288" text-anchor="middle">노드는 서로의 주소를 몰라도 토픽 이름과 메시지 타입만 맞으면 연결됩니다</text>
+</svg><figcaption>MentorPi의 ROS 2 계산 그래프 예 — 노드(둥근 상자)는 DDS 데이터 버스를 통해 토픽·서비스로 직접 연결되며 중앙 마스터가 없습니다</figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th>용어</th><th>뜻</th><th>MentorPi 예</th></tr></thead><tbody><tr><td>노드(Node)</td><td>하나의 기능을 맡는 실행 단위. 한 프로세스에 여러 개가 있을 수도 있음</td><td><code>odom_publisher</code>, <code>lidar_controller</code></td></tr><tr><td>메시지(Message)</td><td>정해진 필드를 가진 데이터 형식</td><td><code>geometry_msgs/msg/Twist</code></td></tr><tr><td>토픽(Topic)</td><td>이름 붙은 <strong>단방향·비동기</strong> 데이터 흐름. 발행자(publisher) → 구독자(subscriber)</td><td><code>/cmd_vel</code>, <code>/odom</code>, <code>/scan</code></td></tr><tr><td>서비스(Service)</td><td><strong>요청-응답</strong> 한 번으로 끝나는 호출. 서버(server)와 클라이언트(client)</td><td><code>/controller/load_calibrate_param</code> (<code>std_srvs/srv/Trigger</code>)</td></tr><tr><td>액션(Action)</td><td>오래 걸리는 작업. 목표(goal) → <strong>피드백(feedback)</strong> 반복 → 결과(result)</td><td>Nav2의 <code>navigate_to_pose</code></td></tr><tr><td>파라미터(Parameter)</td><td>노드가 가진 설정값(이름-값 쌍). 실행 중 조회·변경 가능</td><td><code>linear_correction_factor</code></td></tr><tr><td>인터페이스(Interface)</td><td><code>.msg</code>/<code>.srv</code>/<code>.action</code> 파일로 정의한 메시지 형식의 총칭</td><td>R04에서 직접 정의</td></tr><tr><td>DDS</td><td>노드 탐색과 데이터 전달을 맡는 하부 통신 계층</td><td>Humble 기본은 Fast DDS</td></tr></tbody></table></div>
+<div class="callout callout-info"><div class="callout-title">파일 시스템 쪽 용어</div><div class="callout-body"><ul><li><strong>패키지(package)</strong>: 노드 소스·설정·launch 파일을 묶는 배포 단위. <code>package.xml</code>(매니페스트: 이름·버전·의존성)을 반드시 가집니다.</li><li><strong>워크스페이스(workspace)</strong>: 패키지들을 모아 빌드하는 폴더(<code>src/</code>, <code>build/</code>, <code>install/</code>, <code>log/</code>). R02에서 만듭니다.</li><li>자주 보는 파일: <code>package.xml</code>, <code>setup.py</code>(Python 패키지), <code>CMakeLists.txt</code>(C++·인터페이스 패키지), <code>*.launch.py</code>, <code>*.urdf</code>, <code>msg/*.msg</code>, <code>srv/*.srv</code>.</li></ul></div></div>
+<h2 id="mentorpi의-ros-2-환경">MentorPi의 ROS 2 환경<a class="anchor" href="#mentorpi의-ros-2-환경">#</a></h2>
+<h3 id="컨테이너-들어가기">컨테이너 들어가기<a class="anchor" href="#컨테이너-들어가기">#</a></h3>
+<p>MentorPi 공식 이미지에서는 ROS 프로그램이 모두 <code>mentorpi</code>라는 이름의 컨테이너에 들어 있습니다. VNC로 데스크톱에 접속한 뒤 Terminator를 열고 다음과 같이 들어갑니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">docker ps -a                                              # 컨테이너 목록 (이름 mentorpi 확인)
+docker exec -it -u ubuntu -w /home/ubuntu mentorpi /bin/bash   # ubuntu 사용자로 컨테이너 셸 열기</code></pre></div>
+<p>컨테이너 ID로 들어가도 됩니다(ID는 겹치지 않는 앞부분만 적어도 됨). 공식 이미지의 Terminator는 <strong>열자마자 이 명령이 실행되도록</strong> 미리 설정되어 있어서, 새 창을 열면 곧바로 컨테이너 안입니다.</p>
+<h3 id="환경-불러오기source">환경 불러오기(source)<a class="anchor" href="#환경-불러오기source">#</a></h3>
+<p>ROS 2 명령과 패키지 경로는 <code>setup.bash</code>를 <code>source</code>해야 셸에 등록됩니다. 두 층이 있습니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">source /opt/ros/humble/setup.bash          # ① 기반(underlay): ROS 2 Humble 자체
+source ~/ros2_ws/install/setup.bash        # ② 오버레이(overlay): MentorPi 패키지 (app, controller, peripherals ...)
+echo $ROS_DISTRO                           # humble 이 나오면 ①이 적용된 것</code></pre></div>
+<p>공식 이미지는 두 줄이 컨테이너의 <code>~/.bashrc</code>에 이미 들어 있습니다. 직접 만든 워크스페이스(R02의 <code>~/hiwonder_ws</code>)를 쓰려면 같은 방식으로 한 줄을 더합니다.</p>
+<h3 id="pc에-직접-설치하려면-참고">PC에 직접 설치하려면 (참고)<a class="anchor" href="#pc에-직접-설치하려면-참고">#</a></h3>
+<p>실습용 PC(Ubuntu)에서 같은 환경을 만들 때는 원본 교재처럼 공식 <code>ros:humble</code> 이미지로 컨테이너를 만드는 방법이 가장 간단합니다. 로봇에는 이미 설치되어 있으므로 <strong>로봇에서 다시 하지 마세요.</strong></p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">docker pull ros:humble
+docker run -it -d --network=host -v /dev:/dev -v /tmp/.X11-unix:/tmp/.X11-unix \
+  -e DISPLAY=${DISPLAY} --restart=always --name humble ros:humble /bin/bash
+xhost +                                   # 컨테이너의 GUI 창(turtlesim, rviz2)을 호스트 화면에 허용
+docker exec -it humble /bin/bash
+# --- 컨테이너 안 ---
+useradd -m -s /bin/bash ubuntu &amp;&amp; passwd ubuntu &amp;&amp; usermod -aG sudo ubuntu
+apt-get update &amp;&amp; apt-get install -y sudo vim ros-humble-desktop-full
+exit
+docker exec -it -u ubuntu -w /home/ubuntu humble /bin/bash
+echo &quot;source /opt/ros/humble/setup.bash&quot; &gt;&gt; ~/.bashrc &amp;&amp; source ~/.bashrc
+ros2 run turtlesim turtlesim_node          # 거북이 창이 뜨면 설치 성공</code></pre></div>
+<p><code>--network=host</code>는 컨테이너가 호스트와 같은 네트워크를 쓰게 해서 <strong>DDS 탐색 패킷(멀티캐스트)이 그대로 오가게</strong> 합니다. 이 옵션이 없으면 PC와 로봇의 노드가 서로 보이지 않습니다.</p>
+<h2 id="명령행-도구-ros2">명령행 도구 <code>ros2</code><a class="anchor" href="#명령행-도구-ros2">#</a></h2>
+<p><code>ros2 &lt;명령&gt; &lt;하위명령&gt;</code> 형식이며, 탭(Tab) 자동완성이 됩니다. 실행 중인 그래프를 들여다보는 가장 빠른 방법입니다.</p>
+<div class="table-wrap"><table><thead><tr><th>명령</th><th>자주 쓰는 형태</th><th>하는 일</th></tr></thead><tbody><tr><td><code>ros2 pkg</code></td><td><code>list</code>, <code>executables &lt;pkg&gt;</code>, <code>prefix &lt;pkg&gt;</code>, <code>xml &lt;pkg&gt;</code>, <code>create</code></td><td>패키지 목록·실행파일·설치 경로·매니페스트 확인, 패키지 생성</td></tr><tr><td><code>ros2 run</code></td><td><code>ros2 run &lt;pkg&gt; &lt;실행파일&gt;</code></td><td>노드 하나 실행</td></tr><tr><td><code>ros2 launch</code></td><td><code>ros2 launch &lt;pkg&gt; &lt;파일.launch.py&gt;</code></td><td>여러 노드를 한꺼번에 실행(R05)</td></tr><tr><td><code>ros2 node</code></td><td><code>list</code>, <code>info /노드</code></td><td>실행 중인 노드와 그 노드의 발행·구독·서비스·액션</td></tr><tr><td><code>ros2 topic</code></td><td><code>list -t</code>, <code>info</code>, <code>type</code>, <code>find</code>, <code>echo</code>, <code>hz</code>, <code>bw</code>, <code>delay</code>, <code>pub</code></td><td>토픽 관찰·주파수·대역폭·지연 측정, 직접 발행</td></tr><tr><td><code>ros2 service</code></td><td><code>list -t</code>, <code>type</code>, <code>call</code></td><td>서비스 목록, 직접 호출</td></tr><tr><td><code>ros2 action</code></td><td><code>list</code>, <code>info</code>, <code>send_goal</code></td><td>액션 목록, 목표 보내기</td></tr><tr><td><code>ros2 param</code></td><td><code>list</code>, <code>get</code>, <code>set</code>, <code>dump</code>, <code>load</code>, <code>delete</code></td><td>노드 파라미터 조회·변경·저장</td></tr><tr><td><code>ros2 interface</code></td><td><code>list</code>, <code>package</code>, <code>packages</code>, <code>show</code>, <code>proto</code></td><td>메시지·서비스·액션 형식 보기</td></tr><tr><td><code>ros2 bag</code></td><td><code>record</code>, <code>info</code>, <code>play</code></td><td>토픽을 파일에 녹화하고 재생</td></tr><tr><td><code>ros2 doctor</code></td><td><code>--report</code></td><td>환경·네트워크 진단</td></tr></tbody></table></div>
+<h3 id="turtlesim으로-연습하기">turtlesim으로 연습하기<a class="anchor" href="#turtlesim으로-연습하기">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 run turtlesim turtlesim_node            # 터미널 1: 거북이 시뮬레이터
+ros2 run turtlesim turtle_teleop_key         # 터미널 2: 방향키로 조종
+ros2 node list                               # 터미널 3: /turtlesim, /teleop_turtle
+ros2 node info /turtlesim                    # 구독 /turtle1/cmd_vel, 발행 /turtle1/pose ...
+ros2 topic echo /turtle1/pose                # 거북이 자세가 계속 출력
+ros2 interface show geometry_msgs/msg/Twist  # linear(x,y,z), angular(x,y,z)
+ros2 topic pub --once /turtle1/cmd_vel geometry_msgs/msg/Twist &quot;{linear: {x: 1.0}, angular: {z: 0.5}}&quot;
+ros2 service call /spawn turtlesim/srv/Spawn &quot;{x: 2.0, y: 2.0, theta: 0.0, name: &#x27;turtle2&#x27;}&quot;</code></pre></div>
+<p><code>ros2 topic pub</code>의 메시지는 <strong>YAML</strong> 형식입니다. 중괄호와 콜론 뒤 공백(<code>x: 1.0</code>)을 빠뜨리면 파싱 오류가 납니다.</p>
+<h3 id="ros2-bag-데이터-녹화와-재생">ros2 bag: 데이터 녹화와 재생<a class="anchor" href="#ros2-bag-데이터-녹화와-재생">#</a></h3>
+<p>실험 데이터를 파일로 남겨 두면 로봇 없이도 알고리즘을 다시 돌려 볼 수 있습니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 bag record -o drive_test /odom /scan_raw /imu   # Ctrl+C로 종료 → drive_test/ 폴더 생성
+ros2 bag info drive_test                             # 기간, 메시지 수, 토픽별 타입
+ros2 bag play drive_test --rate 0.5                  # 0.5배속 재생 (그동안 로봇 노드는 꺼 두기)</code></pre></div>
+<div class="callout callout-tip"><div class="callout-title">교재와 이 사이트의 역할 분담</div><div class="callout-body"><p><code>ros2</code> 명령행 도구, <code>colcon</code>, <code>rqt</code>, <code>rviz2</code>는 <strong>실물 로봇(컨테이너)이나 ROS 2가 설치된 PC</strong> 에서만 됩니다. 이 사이트의 Playground는 rclpy <strong>Python 코드</strong>를 브라우저에서 돌려 주는 도구이므로, 아래 실습에서는 CLI가 하는 일을 코드로 직접 구현해 보며 원리를 익힙니다.</p></div></div>
+<h2 id="실습-시뮬레이션">실습 (시뮬레이션)<a class="anchor" href="#실습-시뮬레이션">#</a></h2>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
+<h3 id="첫-노드-hello-ros-2">① 첫 노드: Hello ROS 2<a class="anchor" href="#첫-노드-hello-ros-2">#</a></h3>
+<p>원본 <code>hello_world_demo</code>는 <code>while rclpy.ok(): ... time.sleep(0.5)</code> 루프로 로그를 찍습니다. ROS 2에서는 같은 일을 <strong>타이머(timer)</strong> 로 하는 것이 정석입니다(이유는 R02). 여기서는 타이머 버전을 먼저 실행해 봅니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
+from rclpy.node import Node
+import mentorpi_sim as sim                     # 시뮬 전용
+sim.setup(world=&quot;empty&quot;, duration=3.2)        # 시뮬 전용: 약 3초만 실행
+
+
+class HelloWorldNode(Node):
+    def __init__(self):
+        super().__init__(&#x27;hello_world_demo&#x27;)   # 노드 이름
+        self.count = 0
+        self.timer = self.create_timer(0.5, self.on_timer)   # 0.5 s마다 호출
+
+    def on_timer(self):
+        self.count += 1
+        self.get_logger().info(&#x27;Hello World %d&#x27; % self.count)
+
+
+rclpy.init()
+node = HelloWorldNode()
+try:
+    rclpy.spin(node)             # 콜백을 기다리며 실행 (시뮬에서는 duration에서 끝남)
+except KeyboardInterrupt:
+    pass
+finally:
+    print(&#x27;노드 이름:&#x27;, node.get_name())
+    node.destroy_node()
+    rclpy.shutdown()</code></pre></div>
+<p>예상 출력(대략, 로그 앞의 타임스탬프 생략):</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[INFO] [hello_world_demo]: Hello World 1
+[INFO] [hello_world_demo]: Hello World 2
+[INFO] [hello_world_demo]: Hello World 3
+[INFO] [hello_world_demo]: Hello World 4
+[INFO] [hello_world_demo]: Hello World 5
+[INFO] [hello_world_demo]: Hello World 6
+노드 이름: hello_world_demo</code></pre></div>
+<p>3초 동안 0.5초 주기이므로 로그가 약 6번 찍힙니다. 실물에서는 <code>mentorpi_sim</code> 두 줄을 지우면 Ctrl+C를 누를 때까지 계속 찍힙니다.</p>
+<h3 id="ros2-topic-echo를-코드로-odom-한-번-읽기">② <code>ros2 topic echo</code>를 코드로: /odom 한 번 읽기<a class="anchor" href="#ros2-topic-echo를-코드로-odom-한-번-읽기">#</a></h3>
+<p><code>ros2 topic echo /odom --once</code>는 "구독자를 하나 만들어 메시지 한 개를 받고 출력"하는 명령입니다. 똑같이 만들어 봅니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
+from rclpy.node import Node
+from nav_msgs.msg import Odometry
+import mentorpi_sim as sim                                   # 시뮬 전용
+sim.setup(chassis=&quot;mecanum&quot;, world=&quot;room&quot;, duration=5.0)    # 시뮬 전용
+
+rclpy.init()
+node = Node(&#x27;echo_once&#x27;)
+box = []
+sub = node.create_subscription(Odometry, &#x27;/odom&#x27;, lambda m: box.append(m), 10)
+
+while rclpy.ok() and not box:          # 첫 메시지가 올 때까지 조금씩 돌린다
+    rclpy.spin_once(node, timeout_sec=0.1)
+
+m = box[0]
+p = m.pose.pose.position
+q = m.pose.pose.orientation
+print(&#x27;header.frame_id:&#x27;, m.header.frame_id)
+print(&#x27;child_frame_id :&#x27;, m.child_frame_id)
+print(&#x27;position       : x=%.3f y=%.3f z=%.3f&#x27; % (p.x, p.y, p.z))
+print(&#x27;orientation    : x=%.3f y=%.3f z=%.3f w=%.3f&#x27; % (q.x, q.y, q.z, q.w))
+print(&#x27;twist.linear.x : %.3f&#x27; % m.twist.twist.linear.x)
+node.destroy_node()
+rclpy.shutdown()</code></pre></div>
+<p>예상 출력(대략):</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">header.frame_id: odom
+child_frame_id : base_footprint
+position       : x=0.000 y=0.000 z=0.000
+orientation    : x=0.000 y=0.000 z=0.000 w=1.000
+twist.linear.x : 0.000</code></pre></div>
+<p>로봇이 서 있으므로 위치가 0, 방향 쿼터니언이 단위값 <code>w=1</code>입니다. <code>frame_id</code>와 <code>child_frame_id</code>는 R06의 TF 트리에서 다시 만납니다.</p>
+<h3 id="ros2-topic-hz를-코드로-센서-주기-재기">③ <code>ros2 topic hz</code>를 코드로: 센서 주기 재기<a class="anchor" href="#ros2-topic-hz를-코드로-센서-주기-재기">#</a></h3>
+<p><code>ros2 topic hz</code>는 받은 메시지 수를 시간으로 나눈 값입니다. 가상 MentorPi의 세 센서 토픽을 동시에 재 봅니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import time
+import rclpy
+from rclpy.node import Node
+from nav_msgs.msg import Odometry
+from sensor_msgs.msg import LaserScan, Imu
+import mentorpi_sim as sim                    # 시뮬 전용
+sim.setup(world=&quot;room&quot;, duration=6.0)        # 시뮬 전용
+
+rclpy.init()
+node = Node(&#x27;hz_meter&#x27;)
+count = {&#x27;/odom&#x27;: 0, &#x27;/scan&#x27;: 0, &#x27;/imu&#x27;: 0}
+
+def counter(name):
+    def cb(msg):
+        count[name] += 1
+    return cb
+
+node.create_subscription(Odometry, &#x27;/odom&#x27;, counter(&#x27;/odom&#x27;), 10)
+node.create_subscription(LaserScan, &#x27;/scan&#x27;, counter(&#x27;/scan&#x27;), 10)
+node.create_subscription(Imu, &#x27;/imu&#x27;, counter(&#x27;/imu&#x27;), 10)
+
+t0 = time.time()
+while rclpy.ok() and time.time() - t0 &lt; 5.0:     # 5초 동안 수집
+    rclpy.spin_once(node, timeout_sec=0.05)
+dt = time.time() - t0
+for name, n in count.items():
+    print(&#x27;%-6s %4d msgs  average rate: %5.1f Hz&#x27; % (name, n, n / dt))
+node.destroy_node()
+rclpy.shutdown()</code></pre></div>
+<p>예상 출력(대략):</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">/odom   250 msgs  average rate:  50.0 Hz
+/scan    50 msgs  average rate:  10.0 Hz
+/imu    250 msgs  average rate:  50.0 Hz</code></pre></div>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> 로그가 0.5초마다 한 번씩 찍히는 이유를 타이머 주기로 설명할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> /odom의 <code>frame_id</code>와 <code>child_frame_id</code>를 말할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> /scan이 /odom보다 느린 이유(라이다 회전 속도)를 추측할 수 있다.</label></li></ul></div></div>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">안전 확인 (실물 실습 전 필수)</div><div class="callout-body"><ul><li>실습 전 배터리 전압을 확인합니다(저전압 경고음이 울리면 충전 후 진행).</li><li><code>ros2 topic pub</code>으로 속도를 보낼 때는 <strong>로봇을 바닥에서 들어 올리거나 바퀴가 뜨도록 받침대 위에</strong> 두고 시작합니다.</li><li>속도는 선속도 0.1 m/s, 각속도 0.3 rad/s 이하로 시작하고, 끝나면 반드시 0 속도를 한 번 보냅니다.</li><li><code>--rate</code> 옵션으로 계속 발행하는 명령은 Ctrl+C로 멈춘 뒤에도 <strong>마지막 속도가 유지될 수 있으므로</strong> 정지 명령을 따로 보냅니다.</li></ul></div></div>
+<ol><li>로봇 전원을 켜고 VNC로 접속한 뒤 Terminator를 엽니다(컨테이너 안으로 바로 들어갑니다).</li><li>앱 자동 실행 서비스를 멈춥니다. 켜 둔 채로 노드를 또 띄우면 같은 이름의 노드가 둘이 되어 충돌합니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">~/.stop_ros.sh</code></pre></div>
+<ol><li>모션 제어(섀시 드라이버 + 오도메트리 + IMU 필터 + EKF)를 실행합니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 launch controller controller.launch.py</code></pre></div>
+<ol><li>새 터미널에서 그래프를 관찰합니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 node list
+ros2 topic list -t                     # 타입까지 함께 표시
+ros2 topic info /cmd_vel -v            # 누가 구독하는지 (odom_publisher)
+ros2 topic hz /odom
+ros2 topic echo /odom --once
+ros2 service list -t | grep controller
+ros2 param list /odom_publisher
+ros2 interface show nav_msgs/msg/Odometry</code></pre></div>
+<ol><li>속도 명령을 한 번 보내 보고, 곧바로 정지 명령을 보냅니다. <code>/cmd_vel</code>은 원본 <code>app_cmd_vel_callback</code>이 선속도 ±0.2 m/s, 각속도 ±0.5 rad/s로 <strong>잘라 주는</strong> 입력입니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 topic pub --once /cmd_vel geometry_msgs/msg/Twist &quot;{linear: {x: 0.1}, angular: {z: 0.0}}&quot;
+ros2 topic pub --once /cmd_vel geometry_msgs/msg/Twist &quot;{}&quot;      # 모든 필드 0 = 정지</code></pre></div>
+<ol><li>라이다를 켜고 녹화해 봅니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 launch peripherals lidar.launch.py          # 또 다른 터미널
+ros2 topic list | grep scan                      # /scan_raw (이미지 구성에 따라 /scan 도)
+ros2 bag record -o first_bag /odom /imu /scan_raw   # 10초 후 Ctrl+C
+ros2 bag info first_bag</code></pre></div>
+<ol><li>실습을 마치면 각 터미널에서 Ctrl+C로 노드를 끄고, 앱 기능을 다시 쓰려면 로봇을 재부팅합니다.</li></ol>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td><code>ros2: command not found</code></td><td>컨테이너 밖(호스트 Raspberry Pi OS)에서 실행했거나 <code>setup.bash</code>를 source하지 않음</td><td>프롬프트가 <code>ubuntu@...</code> 컨테이너인지 확인. <code>source /opt/ros/humble/setup.bash</code></td></tr><tr><td><code>Package &#x27;controller&#x27; not found</code></td><td>오버레이 워크스페이스를 source하지 않음</td><td><code>source ~/ros2_ws/install/setup.bash</code> 후 다시 실행</td></tr><tr><td><code>ros2 node list</code>에 같은 이름 노드가 2개, 경고 발생</td><td>자동 실행 앱과 직접 띄운 launch가 겹침</td><td><code>~/.stop_ros.sh</code>로 자동 실행을 멈춘 뒤 다시 launch</td></tr><tr><td><code>ros2 topic echo</code>에 아무것도 안 나옴</td><td>발행 노드가 없음 / 토픽 이름 오타 / QoS 불일치</td><td><code>ros2 topic info -v /토픽</code>으로 발행자 수와 QoS 확인(R05)</td></tr><tr><td><code>ros2 topic pub</code>에서 <code>yaml</code> 파싱 오류</td><td>콜론 뒤 공백 누락, 따옴표 누락</td><td><code>&quot;{linear: {x: 0.1}}&quot;</code>처럼 전체를 큰따옴표로 감싸고 <code>키: 값</code> 형식 지키기</td></tr><tr><td>turtlesim·rviz2 창이 안 뜸 (<code>could not connect to display</code>)</td><td>컨테이너가 X 서버에 접근 못함</td><td>호스트에서 <code>xhost +</code>, 컨테이너 <code>DISPLAY</code> 환경변수와 <code>/tmp/.X11-unix</code> 마운트 확인</td></tr><tr><td>옆자리 로봇의 토픽이 내 목록에 보임</td><td>같은 네트워크·같은 <code>ROS_DOMAIN_ID</code>(기본 0)</td><td>로봇마다 다른 <code>ROS_DOMAIN_ID</code>를 지정(R05)</td></tr><tr><td>Playground에서 출력이 끝나지 않음</td><td><code>while</code> 루프 종료 조건 없음</td><td><code>rclpy.ok()</code>와 시간 조건을 함께 쓰고, <code>sim.setup(duration=...)</code>을 짧게</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">기본 과제</div><div class="callout-body"><ol><li>turtlesim을 실행하고 <code>ros2 node info</code>, <code>ros2 topic info -v</code>, <code>ros2 interface show</code>로 <code>/turtle1/cmd_vel</code>과 <code>/turtle1/pose</code>의 타입·발행자·구독자를 표로 정리합니다.</li><li>Playground ③ 코드를 고쳐 각 토픽의 <strong>메시지 간격의 최소·최대값</strong>(<code>ros2 topic hz</code>가 보여 주는 min/max)도 출력합니다. 힌트: 콜백에서 <code>time.time()</code>을 기록합니다.</li></ol></div></div>
+<div class="callout callout-task"><div class="callout-title">심화 과제</div><div class="callout-body"><ol><li>실물에서 <code>ros2 bag record</code>로 30초 주행 데이터(/odom, /imu)를 녹화하고, <code>ros2 bag info</code> 결과에서 토픽별 메시지 수를 보고 실제 발행 주기를 계산합니다. Playground ③ 결과와 비교합니다.</li><li>ROS 1의 마스터 구조와 ROS 2의 DDS 탐색 구조에서 "노드 하나가 갑자기 꺼졌을 때" 각각 무슨 일이 일어나는지 그림을 그려 설명합니다.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>5. ROS2 Basic Course</em> — Lesson 1 Introduction to ROS2 and Comparison with ROS1, Lesson 2 ROS2 Installation, Lesson 3 ROS2 Command Lines Operation</li><li>원본 교재: <em>8. Set Development Environment</em> — Lesson 3 System Introduction, Lesson 4 Docker Introduction &amp; Usage (컨테이너 진입)</li><li>ROS 2 Humble 문서: https://docs.ros.org/en/humble/</li><li>Beginner: CLI tools 튜토리얼: https://docs.ros.org/en/humble/Tutorials/Beginner-CLI-Tools.html</li><li>ROS 2 개념(노드·토픽·서비스·액션): https://docs.ros.org/en/humble/Concepts/Basic.html</li><li>ros2 bag 녹화·재생: https://docs.ros.org/en/humble/Tutorials/Beginner-CLI-Tools/Recording-And-Playing-Back-Data/Recording-And-Playing-Back-Data.html</li><li>배포판 목록: https://docs.ros.org/en/humble/Releases.html</li></ul>
+      <nav class="pager"><a class="pager-prev" href="b10.html"><span>이전 · B10</span>Docker 기초와 ROS 2 컨테이너</a><a class="pager-next" href="r02.html"><span>다음 · R02</span>워크스페이스·패키지·노드</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#ros-2란-무엇인가">ROS 2란 무엇인가</a><a class="toc-l3" href="#ros-1과-ros-2">ROS 1과 ROS 2</a><a class="toc-l3" href="#배포판과-ubuntu-버전">배포판과 Ubuntu 버전</a><a class="toc-l2" href="#ros-2-계산-그래프">ROS 2 계산 그래프</a><a class="toc-l2" href="#mentorpi의-ros-2-환경">MentorPi의 ROS 2 환경</a><a class="toc-l3" href="#컨테이너-들어가기">컨테이너 들어가기</a><a class="toc-l3" href="#환경-불러오기source">환경 불러오기(source)</a><a class="toc-l3" href="#pc에-직접-설치하려면-참고">PC에 직접 설치하려면 (참고)</a><a class="toc-l2" href="#명령행-도구-ros2">명령행 도구 `ros2`</a><a class="toc-l3" href="#turtlesim으로-연습하기">turtlesim으로 연습하기</a><a class="toc-l3" href="#ros2-bag-데이터-녹화와-재생">ros2 bag: 데이터 녹화와 재생</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l3" href="#첫-노드-hello-ros-2">① 첫 노드: Hello ROS 2</a><a class="toc-l3" href="#ros2-topic-echo를-코드로-odom-한-번-읽기">② `ros2 topic echo`를 코드로: /odom 한 번 읽기</a><a class="toc-l3" href="#ros2-topic-hz를-코드로-센서-주기-재기">③ `ros2 topic hz`를 코드로: 센서 주기 재기</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

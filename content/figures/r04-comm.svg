@@ -1,0 +1,43 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="서비스와 액션의 시간 순서 다이어그램">
+  <defs>
+    <marker id="arr-r04-comm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+    <marker id="arr-r04-comm-f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <text class="lbl" x="170" y="22" text-anchor="middle">서비스 (요청 1 → 응답 1)</text>
+  <rect class="box" x="45" y="34" width="90" height="28" rx="6"/>
+  <text class="lbl" x="90" y="53" text-anchor="middle">클라이언트</text>
+  <rect class="box" x="205" y="34" width="90" height="28" rx="6"/>
+  <text class="lbl" x="250" y="53" text-anchor="middle">서버</text>
+  <path class="ln" d="M90 62 L90 270 M250 62 L250 270" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <path class="ln-hi" d="M90 95 L247 110" stroke-width="2" marker-end="url(#arr-r04-comm)"/>
+  <text class="tag mono" x="165" y="92" text-anchor="middle">Request(a, b)</text>
+  <rect class="box-hi" x="244" y="112" width="12" height="40"/>
+  <text class="sub" x="262" y="136">콜백 실행</text>
+  <path class="ln-hi" d="M247 155 L93 170" stroke-width="2" marker-end="url(#arr-r04-comm)"/>
+  <text class="tag mono" x="165" y="180" text-anchor="middle">Response(sum)</text>
+  <text class="sub" x="170" y="226" text-anchor="middle">call_async → Future</text>
+  <text class="sub" x="170" y="244" text-anchor="middle">spin_until_future_complete</text>
+
+  <path class="ln" d="M345 20 L345 280" stroke-width="1"/>
+
+  <text class="lbl" x="530" y="22" text-anchor="middle">액션 (목표 → 피드백 n회 → 결과)</text>
+  <rect class="box" x="395" y="34" width="90" height="28" rx="6"/>
+  <text class="lbl" x="440" y="53" text-anchor="middle">클라이언트</text>
+  <rect class="box" x="575" y="34" width="90" height="28" rx="6"/>
+  <text class="lbl" x="620" y="53" text-anchor="middle">서버</text>
+  <path class="ln" d="M440 62 L440 270 M620 62 L620 270" stroke-width="1.5" stroke-dasharray="4 3"/>
+  <path class="ln-hi" d="M440 80 L617 90" stroke-width="2" marker-end="url(#arr-r04-comm)"/>
+  <text class="tag mono" x="530" y="77" text-anchor="middle">Goal(order)</text>
+  <path class="ln-hi" d="M617 100 L443 110" stroke-width="1.6" marker-end="url(#arr-r04-comm)"/>
+  <text class="tag" x="530" y="118" text-anchor="middle">수락 (accepted)</text>
+  <rect class="box-hi" x="614" y="100" width="12" height="130"/>
+  <path class="ln" d="M617 140 L443 146" stroke-width="1.4" marker-end="url(#arr-r04-comm-f)"/>
+  <path class="ln" d="M617 166 L443 172" stroke-width="1.4" marker-end="url(#arr-r04-comm-f)"/>
+  <path class="ln" d="M617 192 L443 198" stroke-width="1.4" marker-end="url(#arr-r04-comm-f)"/>
+  <text class="tag mono" x="530" y="162" text-anchor="middle">Feedback(sequence)</text>
+  <text class="sub" x="632" y="170">execute</text>
+  <text class="sub" x="632" y="186">callback</text>
+  <path class="ln-hi" d="M617 232 L443 244" stroke-width="2" marker-end="url(#arr-r04-comm)"/>
+  <text class="tag mono" x="530" y="260" text-anchor="middle">Result(sequence)</text>
+  <text class="sub" x="440" y="290" text-anchor="middle">cancel_goal_async()로 도중 취소 가능</text>
+</svg>

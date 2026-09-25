@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R02. 워크스페이스·패키지·노드 · studyMentorPi</title>
+<meta name="description" content="colcon 워크스페이스, ament_python 패키지 생성, rclpy Node 클래스와 타이머, 실행 진입점(entry_points)을 만듭니다.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-ros">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" class="active" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="r02" data-track="ros">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-ros">ROS 2·OpenCV 기초</span> R-1 ROS 2 통신 &middot; 약 80분 &middot; 초급</div>
+    <h1><span class="lesson-no">R02</span>워크스페이스·패키지·노드</h1>
+    <p class="lede">colcon 워크스페이스, ament_python 패키지 생성, rclpy Node 클래스와 타이머, 실행 진입점(entry_points)을 만듭니다.</p>
+    <div class="requires">선수 챕터: <a href="r01.html">R01</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      <a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>워크스페이스의 네 폴더(<code>src</code>, <code>build</code>, <code>install</code>, <code>log</code>)의 역할과 <strong>언더레이(underlay)/오버레이(overlay)</strong> 관계를 설명합니다.</li><li><code>ros2 pkg create --build-type ament_python</code>으로 패키지를 만들고, <code>package.xml</code>·<code>setup.py</code>·<code>setup.cfg</code>가 각각 무엇을 정하는지 말할 수 있습니다.</li><li><code>setup.py</code>의 <code>entry_points</code>에 실행 진입점을 등록하고 <code>colcon build</code> → <code>source</code> → <code>ros2 run</code>으로 노드를 실행합니다.</li><li><code>rclpy.init()</code> → <code>Node</code> 생성 → <code>spin()</code> → <code>destroy_node()</code> → <code>shutdown()</code>으로 이어지는 노드 수명주기를 코드로 작성합니다.</li><li><code>while</code> + <code>sleep</code> 루프 대신 <strong>타이머 콜백</strong>을 써야 하는 이유(실행기·콜백 처리)를 실험으로 확인합니다.</li></ul>
+<h2 id="워크스페이스workspace">워크스페이스(Workspace)<a class="anchor" href="#워크스페이스workspace">#</a></h2>
+<p>로봇 기능 하나를 개발하려면 소스 코드, 설정 파일, launch 파일, 모델 파일이 함께 필요합니다. ROS에서는 이런 파일들을 <strong>워크스페이스</strong>라는 폴더 하나에 모아 관리하고 한꺼번에 빌드합니다. 원본 교재는 <code>~/hiwonder_ws</code>라는 이름을 씁니다(이름은 자유).</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">mkdir -p ~/hiwonder_ws/src      # src 폴더까지 한 번에 생성
+cd ~/hiwonder_ws
+colcon build                    # 빈 워크스페이스도 빌드된다 → build/ install/ log/ 생성
+source ~/hiwonder_ws/install/setup.bash
+tree -L 1                       # (sudo apt-get install tree 필요)</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>폴더</th><th>이름</th><th>내용</th><th>직접 손대나?</th></tr></thead><tbody><tr><td><code>src/</code></td><td>소스 공간</td><td>패키지 소스. <strong>여기에서만 작업</strong></td><td>예</td></tr><tr><td><code>build/</code></td><td>빌드 공간</td><td>빌드 중간 산출물</td><td>아니오 (문제 생기면 통째로 삭제)</td></tr><tr><td><code>install/</code></td><td>설치 공간</td><td>실행 파일·라이브러리·<code>setup.bash</code></td><td>아니오 (<code>source</code>만)</td></tr><tr><td><code>log/</code></td><td>로그 공간</td><td>빌드·테스트 로그</td><td>오류 분석할 때만</td></tr></tbody></table></div>
+<figure class="fig" id="fig-r02-workspace"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="워크스페이스 구조와 colcon build, source, ros2 run 흐름">
+  <defs>
+    <marker id="arr-r02-workspace" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <text class="lbl mono" x="30" y="34">~/hiwonder_ws/</text>
+  <path class="ln" d="M40 42 L40 222" stroke-width="1.5"/>
+  <path class="ln" d="M40 66 L56 66 M40 170 L56 170 M40 196 L56 196 M40 222 L56 222" stroke-width="1.5"/>
+  <rect class="box-hi" x="60" y="52" width="200" height="96" rx="6"/>
+  <text class="lbl mono" x="72" y="71">src/</text>
+  <text class="tag mono" x="86" y="92">hello_world_demo/</text>
+  <text class="tag mono" x="98" y="110">package.xml · setup.py</text>
+  <text class="tag mono" x="98" y="128">hello_world_demo/*.py</text>
+  <text class="sub" x="160" y="71">← 여기서만 작업</text>
+  <text class="lbl mono" x="62" y="175">build/</text>
+  <text class="sub" x="130" y="175">중간 산출물</text>
+  <text class="lbl mono" x="62" y="201">install/</text>
+  <text class="sub" x="130" y="201">실행 파일 · setup.bash</text>
+  <text class="lbl mono" x="62" y="227">log/</text>
+  <text class="sub" x="130" y="227">빌드 로그</text>
+
+  <rect class="box" x="330" y="40" width="170" height="44" rx="8"/>
+  <text class="lbl" x="415" y="59" text-anchor="middle">① 작성</text>
+  <text class="tag mono" x="415" y="75" text-anchor="middle">vim src/.../node.py</text>
+  <rect class="box" x="330" y="112" width="170" height="44" rx="8"/>
+  <text class="lbl" x="415" y="131" text-anchor="middle">② 빌드</text>
+  <text class="tag mono" x="415" y="147" text-anchor="middle">colcon build</text>
+  <rect class="box" x="330" y="184" width="170" height="44" rx="8"/>
+  <text class="lbl" x="415" y="203" text-anchor="middle">③ 환경 등록</text>
+  <text class="tag mono" x="415" y="219" text-anchor="middle">source install/setup.bash</text>
+  <rect class="box-hi" x="530" y="184" width="170" height="44" rx="8"/>
+  <text class="lbl" x="615" y="203" text-anchor="middle">④ 실행</text>
+  <text class="tag mono" x="615" y="219" text-anchor="middle">ros2 run 패키지 실행파일</text>
+
+  <path class="ln-hi" d="M415 86 L415 109" stroke-width="2" marker-end="url(#arr-r02-workspace)"/>
+  <path class="ln-hi" d="M415 158 L415 181" stroke-width="2" marker-end="url(#arr-r02-workspace)"/>
+  <path class="ln-hi" d="M502 206 L527 206" stroke-width="2" marker-end="url(#arr-r02-workspace)"/>
+  <path class="ln-hi" d="M328 134 C290 134 290 190 250 196" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#arr-r02-workspace)"/>
+  <text class="tag" x="300" y="248" text-anchor="middle">install/ 생성</text>
+
+  <rect class="box" x="530" y="40" width="170" height="116" rx="8"/>
+  <text class="lbl" x="615" y="60" text-anchor="middle">source 순서</text>
+  <text class="tag mono" x="545" y="84">1 /opt/ros/humble</text>
+  <text class="tag mono" x="545" y="106">2 ~/ros2_ws</text>
+  <text class="tag mono" x="545" y="128">3 ~/hiwonder_ws</text>
+  <text class="sub" x="615" y="148" text-anchor="middle">나중 것이 앞을 덮음</text>
+
+  <text class="sub" x="360" y="284" text-anchor="middle">setup.py의 entry_points가 "실행파일 = 패키지.모듈:main"을 연결합니다</text>
+</svg><figcaption>워크스페이스 구조와 빌드·실행 흐름 — src에서 작성하고, colcon이 install을 만들고, source로 셸에 등록한 뒤 ros2 run으로 실행합니다</figcaption></figure>
+<h3 id="언더레이와-오버레이">언더레이와 오버레이<a class="anchor" href="#언더레이와-오버레이">#</a></h3>
+<p><code>source</code>는 "이 워크스페이스의 패키지를 찾을 수 있게 환경변수(<code>AMENT_PREFIX_PATH</code>, <code>PYTHONPATH</code> 등)에 경로를 추가"하는 일입니다. 순서가 중요합니다.</p>
+<ol><li><code>/opt/ros/humble</code> — ROS 2 자체(언더레이)</li><li><code>~/ros2_ws</code> — MentorPi 공식 패키지(오버레이 1)</li><li><code>~/hiwonder_ws</code> — 내가 만든 패키지(오버레이 2)</li></ol>
+<p><strong>나중에 source한 워크스페이스가 앞선 것을 덮습니다.</strong> 같은 이름의 패키지가 두 곳에 있으면 마지막 것이 쓰입니다. 공식 패키지를 고쳐 쓰고 싶을 때 원본을 건드리지 않고 내 워크스페이스에 같은 이름으로 복사하는 방법이 이것입니다.</p>
+<div class="callout callout-tip"><div class="callout-title">매번 source하기 귀찮다면</div><div class="callout-body"><p><code>echo &quot;source ~/hiwonder_ws/install/setup.bash&quot; &gt;&gt; ~/.bashrc</code> 로 등록해 두면 새 터미널마다 자동으로 실행됩니다. 단, <strong>빌드 직후 이미 열려 있던 터미널</strong>은 다시 source해야 새 실행 파일이 보입니다.</p></div></div>
+<p>워크스페이스는 여러 개 둘 수 있습니다(로봇 A용 <code>ws_a</code>, 로봇 B용 <code>ws_b</code>). IDE에서 프로젝트를 여러 개 만드는 것과 같습니다.</p>
+<h3 id="colcon-build-옵션">colcon build 옵션<a class="anchor" href="#colcon-build-옵션">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>명령</th><th>용도</th></tr></thead><tbody><tr><td><code>colcon build</code></td><td><code>src/</code> 아래 모든 패키지를 의존성 순서대로 빌드</td></tr><tr><td><code>colcon build --packages-select topic_demo</code></td><td>한 패키지만 빌드(시간 절약)</td></tr><tr><td><code>colcon build --symlink-install</code></td><td>Python 파일을 복사하지 않고 링크 → <strong>소스를 고쳐도 재빌드 불필요</strong></td></tr><tr><td><code>colcon build --packages-up-to app</code></td><td>해당 패키지와 그것이 의존하는 패키지까지</td></tr><tr><td><code>rm -rf build install log</code></td><td>빌드가 꼬였을 때 초기화(반드시 워크스페이스 최상위에서)</td></tr></tbody></table></div>
+<div class="callout callout-warn"><div class="callout-title">빌드는 워크스페이스 최상위에서</div><div class="callout-body"><p><code>src/</code> 안이나 패키지 폴더 안에서 <code>colcon build</code>를 실행하면 그 자리에 <code>build/ install/ log/</code>가 또 생깁니다. 항상 <code>cd ~/hiwonder_ws</code> 후에 빌드합니다.</p></div></div>
+<h2 id="패키지package">패키지(Package)<a class="anchor" href="#패키지package">#</a></h2>
+<p>로봇에는 섀시 제어, 비전, 내비게이션 같은 기능이 여럿 있습니다. 이것을 한 폴더에 섞어 두면 일부만 떼어 다른 사람에게 주기 어렵습니다. <strong>패키지</strong>는 기능 단위로 코드를 나눠 결합도를 낮추고 재사용하게 해 주는 단위입니다. MentorPi의 <code>~/ros2_ws/src</code>에도 <code>app</code>, <code>bringup</code>, <code>driver/controller</code>, <code>peripherals</code>, <code>navigation</code>, <code>slam</code> 같은 패키지가 나뉘어 있습니다.</p>
+<h3 id="빌드-타입">빌드 타입<a class="anchor" href="#빌드-타입">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>빌드 타입</th><th>언어</th><th>빌드 설정 파일</th><th>쓰임</th></tr></thead><tbody><tr><td><code>ament_python</code></td><td>Python</td><td><code>setup.py</code>, <code>setup.cfg</code></td><td>이 강의의 노드 대부분</td></tr><tr><td><code>ament_cmake</code></td><td>C++ (또는 인터페이스)</td><td><code>CMakeLists.txt</code></td><td>C++ 노드, **<code>.msg/.srv/.action</code> 정의 패키지**(R04)</td></tr></tbody></table></div>
+<h3 id="패키지-만들기">패키지 만들기<a class="anchor" href="#패키지-만들기">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">cd ~/hiwonder_ws/src
+ros2 pkg create hello_world_demo --build-type ament_python \
+    --dependencies rclpy --node-name hello_world</code></pre></div>
+<p><code>--node-name</code>을 주면 <code>hello_world.py</code> 뼈대와 진입점 등록까지 자동으로 해 줍니다. 만들어진 구조는 다음과 같습니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">hello_world_demo/
+├── hello_world_demo/          ← Python 모듈(노드 소스가 여기)
+│   ├── __init__.py
+│   └── hello_world.py
+├── package.xml                ← 매니페스트: 이름·버전·관리자·라이선스·의존성
+├── resource/hello_world_demo  ← ament 인덱스용 표식 파일(빈 파일)
+├── setup.cfg                  ← 실행 파일 설치 위치(lib/&lt;패키지&gt;)
+├── setup.py                   ← 설치 규칙과 entry_points
+└── test/                      ← flake8·pep257 등 테스트</code></pre></div>
+<h3 id="package-xml과-setup-py">package.xml과 setup.py<a class="anchor" href="#package-xml과-setup-py">#</a></h3>
+<p><code>package.xml</code>의 <code>&lt;depend&gt;rclpy&lt;/depend&gt;</code>처럼 적은 의존성은 <code>rosdep</code>이 설치하고, <code>colcon</code>이 빌드 순서를 정하는 데 씁니다. 새 메시지 패키지를 import하면(예: <code>geometry_msgs</code>) 여기에도 추가해야 다른 컴퓨터에서 빌드가 됩니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">xml</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-xml">&lt;depend&gt;rclpy&lt;/depend&gt;
+&lt;depend&gt;std_msgs&lt;/depend&gt;
+&lt;depend&gt;geometry_msgs&lt;/depend&gt;</code></pre></div>
+<p><code>setup.py</code>의 핵심은 <strong>entry_points</strong>입니다. <code>실행파일이름 = 패키지.모듈:함수</code> 형식으로, <code>ros2 run &lt;패키지&gt; &lt;실행파일이름&gt;</code>을 입력하면 그 모듈의 함수(보통 <code>main</code>)가 호출됩니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">entry_points={
+    &#x27;console_scripts&#x27;: [
+        &#x27;hello_world = hello_world_demo.hello_world:main&#x27;,
+        &#x27;topic_pub = topic_demo.topic_pub:main&#x27;,      # 다음 챕터에서 추가하는 형태
+    ],
+},</code></pre></div>
+<p>launch 파일, YAML 설정, URDF처럼 <strong>Python 모듈이 아닌 파일</strong>은 <code>data_files</code>에 적어야 <code>install/&lt;패키지&gt;/share/&lt;패키지&gt;/</code>로 복사됩니다(R05·R06).</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import os
+from glob import glob
+data_files=[
+    (&#x27;share/ament_index/resource_index/packages&#x27;, [&#x27;resource/&#x27; + package_name]),
+    (&#x27;share/&#x27; + package_name, [&#x27;package.xml&#x27;]),
+    (os.path.join(&#x27;share&#x27;, package_name, &#x27;launch&#x27;), glob(os.path.join(&#x27;launch&#x27;, &#x27;*.launch.py&#x27;))),
+],</code></pre></div>
+<h2 id="노드node">노드(Node)<a class="anchor" href="#노드node">#</a></h2>
+<p><strong>노드는 ROS 2 통신의 주체</strong>입니다. 토픽·서비스·액션·파라미터는 모두 어떤 노드에 속해 만들어집니다. 보통 노드 하나가 기능 하나(라이다 드라이버, 카메라 드라이버 …)를 맡고, 실행 파일 하나에 노드가 하나 이상 들어갈 수 있습니다.</p>
+<h3 id="rclpy-노드의-수명주기">rclpy 노드의 수명주기<a class="anchor" href="#rclpy-노드의-수명주기">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>단계</th><th>코드</th><th>하는 일</th></tr></thead><tbody><tr><td>① 초기화</td><td><code>rclpy.init(args=args)</code></td><td>컨텍스트 생성, 명령행 ROS 인자(<code>--ros-args</code>) 해석</td></tr><tr><td>② 노드 생성</td><td><code>node = MyNode()</code> → <code>super().__init__(&#x27;이름&#x27;)</code></td><td>DDS 참여자 생성, 이름 등록</td></tr><tr><td>③ 통신 객체</td><td><code>create_publisher / create_subscription / create_timer ...</code></td><td>그래프에 연결</td></tr><tr><td>④ 실행</td><td><code>rclpy.spin(node)</code></td><td><strong>실행기(executor)</strong> 가 도착한 메시지·만료된 타이머의 콜백을 차례로 호출</td></tr><tr><td>⑤ 정리</td><td><code>node.destroy_node()</code>, <code>rclpy.shutdown()</code></td><td>연결 해제, 자원 반납</td></tr></tbody></table></div>
+<p>④가 핵심입니다. rclpy는 <strong>콜백 기반</strong>입니다. 메시지가 도착해도 누군가 <code>spin</code>(또는 <code>spin_once</code>)을 돌려 주지 않으면 콜백은 호출되지 않습니다.</p>
+<h3 id="while-루프-대신-타이머를-쓰는-이유">while 루프 대신 타이머를 쓰는 이유<a class="anchor" href="#while-루프-대신-타이머를-쓰는-이유">#</a></h3>
+<p>원본 <code>hello_world.py</code>는 <code>while rclpy.ok(): log(); time.sleep(0.5)</code>로 작성되어 있습니다. 로그만 찍을 때는 문제가 없지만, 이 노드에 구독자를 하나 추가하는 순간 문제가 드러납니다. <code>while</code> 루프가 스레드를 붙잡고 있어 <strong>spin이 한 번도 돌지 않으므로 구독 콜백이 영원히 호출되지 않습니다.</strong></p>
+<div class="table-wrap"><table><thead><tr><th>방식</th><th>구조</th><th>구독·서비스 콜백</th><th>권장</th></tr></thead><tbody><tr><td><code>while</code> + <code>time.sleep</code></td><td>사용자가 루프를 소유</td><td>호출 안 됨 (따로 <code>spin_once</code> 필요)</td><td>아주 단순한 예제만</td></tr><tr><td><code>while</code> + <code>rclpy.spin_once(node, timeout_sec=...)</code></td><td>사용자가 루프를 소유, 틈틈이 콜백 처리</td><td>처리됨</td><td>순차 절차(“3초 전진 후 정지”)에 편리</td></tr><tr><td><code>create_timer</code> + <code>rclpy.spin</code></td><td>실행기가 루프를 소유</td><td>처리됨</td><td><strong>기본 형태</strong></td></tr></tbody></table></div>
+<h2 id="실습-시뮬레이션">실습 (시뮬레이션)<a class="anchor" href="#실습-시뮬레이션">#</a></h2>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
+<h3 id="타이머-두-개와-로그-레벨">① 타이머 두 개와 로그 레벨<a class="anchor" href="#타이머-두-개와-로그-레벨">#</a></h3>
+<p>타이머는 여러 개 만들 수 있고, 주기가 서로 달라도 실행기가 알아서 순서를 맞춥니다. <code>get_clock().now()</code>로 노드 시계를 읽는 법도 함께 봅니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
+from rclpy.node import Node
+import mentorpi_sim as sim                     # 시뮬 전용
+sim.setup(world=&quot;empty&quot;, duration=3.2)        # 시뮬 전용
+
+
+class TwoTimers(Node):
+    def __init__(self):
+        super().__init__(&#x27;two_timers&#x27;)
+        self.fast = 0
+        self.slow = 0
+        self.t0 = self.get_clock().now().nanoseconds
+        self.create_timer(0.2, self.on_fast)     # 5 Hz
+        self.create_timer(1.0, self.on_slow)     # 1 Hz
+
+    def elapsed(self):
+        return (self.get_clock().now().nanoseconds - self.t0) / 1e9
+
+    def on_fast(self):
+        self.fast += 1
+        self.get_logger().debug(&#x27;fast %d&#x27; % self.fast)   # 기본 레벨(INFO)에서는 안 보임
+
+    def on_slow(self):
+        self.slow += 1
+        self.get_logger().info(&#x27;t=%.1f s  fast=%d  slow=%d&#x27; % (self.elapsed(), self.fast, self.slow))
+        if self.fast &lt; 4 * self.slow:
+            self.get_logger().warn(&#x27;fast 타이머가 밀리고 있습니다&#x27;)
+
+
+rclpy.init()
+node = TwoTimers()
+try:
+    rclpy.spin(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    print(&#x27;합계: fast=%d, slow=%d&#x27; % (node.fast, node.slow))
+    node.destroy_node()
+    rclpy.shutdown()</code></pre></div>
+<p>예상 출력(대략):</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[INFO] [two_timers]: t=1.0 s  fast=5  slow=1
+[INFO] [two_timers]: t=2.0 s  fast=10  slow=2
+[INFO] [two_timers]: t=3.0 s  fast=15  slow=3
+합계: fast=15, slow=3</code></pre></div>
+<p><code>debug</code> 로그는 보이지 않습니다. 실물에서는 <code>ros2 run hello_world_demo hello_world --ros-args --log-level debug</code>로 레벨을 낮추면 나타납니다.</p>
+<h3 id="블로킹-루프-실험-spin이-없으면-콜백도-없다">② 블로킹 루프 실험: spin이 없으면 콜백도 없다<a class="anchor" href="#블로킹-루프-실험-spin이-없으면-콜백도-없다">#</a></h3>
+<p>같은 3초 동안 <code>/odom</code>을 구독하면서, 앞 절반은 <code>time.sleep</code>만 하고 뒤 절반은 <code>spin_once</code>를 돌려 받은 메시지 수를 비교합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import time
+import rclpy
+from rclpy.node import Node
+from nav_msgs.msg import Odometry
+import mentorpi_sim as sim                     # 시뮬 전용
+sim.setup(world=&quot;room&quot;, duration=10.0)        # 시뮬 전용
+
+rclpy.init()
+node = Node(&#x27;blocking_test&#x27;)
+got = {&#x27;n&#x27;: 0}
+
+def on_odom(msg):
+    got[&#x27;n&#x27;] += 1
+
+node.create_subscription(Odometry, &#x27;/odom&#x27;, on_odom, 10)
+
+# (가) sleep만 하는 루프 — 원본 hello_world의 방식
+t0 = time.time()
+while time.time() - t0 &lt; 1.5:
+    time.sleep(0.1)
+print(&#x27;(가) sleep 루프 1.5 s 동안 받은 /odom:&#x27;, got[&#x27;n&#x27;])
+
+# (나) spin_once를 돌리는 루프
+got[&#x27;n&#x27;] = 0
+t0 = time.time()
+while time.time() - t0 &lt; 1.5:
+    rclpy.spin_once(node, timeout_sec=0.1)
+print(&#x27;(나) spin_once 루프 1.5 s 동안 받은 /odom:&#x27;, got[&#x27;n&#x27;])
+
+node.destroy_node()
+rclpy.shutdown()</code></pre></div>
+<p>예상 출력(대략):</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">(가) sleep 루프 1.5 s 동안 받은 /odom: 0
+(나) spin_once 루프 1.5 s 동안 받은 /odom: 80</code></pre></div>
+<p>(나)는 /odom이 50 Hz이므로 약 75~85개입니다(루프 경계에 따라 조금 다름). (가)에서 0이 나오는 것은 버그가 아니라 <strong>rclpy의 설계</strong>입니다. 콜백은 실행기가 호출할 때만 실행됩니다.</p>
+<h3 id="패키지-진입점-모양-그대로-쓰기">③ 패키지 진입점 모양 그대로 쓰기<a class="anchor" href="#패키지-진입점-모양-그대로-쓰기">#</a></h3>
+<p><code>ros2 run</code>이 부르는 것은 <code>setup.py</code>에 등록한 <code>main(args=None)</code> 함수입니다. 실물 패키지에 그대로 넣을 수 있는 모양으로 작성해 봅니다. 노드 이름을 인자로 받게 하면 같은 클래스로 여러 노드를 만들 수 있습니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
+from rclpy.node import Node
+import mentorpi_sim as sim                     # 시뮬 전용
+sim.setup(world=&quot;empty&quot;, duration=2.2)        # 시뮬 전용
+
+
+class HelloWorldNode(Node):
+    def __init__(self, name):
+        super().__init__(name)
+        self.n = 0
+        self.timer = self.create_timer(0.5, self.timer_callback)
+
+    def timer_callback(self):
+        self.n += 1
+        self.get_logger().info(&#x27;Hello World (%d)&#x27; % self.n)
+        if self.n == 3:
+            self.get_logger().info(&#x27;3번 출력했으므로 타이머를 멈춥니다&#x27;)
+            self.timer.cancel()
+
+
+def main(args=None):
+    rclpy.init(args=args)
+    node = HelloWorldNode(&#x27;hello_world_demo&#x27;)
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
+        print(&#x27;rclpy.ok() =&#x27;, rclpy.ok())
+
+
+if __name__ == &#x27;__main__&#x27;:
+    main()</code></pre></div>
+<p>예상 출력(대략):</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[INFO] [hello_world_demo]: Hello World (1)
+[INFO] [hello_world_demo]: Hello World (2)
+[INFO] [hello_world_demo]: Hello World (3)
+[INFO] [hello_world_demo]: 3번 출력했으므로 타이머를 멈춥니다
+rclpy.ok() = False</code></pre></div>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> <code>hello_world = hello_world_demo.hello_world:main</code>의 세 부분이 각각 무엇인지 말할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> ② 실험에서 (가)가 0인 이유를 "실행기"라는 단어를 써서 설명할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> <code>timer.cancel()</code> 뒤에도 노드는 살아 있고 spin은 계속된다는 것을 확인했다.</label></li></ul></div></div>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">안전 확인 (실물 실습 전 필수)</div><div class="callout-body"><ul><li>이 실습은 로봇을 움직이지 않지만, 공식 앱이 자동 실행 중이면 조이스틱·앱 명령으로 <strong>로봇이 움직일 수 있습니다.</strong> 로봇을 받침대 위에 두거나 <code>~/.stop_ros.sh</code>로 자동 실행을 멈춘 뒤 진행합니다.</li><li><code>rm -rf build install log</code>는 반드시 <code>~/hiwonder_ws</code>에서만 실행합니다. <code>~/ros2_ws</code>(공식 워크스페이스)에서 실행하면 공식 기능을 다시 빌드해야 합니다.</li></ul></div></div>
+<ol><li>컨테이너 터미널에서 워크스페이스와 패키지를 만듭니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">mkdir -p ~/hiwonder_ws/src &amp;&amp; cd ~/hiwonder_ws/src
+ros2 pkg create hello_world_demo --build-type ament_python --dependencies rclpy --node-name hello_world</code></pre></div>
+<ol><li>노드 파일을 Playground ③의 코드로 바꿉니다(<code>import mentorpi_sim</code>, <code>sim.setup</code> 두 줄은 지웁니다).</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">vim ~/hiwonder_ws/src/hello_world_demo/hello_world_demo/hello_world.py</code></pre></div>
+<ol><li><code>setup.py</code>의 <code>console_scripts</code>에 <code>&#x27;hello_world = hello_world_demo.hello_world:main&#x27;</code>이 있는지 확인합니다(<code>--node-name</code>을 썼다면 이미 있음).</li><li>빌드하고 실행합니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">cd ~/hiwonder_ws
+colcon build --packages-select hello_world_demo --symlink-install
+source install/setup.bash
+ros2 run hello_world_demo hello_world</code></pre></div>
+<ol><li>다른 터미널에서 노드를 관찰하고, 실행 인자로 이름과 로그 레벨을 바꿔 봅니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 node list                                      # /hello_world_demo
+ros2 pkg executables hello_world_demo               # hello_world_demo hello_world
+ros2 pkg prefix hello_world_demo                    # ~/hiwonder_ws/install/hello_world_demo
+ros2 run hello_world_demo hello_world --ros-args -r __node:=hello2 --log-level debug</code></pre></div>
+<ol><li>공식 워크스페이스도 둘러봅니다. 앞으로 볼 기능 패키지들의 위치입니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ls ~/ros2_ws/src
+ros2 pkg executables controller</code></pre></div>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td><code>Package &#x27;hello_world_demo&#x27; not found</code></td><td>빌드 후 <code>source install/setup.bash</code>를 안 함, 또는 다른 터미널</td><td>워크스페이스 최상위에서 <code>source install/setup.bash</code></td></tr><tr><td><code>No executable found</code></td><td><code>setup.py</code>의 <code>console_scripts</code>에 등록 안 함 / 오타 / 등록 후 재빌드 안 함</td><td>진입점 확인 후 <code>colcon build</code> 다시</td></tr><tr><td><code>ModuleNotFoundError: No module named &#x27;hello_world_demo.hello_world&#x27;</code></td><td>파일 이름·폴더 이름과 진입점의 모듈 경로 불일치</td><td><code>패키지폴더/패키지폴더/파일.py</code> 구조와 <code>패키지.파일:main</code> 맞추기</td></tr><tr><td>소스를 고쳤는데 실행 결과가 그대로</td><td><code>--symlink-install</code> 없이 빌드 → install에 복사본이 있음</td><td>다시 빌드하거나 <code>--symlink-install</code>로 빌드</td></tr><tr><td><code>src/</code> 안에 <code>build/ install/</code>이 또 생김</td><td>잘못된 위치에서 <code>colcon build</code></td><td>잘못 생긴 폴더를 지우고 <code>cd ~/hiwonder_ws</code>에서 빌드</td></tr><tr><td><code>colcon build</code> 중 <code>setup.py install is deprecated</code> 경고</td><td>Humble의 setuptools 버전 경고</td><td>동작에는 영향 없음. 무시해도 됨</td></tr><tr><td>구독 콜백이 한 번도 불리지 않음</td><td><code>while</code>+<code>sleep</code> 루프가 spin을 막음</td><td>타이머 + <code>spin</code>, 또는 루프 안에서 <code>spin_once</code></td></tr><tr><td>Ctrl+C 때 <code>ExternalShutdownException</code>/스택 트레이스</td><td><code>shutdown()</code>을 두 번 호출하거나 예외 처리 없음</td><td><code>try/except KeyboardInterrupt/finally</code> 구조 사용</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">기본 과제</div><div class="callout-body"><ol><li><code>hello_world_demo</code> 패키지에 두 번째 실행 파일 <code>counter</code>를 추가합니다. 1 Hz로 1부터 세며 5가 되면 <code>warn</code> 로그를 남기고, 10이 되면 스스로 <code>rclpy.shutdown()</code>을 호출해 종료합니다. <code>setup.py</code> 등록부터 <code>ros2 run</code>까지 수행하고 터미널 출력을 캡처합니다.</li><li><code>package.xml</code>에 <code>&lt;depend&gt;std_msgs&lt;/depend&gt;</code>를 추가하고, <code>rosdep check --from-paths src --ignore-src</code>의 결과를 확인합니다.</li></ol></div></div>
+<div class="callout callout-task"><div class="callout-title">심화 과제</div><div class="callout-body"><ol><li>Playground ② 실험을 확장해, 타이머 콜백 안에서 <code>time.sleep(1.0)</code>을 호출하면 같은 노드의 다른 타이머와 구독 콜백이 어떻게 되는지 측정합니다. 콜백 안에서 오래 걸리는 일을 하면 안 되는 이유를 정리합니다.</li><li>오버레이 실험: <code>~/hiwonder_ws/src</code>에 공식 패키지와 이름이 같은 빈 패키지(예: <code>peripherals</code>)를 만들어 빌드·source하면 <code>ros2 pkg prefix peripherals</code>가 어떻게 바뀌는지 확인합니다. 실험 후 반드시 그 패키지를 지우고 <code>build/ install/</code>을 정리한 뒤 새 터미널을 엽니다.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>5. ROS2 Basic Course</em> — Lesson 4 ROS2 Development Environment Configuration, Lesson 5 ROS2 Workspace, Lesson 6 ROS2 Package, Lesson 7 ROS2 Node</li><li>원본 예제: <code>5. ROS2 Basic Course/ros2_ws/hello_world_demo</code></li><li>워크스페이스 만들기: https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Creating-A-Workspace/Creating-A-Workspace.html</li><li>패키지 만들기: https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Creating-Your-First-ROS2-Package.html</li><li>colcon 사용법: https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Colcon-Tutorial.html</li><li>실행기(Executors) 개념: https://docs.ros.org/en/humble/Concepts/Intermediate/About-Executors.html</li></ul>
+      <nav class="pager"><a class="pager-prev" href="r01.html"><span>이전 · R01</span>ROS 2 개요·설치·명령행 도구</a><a class="pager-next" href="r03.html"><span>다음 · R03</span>토픽: 발행과 구독</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#워크스페이스workspace">워크스페이스(Workspace)</a><a class="toc-l3" href="#언더레이와-오버레이">언더레이와 오버레이</a><a class="toc-l3" href="#colcon-build-옵션">colcon build 옵션</a><a class="toc-l2" href="#패키지package">패키지(Package)</a><a class="toc-l3" href="#빌드-타입">빌드 타입</a><a class="toc-l3" href="#패키지-만들기">패키지 만들기</a><a class="toc-l3" href="#package-xml과-setup-py">package.xml과 setup.py</a><a class="toc-l2" href="#노드node">노드(Node)</a><a class="toc-l3" href="#rclpy-노드의-수명주기">rclpy 노드의 수명주기</a><a class="toc-l3" href="#while-루프-대신-타이머를-쓰는-이유">while 루프 대신 타이머를 쓰는 이유</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l3" href="#타이머-두-개와-로그-레벨">① 타이머 두 개와 로그 레벨</a><a class="toc-l3" href="#블로킹-루프-실험-spin이-없으면-콜백도-없다">② 블로킹 루프 실험: spin이 없으면 콜백도 없다</a><a class="toc-l3" href="#패키지-진입점-모양-그대로-쓰기">③ 패키지 진입점 모양 그대로 쓰기</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

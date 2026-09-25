@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R03. 토픽: 발행과 구독 · studyMentorPi</title>
+<meta name="description" content="Publisher/Subscriber, 메시지 타입(std_msgs·geometry_msgs), QoS 기초 — /cmd_vel을 발행해 시뮬레이터 로봇을 움직입니다.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-ros">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" class="active" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="r03" data-track="ros">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-ros">ROS 2·OpenCV 기초</span> R-1 ROS 2 통신 &middot; 약 90분 &middot; 초급</div>
+    <h1><span class="lesson-no">R03</span>토픽: 발행과 구독</h1>
+    <p class="lede">Publisher/Subscriber, 메시지 타입(std_msgs·geometry_msgs), QoS 기초 — /cmd_vel을 발행해 시뮬레이터 로봇을 움직입니다.</p>
+    <div class="requires">선수 챕터: <a href="r02.html">R02</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      <a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a><a class="ghost-btn" href="../sim/index.html">2D 시뮬레이터</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>토픽 통신의 성질(단방향·비동기·다대다·익명)을 설명하고, 연결 조건이 <strong>토픽 이름 + 메시지 타입 + 호환되는 QoS</strong>라는 것을 말할 수 있습니다.</li><li>원본 <code>topic_demo</code>의 발행자(publisher)·구독자(subscriber) 코드를 한 줄씩 해석하고 직접 작성합니다.</li><li><code>geometry_msgs/Twist</code>, <code>nav_msgs/Odometry</code>, <code>sensor_msgs/LaserScan</code>의 주요 필드를 읽고 씁니다.</li><li>MentorPi의 속도 명령 경로(<code>/cmd_vel</code> → <code>odom_publisher</code> → 모터)와 두 입력(<code>/cmd_vel</code>, <code>/controller/cmd_vel</code>)의 차이를 설명합니다.</li><li><code>/cmd_vel</code>을 발행해 가상 MentorPi를 움직이고 <code>/odom</code>, <code>/scan</code>을 구독해 결과를 확인합니다.</li></ul>
+<h2 id="토픽-통신-모델">토픽 통신 모델<a class="anchor" href="#토픽-통신-모델">#</a></h2>
+<p>토픽(topic)은 ROS 2에서 가장 많이 쓰는 통신 방식입니다. <strong>발행자</strong>가 이름 붙은 토픽에 메시지를 내보내면, 그 토픽을 <strong>구독</strong>한 모든 노드가 복사본을 받습니다.</p>
+<div class="table-wrap"><table><thead><tr><th>성질</th><th>뜻</th><th>결과</th></tr></thead><tbody><tr><td>단방향</td><td>발행자 → 구독자로만 흐름</td><td>받았다는 응답이 없음. 응답이 필요하면 서비스(R04)</td></tr><tr><td>비동기</td><td>발행자는 보내고 바로 다음 일을 함</td><td>센서 스트림처럼 <strong>계속 흐르는 데이터</strong>에 적합</td></tr><tr><td>다대다</td><td>한 토픽에 발행자·구독자가 여럿일 수 있음</td><td>앱·조이스틱·내비게이션이 모두 <code>/controller/cmd_vel</code>에 발행 가능</td></tr><tr><td>익명</td><td>발행자는 누가 받는지 모름</td><td>노드를 교체·추가해도 다른 노드를 고칠 필요 없음</td></tr></tbody></table></div>
+<p>연결되려면 세 가지가 맞아야 합니다.</p>
+<ol><li><strong>토픽 이름</strong>: <code>/cmd_vel</code>과 <code>cmd_vel</code>(네임스페이스 없으면 같음)은 같고, <code>/cmd_vel</code>과 <code>/cmdvel</code>은 다릅니다.</li><li><strong>메시지 타입</strong>: 이름이 같아도 타입이 다르면(<code>Twist</code> vs <code>TwistStamped</code>) 연결되지 않고 경고가 납니다.</li><li><strong>QoS 호환</strong>: 발행자가 <code>BEST_EFFORT</code>, 구독자가 <code>RELIABLE</code>이면 연결되지 않습니다(아래 QoS 절, R05).</li></ol>
+<h2 id="메시지-타입">메시지 타입<a class="anchor" href="#메시지-타입">#</a></h2>
+<p>메시지는 <code>.msg</code> 파일로 정의된 <strong>필드 묶음</strong>입니다. 기본형(<code>bool</code>, <code>int32</code>, <code>float64</code>, <code>string</code> …), 다른 메시지, 배열을 필드로 가질 수 있습니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 interface show geometry_msgs/msg/Twist
+# Vector3  linear
+#     float64 x
+#     float64 y
+#     float64 z
+# Vector3  angular
+#     float64 x
+#     float64 y
+#     float64 z</code></pre></div>
+<p>MentorPi에서 자주 쓰는 타입과 필드입니다(좌표는 REP-103: x 전방, y 좌측, z 위, 반시계 회전이 +).</p>
+<div class="table-wrap"><table><thead><tr><th>타입</th><th>토픽</th><th>주요 필드</th><th>단위</th></tr></thead><tbody><tr><td><code>std_msgs/String</code></td><td>예제 <code>/topic</code></td><td><code>data</code></td><td>문자열</td></tr><tr><td><code>geometry_msgs/Twist</code></td><td><code>/cmd_vel</code>, <code>/controller/cmd_vel</code></td><td><code>linear.x</code>(전진), <code>linear.y</code>(좌측, 메카넘만), <code>angular.z</code>(반시계 회전)</td><td>m/s, rad/s</td></tr><tr><td><code>nav_msgs/Odometry</code></td><td><code>/odom</code></td><td><code>header.frame_id</code>(odom), <code>child_frame_id</code>(base_footprint), <code>pose.pose.position</code>, <code>pose.pose.orientation</code>(쿼터니언), <code>twist.twist</code></td><td>m, rad/s</td></tr><tr><td><code>sensor_msgs/LaserScan</code></td><td><code>/scan</code>(원본 <code>/scan_raw</code>)</td><td><code>angle_min</code>, <code>angle_max</code>, <code>angle_increment</code>, <code>range_min</code>, <code>range_max</code>, <code>ranges[]</code></td><td>rad, m</td></tr><tr><td><code>sensor_msgs/Imu</code></td><td><code>/imu</code></td><td><code>orientation</code>, <code>angular_velocity</code>, <code>linear_acceleration</code></td><td>rad/s, m/s²</td></tr></tbody></table></div>
+<p>쿼터니언 <span class="math">(x, y, z, w)</span>를 평면 방향각(yaw)으로 바꾸는 식은 평면 운동만 할 때 <span class="math">ψ = atan2(2(wz + xy), 1 − 2(y² + z²))</span>입니다. 코드에서는 <code>tf_transformations.euler_from_quaternion([x, y, z, w])[2]</code>로 얻습니다.</p>
+<h2 id="발행자와-구독자-코드-해석">발행자와 구독자 코드 해석<a class="anchor" href="#발행자와-구독자-코드-해석">#</a></h2>
+<p>원본 <code>topic_demo/topic_pub.py</code>의 뼈대입니다(주석은 한국어로 다시 달았습니다).</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">class MinimalPublisher(Node):
+    def __init__(self):
+        super().__init__(&#x27;minimal_publisher&#x27;)
+        self.publisher_ = self.create_publisher(String, &#x27;topic&#x27;, 10)   # (타입, 이름, QoS 깊이)
+        self.timer = self.create_timer(0.5, self.timer_callback)      # 2 Hz
+        self.i = 0
+
+    def timer_callback(self):
+        msg = String()
+        msg.data = &#x27;Hello World: %d&#x27; % self.i
+        self.publisher_.publish(msg)
+        self.i += 1</code></pre></div>
+<ul><li><code>create_publisher(String, &#x27;topic&#x27;, 10)</code>의 세 번째 인자 <code>10</code>은 <strong>QoS 깊이(depth)</strong> 입니다. 정수만 주면 <code>RELIABLE</code> + <code>VOLATILE</code> + <code>KEEP_LAST(10)</code>의 기본 프로파일이 됩니다.</li><li>발행은 타이머 콜백 안에서 합니다. 주기적으로 보내는 데이터는 "타이머 → 메시지 채우기 → publish"가 정석입니다.</li><li>구독자 쪽은 <code>create_subscription(String, &#x27;topic&#x27;, self.listener_callback, 10)</code>으로 만들고, <strong>콜백의 인자로 메시지가 들어옵니다.</strong> 구독 객체를 <code>self.subscription</code>처럼 변수에 보관해야 가비지 컬렉션으로 사라지지 않습니다.</li></ul>
+<h2 id="qos-기초">QoS 기초<a class="anchor" href="#qos-기초">#</a></h2>
+<p>QoS(Quality of Service)는 "이 토픽을 어떤 품질로 전달할지"에 대한 발행자·구독자 사이의 약속입니다. 처음에는 세 가지만 기억합니다.</p>
+<div class="table-wrap"><table><thead><tr><th>정책</th><th>선택지</th><th>언제</th></tr></thead><tbody><tr><td>History / Depth</td><td><code>KEEP_LAST</code>(n개 보관), <code>KEEP_ALL</code></td><td>처리가 밀릴 때 몇 개까지 쌓아 둘지. 제어 명령은 작게(1~10)</td></tr><tr><td>Reliability</td><td><code>RELIABLE</code>(재전송), <code>BEST_EFFORT</code>(버려도 됨)</td><td>명령·상태는 RELIABLE, 고속 센서는 BEST_EFFORT</td></tr><tr><td>Durability</td><td><code>VOLATILE</code>, <code>TRANSIENT_LOCAL</code>(나중에 온 구독자에게 마지막 값 전달)</td><td>지도(<code>/map</code>), 로봇 모델(<code>/robot_description</code>)</td></tr></tbody></table></div>
+<p>라이다·카메라처럼 빠른 센서 토픽은 드라이버가 <code>BEST_EFFORT</code>로 내는 경우가 많습니다. 이때 구독자가 기본값(<code>RELIABLE</code>)이면 <strong>아무것도 받지 못합니다.</strong> 센서를 구독할 때는 <code>qos_profile_sensor_data</code>(BEST_EFFORT, depth 5)를 쓰면 안전합니다. 호환 규칙은 R05에서 자세히 다룹니다.</p>
+<h2 id="mentorpi의-속도-명령-경로">MentorPi의 속도 명령 경로<a class="anchor" href="#mentorpi의-속도-명령-경로">#</a></h2>
+<figure class="fig" id="fig-r03-cmdvel"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="MentorPi 속도 명령 경로: cmd_vel 제한, controller/cmd_vel, 기구학, 모터, 오도메트리">
+  <defs>
+    <marker id="arr-r03-cmdvel" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+    <marker id="arr-r03-cmdvel-f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <rect class="box" x="20" y="40" width="140" height="46" rx="10"/>
+  <text class="lbl" x="90" y="60" text-anchor="middle">학생 코드 · 앱</text>
+  <text class="sub" x="90" y="77" text-anchor="middle">ros2 topic pub</text>
+  <rect class="box" x="20" y="176" width="140" height="46" rx="10"/>
+  <text class="lbl" x="90" y="196" text-anchor="middle">조이스틱 · Nav2</text>
+  <text class="sub" x="90" y="213" text-anchor="middle">라이다·라인 앱</text>
+
+  <rect class="box-hi" x="215" y="30" width="190" height="66" rx="8"/>
+  <text class="lbl mono" x="310" y="50" text-anchor="middle">app_cmd_vel_callback</text>
+  <text class="tag" x="310" y="68" text-anchor="middle">x, y: ±0.2 m/s 로 자름</text>
+  <text class="tag" x="310" y="84" text-anchor="middle">z: ±0.5 rad/s 로 자름</text>
+
+  <rect class="box" x="215" y="150" width="190" height="98" rx="8"/>
+  <text class="lbl mono" x="310" y="172" text-anchor="middle">cmd_vel_callback</text>
+  <text class="tag" x="310" y="192" text-anchor="middle">메카넘 / 애커만 기구학</text>
+  <text class="tag" x="310" y="210" text-anchor="middle">(vx, vy, ωz) → 바퀴 속도</text>
+  <text class="tag" x="310" y="228" text-anchor="middle">속도 적분 → 오도메트리</text>
+  <text class="sub" x="310" y="266" text-anchor="middle">odom_publisher 노드 (controller 패키지)</text>
+
+  <path class="ln-hi" d="M162 63 L212 63" stroke-width="2" marker-end="url(#arr-r03-cmdvel)"/>
+  <text class="tag mono" x="187" y="112" text-anchor="middle">/cmd_vel</text>
+  <path class="ln-hi" d="M310 98 L310 147" stroke-width="2" marker-end="url(#arr-r03-cmdvel)"/>
+  <path class="ln-hi" d="M162 199 L212 199" stroke-width="2" marker-end="url(#arr-r03-cmdvel)"/>
+  <text class="tag mono" x="187" y="144" text-anchor="middle">/controller/cmd_vel</text>
+  <path class="ln" d="M187 118 L187 58" stroke-width="1" stroke-dasharray="2 3"/>
+  <path class="ln" d="M187 150 L187 194" stroke-width="1" stroke-dasharray="2 3"/>
+
+  <rect class="box" x="470" y="150" width="110" height="46" rx="8"/>
+  <text class="lbl" x="525" y="170" text-anchor="middle">RRC Lite</text>
+  <text class="sub" x="525" y="187" text-anchor="middle">모터 4개</text>
+  <path class="ln-hi" d="M407 173 L467 173" stroke-width="2" marker-end="url(#arr-r03-cmdvel)"/>
+  <text class="tag mono" x="437" y="165" text-anchor="middle">set_motor</text>
+
+  <rect class="box" x="470" y="40" width="110" height="46" rx="8"/>
+  <text class="lbl" x="525" y="60" text-anchor="middle">EKF</text>
+  <text class="sub" x="525" y="77" text-anchor="middle">+ IMU 융합</text>
+  <path class="ln-hi" d="M380 148 C400 110 440 80 467 70" stroke-width="1.6" marker-end="url(#arr-r03-cmdvel)"/>
+  <text class="tag mono" x="436" y="122" text-anchor="middle">/odom_raw</text>
+  <path class="ln-hi" d="M582 63 L640 63" stroke-width="2" marker-end="url(#arr-r03-cmdvel)"/>
+  <text class="tag mono" x="660" y="67" text-anchor="middle">/odom</text>
+
+  <path class="ln" d="M582 173 L640 173" stroke-width="1.6" marker-end="url(#arr-r03-cmdvel-f)"/>
+  <text class="tag" x="662" y="177" text-anchor="middle">바퀴</text>
+  <text class="sub" x="360" y="290" text-anchor="middle">학생 실습은 제한이 걸리는 /cmd_vel을 기본으로 씁니다</text>
+</svg><figcaption>MentorPi 속도 명령 경로 — <code>/cmd_vel</code>은 속도 제한을 거치고 <code>/controller/cmd_vel</code>은 그대로 기구학 계산으로 들어갑니다</figcaption></figure>
+<p>원본 <code>controller/odom_publisher_node.py</code>는 속도 토픽을 두 개 구독합니다.</p>
+<div class="table-wrap"><table><thead><tr><th>토픽</th><th>콜백</th><th>처리</th><th>누가 쓰나</th></tr></thead><tbody><tr><td><code>/cmd_vel</code></td><td><code>app_cmd_vel_callback</code></td><td>선속도 x·y를 각각 ±0.2 m/s, 각속도를 ±0.5 rad/s 범위로 자른 뒤 아래로 전달</td><td>사용자 실습, 앱</td></tr><tr><td><code>/controller/cmd_vel</code></td><td><code>cmd_vel_callback</code></td><td>제한 없이 메카넘/애커만 기구학 → 바퀴 속도</td><td>조이스틱, 키보드 원격, 라이다 앱, Nav2</td></tr></tbody></table></div>
+<p><code>cmd_vel_callback</code>은 받은 Twist로 네 바퀴 속도를 계산해 <code>ros_robot_controller/set_motor</code>로 보내고, 같은 속도를 적분해 오도메트리를 냅니다(M01·M03). 학생 코드는 **안전을 위해 <code>/cmd_vel</code>을 쓰는 것이 기본**입니다. Playground의 가상 MentorPi도 똑같이 동작합니다.</p>
+<div class="callout callout-warn"><div class="callout-title">속도 명령은 &quot;계속&quot; 보내야 하는 값</div><div class="callout-body"><p>Twist 한 번은 "지금부터 이 속도로"라는 뜻입니다. 노드가 정지 명령 없이 죽으면 마지막 속도가 남을 수 있습니다. 제어 노드는 <strong>주기적으로(10~20 Hz) 발행</strong>하고, 종료할 때 반드시 <strong>0 속도 Twist를 발행</strong>합니다.</p></div></div>
+<h2 id="실습-시뮬레이션">실습 (시뮬레이션)<a class="anchor" href="#실습-시뮬레이션">#</a></h2>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
+<p class="cta-row"><a class="ghost-btn cta" href="../sim/index.html">2D 시뮬레이터 열기</a></p>
+<h3 id="원본-topicdemo-두-노드로-발행-구독">① 원본 topic_demo: 두 노드로 발행·구독<a class="anchor" href="#원본-topicdemo-두-노드로-발행-구독">#</a></h3>
+<p>실물에서는 두 터미널에서 <code>topic_pub</code>, <code>topic_sub</code>를 따로 실행합니다. Playground에서는 한 스크립트에 두 노드를 만들고 <code>spin_once</code>를 번갈아 돌립니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import time
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import String
+import mentorpi_sim as sim                  # 시뮬 전용
+sim.setup(world=&quot;empty&quot;, duration=5.0)     # 시뮬 전용
+
+
+class MinimalPublisher(Node):
+    def __init__(self):
+        super().__init__(&#x27;minimal_publisher&#x27;)
+        self.publisher_ = self.create_publisher(String, &#x27;topic&#x27;, 10)
+        self.timer = self.create_timer(0.5, self.timer_callback)
+        self.i = 0
+
+    def timer_callback(self):
+        msg = String()
+        msg.data = &#x27;Hello World: %d&#x27; % self.i
+        self.publisher_.publish(msg)
+        self.i += 1
+
+
+class MinimalSubscriber(Node):
+    def __init__(self):
+        super().__init__(&#x27;minimal_subscriber&#x27;)
+        self.subscription = self.create_subscription(String, &#x27;topic&#x27;, self.listener_callback, 10)
+
+    def listener_callback(self, msg):
+        self.get_logger().info(&#x27;I heard: &quot;%s&quot;&#x27; % msg.data)
+
+
+rclpy.init()
+pub, sub = MinimalPublisher(), MinimalSubscriber()
+print(&#x27;토픽 이름:&#x27;, pub.publisher_.topic_name)
+t0 = time.time()
+while rclpy.ok() and time.time() - t0 &lt; 2.6:
+    rclpy.spin_once(pub, timeout_sec=0.05)
+    rclpy.spin_once(sub, timeout_sec=0.05)
+pub.destroy_node()
+sub.destroy_node()
+rclpy.shutdown()</code></pre></div>
+<p>예상 출력(대략):</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">토픽 이름: /topic
+[INFO] [minimal_subscriber]: I heard: &quot;Hello World: 0&quot;
+[INFO] [minimal_subscriber]: I heard: &quot;Hello World: 1&quot;
+[INFO] [minimal_subscriber]: I heard: &quot;Hello World: 2&quot;
+[INFO] [minimal_subscriber]: I heard: &quot;Hello World: 3&quot;
+[INFO] [minimal_subscriber]: I heard: &quot;Hello World: 4&quot;</code></pre></div>
+<p><code>&#x27;topic&#x27;</code>으로 만들었는데 이름이 <code>/topic</code>인 것은 네임스페이스가 없는 노드에서 상대 이름이 루트(<code>/</code>) 기준으로 풀리기 때문입니다.</p>
+<h3 id="cmdvel로-로봇-움직이고-odom-읽기">② /cmd_vel로 로봇 움직이고 /odom 읽기<a class="anchor" href="#cmdvel로-로봇-움직이고-odom-읽기">#</a></h3>
+<p>3초 전진(0.15 m/s) → 3초 제자리 회전(0.5 rad/s) → 정지하는 <strong>시간 기반 상태 기계</strong>입니다. 10 Hz 타이머가 속도를 계속 발행하고, 0.5초마다 오도메트리를 출력합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
+from tf_transformations import euler_from_quaternion
+import mentorpi_sim as sim                                                   # 시뮬 전용
+sim.setup(chassis=&quot;mecanum&quot;, world=&quot;empty&quot;, duration=8.0, start=(0.0, 0.0, 0.0))   # 시뮬 전용
+
+
+class DriveAndWatch(Node):
+    def __init__(self):
+        super().__init__(&#x27;drive_and_watch&#x27;)
+        self.pub = self.create_publisher(Twist, &#x27;/cmd_vel&#x27;, 10)
+        self.create_subscription(Odometry, &#x27;/odom&#x27;, self.on_odom, 10)
+        self.pose = (0.0, 0.0, 0.0)
+        self.t = 0.0
+        self.create_timer(0.1, self.on_timer)
+
+    def on_odom(self, msg):
+        p, q = msg.pose.pose.position, msg.pose.pose.orientation
+        yaw = euler_from_quaternion([q.x, q.y, q.z, q.w])[2]
+        self.pose = (p.x, p.y, yaw)
+
+    def on_timer(self):
+        self.t += 0.1
+        cmd = Twist()
+        if self.t &lt;= 3.0:
+            cmd.linear.x = 0.15          # 전진
+        elif self.t &lt;= 6.0:
+            cmd.angular.z = 0.5          # 반시계 회전
+        self.pub.publish(cmd)            # 6 s 이후는 0 속도(정지)
+        if abs(self.t / 0.5 - round(self.t / 0.5)) &lt; 1e-6:
+            x, y, yaw = self.pose
+            print(&#x27;t=%.1f  x=%.3f  y=%.3f  yaw=%5.1f deg&#x27; % (self.t, x, y, yaw * 57.2958))
+
+
+rclpy.init()
+node = DriveAndWatch()
+try:
+    rclpy.spin(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    node.pub.publish(Twist())            # 종료 시 정지 명령
+    node.destroy_node()
+    rclpy.shutdown()</code></pre></div>
+<p>예상 출력(대략, 잡음 때문에 끝자리는 매번 다름):</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">t=0.5  x=0.050  y=0.000  yaw=  0.0 deg
+t=1.0  x=0.125  y=0.001  yaw=  0.1 deg
+t=1.5  x=0.202  y=0.001  yaw=  0.1 deg
+t=2.0  x=0.277  y=0.002  yaw=  0.2 deg
+t=2.5  x=0.352  y=0.002  yaw=  0.2 deg
+t=3.0  x=0.427  y=0.003  yaw=  0.2 deg
+t=3.5  x=0.437  y=0.003  yaw= 12.9 deg
+t=4.0  x=0.437  y=0.003  yaw= 27.2 deg
+...
+t=6.0  x=0.437  y=0.004  yaw= 84.0 deg
+t=6.5  x=0.437  y=0.004  yaw= 88.8 deg
+t=7.0  x=0.437  y=0.004  yaw= 88.8 deg
+t=7.5  x=0.437  y=0.004  yaw= 88.8 deg</code></pre></div>
+<p>이론값은 전진 <span class="math">0.15 × 3 = 0.45</span> m, 회전 <span class="math">0.5 × 3 = 1.5</span> rad ≈ 86°입니다. 가상 로봇도 가속·감속 시간이 있어서 전진은 조금 모자라고, 회전은 명령이 바뀐 뒤 관성으로 조금 더 돕니다(명령은 0.1초 주기로만 바뀌므로 경계에서 한 주기 차이도 생깁니다). <code>cmd.linear.x = 0.3</code>으로 바꿔 보면 <code>/cmd_vel</code>의 제한 때문에 0.2 m/s로 잘리는 것도 확인할 수 있습니다.</p>
+<h3 id="scan-구독-앞이-막히면-멈추기">③ /scan 구독: 앞이 막히면 멈추기<a class="anchor" href="#scan-구독-앞이-막히면-멈추기">#</a></h3>
+<p><code>qos_profile_sensor_data</code>로 라이다를 구독하고, 전방 ±15° 안의 최소 거리가 0.4 m보다 작아지면 멈춥니다. 앞 1.2 m에 상자를 놓았습니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+import rclpy
+from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
+from geometry_msgs.msg import Twist
+from sensor_msgs.msg import LaserScan
+import mentorpi_sim as sim                                                  # 시뮬 전용
+sim.setup(world=&quot;empty&quot;, duration=10.0, start=(0.0, 0.0, 0.0), noise=False)   # 시뮬 전용
+sim.add_box(1.3, 0.0, 0.2, 0.8)                                             # 시뮬 전용: 전방 장애물
+
+
+class StopBeforeWall(Node):
+    def __init__(self):
+        super().__init__(&#x27;stop_before_wall&#x27;)
+        self.pub = self.create_publisher(Twist, &#x27;/cmd_vel&#x27;, 10)
+        self.create_subscription(LaserScan, &#x27;/scan&#x27;, self.on_scan, qos_profile_sensor_data)
+        self.stopped = False
+
+    def front_min(self, scan, half_deg=15.0):
+        best = float(&#x27;inf&#x27;)
+        for i, r in enumerate(scan.ranges):
+            a = scan.angle_min + i * scan.angle_increment
+            if abs(a) &lt;= math.radians(half_deg) and scan.range_min &lt; r &lt; scan.range_max:
+                best = min(best, r)
+        return best
+
+    def on_scan(self, scan):
+        d = self.front_min(scan)
+        cmd = Twist()
+        if d &gt; 0.4 and not self.stopped:
+            cmd.linear.x = 0.15
+        elif not self.stopped:
+            self.stopped = True
+            self.get_logger().info(&#x27;정지! 전방 최소 거리 %.2f m&#x27; % d)
+        self.pub.publish(cmd)
+
+
+rclpy.init()
+node = StopBeforeWall()
+try:
+    rclpy.spin(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    node.pub.publish(Twist())
+    node.destroy_node()
+    rclpy.shutdown()</code></pre></div>
+<p>예상 출력(대략):</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[INFO] [stop_before_wall]: 정지! 전방 최소 거리 0.39 m</code></pre></div>
+<p><code>/scan</code>이 10 Hz이므로 명령도 0.1초마다 갱신됩니다. 그사이 로봇은 최대 1.5 cm를 더 가므로, 멈춘 거리는 0.4 m보다 조금 짧습니다. 이 "센서 콜백에서 바로 명령 발행" 구조가 M06 라이다 회피의 뼈대입니다.</p>
+<div class="callout callout-tip"><div class="callout-title">2D 시뮬레이터로 같은 장면 보기</div><div class="callout-body"><p>시뮬레이터의 <strong>수동 주행</strong> 모드에서 라이다 표시를 켜고 벽에 다가가 보세요. 전방 빔의 길이가 줄어드는 모습이 ③ 코드가 읽는 <code>ranges[]</code> 값입니다.</p></div></div>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> ①에서 발행 주기와 받은 메시지 수의 관계를 설명할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> ②의 결과가 이론값(0.45 m, 약 86°)과 얼마나 차이 나는지 계산했다.</label></li><li><label class="check-item"><input type="checkbox"> ③에서 <code>qos_profile_sensor_data</code>를 쓰는 이유를 말할 수 있다.</label></li></ul></div></div>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">안전 확인 (실물 실습 전 필수)</div><div class="callout-body"><ul><li>주행 실습은 <strong>사방 1 m 이상 빈 바닥</strong>에서 합니다. 책상 위에서 하지 않습니다.</li><li>처음 실행할 때는 로봇을 받침대에 올려 바퀴 방향만 확인한 뒤 바닥에 내립니다.</li><li>모든 속도 코드는 <code>/cmd_vel</code>(0.2 m/s·0.5 rad/s 제한)을 쓰고, <code>finally</code>에서 0 속도를 발행하는지 확인합니다.</li><li>비상시에는 코드를 실행한 터미널에서 Ctrl+C, 그래도 움직이면 <code>ros2 topic pub --once /cmd_vel geometry_msgs/msg/Twist &quot;{}&quot;</code>, 최후에는 전원 스위치를 끕니다.</li></ul></div></div>
+<ol><li>원본 예제 패키지를 만들고 빌드합니다(코드는 위 ①의 두 클래스를 각각 <code>topic_pub.py</code>, <code>topic_sub.py</code>로 저장하고 <code>main()</code>을 붙입니다).</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">cd ~/hiwonder_ws/src
+ros2 pkg create topic_demo --build-type ament_python --dependencies rclpy std_msgs
+# topic_demo/topic_demo/topic_pub.py, topic_sub.py 작성
+# setup.py console_scripts:
+#   &#x27;topic_pub = topic_demo.topic_pub:main&#x27;,
+#   &#x27;topic_sub = topic_demo.topic_sub:main&#x27;
+cd ~/hiwonder_ws &amp;&amp; colcon build --packages-select topic_demo &amp;&amp; source install/setup.bash
+ros2 run topic_demo topic_pub          # 터미널 1
+ros2 run topic_demo topic_sub          # 터미널 2 (Terminator 창 우클릭 → Split Vertically)</code></pre></div>
+<ol><li>관찰 명령으로 연결 상태를 확인합니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 topic info /topic -v              # 발행자 1, 구독자 1, QoS 프로파일
+ros2 topic hz /topic                   # 약 2 Hz
+ros2 topic echo /topic</code></pre></div>
+<ol><li>섀시를 켜고 ②의 코드를 실물에서 실행합니다(<code>mentorpi_sim</code> 줄 삭제). <code>drive_and_watch.py</code>로 저장해 <code>python3</code>으로 바로 실행해도 됩니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">~/.stop_ros.sh
+ros2 launch controller controller.launch.py            # 터미널 1
+python3 ~/hiwonder_ws/drive_and_watch.py               # 터미널 2</code></pre></div>
+<ol><li>실물의 결과를 시뮬레이션과 비교합니다. 실물은 가속 시간과 바퀴 미끄러짐 때문에 거리·각도가 이론값보다 조금 작게 나오는 경우가 많습니다. 차이가 크면 M03의 선속도·각속도 보정을 합니다.</li><li>라이다까지 켜고(<code>ros2 launch peripherals lidar.launch.py</code>) ③을 실행합니다. 실제 라이다 토픽 이름이 <code>/scan_raw</code>뿐이라면 코드의 <code>&#x27;/scan&#x27;</code>을 바꿉니다(<code>ros2 topic list</code>로 확인).</li></ol>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td>구독 콜백이 안 불림</td><td>토픽 이름 오타, 타입 불일치, spin 없음</td><td><code>ros2 topic info -v</code>로 발행자/구독자 수와 타입 확인. spin 여부 확인</td></tr><tr><td>라이다 구독만 안 됨 (<code>/scan</code> echo는 됨)</td><td>드라이버는 BEST_EFFORT, 내 구독은 RELIABLE</td><td><code>qos_profile_sensor_data</code>로 구독</td></tr><tr><td><code>ros2 topic echo</code>는 되는데 내 노드는 느림</td><td>콜백 안에서 <code>print</code>·계산이 오래 걸림</td><td>콜백을 가볍게. 무거운 처리는 타이머로 분리</td></tr><tr><td>로봇이 0.2 m/s 이상 안 나감</td><td><code>/cmd_vel</code>의 제한(원본 <code>app_cmd_vel_callback</code>)</td><td>의도된 안전장치. 실습에서는 그대로 둠</td></tr><tr><td>코드를 끝냈는데 로봇이 계속 굴러감</td><td>종료 시 정지 명령 없음</td><td><code>finally</code>에서 <code>Twist()</code> 발행, 필요시 CLI로 0 속도 발행</td></tr><tr><td>로봇이 옆으로 가지 않음 (<code>linear.y</code> 무시)</td><td>애커만 섀시는 횡이동 불가</td><td>메카넘 섀시에서만 <code>linear.y</code> 사용</td></tr><tr><td><code>AttributeError: &#x27;Twist&#x27; object has no attribute &#x27;x&#x27;</code></td><td><code>msg.x</code>처럼 중첩 필드 누락</td><td><code>msg.linear.x</code>, <code>msg.angular.z</code></td></tr><tr><td><code>TypeError: ... must be of type float</code></td><td><code>cmd.linear.x = 1</code>처럼 정수 대입</td><td><code>1.0</code>처럼 실수로 대입 (rclpy는 타입을 엄격히 검사)</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">기본 과제</div><div class="callout-body"><ol><li>②를 고쳐 <strong>한 변 0.5 m 정사각형</strong>을 주행합니다(전진 → 90° 회전 × 4). 끝난 뒤 출발점과의 오차(거리, 각도)를 출력합니다.</li><li>③의 정지 거리를 파라미터처럼 쉽게 바꿀 수 있도록 클래스 속성으로 빼고, 0.3/0.5/0.7 m에서 실제 멈춘 위치(<code>/odom</code>)를 표로 정리합니다.</li></ol></div></div>
+<div class="callout callout-task"><div class="callout-title">심화 과제</div><div class="callout-body"><ol><li>③을 확장해 앞이 막히면 멈추는 대신 <strong>좌·우 중 넓은 쪽으로 회전</strong>한 뒤 다시 전진하는 노드를 만듭니다(좌측 60°~90°, 우측 −90°~−60° 평균 거리 비교). M06 라이다 회피와 비교합니다.</li><li><code>std_msgs/String</code> 대신 <code>geometry_msgs/Pose2D</code>로 "현재 자세"를 1 Hz로 발행하는 노드와, 그것을 받아 누적 이동 거리를 계산하는 노드를 만들어 ①처럼 한 스크립트에서 돌려 봅니다.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>5. ROS2 Basic Course</em> — Lesson 8 ROS2 Topic</li><li>원본 예제: <code>5. ROS2 Basic Course/ros2_ws/topic_demo</code> (<code>topic_pub.py</code>, <code>topic_sub.py</code>)</li><li>원본 소스: <code>src/driver/controller/controller/odom_publisher_node.py</code> (<code>app_cmd_vel_callback</code>, <code>cmd_vel_callback</code>)</li><li>토픽 이해하기: https://docs.ros.org/en/humble/Tutorials/Beginner-CLI-Tools/Understanding-ROS2-Topics/Understanding-ROS2-Topics.html</li><li>Python 발행자·구독자 작성: https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Writing-A-Simple-Py-Publisher-And-Subscriber.html</li><li>QoS 설정: https://docs.ros.org/en/humble/Concepts/Intermediate/About-Quality-of-Service-Settings.html</li><li>REP-103 단위·좌표 규약: https://www.ros.org/reps/rep-0103.html</li></ul>
+      <nav class="pager"><a class="pager-prev" href="r02.html"><span>이전 · R02</span>워크스페이스·패키지·노드</a><a class="pager-next" href="r04.html"><span>다음 · R04</span>서비스·액션·커스텀 인터페이스</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#토픽-통신-모델">토픽 통신 모델</a><a class="toc-l2" href="#메시지-타입">메시지 타입</a><a class="toc-l2" href="#발행자와-구독자-코드-해석">발행자와 구독자 코드 해석</a><a class="toc-l2" href="#qos-기초">QoS 기초</a><a class="toc-l2" href="#mentorpi의-속도-명령-경로">MentorPi의 속도 명령 경로</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l3" href="#원본-topicdemo-두-노드로-발행-구독">① 원본 topic_demo: 두 노드로 발행·구독</a><a class="toc-l3" href="#cmdvel로-로봇-움직이고-odom-읽기">② /cmd_vel로 로봇 움직이고 /odom 읽기</a><a class="toc-l3" href="#scan-구독-앞이-막히면-멈추기">③ /scan 구독: 앞이 막히면 멈추기</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

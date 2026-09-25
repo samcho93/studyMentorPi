@@ -1,0 +1,30 @@
+<svg viewBox="0 0 720 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="로봇 비전 처리 4단계: 영상 획득, 전처리, 특징 추출, 판단">
+  <defs>
+    <marker id="arr-r08-pipeline" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <rect class="box" x="20" y="40" width="150" height="90" rx="8"/>
+  <text class="lbl" x="95" y="68" text-anchor="middle">1. 영상 획득</text>
+  <text class="sub mono" x="95" y="92" text-anchor="middle">Image 토픽</text>
+  <text class="sub mono" x="95" y="112" text-anchor="middle">cv_bridge</text>
+  <rect class="box" x="200" y="40" width="150" height="90" rx="8"/>
+  <text class="lbl" x="275" y="68" text-anchor="middle">2. 전처리</text>
+  <text class="sub mono" x="275" y="92" text-anchor="middle">resize · blur</text>
+  <text class="sub mono" x="275" y="112" text-anchor="middle">cvtColor</text>
+  <rect class="box" x="380" y="40" width="150" height="90" rx="8"/>
+  <text class="lbl" x="455" y="68" text-anchor="middle">3. 특징 추출</text>
+  <text class="sub mono" x="455" y="92" text-anchor="middle">inRange · Canny</text>
+  <text class="sub mono" x="455" y="112" text-anchor="middle">findContours</text>
+  <rect class="box-hi" x="560" y="40" width="140" height="90" rx="8"/>
+  <text class="lbl" x="630" y="68" text-anchor="middle">4. 판단·제어</text>
+  <text class="sub mono" x="630" y="92" text-anchor="middle">중심·면적 → PID</text>
+  <text class="sub mono" x="630" y="112" text-anchor="middle">/cmd_vel</text>
+  <path class="ln" d="M170 85 L196 85" stroke-width="1.6" marker-end="url(#arr-r08-pipeline)"/>
+  <path class="ln" d="M350 85 L376 85" stroke-width="1.6" marker-end="url(#arr-r08-pipeline)"/>
+  <path class="ln" d="M530 85 L556 85" stroke-width="1.6" marker-end="url(#arr-r08-pipeline)"/>
+  <text class="tag" x="95" y="155" text-anchor="middle">R08</text>
+  <text class="tag" x="275" y="155" text-anchor="middle">R09</text>
+  <text class="tag" x="455" y="155" text-anchor="middle">R10 · R11</text>
+  <text class="tag" x="630" y="155" text-anchor="middle">A01 ~ A04</text>
+  <text class="sub mono" x="360" y="195" text-anchor="middle">/ascamera/camera_publisher/rgb0/image  →  (H, W, 3) uint8 BGR 배열</text>
+  <text class="sub" x="360" y="215" text-anchor="middle">카메라 노드가 발행한 프레임 한 장마다 이 과정을 반복합니다 (보통 15~30 fps)</text>
+</svg>

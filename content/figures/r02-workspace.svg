@@ -1,0 +1,48 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="워크스페이스 구조와 colcon build, source, ros2 run 흐름">
+  <defs>
+    <marker id="arr-r02-workspace" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <text class="lbl mono" x="30" y="34">~/hiwonder_ws/</text>
+  <path class="ln" d="M40 42 L40 222" stroke-width="1.5"/>
+  <path class="ln" d="M40 66 L56 66 M40 170 L56 170 M40 196 L56 196 M40 222 L56 222" stroke-width="1.5"/>
+  <rect class="box-hi" x="60" y="52" width="200" height="96" rx="6"/>
+  <text class="lbl mono" x="72" y="71">src/</text>
+  <text class="tag mono" x="86" y="92">hello_world_demo/</text>
+  <text class="tag mono" x="98" y="110">package.xml · setup.py</text>
+  <text class="tag mono" x="98" y="128">hello_world_demo/*.py</text>
+  <text class="sub" x="160" y="71">← 여기서만 작업</text>
+  <text class="lbl mono" x="62" y="175">build/</text>
+  <text class="sub" x="130" y="175">중간 산출물</text>
+  <text class="lbl mono" x="62" y="201">install/</text>
+  <text class="sub" x="130" y="201">실행 파일 · setup.bash</text>
+  <text class="lbl mono" x="62" y="227">log/</text>
+  <text class="sub" x="130" y="227">빌드 로그</text>
+
+  <rect class="box" x="330" y="40" width="170" height="44" rx="8"/>
+  <text class="lbl" x="415" y="59" text-anchor="middle">① 작성</text>
+  <text class="tag mono" x="415" y="75" text-anchor="middle">vim src/.../node.py</text>
+  <rect class="box" x="330" y="112" width="170" height="44" rx="8"/>
+  <text class="lbl" x="415" y="131" text-anchor="middle">② 빌드</text>
+  <text class="tag mono" x="415" y="147" text-anchor="middle">colcon build</text>
+  <rect class="box" x="330" y="184" width="170" height="44" rx="8"/>
+  <text class="lbl" x="415" y="203" text-anchor="middle">③ 환경 등록</text>
+  <text class="tag mono" x="415" y="219" text-anchor="middle">source install/setup.bash</text>
+  <rect class="box-hi" x="530" y="184" width="170" height="44" rx="8"/>
+  <text class="lbl" x="615" y="203" text-anchor="middle">④ 실행</text>
+  <text class="tag mono" x="615" y="219" text-anchor="middle">ros2 run 패키지 실행파일</text>
+
+  <path class="ln-hi" d="M415 86 L415 109" stroke-width="2" marker-end="url(#arr-r02-workspace)"/>
+  <path class="ln-hi" d="M415 158 L415 181" stroke-width="2" marker-end="url(#arr-r02-workspace)"/>
+  <path class="ln-hi" d="M502 206 L527 206" stroke-width="2" marker-end="url(#arr-r02-workspace)"/>
+  <path class="ln-hi" d="M328 134 C290 134 290 190 250 196" stroke-width="1.6" stroke-dasharray="4 3" marker-end="url(#arr-r02-workspace)"/>
+  <text class="tag" x="300" y="248" text-anchor="middle">install/ 생성</text>
+
+  <rect class="box" x="530" y="40" width="170" height="116" rx="8"/>
+  <text class="lbl" x="615" y="60" text-anchor="middle">source 순서</text>
+  <text class="tag mono" x="545" y="84">1 /opt/ros/humble</text>
+  <text class="tag mono" x="545" y="106">2 ~/ros2_ws</text>
+  <text class="tag mono" x="545" y="128">3 ~/hiwonder_ws</text>
+  <text class="sub" x="615" y="148" text-anchor="middle">나중 것이 앞을 덮음</text>
+
+  <text class="sub" x="360" y="284" text-anchor="middle">setup.py의 entry_points가 "실행파일 = 패키지.모듈:main"을 연결합니다</text>
+</svg>

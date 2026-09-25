@@ -1,0 +1,44 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="MentorPi ROS 2 계산 그래프: 노드들이 DDS 데이터 버스를 통해 토픽으로 연결">
+  <defs>
+    <marker id="arr-r01-graph" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <rect class="box-hi" x="30" y="136" width="660" height="30" rx="6"/>
+  <text class="lbl" x="360" y="156" text-anchor="middle">DDS 데이터 버스 — RTPS, 자동 탐색(discovery), 중앙 마스터 없음</text>
+
+  <rect class="box" x="40" y="40" width="150" height="48" rx="12"/>
+  <text class="lbl" x="115" y="60" text-anchor="middle">라이다 드라이버</text>
+  <text class="sub" x="115" y="77" text-anchor="middle">peripherals</text>
+  <rect class="box" x="285" y="40" width="150" height="48" rx="12"/>
+  <text class="lbl" x="360" y="60" text-anchor="middle">앱 노드</text>
+  <text class="sub" x="360" y="77" text-anchor="middle">lidar_controller</text>
+  <rect class="box" x="530" y="40" width="150" height="48" rx="12"/>
+  <text class="lbl" x="605" y="60" text-anchor="middle">ros2 CLI · rqt</text>
+  <text class="sub" x="605" y="77" text-anchor="middle">사용자 도구</text>
+
+  <rect class="box" x="120" y="210" width="190" height="48" rx="12"/>
+  <text class="lbl" x="215" y="230" text-anchor="middle">odom_publisher</text>
+  <text class="sub" x="215" y="247" text-anchor="middle">controller · 기구학·오도메트리</text>
+  <rect class="box" x="420" y="210" width="200" height="48" rx="12"/>
+  <text class="lbl" x="520" y="230" text-anchor="middle">ros_robot_controller</text>
+  <text class="sub" x="520" y="247" text-anchor="middle">확장보드 시리얼 통신</text>
+
+  <path class="ln-hi" d="M115 90 L115 133" stroke-width="2" marker-end="url(#arr-r01-graph)"/>
+  <text class="tag mono" x="122" y="118">/scan_raw</text>
+  <path class="ln-hi" d="M330 134 L330 92" stroke-width="2" marker-end="url(#arr-r01-graph)"/>
+  <text class="tag mono" x="323" y="118" text-anchor="end">/scan</text>
+  <path class="ln-hi" d="M390 90 L390 133" stroke-width="2" marker-end="url(#arr-r01-graph)"/>
+  <text class="tag mono" x="397" y="118">/controller/cmd_vel</text>
+  <path class="ln-hi" d="M605 90 L605 133" stroke-width="2" marker-end="url(#arr-r01-graph)"/>
+  <text class="tag mono" x="612" y="118">/cmd_vel</text>
+
+  <path class="ln-hi" d="M170 168 L170 207" stroke-width="2" marker-end="url(#arr-r01-graph)"/>
+  <text class="tag mono" x="163" y="192" text-anchor="end">cmd_vel 구독</text>
+  <path class="ln-hi" d="M260 208 L260 169" stroke-width="2" marker-end="url(#arr-r01-graph)"/>
+  <text class="tag mono" x="267" y="192">/odom</text>
+  <path class="ln-hi" d="M470 168 L470 207" stroke-width="2" marker-end="url(#arr-r01-graph)"/>
+  <text class="tag mono" x="463" y="192" text-anchor="end">set_motor</text>
+  <path class="ln-hi" d="M570 208 L570 169" stroke-width="2" marker-end="url(#arr-r01-graph)"/>
+  <text class="tag mono" x="577" y="192">/imu · 배터리</text>
+
+  <text class="sub" x="360" y="288" text-anchor="middle">노드는 서로의 주소를 몰라도 토픽 이름과 메시지 타입만 맞으면 연결됩니다</text>
+</svg>

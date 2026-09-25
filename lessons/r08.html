@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R08. OpenCV 시작: 이미지·영상·그리기 · studyMentorPi</title>
+<meta name="description" content="컴퓨터 비전 개요, OpenCV 모듈 구조, 이미지·동영상·카메라 읽기와 표시, 도형·글자 그리기, 픽셀·ROI·채널 기본 연산.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-ros">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" class="active" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="r08" data-track="ros">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-ros">ROS 2·OpenCV 기초</span> R-3 OpenCV 영상 처리 &middot; 약 80분 &middot; 초급</div>
+    <h1><span class="lesson-no">R08</span>OpenCV 시작: 이미지·영상·그리기</h1>
+    <p class="lede">컴퓨터 비전 개요, OpenCV 모듈 구조, 이미지·동영상·카메라 읽기와 표시, 도형·글자 그리기, 픽셀·ROI·채널 기본 연산.</p>
+    <div class="requires">선수 챕터: <a href="b06.html">B06</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      <a class="ghost-btn" href="../tools/color-lab.html">HSV 색 실험실</a><a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>로봇 비전 처리의 4단계(획득 → 전처리 → 특징 추출 → 판단)를 MentorPi의 카메라 토픽과 연결해 설명합니다.</li><li>OpenCV 이미지가 <strong>NumPy 배열</strong>(<code>shape = (H, W, 3)</code>, BGR 순서, <code>uint8</code>)이라는 점을 이용해 픽셀·ROI·채널을 읽고 바꿉니다.</li><li><code>imread</code>·<code>imshow</code>·<code>waitKey</code>·<code>VideoCapture</code>로 이미지·동영상·카메라 영상을 읽고 표시합니다.</li><li><code>line</code>·<code>rectangle</code>·<code>circle</code>·<code>polylines</code>·<code>putText</code>로 인식 결과를 화면에 그려 넣습니다.</li><li>실물 MentorPi에서 카메라 노드를 켜고 ROS 2 이미지 토픽을 OpenCV 배열로 바꿔 저장합니다.</li></ul>
+<h2 id="로봇은-어떻게-보는가">로봇은 어떻게 “보는가”<a class="anchor" href="#로봇은-어떻게-보는가">#</a></h2>
+<p>카메라의 이미지 센서(CMOS)는 빛을 전기 신호로 바꾸고, 이 신호는 <strong>픽셀 격자</strong>의 숫자 배열이 됩니다. 로봇은 이 숫자 배열에서 필요한 정보만 뽑아 “빨간 공이 오른쪽에 있다”, “선이 왼쪽으로 휘었다” 같은 판단을 내립니다. 이 흐름을 머신 비전(machine vision)이라고 부르며, 보통 네 단계로 나눕니다.</p>
+<figure class="fig" id="fig-r08-pipeline"><svg viewBox="0 0 720 230" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="로봇 비전 처리 4단계: 영상 획득, 전처리, 특징 추출, 판단">
+  <defs>
+    <marker id="arr-r08-pipeline" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <rect class="box" x="20" y="40" width="150" height="90" rx="8"/>
+  <text class="lbl" x="95" y="68" text-anchor="middle">1. 영상 획득</text>
+  <text class="sub mono" x="95" y="92" text-anchor="middle">Image 토픽</text>
+  <text class="sub mono" x="95" y="112" text-anchor="middle">cv_bridge</text>
+  <rect class="box" x="200" y="40" width="150" height="90" rx="8"/>
+  <text class="lbl" x="275" y="68" text-anchor="middle">2. 전처리</text>
+  <text class="sub mono" x="275" y="92" text-anchor="middle">resize · blur</text>
+  <text class="sub mono" x="275" y="112" text-anchor="middle">cvtColor</text>
+  <rect class="box" x="380" y="40" width="150" height="90" rx="8"/>
+  <text class="lbl" x="455" y="68" text-anchor="middle">3. 특징 추출</text>
+  <text class="sub mono" x="455" y="92" text-anchor="middle">inRange · Canny</text>
+  <text class="sub mono" x="455" y="112" text-anchor="middle">findContours</text>
+  <rect class="box-hi" x="560" y="40" width="140" height="90" rx="8"/>
+  <text class="lbl" x="630" y="68" text-anchor="middle">4. 판단·제어</text>
+  <text class="sub mono" x="630" y="92" text-anchor="middle">중심·면적 → PID</text>
+  <text class="sub mono" x="630" y="112" text-anchor="middle">/cmd_vel</text>
+  <path class="ln" d="M170 85 L196 85" stroke-width="1.6" marker-end="url(#arr-r08-pipeline)"/>
+  <path class="ln" d="M350 85 L376 85" stroke-width="1.6" marker-end="url(#arr-r08-pipeline)"/>
+  <path class="ln" d="M530 85 L556 85" stroke-width="1.6" marker-end="url(#arr-r08-pipeline)"/>
+  <text class="tag" x="95" y="155" text-anchor="middle">R08</text>
+  <text class="tag" x="275" y="155" text-anchor="middle">R09</text>
+  <text class="tag" x="455" y="155" text-anchor="middle">R10 · R11</text>
+  <text class="tag" x="630" y="155" text-anchor="middle">A01 ~ A04</text>
+  <text class="sub mono" x="360" y="195" text-anchor="middle">/ascamera/camera_publisher/rgb0/image  →  (H, W, 3) uint8 BGR 배열</text>
+  <text class="sub" x="360" y="215" text-anchor="middle">카메라 노드가 발행한 프레임 한 장마다 이 과정을 반복합니다 (보통 15~30 fps)</text>
+</svg><figcaption>로봇 비전 처리의 4단계와 이 강좌에서 다루는 챕터</figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th>단계</th><th>하는 일</th><th>OpenCV 함수 예</th><th>이 과정의 챕터</th></tr></thead><tbody><tr><td>1. 영상 획득 (acquisition)</td><td>카메라 프레임을 배열로 받기</td><td><code>VideoCapture</code>, <code>cv_bridge</code></td><td>R08</td></tr><tr><td>2. 전처리 (preprocessing)</td><td>크기 조정, 잡음 제거, 색 공간 변환</td><td><code>resize</code>, <code>GaussianBlur</code>, <code>cvtColor</code></td><td>R09</td></tr><tr><td>3. 특징 추출 (feature extraction)</td><td>엣지·영역·윤곽선·코너·특징점</td><td><code>Canny</code>, <code>inRange</code>, <code>findContours</code>, <code>ORB</code></td><td>R10, R11</td></tr><tr><td>4. 판단·분류 (decision)</td><td>위치·크기·종류를 결정하고 로봇 명령으로</td><td>규칙, PID, 분류기</td><td>A01~A04</td></tr></tbody></table></div>
+<p>MentorPi에서 1단계는 깊이 카메라 노드가 담당합니다. 카메라 노드는 컬러 영상을 <code>/ascamera/camera_publisher/rgb0/image</code> 토픽(<code>sensor_msgs/msg/Image</code>)으로 발행하고, 색 인식·라인 트레이싱·QR 인식 같은 예제 노드가 모두 이 토픽을 구독합니다. 이번 챕터에서는 그 배열을 다루는 기본기를 익힙니다.</p>
+<div class="callout callout-info"><div class="callout-title">OpenCV란</div><div class="callout-body"><p>OpenCV(Open Source Computer Vision Library)는 영상 처리·컴퓨터 비전 알고리즘 2,500여 개를 모은 오픈소스 라이브러리입니다. 내부는 C++로 작성되어 빠르고, 파이썬에서는 <code>import cv2</code>로 씁니다. 파이썬 바인딩은 이미지를 <strong>NumPy 배열</strong>로 주고받기 때문에 NumPy 연산과 자연스럽게 섞어 쓸 수 있습니다.</p></div></div>
+<h2 id="opencv-모듈-구조">OpenCV 모듈 구조<a class="anchor" href="#opencv-모듈-구조">#</a></h2>
+<p>OpenCV는 여러 층으로 이루어집니다. 가장 아래에는 CPU·GPU 명령을 최적화하는 HAL(Hardware Acceleration Layer)이 있고, 그 위에 핵심 모듈과 확장 모듈(opencv_contrib), 언어 바인딩(Python·Java), 운영체제와 연결되는 입출력 계층이 있습니다. 로봇 코드에서 실제로 자주 만나는 모듈은 다음과 같습니다.</p>
+<div class="table-wrap"><table><thead><tr><th>모듈</th><th>내용</th><th>대표 함수</th></tr></thead><tbody><tr><td><code>core</code></td><td>기본 자료구조(Mat), 배열 연산</td><td><code>add</code>, <code>split</code>, <code>merge</code>, <code>normalize</code></td></tr><tr><td><code>imgproc</code></td><td>필터·기하 변환·색 변환·윤곽선</td><td><code>cvtColor</code>, <code>GaussianBlur</code>, <code>warpAffine</code>, <code>findContours</code></td></tr><tr><td><code>imgcodecs</code> / <code>videoio</code> / <code>highgui</code></td><td>파일 입출력, 카메라, 창 표시</td><td><code>imread</code>, <code>VideoCapture</code>, <code>imshow</code></td></tr><tr><td><code>video</code></td><td>움직임 분석·추적</td><td><code>calcOpticalFlowPyrLK</code></td></tr><tr><td><code>calib3d</code></td><td>카메라 보정, 3차원 재구성</td><td><code>calibrateCamera</code>, <code>findHomography</code></td></tr><tr><td><code>features2d</code> / <code>flann</code></td><td>특징점 검출·기술·매칭</td><td><code>ORB_create</code>, <code>BFMatcher</code>, <code>FlannBasedMatcher</code></td></tr><tr><td><code>objdetect</code></td><td>얼굴·QR 코드 등 특정 물체 검출</td><td><code>CascadeClassifier</code>, <code>QRCodeDetector</code></td></tr><tr><td><code>ml</code> / <code>dnn</code></td><td>고전 머신러닝, 딥러닝 추론</td><td><code>ml.SVM_create</code>, <code>dnn.readNet</code></td></tr><tr><td><code>photo</code> / <code>stitching</code></td><td>계산 사진학, 파노라마</td><td><code>inpaint</code>, <code>Stitcher_create</code></td></tr></tbody></table></div>
+<p>특허 문제로 따로 관리되던 알고리즘(예전의 SIFT·SURF)은 <code>opencv_contrib</code>의 <code>xfeatures2d</code>에 있었습니다. SIFT는 특허가 만료되어 OpenCV 4.4부터 기본 모듈로 들어왔습니다(R11).</p>
+<h3 id="설치와-버전-확인">설치와 버전 확인<a class="anchor" href="#설치와-버전-확인">#</a></h3>
+<p>MentorPi 공식 이미지의 Docker 컨테이너에는 <code>python3-opencv</code>와 NumPy가 이미 들어 있습니다. PC(Ubuntu)에서 따로 연습하려면 다음처럼 설치합니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">sudo apt update
+sudo apt install python3-opencv     # 또는: pip install opencv-python numpy
+python3 -c &quot;import cv2; print(cv2.__version__)&quot;</code></pre></div>
+<p>버전 문자열이 출력되면 설치된 것입니다. OpenCV 3.x와 4.x는 <code>findContours</code>의 반환값 개수가 다르므로(R11) 버전을 확인하는 습관을 들입니다.</p>
+<h2 id="이미지는-배열이다">이미지는 배열이다<a class="anchor" href="#이미지는-배열이다">#</a></h2>
+<p>OpenCV가 읽은 컬러 이미지는 <code>(행 수, 열 수, 채널 수)</code> 모양의 3차원 NumPy 배열입니다. 흑백(grayscale) 이미지는 채널 축이 없는 2차원 배열입니다.</p>
+<figure class="fig" id="fig-r08-array"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="이미지 좌표계와 배열 인덱스: 원점은 왼쪽 위, x는 오른쪽, y는 아래, img[y, x]">
+  <defs>
+    <marker id="arr-r08-array" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <g>
+    <rect class="box" x="60" y="60" width="240" height="180"/>
+    <path class="ln" d="M60 90 H300 M60 120 H300 M60 150 H300 M60 180 H300 M60 210 H300" stroke-width="0.6"/>
+    <path class="ln" d="M90 60 V240 M120 60 V240 M150 60 V240 M180 60 V240 M210 60 V240 M240 60 V240 M270 60 V240" stroke-width="0.6"/>
+    <rect class="hi" x="180" y="120" width="30" height="30"/>
+    <path class="ln-hi" d="M60 40 L320 40" stroke-width="2" marker-end="url(#arr-r08-array)"/>
+    <text class="lbl" x="326" y="45">x (열, col)</text>
+    <path class="ln-hi" d="M40 60 L40 262" stroke-width="2" marker-end="url(#arr-r08-array)"/>
+    <text class="lbl" x="40" y="282" text-anchor="middle">y (행, row)</text>
+    <text class="tag mono" x="60" y="54" text-anchor="middle">(0,0)</text>
+    <text class="tag mono" x="195" y="170" text-anchor="middle">x=4, y=2</text>
+  </g>
+  <text class="lbl mono" x="400" y="90">img[2, 4]      → [B, G, R]</text>
+  <text class="lbl mono" x="400" y="116">img[2, 4, 2]   → R 값 하나</text>
+  <text class="lbl mono" x="400" y="142">img[1:3, 2:5]  → ROI (뷰)</text>
+  <text class="lbl mono" x="400" y="168">cv2.circle(img, (4, 2), …)</text>
+  <text class="sub" x="400" y="198">배열 인덱스: [행 y, 열 x, 채널]</text>
+  <text class="sub" x="400" y="218">그리기 함수 좌표: (x, y)</text>
+  <text class="sub" x="400" y="238">img.shape = (H, W, 3), dtype uint8 (0~255)</text>
+</svg><figcaption>이미지 좌표와 배열 인덱스 — <code>img[y, x]</code>는 (행, 열) 순서이고 채널은 B, G, R 순서입니다</figcaption></figure>
+<p>꼭 기억할 규칙이 세 가지 있습니다.</p>
+<ol><li>**인덱스는 <code>img[y, x]</code>(행, 열) 순서**입니다. 반면 <code>cv2.circle(img, (x, y), …)</code> 같은 그리기 함수의 좌표는 <code>(x, y)</code> 순서입니다. 둘을 섞으면 점이 대각선 반대편에 찍힙니다.</li><li><strong>채널 순서는 BGR</strong>입니다. <code>img[y, x] = [255, 0, 0]</code>은 파란색입니다. ROS의 <code>cv_bridge</code>로 받을 때 <code>&quot;bgr8&quot;</code>을 지정하는 것도 이 때문입니다. (MentorPi의 라인 트레이싱 노드처럼 <code>&quot;rgb8&quot;</code>로 받는 코드도 있으니, 코드마다 어느 쪽인지 확인해야 합니다.)</li><li>**자료형은 <code>uint8</code>(0~255)<strong>입니다. 255를 넘거나 0보다 작아지는 계산은 NumPy에서는 </strong>순환(wrap-around)<strong>, OpenCV 함수에서는 </strong>포화(saturation)**가 일어납니다.</li></ol>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+import numpy as np
+
+img = np.zeros((240, 320, 3), np.uint8)     # 검은 캔버스: 높이 240, 너비 320
+img[:, :] = (40, 40, 40)                    # 모든 픽셀을 어두운 회색으로
+img[100, 200] = (0, 0, 255)                 # (x=200, y=100) 한 점을 빨강으로
+img[20:60, 30:130] = (255, 0, 0)            # ROI(행 20~59, 열 30~129)를 파랑으로
+
+print(&quot;shape:&quot;, img.shape, &quot; size:&quot;, img.size, &quot; dtype:&quot;, img.dtype)
+print(&quot;img[100, 200] =&quot;, img[100, 200], &quot;(B, G, R)&quot;)
+print(&quot;빨강 채널만:&quot;, img[100, 200, 2])
+
+b, g, r = cv2.split(img)                    # 채널 분리 → 2차원 배열 3개
+print(&quot;b.shape:&quot;, b.shape, &quot; 파랑 픽셀 수:&quot;, int(np.count_nonzero(b == 255)))
+swapped = cv2.merge([r, g, b])              # 채널 순서를 바꿔 다시 합치기
+print(&quot;merge 후 ROI 색:&quot;, swapped[30, 50])
+
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+print(&quot;gray.shape:&quot;, gray.shape, &quot; ROI 밝기:&quot;, gray[30, 50])
+cv2.imshow(&quot;canvas&quot;, img)
+cv2.imshow(&quot;swapped&quot;, swapped)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">shape: (240, 320, 3)  size: 230400  dtype: uint8
+img[100, 200] = [  0   0 255] (B, G, R)
+빨강 채널만: 255
+b.shape: (240, 320)  파랑 픽셀 수: 4000
+merge 후 ROI 색: [  0   0 255]
+gray.shape: (240, 320)  ROI 밝기: 29</code></pre></div>
+<ul><li><code>img.size</code>는 <code>H × W × 채널</code>의 원소 수입니다. 흑백 이미지인지 알고 싶으면 <code>len(img.shape) == 2</code>로 확인합니다.</li><li><code>cv2.merge([r, g, b])</code>는 채널 순서를 바꿔 파랑 사각형을 빨강으로 만듭니다. BGR ↔ RGB 혼동이 생기면 화면에서 <strong>빨강과 파랑이 뒤바뀌어</strong> 보이는 이유입니다.</li><li>회색 변환 값 29는 <code>0.114·B + 0.587·G + 0.299·R = 0.114 × 255</code>에서 나옵니다(R09).</li></ul>
+<h3 id="roi는-뷰view-다">ROI는 “뷰(view)”다<a class="anchor" href="#roi는-뷰view-다">#</a></h3>
+<p><code>roi = img[y1:y2, x1:x2]</code>는 <strong>새 배열을 만들지 않고 원본의 일부를 가리키는 뷰</strong>입니다. ROI에 그림을 그리면 원본도 바뀝니다. 원본을 보존하려면 <code>.copy()</code>를 붙입니다. 라인 트레이싱 노드가 화면 아래쪽 몇 줄만 잘라 처리하는 것(A03)도 이 슬라이싱입니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+import numpy as np
+
+img = np.full((100, 100), 50, np.uint8)
+roi_view = img[10:30, 10:30]           # 뷰
+roi_copy = img[60:80, 60:80].copy()    # 복사본
+roi_view[:] = 255
+roi_copy[:] = 255
+print(&quot;뷰를 바꾼 뒤 원본 img[20, 20] =&quot;, img[20, 20])
+print(&quot;복사본을 바꾼 뒤 원본 img[70, 70] =&quot;, img[70, 70])
+
+# uint8 산술: NumPy는 순환, OpenCV는 포화
+a = np.array([[250, 10]], np.uint8)
+b = np.array([[10, 20]], np.uint8)
+print(&quot;numpy a + b =&quot;, a + b, &quot;  cv2.add =&quot;, cv2.add(a, b))
+print(&quot;numpy b - a =&quot;, b - a, &quot;  cv2.subtract =&quot;, cv2.subtract(b, a))
+cv2.imshow(&quot;view vs copy&quot;, img)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">뷰를 바꾼 뒤 원본 img[20, 20] = 255
+복사본을 바꾼 뒤 원본 img[70, 70] = 50
+numpy a + b = [[ 4 30]]   cv2.add = [[255  30]]
+numpy b - a = [[16 10]]   cv2.subtract = [[ 0 10]]</code></pre></div>
+<p>밝기를 더하는 코드를 NumPy <code>+</code>로 쓰면 밝은 픽셀이 <strong>검게 뒤집히는</strong> 버그가 생깁니다. 영상 산술에는 <code>cv2.add</code>/<code>cv2.subtract</code>를 쓰거나, <code>int16</code>으로 바꿔 계산한 뒤 <code>np.clip</code>으로 자르세요.</p>
+<h2 id="이미지-동영상-읽기와-표시">이미지·동영상 읽기와 표시<a class="anchor" href="#이미지-동영상-읽기와-표시">#</a></h2>
+<h3 id="이미지-파일">이미지 파일<a class="anchor" href="#이미지-파일">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">img = cv2.imread(&quot;camera.png&quot;, cv2.IMREAD_COLOR)   # 3채널 BGR (알파 채널 버림)
+gray = cv2.imread(&quot;camera.png&quot;, cv2.IMREAD_GRAYSCALE)
+rgba = cv2.imread(&quot;logo.png&quot;, cv2.IMREAD_UNCHANGED) # 알파 채널까지 그대로
+cv2.imshow(&quot;window name&quot;, img)                      # 창 이름이 같으면 같은 창을 갱신
+cv2.waitKey(0)                                      # 키 입력까지 대기 (ms 단위, 0 = 무한)
+cv2.destroyAllWindows()
+cv2.imwrite(&quot;out.jpg&quot;, img)                         # 확장자로 형식 결정</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>함수</th><th>주의할 점</th></tr></thead><tbody><tr><td><code>imread(path, flag)</code></td><td>파일이 없으면 **예외 없이 <code>None</code>**을 돌려줍니다. 바로 <code>img.shape</code>를 부르면 <code>AttributeError</code>가 납니다.</td></tr><tr><td><code>imshow(name, img)</code></td><td>창을 실제로 그리는 것은 <code>waitKey</code>입니다. <code>waitKey</code> 없이 루프를 돌면 창이 멈춘 것처럼 보입니다.</td></tr><tr><td><code>waitKey(ms)</code></td><td>눌린 키의 코드를 돌려주고, 시간 안에 입력이 없으면 <code>-1</code>입니다. <code>ord(&#x27;q&#x27;)</code>와 비교해 종료 키를 만듭니다.</td></tr><tr><td><code>imwrite(path, img)</code></td><td>성공 여부를 <code>True/False</code>로 돌려줍니다. 폴더가 없으면 <code>False</code>입니다.</td></tr></tbody></table></div>
+<p>Playground에서는 <code>imshow</code>가 오른쪽 이미지 패널에 결과를 보여 주고, <code>waitKey()</code>는 곧바로 <code>-1</code>을 돌려줍니다. 샘플 이미지(<code>shapes.png</code>, <code>colors.png</code>, <code>track.png</code>, <code>lane.png</code>, <code>qr.png</code>, <code>scene.png</code>, <code>coins.png</code>)는 <code>imread</code>로 바로 읽을 수 있습니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+
+for name in [&quot;shapes.png&quot;, &quot;colors.png&quot;, &quot;track.png&quot;, &quot;scene.png&quot;]:
+    img = cv2.imread(name)
+    if img is None:
+        print(name, &quot;읽기 실패&quot;)
+        continue
+    h, w = img.shape[:2]
+    print(&quot;%-11s %d x %d, 채널 %d, 평균 밝기 %.0f&quot; % (name, w, h, img.shape[2], img.mean()))
+
+img = cv2.imread(&quot;scene.png&quot;)
+small = cv2.resize(img, (320, 240))
+cv2.imshow(&quot;scene (320x240)&quot;, small)
+cv2.imshow(&quot;scene gray&quot;, cv2.cvtColor(small, cv2.COLOR_BGR2GRAY))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">shapes.png  640 x 480, 채널 3, 평균 밝기 219
+colors.png  640 x 480, 채널 3, 평균 밝기 115
+track.png   640 x 480, 채널 3, 평균 밝기 205
+scene.png   640 x 480, 채널 3, 평균 밝기 147</code></pre></div>
+<h3 id="동영상과-usb-카메라">동영상과 USB 카메라<a class="anchor" href="#동영상과-usb-카메라">#</a></h3>
+<p>동영상은 이미지를 빠르게 바꿔 보여 주는 것이므로, <strong>프레임을 한 장씩 읽어 처리하는 루프</strong>가 기본 구조입니다.</p>
+<div class="code-block code-robot"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-robot">실물 전용</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+
+cap = cv2.VideoCapture(0)          # 0번 카메라 (동영상이면 파일 경로)
+while cap.isOpened():
+    ok, frame = cap.read()         # ok=False면 프레임을 못 받은 것
+    if not ok:
+        break
+    cv2.imshow(&quot;camera&quot;, frame)
+    if cv2.waitKey(1) &amp; 0xFF == ord(&#x27;q&#x27;):   # 1 ms 대기 → 화면 갱신 + 키 확인
+        break
+cap.release()
+cv2.destroyAllWindows()</code></pre></div>
+<p><code>waitKey(1)</code>의 1 ms는 “다음 프레임을 보여 주기 전 기다리는 시간”입니다. 동영상 파일을 원래 속도로 재생하려면 <code>1000 / fps</code> ms를 기다립니다. MentorPi에서는 카메라를 ROS 2 드라이버 노드가 점유하므로 <code>VideoCapture</code> 대신 <strong>이미지 토픽을 구독</strong>합니다(아래 실물 실습).</p>
+<h2 id="도형과-글자-그리기">도형과 글자 그리기<a class="anchor" href="#도형과-글자-그리기">#</a></h2>
+<p>인식 결과를 눈으로 확인하려면 영상 위에 표시를 그려야 합니다. 모든 그리기 함수는 <strong>원본 배열을 직접 바꾸고</strong>, 좌표는 <code>(x, y)</code>, 색은 BGR 튜플입니다. <code>thickness</code>가 음수(<code>-1</code> 또는 <code>cv2.FILLED</code>)이면 내부를 채웁니다.</p>
+<div class="table-wrap"><table><thead><tr><th>함수</th><th>인자</th><th>용도 예</th></tr></thead><tbody><tr><td><code>cv2.line(img, pt1, pt2, color, thickness)</code></td><td>시작·끝점</td><td>화면 중앙 기준선, 오차 표시</td></tr><tr><td><code>cv2.rectangle(img, pt1, pt2, color, thickness)</code></td><td>대각 두 꼭짓점</td><td>검출 박스</td></tr><tr><td><code>cv2.circle(img, center, radius, color, thickness)</code></td><td>중심·반지름</td><td>색 블록 외접원, 중심점</td></tr><tr><td><code>cv2.polylines(img, [pts], isClosed, color, thickness)</code></td><td>꼭짓점 배열 <code>(N,1,2)</code> 또는 <code>(N,2)</code>, <code>int32</code></td><td>QR 코드 테두리, 회전 사각형</td></tr><tr><td><code>cv2.putText(img, text, org, font, scale, color, thickness)</code></td><td><code>org</code>는 글자 <strong>왼쪽 아래</strong></td><td>인식 결과 문자열</td></tr></tbody></table></div>
+<p>아래 코드는 MentorPi 색 인식 예제(<code>color_detect_demo.py</code>)가 결과를 표시하는 방식을 흉내 낸 HUD입니다. 원본도 검출한 물체에 원을 그리고 화면 왼쪽 아래 <code>(10, h - 10)</code>에 <code>&quot;Color: red&quot;</code>를 씁니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+import numpy as np
+
+h, w = 240, 320
+img = np.full((h, w, 3), 30, np.uint8)
+cv2.line(img, (w // 2, 0), (w // 2, h), (200, 200, 200), 1)            # 화면 중앙선
+cv2.rectangle(img, (40, 60), (120, 140), (0, 255, 0), 2)               # 검출 박스
+cv2.circle(img, (220, 110), 35, (0, 0, 255), 2)                        # 외접원
+cv2.circle(img, (220, 110), 4, (0, 0, 255), -1)                        # 중심점 (채움)
+pts = np.array([[150, 200], [190, 170], [230, 200], [190, 230]], np.int32)
+cv2.polylines(img, [pts], True, (255, 255, 0), 2)                      # 닫힌 다각형
+err = 220 - w // 2
+cv2.arrowedLine(img, (w // 2, 110), (220, 110), (0, 255, 255), 2, tipLength=0.2)
+cv2.putText(img, &quot;Color: red&quot;, (10, h - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.65, (0, 0, 255), 2)
+cv2.putText(img, &quot;err_x = %+d px&quot; % err, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+print(&quot;원 중심 x = 220, 화면 중앙 x = %d → x 오차 %+d px&quot; % (w // 2, err))
+cv2.imshow(&quot;HUD&quot;, img)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">원 중심 x = 220, 화면 중앙 x = 160 → x 오차 +60 px</code></pre></div>
+<div class="callout callout-tip"><div class="callout-title">글자 위치 계산</div><div class="callout-body"><p><code>cv2.getTextSize(text, font, scale, thickness)</code>는 <code>((너비, 높이), baseline)</code>을 돌려줍니다. 글자를 박스 위쪽에 딱 붙이거나 오른쪽 정렬할 때 씁니다. 한글은 기본 Hershey 폰트로 그릴 수 없으므로 화면 표시는 영문으로 합니다.</p></div></div>
+<h2 id="실습-시뮬레이션">실습 (시뮬레이션)<a class="anchor" href="#실습-시뮬레이션">#</a></h2>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
+<div class="callout callout-task"><div class="callout-title">Playground 실습</div><div class="callout-body"><ol><li>위 HUD 코드에서 원의 중심을 <code>(60, 110)</code>으로 옮기고 <code>err_x</code> 표시가 음수로 바뀌는지 확인합니다. 화살표 방향도 바뀌어야 합니다.</li><li><code>colors.png</code>를 읽어 네 모서리 픽셀과 가운데 픽셀의 BGR 값을 출력하고, 가운데 100×100 ROI를 잘라 <code>imshow</code>로 표시합니다.</li><li><code>cv2.split</code>으로 <code>colors.png</code>의 B·G·R 채널을 각각 흑백으로 표시해 봅니다. 빨간 블록은 어느 채널에서 가장 밝게 보이나요?</li></ol></div></div>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/color-lab.html">HSV 색 실험실 열기</a></p>
+<p>HSV 색 실험실에서 샘플 이미지 위에 마우스를 올리면 그 픽셀의 BGR·HSV 값이 표시됩니다. 방금 Playground에서 출력한 BGR 값과 같은지 비교해 보세요. 색 공간 변환은 R09에서 자세히 다룹니다.</p>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<p>MentorPi의 카메라 노드를 켜고, ROS 2 이미지 메시지를 OpenCV 배열로 바꿔 화면에 표시하고 저장합니다.</p>
+<div class="callout callout-safety"><div class="callout-title">실물 실습 전 확인</div><div class="callout-body"><ul><li>이 실습은 바퀴를 움직이지 않지만, 로봇을 <strong>책상 가장자리에서 떨어진 곳</strong>에 두고 배터리 전압을 확인합니다(저전압 경고음이 나면 충전).</li><li>카메라 케이블(USB)을 전원이 켜진 상태에서 뽑고 꽂지 않습니다.</li><li><code>~/.stop_ros.sh</code>로 앱 자동 실행 서비스를 끄면 휴대폰 앱 기능이 멈춥니다. 실습이 끝나면 반드시 되살립니다.</li></ul></div></div>
+<ol><li>로봇을 켜고 VNC로 접속한 뒤 터미널에서 앱 자동 실행 서비스를 끕니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">~/.stop_ros.sh</code></pre></div>
+<ol><li>카메라 노드를 실행하고, 다른 터미널에서 토픽이 나오는지 확인합니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 launch peripherals depth_camera.launch.py
+# 새 터미널
+ros2 topic list | grep ascamera
+ros2 topic hz /ascamera/camera_publisher/rgb0/image</code></pre></div>
+<ol><li>아래 노드를 <code>~/snapshot_node.py</code>로 저장해 실행합니다. <code>s</code> 키를 누르면 현재 프레임을 저장하고, <code>q</code>로 끝냅니다.</li></ol>
+<div class="code-block code-robot"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-robot">실물 전용</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+import rclpy
+from rclpy.node import Node
+from cv_bridge import CvBridge
+from sensor_msgs.msg import Image
+
+
+class SnapshotNode(Node):
+    def __init__(self):
+        super().__init__(&#x27;snapshot_node&#x27;)
+        self.bridge = CvBridge()
+        self.count = 0
+        self.create_subscription(Image, &#x27;/ascamera/camera_publisher/rgb0/image&#x27;, self.on_image, 1)
+
+    def on_image(self, msg):
+        frame = self.bridge.imgmsg_to_cv2(msg, &#x27;bgr8&#x27;)   # ROS Image → BGR uint8 배열
+        h, w = frame.shape[:2]
+        view = frame.copy()
+        cv2.putText(view, &#x27;%dx%d&#x27; % (w, h), (10, h - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+        cv2.imshow(&#x27;camera&#x27;, view)
+        key = cv2.waitKey(1) &amp; 0xFF
+        if key == ord(&#x27;s&#x27;):
+            name = &#x27;/home/ubuntu/snap_%02d.png&#x27; % self.count
+            cv2.imwrite(name, frame)
+            self.get_logger().info(&#x27;saved %s&#x27; % name)
+            self.count += 1
+        elif key == ord(&#x27;q&#x27;):
+            raise KeyboardInterrupt
+
+
+def main():
+    rclpy.init()
+    node = SnapshotNode()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        cv2.destroyAllWindows()
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == &#x27;__main__&#x27;:
+    main()</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">python3 ~/snapshot_node.py</code></pre></div>
+<ol><li>실습이 끝나면 <strong>Docker 컨테이너 밖(시스템 터미널)</strong>에서 앱 서비스를 다시 켭니다. 부저가 울리면 준비된 것입니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">sudo systemctl restart start_node.service</code></pre></div>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> <code>ros2 topic hz</code>로 카메라 프레임 주기를 확인했다.</label></li><li><label class="check-item"><input type="checkbox"> 저장한 스냅숏의 <code>shape</code>를 출력해 해상도(가로×세로)를 확인했다.</label></li><li><label class="check-item"><input type="checkbox"> 스냅숏을 PC로 가져와 Playground와 같은 코드로 처리할 수 있다.</label></li></ul></div></div>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td><code>AttributeError: &#x27;NoneType&#x27; object has no attribute &#x27;shape&#x27;</code></td><td><code>imread</code> 경로가 틀려 <code>None</code>을 받음</td><td>절대 경로를 쓰거나 <code>os.path.exists</code>로 먼저 확인하고, <code>if img is None:</code>으로 처리</td></tr><tr><td>창이 뜨지 않거나 회색으로 멈춤</td><td><code>waitKey</code>를 부르지 않음 / SSH 터미널에는 화면이 없음</td><td>루프마다 <code>cv2.waitKey(1)</code>, 화면 표시는 VNC 터미널에서 실행</td></tr><tr><td>빨강과 파랑이 뒤바뀌어 보임</td><td>RGB 배열을 BGR로 해석(또는 반대)</td><td><code>cv_bridge</code> 인코딩(<code>&quot;bgr8&quot;</code>/<code>&quot;rgb8&quot;</code>)을 확인하고 <code>cv2.cvtColor(img, cv2.COLOR_RGB2BGR)</code></td></tr><tr><td>점이 엉뚱한 위치에 찍힘</td><td><code>img[x, y]</code>처럼 인덱스 순서를 뒤바꿈</td><td>배열 인덱스는 <code>img[y, x]</code>, 그리기 함수 좌표는 <code>(x, y)</code></td></tr><tr><td>밝은 부분이 검게 뒤집힘</td><td><code>uint8</code> NumPy 덧셈의 순환</td><td><code>cv2.add</code>를 쓰거나 <code>int16</code>으로 계산 후 <code>np.clip(…, 0, 255)</code></td></tr><tr><td><code>cv2.error: ... (-215:Assertion failed)</code> in <code>polylines</code></td><td>좌표 배열이 <code>float</code> 또는 모양이 틀림</td><td><code>np.array(pts, np.int32)</code>로 바꾸고 <code>[pts]</code>처럼 리스트로 감싸기</td></tr><tr><td>카메라 토픽이 안 보임</td><td>카메라 노드 미실행, 앱 서비스가 카메라 점유</td><td><code>~/.stop_ros.sh</code> 후 <code>ros2 launch peripherals depth_camera.launch.py</code></td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">기본 과제</div><div class="callout-body"><ol><li>320×240 캔버스에 “과녁”(동심원 5개, 바깥부터 흰색·검정·파랑·빨강·노랑)을 그리고, 가운데에 <code>putText</code>로 점수를 씁니다. 원의 반지름은 반복문으로 계산합니다.</li><li><code>scene.png</code>를 읽어 왼쪽 위 1/4 영역만 잘라 채널별 평균(B, G, R)을 출력합니다. 같은 값을 <code>cv2.mean(roi)</code>로도 구해 비교합니다.</li></ol></div></div>
+<div class="callout callout-task"><div class="callout-title">심화 과제</div><div class="callout-body"><ol><li>실물 스냅숏 노드를 고쳐, 화면 가운데 20×20 픽셀의 평균 BGR 값을 매 프레임 <code>putText</code>로 표시하게 만듭니다. 빨강·초록·파랑 물체를 비춰 값이 어떻게 바뀌는지 기록합니다(A01의 색 임계값 조정 준비).</li><li><code>numpy</code> 브로드캐스팅만으로(반복문 없이) 가로 방향으로 검정 → 흰색이 되는 256×100 그라디언트 이미지를 만들고, <code>cv2.add</code>로 밝기 +100을 더한 결과와 NumPy <code>+ 100</code> 결과를 나란히 표시해 차이를 설명합니다.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>4. OpenCV Computer Vision Course</em> — Lesson 1 Computer Vision and OpenCV Introduction, Lesson 2 Build OpenCV Environment, Lesson 3 OpenCV Modules and Structure, Lesson 4 Picture &amp; Video Loading and Display, Lesson 5 Picture Drawing, Lesson 6 Image Basic Operation</li><li>MentorPi 소스: <code>src/example/example/color_detect/color_detect_demo.py</code> (결과 표시 방식), <code>src/peripherals/launch/depth_camera.launch.py</code></li><li>OpenCV 공식 튜토리얼 — Getting Started with Images: https://docs.opencv.org/4.x/db/deb/tutorial_display_image.html</li><li>OpenCV — Basic Operations on Images: https://docs.opencv.org/4.x/d3/df2/tutorial_py_basic_ops.html</li><li>OpenCV — Drawing Functions: https://docs.opencv.org/4.x/dc/da5/tutorial_py_drawing_functions.html</li><li>ROS 2 <code>cv_bridge</code> (vision_opencv): https://github.com/ros-perception/vision_opencv</li></ul>
+      <nav class="pager"><a class="pager-prev" href="r07.html"><span>이전 · R07</span>RViz2·RQT·Gazebo 도구</a><a class="pager-next" href="r09.html"><span>다음 · R09</span>색 공간·기하 변환·스무딩</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#로봇은-어떻게-보는가">로봇은 어떻게 “보는가”</a><a class="toc-l2" href="#opencv-모듈-구조">OpenCV 모듈 구조</a><a class="toc-l3" href="#설치와-버전-확인">설치와 버전 확인</a><a class="toc-l2" href="#이미지는-배열이다">이미지는 배열이다</a><a class="toc-l3" href="#roi는-뷰view-다">ROI는 “뷰(view)”다</a><a class="toc-l2" href="#이미지-동영상-읽기와-표시">이미지·동영상 읽기와 표시</a><a class="toc-l3" href="#이미지-파일">이미지 파일</a><a class="toc-l3" href="#동영상과-usb-카메라">동영상과 USB 카메라</a><a class="toc-l2" href="#도형과-글자-그리기">도형과 글자 그리기</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

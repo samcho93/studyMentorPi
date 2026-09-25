@@ -1,0 +1,49 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="MentorPi TF 트리: map, odom, base_footprint, base_link, 센서 프레임과 발행자">
+  <defs>
+    <marker id="arr-r06-tftree" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+    <marker id="arr-r06-tftree-f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <rect class="box" x="15" y="112" width="96" height="36" rx="8"/>
+  <text class="lbl mono" x="63" y="135" text-anchor="middle">map</text>
+  <rect class="box" x="155" y="112" width="96" height="36" rx="8"/>
+  <text class="lbl mono" x="203" y="135" text-anchor="middle">odom</text>
+  <rect class="box-hi" x="295" y="112" width="130" height="36" rx="8"/>
+  <text class="lbl mono" x="360" y="135" text-anchor="middle">base_footprint</text>
+  <rect class="box-hi" x="465" y="112" width="96" height="36" rx="8"/>
+  <text class="lbl mono" x="513" y="135" text-anchor="middle">base_link</text>
+
+  <path class="ln-hi" d="M113 130 L152 130" stroke-width="2" marker-end="url(#arr-r06-tftree)"/>
+  <text class="tag" x="133" y="170" text-anchor="middle">SLAM ·</text>
+  <text class="tag" x="133" y="184" text-anchor="middle">AMCL</text>
+  <path class="ln-hi" d="M253 130 L292 130" stroke-width="2" marker-end="url(#arr-r06-tftree)"/>
+  <text class="tag" x="273" y="170" text-anchor="middle">EKF ·</text>
+  <text class="tag" x="273" y="184" text-anchor="middle">odom_pub</text>
+  <path class="ln" d="M427 130 L462 130" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#arr-r06-tftree-f)"/>
+  <text class="tag mono" x="445" y="170" text-anchor="middle">z 0.07</text>
+
+  <rect class="box" x="600" y="22" width="110" height="30" rx="7"/>
+  <text class="lbl mono" x="655" y="42" text-anchor="middle">lidar_frame</text>
+  <rect class="box" x="600" y="82" width="110" height="30" rx="7"/>
+  <text class="lbl mono" x="655" y="102" text-anchor="middle">imu_link</text>
+  <rect class="box" x="600" y="148" width="110" height="30" rx="7"/>
+  <text class="lbl mono" x="655" y="168" text-anchor="middle">depth_cam</text>
+  <rect class="box" x="600" y="208" width="110" height="30" rx="7"/>
+  <text class="lbl mono" x="655" y="228" text-anchor="middle">wheel_*_Link</text>
+  <path class="ln" d="M562 124 L597 40" stroke-width="1.6" stroke-dasharray="5 3" marker-end="url(#arr-r06-tftree-f)"/>
+  <path class="ln" d="M562 128 L597 98" stroke-width="1.6" stroke-dasharray="5 3" marker-end="url(#arr-r06-tftree-f)"/>
+  <path class="ln" d="M562 134 L597 162" stroke-width="1.6" stroke-dasharray="5 3" marker-end="url(#arr-r06-tftree-f)"/>
+  <path class="ln" d="M562 140 L597 220" stroke-width="1.6" stroke-dasharray="5 3" marker-end="url(#arr-r06-tftree-f)"/>
+  <text class="tag mono" x="655" y="66" text-anchor="middle">(−0.012, 0, 0.0925)</text>
+  <text class="tag mono" x="655" y="128" text-anchor="middle">yaw −1.57</text>
+  <text class="tag" x="655" y="254" text-anchor="middle">continuous</text>
+
+  <text class="sub" x="513" y="200" text-anchor="middle">robot_state_publisher</text>
+  <text class="sub" x="513" y="216" text-anchor="middle">(URDF)</text>
+
+  <path class="ln-hi" d="M40 270 L80 270" stroke-width="2"/>
+  <text class="tag" x="88" y="274">동적 변환 /tf — 주기적으로 발행</text>
+  <path class="ln" d="M300 270 L340 270" stroke-width="1.8" stroke-dasharray="5 3"/>
+  <text class="tag" x="348" y="274">정적 변환 /tf_static — URDF fixed joint</text>
+  <text class="sub" x="203" y="84" text-anchor="middle">드리프트 있음 · 연속</text>
+  <text class="sub" x="63" y="84" text-anchor="middle">전역 · 불연속</text>
+</svg>

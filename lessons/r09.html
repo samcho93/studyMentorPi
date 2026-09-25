@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R09. 색 공간·기하 변환·스무딩 · studyMentorPi</title>
+<meta name="description" content="BGR↔HSV·GRAY 변환, 이동·회전·어파인·원근 변환, 평균·가우시안·미디언·양방향 필터.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-ros">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" class="active" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="r09" data-track="ros">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-ros">ROS 2·OpenCV 기초</span> R-3 OpenCV 영상 처리 &middot; 약 80분 &middot; 초급</div>
+    <h1><span class="lesson-no">R09</span>색 공간·기하 변환·스무딩</h1>
+    <p class="lede">BGR↔HSV·GRAY 변환, 이동·회전·어파인·원근 변환, 평균·가우시안·미디언·양방향 필터.</p>
+    <div class="requires">선수 챕터: <a href="r08.html">R08</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      <a class="ghost-btn" href="../tools/color-lab.html">HSV 색 실험실</a><a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>RGB·GRAY·HSV·Lab·YCrCb 색 공간의 성질을 비교하고, 조명 변화에 강한 색 공간을 골라 <code>cvtColor</code>로 변환합니다.</li><li>OpenCV의 HSV(H 0~179)와 Lab(0~255로 이동한 a·b) 값 범위를 계산하고, 빨강처럼 <strong>색상이 0°를 걸치는</strong> 색의 임계값을 두 구간으로 나눕니다.</li><li>크기 조정·이동·회전·어파인·원근 변환을 2×3 / 3×3 행렬로 설명하고 <code>warpAffine</code>·<code>warpPerspective</code>로 적용합니다.</li><li>평균·가우시안·미디언·양방향 필터의 원리를 비교하고, 잡음 종류에 맞는 필터를 고릅니다.</li></ul>
+<h2 id="색-공간-color-space">색 공간 (Color Space)<a class="anchor" href="#색-공간-color-space">#</a></h2>
+<p>색 공간은 색을 숫자 몇 개로 나타내는 규칙입니다. 카메라가 주는 BGR은 <strong>밝기와 색이 세 채널에 섞여</strong> 있어서, 조명이 조금만 바뀌어도 세 값이 함께 변합니다. 그래서 색으로 물체를 찾을 때는 <strong>밝기와 색을 분리한 색 공간</strong>(HSV, Lab, YCrCb)으로 바꾼 뒤 임계값을 겁니다.</p>
+<div class="table-wrap"><table><thead><tr><th>색 공간</th><th>채널</th><th>OpenCV 8비트 범위</th><th>성질</th><th>로봇에서 쓰임</th></tr></thead><tbody><tr><td>BGR (RGB)</td><td>B, G, R</td><td>각 0~255</td><td>가산 혼합. 밝기·색이 섞임</td><td>카메라 원본, 표시</td></tr><tr><td>GRAY</td><td>밝기 1채널</td><td>0~255</td><td><span class="math">Y = 0.299R + 0.587G + 0.114B</span></td><td>엣지·이진화·특징점</td></tr><tr><td>HSV</td><td>색상 H, 채도 S, 명도 V</td><td>H 0~179, S·V 0~255</td><td>색상이 한 채널에 모임, 직관적</td><td>색 임계값(이 사이트의 색 실험실)</td></tr><tr><td>Lab (CIE L\*a\<em>b\</em>)</td><td>밝기 L, 초록↔빨강 a, 파랑↔노랑 b</td><td>L = L\*·255/100, a·b = +128 이동</td><td>사람 지각에 가까움, 장치 독립</td><td><strong>MentorPi 색 인식·라인 트레이싱</strong></td></tr><tr><td>YCrCb</td><td>밝기 Y, 빨강 차 Cr, 파랑 차 Cb</td><td>각 0~255</td><td>영상 압축(JPEG)과 같은 분리</td><td>피부색 검출</td></tr></tbody></table></div>
+<p><code>cv2.cvtColor(src, code)</code>의 <code>code</code>는 <code>COLOR_BGR2GRAY</code>, <code>COLOR_BGR2HSV</code>, <code>COLOR_BGR2LAB</code>, <code>COLOR_BGR2YCrCb</code>, <code>COLOR_BGR2RGB</code>처럼 “원본2목표” 형식이고, 반대 방향(<code>COLOR_HSV2BGR</code> 등)도 있습니다. 입력이 RGB 배열이면 <code>COLOR_RGB2LAB</code>처럼 <strong>RGB 쪽 코드를 써야</strong> 합니다. MentorPi 라인 트레이싱 노드는 <code>&quot;rgb8&quot;</code>로 받아 <code>COLOR_RGB2LAB</code>를 씁니다.</p>
+<h3 id="hsv-색상환을-반으로-접은-h">HSV — 색상환을 반으로 접은 H<a class="anchor" href="#hsv-색상환을-반으로-접은-h">#</a></h3>
+<p>H(Hue, 색상)는 원래 0~360°의 각도지만, 8비트에 넣기 위해 OpenCV는 <strong>2로 나눠 0~179</strong>로 저장합니다. 빨강은 0° 근처라서 <strong>179 쪽과 0 쪽 양 끝</strong>에 걸쳐 있습니다. S(Saturation, 채도)는 흰빛이 얼마나 섞였는지, V(Value, 명도)는 얼마나 밝은지입니다. 조명이 어두워지면 주로 V가 변하고 H는 비교적 유지되므로, H와 S로 색을 고르고 V는 넓게 잡는 것이 기본 전략입니다.</p>
+<figure class="fig" id="fig-r09-hsv"><svg viewBox="0 0 720 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="OpenCV HSV의 H 축 0에서 179까지와 빨강의 두 구간">
+  <text class="lbl" x="360" y="24" text-anchor="middle">OpenCV H = 색상각(0~360°) ÷ 2  →  0 ~ 179</text>
+  <text class="tag" x="60" y="62" text-anchor="middle">빨강</text>
+  <text class="tag" x="160" y="62" text-anchor="middle">노랑</text>
+  <text class="tag" x="260" y="62" text-anchor="middle">초록</text>
+  <text class="tag" x="360" y="62" text-anchor="middle">청록</text>
+  <text class="tag" x="460" y="62" text-anchor="middle">파랑</text>
+  <text class="tag" x="560" y="62" text-anchor="middle">자홍</text>
+  <text class="tag" x="657" y="62" text-anchor="middle">빨강</text>
+  <rect class="box" x="60" y="72" width="600" height="36"/>
+  <rect class="hi" x="60" y="72" width="33" height="36"/>
+  <rect class="hi" x="627" y="72" width="33" height="36"/>
+  <path class="ln" d="M60 108 V116 M160 108 V116 M260 108 V116 M360 108 V116 M460 108 V116 M560 108 V116 M657 108 V116" stroke-width="1.2"/>
+  <text class="tag mono" x="60" y="130" text-anchor="middle">0</text>
+  <text class="tag mono" x="160" y="130" text-anchor="middle">30</text>
+  <text class="tag mono" x="260" y="130" text-anchor="middle">60</text>
+  <text class="tag mono" x="360" y="130" text-anchor="middle">90</text>
+  <text class="tag mono" x="460" y="130" text-anchor="middle">120</text>
+  <text class="tag mono" x="560" y="130" text-anchor="middle">150</text>
+  <text class="tag mono" x="657" y="130" text-anchor="middle">179</text>
+  <path class="ln-hi" d="M76 140 L76 160 L643 160 L643 140" stroke-width="1.6" fill="none"/>
+  <text class="sub" x="360" y="178" text-anchor="middle">빨강은 색상환에서 0°(=360°)를 걸치므로 양 끝 두 구간을 합쳐야 합니다</text>
+  <text class="lbl mono" x="360" y="210" text-anchor="middle">mask = inRange(hsv, (0,S,V), (10,255,255)) | inRange(hsv, (170,S,V), (179,255,255))</text>
+  <text class="sub" x="360" y="240" text-anchor="middle">S 최소값을 올리면 흰색·회색(채도 낮음)이 섞이지 않고, V 범위는 조명에 맞춰 넓게 둡니다</text>
+</svg><figcaption>OpenCV HSV의 H 범위(0~179)와 빨강이 두 구간으로 나뉘는 이유</figcaption></figure>
+<h3 id="lab-mentorpi가-쓰는-색-공간">Lab — MentorPi가 쓰는 색 공간<a class="anchor" href="#lab-mentorpi가-쓰는-색-공간">#</a></h3>
+<p>Lab은 L(밝기)과 두 개의 색 축 a(−: 초록, +: 빨강), b(−: 파랑, +: 노랑)로 색을 나타냅니다. 8비트 영상에서 OpenCV는 L을 0~255로 늘리고 a·b에 128을 더해 <strong>회색이 (L, 128, 128)</strong>이 되게 합니다. 따라서</p>
+<ul><li>빨강: a가 128보다 <strong>크다</strong>, 초록: a가 128보다 <strong>작다</strong></li><li>노랑: b가 128보다 <strong>크다</strong>, 파랑: b가 128보다 <strong>작다</strong></li></ul>
+<p>MentorPi의 색 임계값 파일(<code>lab_config.yaml</code>)이 빨강을 <code>a ≥ 165</code>, 파랑을 <code>b ≤ 110</code>처럼 잡는 것도 이 축 때문입니다(A01).</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+import numpy as np
+
+names = [&quot;red&quot;, &quot;green&quot;, &quot;blue&quot;, &quot;yellow&quot;, &quot;white&quot;, &quot;gray&quot;, &quot;dark red&quot;]
+bgr = np.array([[[0, 0, 255], [0, 255, 0], [255, 0, 0], [0, 255, 255],
+                 [255, 255, 255], [128, 128, 128], [0, 0, 120]]], np.uint8)
+gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)[0]
+hsv = cv2.cvtColor(bgr, cv2.COLOR_BGR2HSV)[0]
+lab = cv2.cvtColor(bgr, cv2.COLOR_BGR2LAB)[0]
+print(&quot;%-9s %-15s %4s  %-15s %-15s&quot; % (&quot;색&quot;, &quot;BGR&quot;, &quot;GRAY&quot;, &quot;HSV&quot;, &quot;Lab&quot;))
+for i, n in enumerate(names):
+    print(&quot;%-9s %-15s %4d  %-15s %-15s&quot; % (n, bgr[0, i].tolist(), gray[i],
+                                          hsv[i].tolist(), lab[i].tolist()))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">색         BGR             GRAY  HSV             Lab
+red       [0, 0, 255]       76  [0, 255, 255]   [136, 208, 195]
+green     [0, 255, 0]      150  [60, 255, 255]  [224, 42, 211]
+blue      [255, 0, 0]       29  [120, 255, 255] [82, 207, 20]
+yellow    [0, 255, 255]    226  [30, 255, 255]  [248, 106, 223]
+white     [255, 255, 255]  255  [0, 0, 255]     [255, 128, 128]
+gray      [128, 128, 128]  128  [0, 0, 128]     [137, 128, 128]
+dark red  [0, 0, 120]       36  [0, 255, 120]   [60, 174, 163]</code></pre></div>
+<p>읽는 법:</p>
+<ul><li>빨강과 <strong>어두운 빨강</strong>은 BGR에서 R 값이 255 → 120으로 크게 다르지만, HSV의 H는 둘 다 0이고 V만 다릅니다. Lab에서는 L이 크게 줄고 a가 여전히 128보다 큽니다. 조명이 바뀌어도 “색”을 유지하는 채널이 있다는 뜻입니다.</li><li>흰색과 회색은 HSV의 S가 0이라 H 값이 의미가 없습니다. 채도가 낮은 픽셀은 H로 색을 판별하면 안 됩니다.</li></ul>
+<h3 id="색으로-영역-고르기-inrange">색으로 영역 고르기: inRange<a class="anchor" href="#색으로-영역-고르기-inrange">#</a></h3>
+<p><code>cv2.inRange(img, lower, upper)</code>는 세 채널이 모두 범위 안인 픽셀을 255, 나머지를 0으로 만든 <strong>마스크(mask)</strong>를 돌려줍니다. 빨강은 H가 양 끝에 걸치므로 두 마스크를 OR로 합칩니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+import numpy as np
+
+img = cv2.imread(&quot;shapes.png&quot;)   # 빨간 원, 초록 사각형, 파란 삼각형, 노란 타원
+hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+ranges = {
+    &quot;red&quot;:    [((0, 120, 70), (10, 255, 255)), ((170, 120, 70), (179, 255, 255))],
+    &quot;green&quot;:  [((40, 80, 60), (85, 255, 255))],
+    &quot;blue&quot;:   [((100, 120, 60), (130, 255, 255))],
+    &quot;yellow&quot;: [((20, 100, 100), (35, 255, 255))],
+}
+total = img.shape[0] * img.shape[1]
+for name, rs in ranges.items():
+    mask = np.zeros(img.shape[:2], np.uint8)
+    for lo, hi in rs:
+        mask = cv2.bitwise_or(mask, cv2.inRange(hsv, lo, hi))
+    n = cv2.countNonZero(mask)
+    print(&quot;%-6s 픽셀 %6d (%.1f %%)&quot; % (name, n, 100.0 * n / total))
+    if name == &quot;red&quot;:
+        cv2.imshow(&quot;red mask&quot;, mask)
+        cv2.imshow(&quot;red only&quot;, cv2.bitwise_and(img, img, mask=mask))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">red    픽셀  15373 (5.0 %)
+green  픽셀  25521 (8.3 %)
+blue   픽셀   9301 (3.0 %)
+yellow 픽셀  20971 (6.8 %)</code></pre></div>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/color-lab.html">HSV 색 실험실에서 임계값 조정하기</a></p>
+<p>HSV 색 실험실은 슬라이더로 H·S·V의 최소·최대를 움직이면 마스크가 바로 바뀌고, 결정한 값을 <code>inRange</code> 코드로 복사해 줍니다. <code>shapes.png</code>를 불러와 노란 타원만 흰색이 되도록 범위를 찾아보세요. MentorPi 실물의 LAB_Tool도 같은 원리(Lab 슬라이더)입니다.</p>
+<h2 id="기하-변환-geometric-transformation">기하 변환 (Geometric Transformation)<a class="anchor" href="#기하-변환-geometric-transformation">#</a></h2>
+<p>기하 변환은 픽셀 값은 그대로 두고 <strong>픽셀의 위치를 옮기는</strong> 연산입니다. 출력 픽셀 <span class="math">(x', y')</span>마다 원본의 어느 위치 <span class="math">(x, y)</span>에서 값을 가져올지 계산하고, 그 위치가 정수가 아니면 주변 픽셀로 <strong>보간(interpolation)</strong>합니다.</p>
+<h3 id="크기-조정-resize">크기 조정: resize<a class="anchor" href="#크기-조정-resize">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">dst = cv2.resize(src, (new_w, new_h), interpolation=cv2.INTER_AREA)   # 크기를 직접 지정
+dst = cv2.resize(src, None, fx=0.5, fy=0.5)                            # 배율로 지정</code></pre></div>
+<p><code>dsize</code>는 <strong>(너비, 높이)</strong> 순서이고, <code>dsize</code>를 주면 <code>fx</code>, <code>fy</code>는 무시됩니다. MentorPi 색 인식 예제는 처리 속도를 위해 프레임을 <code>(320, 240)</code>으로 줄여 계산한 뒤 좌표를 원래 크기로 되돌립니다.</p>
+<div class="table-wrap"><table><thead><tr><th>보간 방법</th><th>원리</th><th>언제</th></tr></thead><tbody><tr><td><code>INTER_NEAREST</code></td><td>가장 가까운 픽셀 값</td><td>가장 빠름, 마스크·라벨 영상</td></tr><tr><td><code>INTER_LINEAR</code> (기본)</td><td>주변 2×2 선형 보간</td><td>일반적인 확대·축소</td></tr><tr><td><code>INTER_AREA</code></td><td>영역 평균</td><td><strong>축소</strong>할 때 계단 현상(aliasing) 적음</td></tr><tr><td><code>INTER_CUBIC</code></td><td>주변 4×4 3차 보간</td><td>확대 품질 우선</td></tr><tr><td><code>INTER_LANCZOS4</code></td><td>주변 8×8 Lanczos</td><td>최고 품질, 느림</td></tr></tbody></table></div>
+<h3 id="어파인-변환-2-3-행렬">어파인 변환: 2×3 행렬<a class="anchor" href="#어파인-변환-2-3-행렬">#</a></h3>
+<p>어파인(affine) 변환은 <strong>직선과 평행성을 보존</strong>하는 변환으로, 이동·회전·확대·기울임(shear)을 모두 하나의 2×3 행렬 <span class="math">M</span>으로 표현합니다.</p>
+<div class="table-wrap"><table><thead><tr><th>변환</th><th>행렬 <span class="math">M</span></th><th>만드는 법</th></tr></thead><tbody><tr><td>이동 <span class="math">(t_x, t_y)</span></td><td><code>[[1, 0, tx], [0, 1, ty]]</code></td><td><code>np.float32(...)</code> 직접 작성</td></tr><tr><td>중심 <span class="math">c</span> 기준 회전 θ, 배율 s</td><td><code>[[α, β, (1−α)cx − β·cy], [−β, α, β·cx + (1−α)cy]]</code>, α = s·cosθ, β = s·sinθ</td><td><code>cv2.getRotationMatrix2D(c, θ°, s)</code></td></tr><tr><td>일반 어파인</td><td>점 3쌍으로 결정</td><td><code>cv2.getAffineTransform(src3, dst3)</code></td></tr></tbody></table></div>
+<p>변환된 좌표는 <span class="math">[x', y']^T = M \cdot [x, y, 1]^T</span>입니다. <code>getRotationMatrix2D</code>의 각도는 <strong>양수가 반시계 방향</strong>(화면 기준)입니다. 이미지의 y축이 아래를 향하므로 행렬 부호가 수학 교과서의 회전 행렬과 반대로 보입니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+import numpy as np
+
+img = cv2.imread(&quot;shapes.png&quot;)
+h, w = img.shape[:2]
+
+T = np.float32([[1, 0, 100], [0, 1, 50]])                  # 오른쪽 100, 아래 50
+moved = cv2.warpAffine(img, T, (w, h), borderValue=(255, 255, 255))
+
+R = cv2.getRotationMatrix2D((w / 2, h / 2), 30, 0.8)       # 중심 기준 반시계 30°, 0.8배
+rotated = cv2.warpAffine(img, R, (w, h), borderValue=(255, 255, 255))
+np.set_printoptions(precision=3, suppress=True)
+print(&quot;회전 행렬 M =\n&quot;, R)
+
+pts = np.float32([[[w / 2, h / 2]], [[w / 2 + 100, h / 2]]])   # 중심, 중심에서 오른쪽 100 px
+print(&quot;변환된 점:&quot;, cv2.transform(pts, R).reshape(-1, 2))
+print(&quot;이동 행렬로 (0, 0) →&quot;, (T @ np.array([0, 0, 1], np.float32)).tolist())
+cv2.imshow(&quot;moved&quot;, moved)
+cv2.imshow(&quot;rotated&quot;, rotated)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">회전 행렬 M =
+ [[  0.693   0.4     2.297]
+ [ -0.4     0.693 201.723]]
+변환된 점: [[320.    240.   ]
+ [389.282 200.   ]]
+이동 행렬로 (0, 0) → [100.0, 50.0]</code></pre></div>
+<p>중심은 그대로 있고, 오른쪽 100 px 떨어진 점은 거리 80 px(0.8배)로 줄면서 <strong>위쪽(y 감소)</strong>으로 30° 돌아갔습니다. 화면에서 반시계 방향입니다.</p>
+<h3 id="원근-변환-3-3-호모그래피">원근 변환: 3×3 호모그래피<a class="anchor" href="#원근-변환-3-3-호모그래피">#</a></h3>
+<p>카메라가 바닥을 비스듬히 보면 평행한 차선이 위쪽에서 모여 보입니다. 원근(perspective) 변환은 <strong>3×3 행렬 <span class="math">H</span>(호모그래피)</strong>로 이 기울어짐을 되돌려 위에서 내려다본 영상(bird's-eye view)을 만듭니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[x&#x27;, y&#x27;, w&#x27;]ᵀ = H · [x, y, 1]ᵀ        (u, v) = (x&#x27; / w&#x27;, y&#x27; / w&#x27;)</code></pre></div>
+<p>마지막에 <span class="math">w'</span>로 나누는 것이 어파인과의 차이입니다. 이 나눗셈 때문에 직선은 직선으로 남지만 <strong>평행성은 보존되지 않습니다</strong>. <span class="math">H</span>는 자유도가 8이므로 <strong>점 4쌍</strong>이 필요하고, <code>cv2.getPerspectiveTransform(src4, dst4)</code>로 구합니다.</p>
+<figure class="fig" id="fig-r09-warp"><svg viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="어파인 변환은 점 세 쌍으로 평행사변형을 만들고, 원근 변환은 점 네 쌍으로 사다리꼴을 직사각형으로 폅니다">
+  <defs>
+    <marker id="arr-r09-warp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <text class="lbl" x="180" y="24" text-anchor="middle">어파인 (2×3, 점 3쌍)</text>
+  <rect class="box" x="30" y="60" width="100" height="100"/>
+  <circle class="hi" cx="30" cy="60" r="4"/><circle class="hi" cx="130" cy="60" r="4"/><circle class="hi" cx="30" cy="160" r="4"/>
+  <path class="ln" d="M145 110 L200 110" stroke-width="1.6" marker-end="url(#arr-r09-warp)"/>
+  <text class="tag mono" x="172" y="100" text-anchor="middle">M</text>
+  <polygon class="box-hi" points="240,70 330,50 350,150 260,170"/>
+  <circle class="hi" cx="240" cy="70" r="4"/><circle class="hi" cx="330" cy="50" r="4"/><circle class="hi" cx="260" cy="170" r="4"/>
+  <text class="sub" x="180" y="205" text-anchor="middle">직선·평행 유지 (이동·회전·배율·기울임)</text>
+  <text class="sub mono" x="180" y="228" text-anchor="middle">getAffineTransform · warpAffine</text>
+  <path class="ln" d="M360 20 L360 250" stroke-width="0.8"/>
+  <text class="lbl" x="540" y="24" text-anchor="middle">원근 (3×3, 점 4쌍)</text>
+  <polygon class="box" points="420,170 500,170 470,70 450,70"/>
+  <circle class="hi" cx="420" cy="170" r="4"/><circle class="hi" cx="500" cy="170" r="4"/><circle class="hi" cx="470" cy="70" r="4"/><circle class="hi" cx="450" cy="70" r="4"/>
+  <text class="tag" x="460" y="190" text-anchor="middle">카메라가 본 차선 영역</text>
+  <path class="ln" d="M515 120 L570 120" stroke-width="1.6" marker-end="url(#arr-r09-warp)"/>
+  <text class="tag mono" x="542" y="110" text-anchor="middle">H</text>
+  <rect class="box-hi" x="590" y="60" width="90" height="110"/>
+  <circle class="hi" cx="590" cy="60" r="4"/><circle class="hi" cx="680" cy="60" r="4"/><circle class="hi" cx="590" cy="170" r="4"/><circle class="hi" cx="680" cy="170" r="4"/>
+  <text class="tag" x="635" y="190" text-anchor="middle">조감도 (bird's-eye)</text>
+  <text class="sub" x="540" y="215" text-anchor="middle">직선 유지, 평행은 보존 안 됨 (w′로 나눔)</text>
+  <text class="sub mono" x="540" y="238" text-anchor="middle">getPerspectiveTransform · warpPerspective</text>
+</svg><figcaption>어파인 변환(점 3쌍, 평행 유지)과 원근 변환(점 4쌍, 사다리꼴 → 직사각형)</figcaption></figure>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+import numpy as np
+
+img = cv2.imread(&quot;lane.png&quot;)
+h, w = img.shape[:2]
+# 두 차선이 이루는 사다리꼴: 왼쪽 아래, 오른쪽 아래, 오른쪽 위, 왼쪽 위
+src = np.float32([[150, 479], [520, 479], [360, 250], [290, 250]])
+dst = np.float32([[200, 479], [440, 479], [440, 0], [200, 0]])
+H = cv2.getPerspectiveTransform(src, dst)
+bird = cv2.warpPerspective(img, H, (w, h))
+
+np.set_printoptions(precision=4, suppress=True)
+print(&quot;H =\n&quot;, H.round(4) + 0.0)
+check = cv2.perspectiveTransform(src.reshape(-1, 1, 2), H).reshape(-1, 2)
+print(&quot;src 네 점의 변환 결과:\n&quot;, check.round(1) + 0.0)
+cv2.polylines(img, [src.astype(np.int32)], True, (0, 0, 255), 2)
+cv2.imshow(&quot;lane + ROI&quot;, img)
+cv2.imshow(&quot;bird&#x27;s-eye&quot;, bird)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">H =
+ [[ -0.932   -1.5872 612.7251]
+ [  0.      -3.0054 751.3566]
+ [  0.      -0.0051   1.    ]]
+src 네 점의 변환 결과:
+ [[200. 479.]
+ [440. 479.]
+ [440.   0.]
+ [200.   0.]]</code></pre></div>
+<p>네 점이 정확히 <code>dst</code> 위치로 옮겨졌는지 확인하는 것이 원근 변환 디버깅의 첫 단계입니다. 이 기법은 A09(차선 유지)에서 차선 곡률을 계산할 때 다시 씁니다.</p>
+<h3 id="remap-좌표-표를-직접-주는-변환">remap: 좌표 표를 직접 주는 변환<a class="anchor" href="#remap-좌표-표를-직접-주는-변환">#</a></h3>
+<p><code>cv2.remap(img, map_x, map_y, interpolation)</code>은 출력 픽셀 <span class="math">(i, j)</span>의 값을 원본의 <code>(map_x[i, j], map_y[i, j])</code>에서 가져옵니다. 행렬로 표현할 수 없는 변환(렌즈 왜곡 보정, 어안 펼치기)도 가능합니다. 원본 교재는 이중 <code>for</code> 반복문으로 표를 채우지만, NumPy로 한 번에 만들면 수백 배 빠릅니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">ys, xs = np.indices((h, w), dtype=np.float32)       # 각 픽셀의 (행, 열) 좌표 표
+flip_lr = cv2.remap(img, (w - 1) - xs, ys, cv2.INTER_LINEAR)   # 좌우 뒤집기 (= cv2.flip(img, 1))
+half = cv2.remap(img, xs, 2 * ys, cv2.INTER_LINEAR)           # 위쪽 절반에 세로로 압축</code></pre></div>
+<h2 id="스무딩-smoothing">스무딩 (Smoothing)<a class="anchor" href="#스무딩-smoothing">#</a></h2>
+<p>카메라 영상에는 두 종류의 잡음이 섞입니다.</p>
+<ul><li><strong>소금-후추 잡음(salt-and-pepper)</strong>: 무작위 위치의 픽셀이 0 또는 255로 튀는 점 잡음. 전송 오류·불량 화소에서 생깁니다.</li><li><strong>가우시안 잡음(Gaussian)</strong>: 모든 픽셀에 정규분포 오차가 더해지는 잡음. 어두운 곳에서 센서 증폭(ISO)을 높이면 커집니다.</li></ul>
+<p>스무딩은 신호의 <strong>고주파 성분(급한 변화)을 줄이고 저주파 성분을 남기는</strong> 필터입니다. 커널(kernel) 창을 한 픽셀씩 옮기며 창 안의 값으로 가운데 픽셀을 새로 계산합니다.</p>
+<div class="table-wrap"><table><thead><tr><th>필터</th><th>가운데 픽셀 =</th><th>함수</th><th>장점</th><th>단점</th></tr></thead><tbody><tr><td>평균 (mean)</td><td>창 안의 산술 평균</td><td><code>cv2.blur(img, (k, k))</code></td><td>가장 단순·빠름</td><td>엣지가 흐려짐, 점 잡음이 번짐</td></tr><tr><td>가우시안</td><td>거리에 따른 가우스 가중 평균</td><td><code>cv2.GaussianBlur(img, (k, k), σ)</code></td><td>자연스러운 흐림, 가우시안 잡음에 적합</td><td>엣지가 흐려짐</td></tr><tr><td>미디언 (median)</td><td>창 안 값의 <strong>중앙값</strong></td><td><code>cv2.medianBlur(img, k)</code></td><td>소금-후추 잡음 제거에 탁월, 엣지 보존</td><td>계산량 큼, 가는 선이 사라질 수 있음</td></tr><tr><td>양방향 (bilateral)</td><td>거리 <strong>와</strong> 밝기 차이로 가중</td><td><code>cv2.bilateralFilter(img, d, σc, σs)</code></td><td>엣지 보존하며 평탄화</td><td>느림</td></tr></tbody></table></div>
+<p>예를 들어 3×3 창의 값이 <code>[12, 15, 13, 14, 255, 16, 11, 14, 13]</code>(가운데 255는 튄 점)이면 평균은 40.3이라 점이 <strong>주변으로 번지고</strong>, 중앙값은 14라 점이 <strong>사라집니다</strong>. 커널 크기 <code>k</code>는 홀수여야 하며, 클수록 더 흐려집니다. 가우시안의 <code>σ</code>를 0으로 주면 커널 크기에서 자동으로 계산합니다. MentorPi 예제는 대부분 <code>cv2.GaussianBlur(img, (3, 3), 3)</code>으로 가볍게 흐린 뒤 색 임계값을 겁니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+import numpy as np
+
+rng = np.random.default_rng(0)
+clean = np.full((120, 160), 60, np.uint8)
+cv2.rectangle(clean, (40, 30), (120, 90), 200, -1)            # 밝은 사각형 하나
+
+noisy = clean.copy()
+r = rng.random(clean.shape)
+noisy[r &lt; 0.05] = 0                                            # 후추 5 %
+noisy[r &gt; 0.95] = 255                                          # 소금 5 %
+
+def err(img):
+    return np.abs(img.astype(int) - clean.astype(int)).mean()
+
+results = {
+    &quot;noisy&quot;: noisy,
+    &quot;blur 5x5&quot;: cv2.blur(noisy, (5, 5)),
+    &quot;gauss 5x5&quot;: cv2.GaussianBlur(noisy, (5, 5), 0),
+    &quot;median 5&quot;: cv2.medianBlur(noisy, 5),
+    &quot;bilateral&quot;: cv2.bilateralFilter(noisy, 9, 75, 75),
+}
+for name, img in results.items():
+    edge = int(img[60, 38]) - int(img[60, 42])                 # 사각형 왼쪽 경계의 밝기 차
+    print(&quot;%-10s 평균 오차 %5.1f   경계 대비 %4d&quot; % (name, err(img), edge))
+cv2.imshow(&quot;noisy | median&quot;, np.hstack([noisy, results[&quot;median 5&quot;]]))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">noisy      평균 오차  12.9   경계 대비 -140
+blur 5x5   평균 오차  10.8   경계 대비 -109
+gauss 5x5  평균 오차  10.8   경계 대비 -116
+median 5   평균 오차   0.2   경계 대비 -140
+bilateral  평균 오차   9.2   경계 대비 -136</code></pre></div>
+<p>미디언 필터가 오차를 가장 크게 줄이고 경계 대비도 원래 값(−140)에 가깝게 지킵니다. 평균·가우시안은 튄 점을 주변에 퍼뜨려 오차가 남고 경계도 무뎌집니다. 소금-후추 잡음에는 미디언, 전체적인 자글자글한 잡음에는 가우시안이 기본 선택입니다.</p>
+<h2 id="실습-시뮬레이션">실습 (시뮬레이션)<a class="anchor" href="#실습-시뮬레이션">#</a></h2>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
+<div class="callout callout-task"><div class="callout-title">Playground 실습</div><div class="callout-body"><ol><li>색 공간 비교 코드에 <code>(0, 128, 255)</code>(주황)과 <code>(255, 0, 255)</code>(자홍)을 추가해 HSV의 H와 Lab의 a·b를 예측한 뒤 실행해 확인합니다.</li><li><code>shapes.png</code>의 전체 밝기를 절반으로 낮춘 영상(<code>(img * 0.5).astype(np.uint8)</code>)에서 빨강 마스크 픽셀 수가 얼마나 변하는지 BGR 임계값과 HSV 임계값으로 각각 비교합니다.</li><li>원근 변환 코드의 <code>src</code> 네 점을 바꿔, 조감도에서 두 차선이 <strong>세로로 평행</strong>하게 보이도록 맞춥니다.</li><li>스무딩 비교 코드에 가우시안 잡음(<code>rng.normal(0, 20, shape)</code>)을 더한 경우를 추가하고, 이때는 어떤 필터가 가장 좋은지 확인합니다.</li></ol></div></div>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<p>로봇 카메라 영상에 HSV 임계값을 실시간으로 걸어 보고, 조명에 따라 범위를 어떻게 넓혀야 하는지 체험합니다.</p>
+<div class="callout callout-safety"><div class="callout-title">실물 실습 전 확인</div><div class="callout-body"><ul><li>바퀴를 구동하지 않는 실습입니다. 그래도 로봇은 책상 가장자리에서 떨어진 평평한 곳에 둡니다.</li><li><code>~/.stop_ros.sh</code>로 앱 서비스를 끈 뒤 실습하고, 끝나면 컨테이너 밖에서 <code>sudo systemctl restart start_node.service</code>로 되살립니다.</li><li>창 여러 개와 트랙바를 띄우면 CPU 부하가 커집니다. 로봇 발열이 심하면 창 개수를 줄입니다.</li></ul></div></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">~/.stop_ros.sh
+ros2 launch peripherals depth_camera.launch.py</code></pre></div>
+<p>새 터미널에서 아래 노드를 <code>~/hsv_tuner.py</code>로 저장해 실행합니다. 트랙바를 움직여 원하는 물체만 흰색이 되게 맞추고, <code>p</code> 키로 현재 범위를 출력합니다.</p>
+<div class="code-block code-robot"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-robot">실물 전용</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+import rclpy
+from rclpy.node import Node
+from cv_bridge import CvBridge
+from sensor_msgs.msg import Image
+
+WIN = &#x27;mask&#x27;
+NAMES = [&#x27;H_min&#x27;, &#x27;S_min&#x27;, &#x27;V_min&#x27;, &#x27;H_max&#x27;, &#x27;S_max&#x27;, &#x27;V_max&#x27;]
+INIT = [0, 120, 70, 10, 255, 255]
+
+
+class HsvTuner(Node):
+    def __init__(self):
+        super().__init__(&#x27;hsv_tuner&#x27;)
+        self.bridge = CvBridge()
+        cv2.namedWindow(WIN)
+        for n, v in zip(NAMES, INIT):
+            cv2.createTrackbar(n, WIN, v, 179 if n.startswith(&#x27;H&#x27;) else 255, lambda _: None)
+        self.create_subscription(Image, &#x27;/ascamera/camera_publisher/rgb0/image&#x27;, self.on_image, 1)
+
+    def on_image(self, msg):
+        frame = cv2.resize(self.bridge.imgmsg_to_cv2(msg, &#x27;bgr8&#x27;), (320, 240))
+        hsv = cv2.cvtColor(cv2.GaussianBlur(frame, (3, 3), 3), cv2.COLOR_BGR2HSV)
+        v = [cv2.getTrackbarPos(n, WIN) for n in NAMES]
+        mask = cv2.inRange(hsv, tuple(v[:3]), tuple(v[3:]))
+        cv2.imshow(&#x27;frame&#x27;, frame)
+        cv2.imshow(WIN, mask)
+        key = cv2.waitKey(1) &amp; 0xFF
+        if key == ord(&#x27;p&#x27;):
+            self.get_logger().info(&#x27;lower=%s upper=%s&#x27; % (v[:3], v[3:]))
+        elif key == ord(&#x27;q&#x27;):
+            raise KeyboardInterrupt
+
+
+def main():
+    rclpy.init()
+    node = HsvTuner()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        cv2.destroyAllWindows()
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == &#x27;__main__&#x27;:
+    main()</code></pre></div>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> 형광등 아래와 창가(햇빛)에서 같은 물체의 V 범위가 어떻게 달라지는지 기록했다.</label></li><li><label class="check-item"><input type="checkbox"> 빨강 물체를 H 한 구간만으로 잡으면 가장자리가 빠지는 현상을 확인했다.</label></li><li><label class="check-item"><input type="checkbox"> <code>GaussianBlur</code>를 빼면 마스크 가장자리가 얼마나 거칠어지는지 비교했다.</label></li></ul></div></div>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td>빨강이 반쪽만 잡힘</td><td>H가 0 근처와 179 근처로 나뉨</td><td>두 구간 <code>inRange</code> 결과를 <code>bitwise_or</code>로 합치기</td></tr><tr><td>HSV 도구의 값을 넣었는데 전혀 안 잡힘</td><td>다른 프로그램은 H를 0~360, S·V를 0~100 %로 표시</td><td>OpenCV 범위로 변환: H/2, S·V × 2.55</td></tr><tr><td>흰색·회색 벽이 특정 색으로 잡힘</td><td>채도가 낮으면 H 값이 불안정</td><td>S 최소값을 올림(예: 80 이상)</td></tr><tr><td><code>resize</code> 결과가 가로세로 뒤바뀜</td><td><code>dsize</code>에 <code>(높이, 너비)</code>를 넣음</td><td><code>dsize</code>는 <code>(너비, 높이)</code>, <code>shape</code>는 <code>(높이, 너비)</code></td></tr><tr><td>회전 후 모서리가 잘림</td><td>출력 크기를 원본과 같게 둠</td><td>회전된 네 꼭짓점의 경계 상자를 구해 <code>dsize</code>와 행렬의 이동 항을 키움</td></tr><tr><td><code>getPerspectiveTransform</code> 오류</td><td>점이 <code>float32</code>가 아니거나 4개가 아님, 세 점이 한 직선 위</td><td><code>np.float32</code>로 정확히 4점, 네 점이 사각형을 이루게</td></tr><tr><td><code>GaussianBlur</code> Assertion 오류</td><td>커널 크기가 짝수</td><td><code>(3, 3)</code>, <code>(5, 5)</code>처럼 홀수</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">기본 과제</div><div class="callout-body"><ol><li><code>shapes.png</code>에서 빨강·초록·파랑·노랑 각각의 마스크를 만들고, 네 마스크를 서로 다른 색으로 칠한 “분할 결과” 이미지를 만듭니다.</li><li><code>getRotationMatrix2D</code>를 쓰지 않고 표의 식으로 30°, 0.8배 회전 행렬을 직접 계산해 OpenCV 결과와 비교합니다.</li></ol></div></div>
+<div class="callout callout-task"><div class="callout-title">심화 과제</div><div class="callout-body"><ol><li>이미지를 잘림 없이 임의 각도로 회전하는 함수 <code>rotate_bound(img, deg)</code>를 작성합니다(새 캔버스 크기 <span class="math">W' = |W\cos θ| + |H\sin θ|</span>, <span class="math">H' = |W\sin θ| + |H\cos θ|</span>를 이용).</li><li>조명을 바꿔 가며 찍은 실물 스냅숏 3장으로, HSV와 Lab 중 어느 쪽이 한 번 정한 임계값으로 더 안정적으로 물체를 잡는지 실험하고 표로 정리합니다.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>4. OpenCV Computer Vision Course</em> — Lesson 7 Image Processing---Color Space Conversion, Lesson 8 Image Processing---Geometric Transformation, Lesson 9 Image Processing---Smoothing (Routine Code: <code>color_conversion.py</code>, <code>Scale.py</code>, <code>Translation.py</code>, <code>Revolve.py</code>, <code>Perspective.py</code>, <code>Remap/*.py</code>, <code>filtering.py</code>)</li><li>MentorPi 소스: <code>software/lab_tool/lab_config.yaml</code>, <code>src/app/app/line_following.py</code></li><li>OpenCV — Changing Colorspaces: https://docs.opencv.org/4.x/df/d9d/tutorial_py_colorspaces.html</li><li>OpenCV — Color conversions (공식 수식): https://docs.opencv.org/4.x/de/d25/imgproc_color_conversions.html</li><li>OpenCV — Geometric Transformations of Images: https://docs.opencv.org/4.x/da/d6e/tutorial_py_geometric_transformations.html</li><li>OpenCV — Smoothing Images: https://docs.opencv.org/4.x/d4/d13/tutorial_py_filtering.html</li></ul>
+      <nav class="pager"><a class="pager-prev" href="r08.html"><span>이전 · R08</span>OpenCV 시작: 이미지·영상·그리기</a><a class="pager-next" href="r10.html"><span>다음 · R10</span>엣지·모폴로지·임계값 처리</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#색-공간-color-space">색 공간 (Color Space)</a><a class="toc-l3" href="#hsv-색상환을-반으로-접은-h">HSV — 색상환을 반으로 접은 H</a><a class="toc-l3" href="#lab-mentorpi가-쓰는-색-공간">Lab — MentorPi가 쓰는 색 공간</a><a class="toc-l3" href="#색으로-영역-고르기-inrange">색으로 영역 고르기: inRange</a><a class="toc-l2" href="#기하-변환-geometric-transformation">기하 변환 (Geometric Transformation)</a><a class="toc-l3" href="#크기-조정-resize">크기 조정: resize</a><a class="toc-l3" href="#어파인-변환-2-3-행렬">어파인 변환: 2×3 행렬</a><a class="toc-l3" href="#원근-변환-3-3-호모그래피">원근 변환: 3×3 호모그래피</a><a class="toc-l3" href="#remap-좌표-표를-직접-주는-변환">remap: 좌표 표를 직접 주는 변환</a><a class="toc-l2" href="#스무딩-smoothing">스무딩 (Smoothing)</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

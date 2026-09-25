@@ -1,0 +1,26 @@
+<svg viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="어파인 변환은 점 세 쌍으로 평행사변형을 만들고, 원근 변환은 점 네 쌍으로 사다리꼴을 직사각형으로 폅니다">
+  <defs>
+    <marker id="arr-r09-warp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <text class="lbl" x="180" y="24" text-anchor="middle">어파인 (2×3, 점 3쌍)</text>
+  <rect class="box" x="30" y="60" width="100" height="100"/>
+  <circle class="hi" cx="30" cy="60" r="4"/><circle class="hi" cx="130" cy="60" r="4"/><circle class="hi" cx="30" cy="160" r="4"/>
+  <path class="ln" d="M145 110 L200 110" stroke-width="1.6" marker-end="url(#arr-r09-warp)"/>
+  <text class="tag mono" x="172" y="100" text-anchor="middle">M</text>
+  <polygon class="box-hi" points="240,70 330,50 350,150 260,170"/>
+  <circle class="hi" cx="240" cy="70" r="4"/><circle class="hi" cx="330" cy="50" r="4"/><circle class="hi" cx="260" cy="170" r="4"/>
+  <text class="sub" x="180" y="205" text-anchor="middle">직선·평행 유지 (이동·회전·배율·기울임)</text>
+  <text class="sub mono" x="180" y="228" text-anchor="middle">getAffineTransform · warpAffine</text>
+  <path class="ln" d="M360 20 L360 250" stroke-width="0.8"/>
+  <text class="lbl" x="540" y="24" text-anchor="middle">원근 (3×3, 점 4쌍)</text>
+  <polygon class="box" points="420,170 500,170 470,70 450,70"/>
+  <circle class="hi" cx="420" cy="170" r="4"/><circle class="hi" cx="500" cy="170" r="4"/><circle class="hi" cx="470" cy="70" r="4"/><circle class="hi" cx="450" cy="70" r="4"/>
+  <text class="tag" x="460" y="190" text-anchor="middle">카메라가 본 차선 영역</text>
+  <path class="ln" d="M515 120 L570 120" stroke-width="1.6" marker-end="url(#arr-r09-warp)"/>
+  <text class="tag mono" x="542" y="110" text-anchor="middle">H</text>
+  <rect class="box-hi" x="590" y="60" width="90" height="110"/>
+  <circle class="hi" cx="590" cy="60" r="4"/><circle class="hi" cx="680" cy="60" r="4"/><circle class="hi" cx="590" cy="170" r="4"/><circle class="hi" cx="680" cy="170" r="4"/>
+  <text class="tag" x="635" y="190" text-anchor="middle">조감도 (bird's-eye)</text>
+  <text class="sub" x="540" y="215" text-anchor="middle">직선 유지, 평행은 보존 안 됨 (w′로 나눔)</text>
+  <text class="sub mono" x="540" y="238" text-anchor="middle">getPerspectiveTransform · warpPerspective</text>
+</svg>

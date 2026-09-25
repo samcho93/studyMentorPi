@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R06. TF2 좌표계와 URDF 모델링 · studyMentorPi</title>
+<meta name="description" content="map→odom→base_footprint→base_link→laser_frame 트리, 정적/동적 브로드캐스터와 리스너, URDF link·joint로 로봇을 기술합니다.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-ros">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" class="active" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="r06" data-track="ros">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-ros">ROS 2·OpenCV 기초</span> R-2 ROS 2 시스템 &middot; 약 100분 &middot; 중급</div>
+    <h1><span class="lesson-no">R06</span>TF2 좌표계와 URDF 모델링</h1>
+    <p class="lede">map→odom→base_footprint→base_link→laser_frame 트리, 정적/동적 브로드캐스터와 리스너, URDF link·joint로 로봇을 기술합니다.</p>
+    <div class="requires">선수 챕터: <a href="r05.html">R05</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      <a class="ghost-btn" href="../tools/urdf-viewer.html">URDF 뷰어</a><a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>동차 변환 행렬로 좌표 변환의 <strong>합성</strong>과 <strong>역변환</strong>을 계산하고, 라이다 한 점을 <code>odom</code> 좌표로 옮기는 과정을 손으로 풀 수 있습니다.</li><li>MentorPi의 TF 트리 <code>map → odom → base_footprint → base_link → lidar_frame / imu_link / depth_cam</code>에서 각 변환을 <strong>누가</strong> 발행하는지 설명합니다.</li><li><code>StaticTransformBroadcaster</code>, <code>TransformBroadcaster</code>, <code>Buffer</code> + <code>TransformListener</code>로 좌표 변환을 발행하고 조회합니다. <code>lookup_transform(target, source)</code>의 방향을 헷갈리지 않습니다.</li><li>URDF의 <code>link</code>(visual·collision·inertial)와 <code>joint</code>(6가지 타입, origin·axis·limit)를 읽고 간단한 모델을 작성하며, xacro 매크로의 쓰임을 이해합니다.</li><li><code>robot_state_publisher</code>가 URDF에서 정적 TF를 만들어 내는 원리를 설명합니다.</li></ul>
+<h2 id="왜-좌표계를-관리해야-하는가">왜 좌표계를 관리해야 하는가<a class="anchor" href="#왜-좌표계를-관리해야-하는가">#</a></h2>
+<p>라이다는 "<strong>라이다 기준으로</strong> 정면 1 m에 벽이 있다"고 알려 줍니다. 그러나 로봇이 알고 싶은 것은 "<strong>내 몸 중심 기준으로</strong> 어디에 있나", 지도를 만들 때는 "<strong>지도 기준으로</strong> 어디에 있나"입니다. 로봇에는 이런 좌표계(frame)가 여러 개 있고, 어떤 것은 고정(라이다 ↔ 몸체), 어떤 것은 계속 바뀝니다(몸체 ↔ 오도메트리 원점). TF2는 이 관계들을 <strong>나무 구조(tree)</strong> 로 모아 두고, 임의의 두 좌표계 사이 변환을 시간까지 고려해 계산해 주는 라이브러리입니다.</p>
+<h3 id="동차-변환-행렬">동차 변환 행렬<a class="anchor" href="#동차-변환-행렬">#</a></h3>
+<p>3차원 변환은 회전 <span class="math">R</span>(3×3)과 평행이동 <span class="math">t</span>(3×1)로 이루어지며, 4×4 <strong>동차 변환 행렬</strong>로 한 번에 씁니다. 평면 운동만 보면 3×3으로 충분합니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">          ┌ cosθ  −sinθ   tx ┐          ┌ x_B ┐     ┌ x_A ┐
+T_A_B  =  │ sinθ   cosθ   ty │   ,  T_A_B · │ y_B │  =  │ y_A │
+          └  0      0      1 ┘          └  1  ┘     └  1  ┘</code></pre></div>
+<ul><li><span class="math">T_AB</span>는 "좌표계 B의 자세를 A에서 본 것"이고, <strong>B 좌표로 적힌 점을 A 좌표로</strong> 바꿉니다.</li><li>합성: <span class="math">T_AC = T_AB · T_BC</span> — 트리를 따라 행렬을 곱합니다.</li><li>역변환: <span class="math">T_BA = (T_AB)⁻¹</span>, 회전 부분은 전치 <span class="math">Rᵀ</span>, 이동 부분은 <span class="math">−Rᵀ·t</span>.</li></ul>
+<h3 id="계산-예-라이다-점을-odom-좌표로">계산 예: 라이다 점을 odom 좌표로<a class="anchor" href="#계산-예-라이다-점을-odom-좌표로">#</a></h3>
+<p>MentorPi(메카넘) URDF의 고정 변환과 현재 오도메트리가 다음과 같다고 합시다.</p>
+<div class="table-wrap"><table><thead><tr><th>변환</th><th>값 (x, y, z, yaw)</th><th>출처</th></tr></thead><tbody><tr><td><code>odom → base_footprint</code></td><td>(1.000, 0.000, 0, 90°)</td><td>오도메트리(EKF)</td></tr><tr><td><code>base_footprint → base_link</code></td><td>(0, 0, 0.070, 0°)</td><td>URDF <code>base_footprint_to_base_link</code></td></tr><tr><td><code>base_link → lidar_frame</code></td><td>(−0.012, 0, 0.0925, 0°)</td><td>URDF <code>lidar_Joint</code></td></tr></tbody></table></div>
+<p>라이다가 정면 1 m에서 벽을 봤습니다: <span class="math">p_lidar = (1, 0, 0)</span>.</p>
+<ol><li><code>base_link</code> 기준: <span class="math">(1 − 0.012, 0, 0.0925) = (0.988, 0, 0.0925)</span></li><li><code>base_footprint</code> 기준: z에 0.070을 더해 <span class="math">(0.988, 0, 0.1625)</span></li><li><code>odom</code> 기준: yaw 90°이므로 <span class="math">(x, y) → (−y, x)</span>로 회전한 뒤 로봇 위치를 더함 → <span class="math">(1.000 − 0, 0.000 + 0.988) = (1.000, 0.988)</span>, z = 0.1625</li></ol>
+<p>로봇이 +y 방향을 보고 있으니 벽도 로봇 위쪽(+y)에 있습니다. 실습 ②에서 TF2가 이 계산을 대신하는지 확인합니다.</p>
+<h2 id="mentorpi의-tf-트리">MentorPi의 TF 트리<a class="anchor" href="#mentorpi의-tf-트리">#</a></h2>
+<figure class="fig" id="fig-r06-tftree"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="MentorPi TF 트리: map, odom, base_footprint, base_link, 센서 프레임과 발행자">
+  <defs>
+    <marker id="arr-r06-tftree" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+    <marker id="arr-r06-tftree-f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <rect class="box" x="15" y="112" width="96" height="36" rx="8"/>
+  <text class="lbl mono" x="63" y="135" text-anchor="middle">map</text>
+  <rect class="box" x="155" y="112" width="96" height="36" rx="8"/>
+  <text class="lbl mono" x="203" y="135" text-anchor="middle">odom</text>
+  <rect class="box-hi" x="295" y="112" width="130" height="36" rx="8"/>
+  <text class="lbl mono" x="360" y="135" text-anchor="middle">base_footprint</text>
+  <rect class="box-hi" x="465" y="112" width="96" height="36" rx="8"/>
+  <text class="lbl mono" x="513" y="135" text-anchor="middle">base_link</text>
+
+  <path class="ln-hi" d="M113 130 L152 130" stroke-width="2" marker-end="url(#arr-r06-tftree)"/>
+  <text class="tag" x="133" y="170" text-anchor="middle">SLAM ·</text>
+  <text class="tag" x="133" y="184" text-anchor="middle">AMCL</text>
+  <path class="ln-hi" d="M253 130 L292 130" stroke-width="2" marker-end="url(#arr-r06-tftree)"/>
+  <text class="tag" x="273" y="170" text-anchor="middle">EKF ·</text>
+  <text class="tag" x="273" y="184" text-anchor="middle">odom_pub</text>
+  <path class="ln" d="M427 130 L462 130" stroke-width="1.8" stroke-dasharray="5 3" marker-end="url(#arr-r06-tftree-f)"/>
+  <text class="tag mono" x="445" y="170" text-anchor="middle">z 0.07</text>
+
+  <rect class="box" x="600" y="22" width="110" height="30" rx="7"/>
+  <text class="lbl mono" x="655" y="42" text-anchor="middle">lidar_frame</text>
+  <rect class="box" x="600" y="82" width="110" height="30" rx="7"/>
+  <text class="lbl mono" x="655" y="102" text-anchor="middle">imu_link</text>
+  <rect class="box" x="600" y="148" width="110" height="30" rx="7"/>
+  <text class="lbl mono" x="655" y="168" text-anchor="middle">depth_cam</text>
+  <rect class="box" x="600" y="208" width="110" height="30" rx="7"/>
+  <text class="lbl mono" x="655" y="228" text-anchor="middle">wheel_*_Link</text>
+  <path class="ln" d="M562 124 L597 40" stroke-width="1.6" stroke-dasharray="5 3" marker-end="url(#arr-r06-tftree-f)"/>
+  <path class="ln" d="M562 128 L597 98" stroke-width="1.6" stroke-dasharray="5 3" marker-end="url(#arr-r06-tftree-f)"/>
+  <path class="ln" d="M562 134 L597 162" stroke-width="1.6" stroke-dasharray="5 3" marker-end="url(#arr-r06-tftree-f)"/>
+  <path class="ln" d="M562 140 L597 220" stroke-width="1.6" stroke-dasharray="5 3" marker-end="url(#arr-r06-tftree-f)"/>
+  <text class="tag mono" x="655" y="66" text-anchor="middle">(−0.012, 0, 0.0925)</text>
+  <text class="tag mono" x="655" y="128" text-anchor="middle">yaw −1.57</text>
+  <text class="tag" x="655" y="254" text-anchor="middle">continuous</text>
+
+  <text class="sub" x="513" y="200" text-anchor="middle">robot_state_publisher</text>
+  <text class="sub" x="513" y="216" text-anchor="middle">(URDF)</text>
+
+  <path class="ln-hi" d="M40 270 L80 270" stroke-width="2"/>
+  <text class="tag" x="88" y="274">동적 변환 /tf — 주기적으로 발행</text>
+  <path class="ln" d="M300 270 L340 270" stroke-width="1.8" stroke-dasharray="5 3"/>
+  <text class="tag" x="348" y="274">정적 변환 /tf_static — URDF fixed joint</text>
+  <text class="sub" x="203" y="84" text-anchor="middle">드리프트 있음 · 연속</text>
+  <text class="sub" x="63" y="84" text-anchor="middle">전역 · 불연속</text>
+</svg><figcaption>MentorPi TF 트리와 각 변환의 발행자 — 정적 변환은 URDF에서, odom→base_footprint는 오도메트리/EKF에서, map→odom은 SLAM·AMCL에서 나옵니다</figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th>프레임</th><th>뜻 (REP-105)</th><th>부모 → 자식 변환을 발행하는 노드</th></tr></thead><tbody><tr><td><code>map</code></td><td>세계에 고정된 지도 좌표. 연속성은 없지만 장기 오차가 없음</td><td>—</td></tr><tr><td><code>odom</code></td><td>오도메트리 원점. 연속적이지만 <strong>시간이 지나면 드리프트</strong></td><td><code>map→odom</code>: slam_toolbox 또는 AMCL (M09·M11)</td></tr><tr><td><code>base_footprint</code></td><td>로봇 중심을 바닥에 투영한 점</td><td><code>odom→base_footprint</code>: EKF(<code>robot_localization</code>) / <code>odom_publisher</code></td></tr><tr><td><code>base_link</code></td><td>로봇 몸체 기준(바닥에서 0.07 m 위)</td><td><code>robot_state_publisher</code> (URDF fixed joint)</td></tr><tr><td><code>lidar_frame</code></td><td>라이다 중심. 문서에 따라 laser_frame이라고도 부름</td><td><code>robot_state_publisher</code></td></tr><tr><td><code>imu_link</code></td><td>IMU 칩 좌표(URDF에서 yaw −1.57 rad 회전)</td><td><code>robot_state_publisher</code></td></tr><tr><td><code>depth_cam</code></td><td>깊이 카메라</td><td><code>robot_state_publisher</code></td></tr><tr><td><code>wheel_*_Link</code></td><td>바퀴 4개 (continuous joint)</td><td><code>robot_state_publisher</code> (joint_states 필요)</td></tr></tbody></table></div>
+<p><code>map → odom</code>을 따로 두는 이유는 두 추정치의 성격이 다르기 때문입니다. 오도메트리는 부드럽지만 오차가 쌓이고, SLAM/AMCL은 가끔 튀지만 오차가 쌓이지 않습니다. 둘을 <strong>다른 변환으로 분리</strong>하면 제어는 부드러운 <code>odom</code>으로, 전역 위치는 <code>map</code>으로 쓸 수 있습니다. 한 프레임은 <strong>부모가 하나뿐</strong>이어야 하므로 <code>odom→base_footprint</code>를 두 노드가 동시에 발행하면 안 됩니다.</p>
+<h3 id="쿼터니언">쿼터니언<a class="anchor" href="#쿼터니언">#</a></h3>
+<p>TF는 회전을 쿼터니언 <span class="math">(x, y, z, w)</span>로 저장합니다. 오일러각(roll·pitch·yaw)은 짐벌락과 순서 문제가 있기 때문입니다. z축 회전 ψ만 있으면 <span class="math">q = (0, 0, sin(ψ/2), cos(ψ/2))</span>입니다. 변환은 라이브러리로 합니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">python</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">from tf_transformations import quaternion_from_euler, euler_from_quaternion
+q = quaternion_from_euler(0.0, 0.0, 1.5708)        # [x, y, z, w] = [0, 0, 0.707, 0.707]
+roll, pitch, yaw = euler_from_quaternion(q)        # yaw = 1.5708</code></pre></div>
+<h2 id="tf2-프로그래밍">TF2 프로그래밍<a class="anchor" href="#tf2-프로그래밍">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>클래스</th><th>용도</th><th>발행 토픽</th></tr></thead><tbody><tr><td><code>StaticTransformBroadcaster(node)</code></td><td>변하지 않는 변환(센서 장착 위치). 한 번만 보내면 됨</td><td><code>/tf_static</code> (TRANSIENT_LOCAL)</td></tr><tr><td><code>TransformBroadcaster(node)</code></td><td>계속 바뀌는 변환(로봇 위치). 주기적으로 보내야 함</td><td><code>/tf</code></td></tr><tr><td><code>Buffer()</code> + <code>TransformListener(buffer, node)</code></td><td><code>/tf</code>, <code>/tf_static</code>을 구독해 약 10초간 저장, 트리 탐색·보간</td><td>—</td></tr></tbody></table></div>
+<p><code>TransformStamped</code>에 <code>header.frame_id</code>(부모), <code>child_frame_id</code>(자식), <code>transform.translation</code>, <code>transform.rotation</code>을 채워 <code>sendTransform()</code>합니다.</p>
+<div class="callout callout-warn"><div class="callout-title">lookup_transform의 방향</div><div class="callout-body"><p><code>buffer.lookup_transform(target_frame, source_frame, time)</code>은 <strong>source 좌표로 적힌 점을 target 좌표로 바꾸는 변환</strong>, 다시 말해 <strong>target에서 본 source의 자세</strong>를 돌려줍니다. "로봇에서 본 목표물 위치"가 필요하면 <code>lookup_transform(&#x27;base_footprint&#x27;, &#x27;target&#x27;, ...)</code>입니다. 인자를 뒤집으면 부호와 회전이 반대인 값이 나옵니다. <code>rclpy.time.Time()</code>(0)은 "가장 최근 값"이라는 뜻입니다.</p></div></div>
+<h3 id="원본-tfdemo-해설">원본 tf_demo 해설<a class="anchor" href="#원본-tfdemo-해설">#</a></h3>
+<ul><li><code>static_tf_broadcaster.py</code>: <code>world → home</code> 정적 변환(10, 5, 0)을 한 번 발행합니다. (교재 본문에는 자식 이름이 <code>house</code>로 적힌 곳이 있지만, 예제 코드와 리스너 기본값은 <code>home</code>입니다.)</li><li><code>tf_listener.py</code>: 파라미터 <code>source_frame</code>(기본 world), <code>target_frame</code>(기본 home)을 선언하고 1초마다 <code>lookup_transform(target, source, Time())</code>로 조회해 위치와 오일러각을 로그로 찍습니다.</li><li><code>turtle_tf_broadcaster.py</code>: <code>/turtleN/pose</code>를 구독해 <code>world → turtleN</code> 동적 변환을 발행합니다.</li><li><code>turtle_following.py</code>: <code>Spawn</code> 서비스로 turtle2를 만든 뒤, <code>lookup_transform(&#x27;turtle2&#x27;, &#x27;turtle1&#x27;)</code>로 <strong>turtle2에서 본 turtle1의 위치</strong> <span class="math">(x, y)</span>를 얻고 다음 제어 법칙으로 따라갑니다.</li></ul>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">angular.z = 1.0 · atan2(y, x)        # 목표 쪽으로 머리 돌리기 (방위각 비례)
+linear.x  = 0.5 · sqrt(x² + y²)      # 멀수록 빠르게 (거리 비례)</code></pre></div>
+<div class="callout callout-info"><div class="callout-title">원본 launch의 작은 함정</div><div class="callout-body"><p><code>turtle_following.launch.py</code>는 listener 노드에 <code>target_frame</code> 파라미터를 넘기지만, <code>turtle_following.py</code>가 선언하는 파라미터 이름은 <code>source_frame</code>입니다. 그래서 launch 인자 <code>target_frame:=...</code>을 바꿔도 <strong>효과가 없습니다.</strong> 따라갈 대상을 바꾸려면 launch 쪽 키를 <code>source_frame</code>으로 고쳐야 합니다. 파라미터 이름 불일치는 오류 없이 조용히 무시되는 대표적인 버그입니다.</p></div></div>
+<h3 id="tf-명령행-도구">TF 명령행 도구<a class="anchor" href="#tf-명령행-도구">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 run tf2_ros tf2_echo odom base_footprint                 # 두 프레임 사이 변환을 계속 출력
+ros2 run tf2_ros static_transform_publisher --x 0.1 --z 0.2 --frame-id base_link --child-frame-id my_sensor
+ros2 run tf2_tools view_frames                                # frames_*.pdf 로 트리 그림 저장</code></pre></div>
+<h2 id="urdf-로봇을-글로-기술하기">URDF: 로봇을 글로 기술하기<a class="anchor" href="#urdf-로봇을-글로-기술하기">#</a></h2>
+<p>URDF(Unified Robot Description Format)는 로봇의 <strong>링크(강체)와 조인트(연결)</strong> 를 XML로 적는 형식입니다. RViz2 표시, <code>robot_state_publisher</code>의 TF 생성, Gazebo 시뮬레이션, MoveIt·Nav2의 충돌 모델이 모두 이 파일 하나를 씁니다.</p>
+<h3 id="link">link<a class="anchor" href="#link">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">xml</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-xml">&lt;link name=&quot;base_link&quot;&gt;
+  &lt;visual&gt;                                   &lt;!-- 보이는 모양 --&gt;
+    &lt;geometry&gt;&lt;cylinder length=&quot;0.6&quot; radius=&quot;0.2&quot;/&gt;&lt;/geometry&gt;
+    &lt;origin xyz=&quot;0 0 0&quot; rpy=&quot;0 0 0&quot;/&gt;
+    &lt;material name=&quot;blue&quot;/&gt;
+  &lt;/visual&gt;
+  &lt;collision&gt;                                &lt;!-- 충돌 판정용(보통 단순한 도형) --&gt;
+    &lt;geometry&gt;&lt;box size=&quot;0.25 0.18 0.1&quot;/&gt;&lt;/geometry&gt;
+  &lt;/collision&gt;
+  &lt;inertial&gt;                                 &lt;!-- 질량·관성(물리 시뮬레이션용) --&gt;
+    &lt;mass value=&quot;1.2&quot;/&gt;
+    &lt;inertia ixx=&quot;0.004&quot; ixy=&quot;0&quot; ixz=&quot;0&quot; iyy=&quot;0.006&quot; iyz=&quot;0&quot; izz=&quot;0.008&quot;/&gt;
+  &lt;/inertial&gt;
+&lt;/link&gt;</code></pre></div>
+<p><code>geometry</code>는 <code>box</code>, <code>cylinder</code>, <code>sphere</code>, <code>mesh</code>(STL/DAE 파일) 중 하나입니다. visual에는 실제와 같은 메시를, collision에는 계산이 가벼운 단순 도형을 쓰는 것이 보통입니다.</p>
+<h3 id="joint">joint<a class="anchor" href="#joint">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>타입</th><th>운동</th><th>예</th></tr></thead><tbody><tr><td><code>continuous</code></td><td>한 축 무한 회전</td><td>바퀴 (<code>wheel_lf_Joint</code>)</td></tr><tr><td><code>revolute</code></td><td>한 축 회전, 각도 제한</td><td>로봇팔 관절, 조향 서보</td></tr><tr><td><code>prismatic</code></td><td>한 축 직선 이동, 위치 제한</td><td>리니어 액추에이터</td></tr><tr><td><code>fixed</code></td><td>움직이지 않음</td><td>라이다·카메라·IMU 장착 (<code>lidar_Joint</code>)</td></tr><tr><td><code>floating</code></td><td>6자유도 자유 운동</td><td>거의 안 씀</td></tr><tr><td><code>planar</code></td><td>평면 내 이동·회전</td><td>거의 안 씀</td></tr></tbody></table></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">xml</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-xml">&lt;joint name=&quot;wheel_lf_Joint&quot; type=&quot;continuous&quot;&gt;
+  &lt;parent link=&quot;base_link&quot;/&gt;
+  &lt;child link=&quot;wheel_lf_Link&quot;/&gt;
+  &lt;origin xyz=&quot;0.067052 0.07591 -0.018408&quot; rpy=&quot;0 0 0&quot;/&gt;   &lt;!-- 부모 기준 자식 원점 --&gt;
+  &lt;axis xyz=&quot;0 1 0&quot;/&gt;                                        &lt;!-- 회전축(자식 좌표) --&gt;
+&lt;/joint&gt;</code></pre></div>
+<p><code>revolute</code>·<code>prismatic</code>에는 <code>&lt;limit lower=&quot;-3.14&quot; upper=&quot;3.14&quot; effort=&quot;1.0&quot; velocity=&quot;1.0&quot;/&gt;</code>처럼 한계를 적습니다. 단위는 m, rad, m/s, rad/s입니다(3.14는 180°).</p>
+<h3 id="원본-simpledemo-urdf와-xacro">원본 simple_demo.urdf와 xacro<a class="anchor" href="#원본-simpledemo-urdf와-xacro">#</a></h3>
+<p>원본 <code>urdf_demo/urdf/simple_demo.urdf</code>는 파란 원기둥 <code>base_link</code>(길이 0.6, 반지름 0.2)에 흰 상자 다리 두 개를 <code>fixed</code> 조인트로 붙인 모델입니다. 다리 조인트 원점은 (0, ∓0.22, 0.25), 다리 visual은 <code>rpy=&quot;0 1.57075 0&quot;</code>으로 세워서 −0.3만큼 내려 둡니다. <strong>조인트 origin은 링크 좌표계의 위치</strong>, <strong>visual origin은 그 좌표계 안에서 도형의 위치</strong>라는 두 층을 구분하는 것이 URDF 읽기의 핵심입니다.</p>
+<p>다리 두 개처럼 반복되는 부분은 <strong>xacro</strong> 매크로로 줄입니다. 원본 <code>simple_demo.xacro</code>는 <code>leg</code>, <code>base_to_leg</code> 매크로를 정의하고 <code>name</code>, <code>xyz</code>만 바꿔 두 번 호출합니다. MentorPi의 실제 모델 <code>mentorpi_description/urdf/mentorpi.xacro</code>도 섀시(<code>mecanum.xacro</code>, <code>ack.xacro</code>), 라이다·IMU 파일을 xacro로 조립합니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">xacro mentorpi.xacro &gt; mentorpi.urdf          # xacro → 순수 URDF 펼치기
+check_urdf mentorpi.urdf                      # 트리 구조 검사 (liburdfdom-tools)</code></pre></div>
+<h3 id="robotstatepublisher">robot_state_publisher<a class="anchor" href="#robotstatepublisher">#</a></h3>
+<p><code>robot_state_publisher</code>는 <code>robot_description</code> 파라미터(URDF 문자열)를 읽어 **fixed 조인트는 <code>/tf_static</code>으로**, 움직이는 조인트는 <code>/joint_states</code>를 받아 **<code>/tf</code>로** 발행합니다. MentorPi는 <code>controller.launch.py</code> → <code>odom_publisher.launch.py</code> → <code>robot_description.launch.py</code>를 거쳐 이 노드를 자동으로 띄웁니다.</p>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/urdf-viewer.html">URDF 뷰어에서 MentorPi 모델 보기</a></p>
+<h2 id="실습-시뮬레이션">실습 (시뮬레이션)<a class="anchor" href="#실습-시뮬레이션">#</a></h2>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
+<h3 id="원본-tfdemo-정적-변환과-리스너">① 원본 tf_demo: 정적 변환과 리스너<a class="anchor" href="#원본-tfdemo-정적-변환과-리스너">#</a></h3>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import TransformStamped
+import tf_transformations
+from tf2_ros import StaticTransformBroadcaster, Buffer, TransformListener
+import mentorpi_sim as sim                  # 시뮬 전용
+sim.setup(world=&quot;empty&quot;, duration=3.5)     # 시뮬 전용
+
+
+class StaticAndListen(Node):
+    def __init__(self):
+        super().__init__(&#x27;tf_demo&#x27;)
+        self.static_br = StaticTransformBroadcaster(self)
+        t = TransformStamped()
+        t.header.stamp = self.get_clock().now().to_msg()
+        t.header.frame_id = &#x27;world&#x27;
+        t.child_frame_id = &#x27;home&#x27;
+        t.transform.translation.x, t.transform.translation.y = 10.0, 5.0
+        q = tf_transformations.quaternion_from_euler(0.0, 0.0, 0.5)
+        t.transform.rotation.x, t.transform.rotation.y, t.transform.rotation.z, t.transform.rotation.w = q
+        self.static_br.sendTransform(t)
+
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
+        self.create_timer(1.0, self.on_timer)
+
+    def on_timer(self):
+        for target, source in [(&#x27;world&#x27;, &#x27;home&#x27;), (&#x27;home&#x27;, &#x27;world&#x27;)]:
+            try:
+                tr = self.tf_buffer.lookup_transform(target, source, rclpy.time.Time())
+            except Exception as ex:                      # 실물: tf2_ros.TransformException
+                self.get_logger().info(&#x27;변환 없음: %s&#x27; % ex)
+                continue
+            p, r = tr.transform.translation, tr.transform.rotation
+            yaw = tf_transformations.euler_from_quaternion([r.x, r.y, r.z, r.w])[2]
+            print(&#x27;%s에서 본 %s: [%.2f, %.2f, %.2f] yaw=%.2f&#x27; % (target, source, p.x, p.y, p.z, yaw))
+
+
+rclpy.init()
+node = StaticAndListen()
+try:
+    rclpy.spin(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    node.destroy_node()
+    rclpy.shutdown()</code></pre></div>
+<p>예상 출력(대략):</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">world에서 본 home: [10.00, 5.00, 0.00] yaw=0.50
+home에서 본 world: [-11.17, 0.41, 0.00] yaw=-0.50
+world에서 본 home: [10.00, 5.00, 0.00] yaw=0.50
+home에서 본 world: [-11.17, 0.41, 0.00] yaw=-0.50
+world에서 본 home: [10.00, 5.00, 0.00] yaw=0.50
+home에서 본 world: [-11.17, 0.41, 0.00] yaw=-0.50</code></pre></div>
+<p>역변환의 이동 부분은 <span class="math">−Rᵀ·t</span>라서 부호만 바꾼 (−10, −5)가 아닙니다. home 좌표계가 0.5 rad 돌아가 있으므로 world 원점을 home의 축으로 다시 읽어야 합니다. <span class="math">Rᵀ·t = (10·cos0.5 + 5·sin0.5, −10·sin0.5 + 5·cos0.5) ≈ (11.17, −0.41)</span>이고, 부호를 바꾸면 (−11.17, 0.41)입니다. 거리는 어느 쪽에서 봐도 <span class="math">√(10² + 5²) ≈ 11.18</span> m로 같습니다.</p>
+<h3 id="mentorpi-센서-프레임-라이다-점을-odom으로">② MentorPi 센서 프레임: 라이다 점을 odom으로<a class="anchor" href="#mentorpi-센서-프레임-라이다-점을-odom으로">#</a></h3>
+<p>URDF 값으로 정적 변환 두 개를 발행하고, 가상 로봇을 1 m 전진시킨 다음 제자리에서 90° 돌린 뒤 <code>odom → lidar_frame</code> 변환을 조회합니다. 위 "계산 예"와 같은 결과가 나오는지 봅니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+import time
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import TransformStamped, Twist
+from tf2_ros import StaticTransformBroadcaster, Buffer, TransformListener
+from tf_transformations import quaternion_from_euler, euler_from_quaternion
+import mentorpi_sim as sim                                                    # 시뮬 전용
+sim.setup(world=&quot;empty&quot;, duration=15.0, start=(0.0, 0.0, 0.0), noise=False)  # 시뮬 전용
+
+
+def make_tf(parent, child, x, y, z, yaw, stamp):
+    t = TransformStamped()
+    t.header.stamp, t.header.frame_id, t.child_frame_id = stamp, parent, child
+    t.transform.translation.x, t.transform.translation.y, t.transform.translation.z = x, y, z
+    q = quaternion_from_euler(0.0, 0.0, yaw)
+    t.transform.rotation.x, t.transform.rotation.y, t.transform.rotation.z, t.transform.rotation.w = q
+    return t
+
+
+rclpy.init()
+node = Node(&#x27;sensor_frames&#x27;)
+stamp = node.get_clock().now().to_msg()
+static_br = StaticTransformBroadcaster(node)
+static_br.sendTransform([make_tf(&#x27;base_footprint&#x27;, &#x27;base_link&#x27;, 0.0, 0.0, 0.070, 0.0, stamp),
+                         make_tf(&#x27;base_link&#x27;, &#x27;lidar_frame&#x27;, -0.012, 0.0, 0.0925, 0.0, stamp)])
+buf = Buffer()
+listener = TransformListener(buf, node)
+pub = node.create_publisher(Twist, &#x27;/cmd_vel&#x27;, 10)
+
+def drive(vx, wz, seconds):
+    t0 = time.time()
+    while time.time() - t0 &lt; seconds:
+        cmd = Twist()
+        cmd.linear.x, cmd.angular.z = vx, wz
+        pub.publish(cmd)
+        rclpy.spin_once(node, timeout_sec=0.05)
+
+drive(0.2, 0.0, 5.0)                     # 1 m 전진 (0.2 m/s × 5 s)
+drive(0.0, 0.5, math.pi)                 # 반시계 90° 회전 (0.5 rad/s × π s)
+pub.publish(Twist())
+for _ in range(10):
+    rclpy.spin_once(node, timeout_sec=0.05)
+
+tr = buf.lookup_transform(&#x27;odom&#x27;, &#x27;lidar_frame&#x27;, rclpy.time.Time())
+p, r = tr.transform.translation, tr.transform.rotation
+yaw = euler_from_quaternion([r.x, r.y, r.z, r.w])[2]
+print(&#x27;odom에서 본 lidar_frame: x=%.3f y=%.3f z=%.4f yaw=%.1f deg&#x27; % (p.x, p.y, p.z, math.degrees(yaw)))
+# 라이다 정면 1 m 점 (1, 0) → odom
+px = p.x + math.cos(yaw) * 1.0
+py = p.y + math.sin(yaw) * 1.0
+print(&#x27;라이다 정면 1 m 점의 odom 좌표: (%.3f, %.3f, %.4f)&#x27; % (px, py, p.z))
+node.destroy_node()
+rclpy.shutdown()</code></pre></div>
+<p>예상 출력(대략):</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">odom에서 본 lidar_frame: x=0.998 y=-0.012 z=0.1625 yaw=90.2 deg
+라이다 정면 1 m 점의 odom 좌표: (0.995, 0.988, 0.1625)</code></pre></div>
+<p>라이다가 몸체 중심보다 12 mm 뒤에 있으므로, +y를 보고 있는 로봇에서는 라이다가 y = −0.012에 있습니다. 손 계산 (1.000, 0.988, 0.1625)과 같습니다. 가감속과 시간 간격 때문에 x가 0.98~1.00, yaw가 89~90°로 조금 다를 수 있습니다.</p>
+<h3 id="동적-변환-따라가기-turtlefollowing의-mentorpi-버전">③ 동적 변환 따라가기: turtle_following의 MentorPi 버전<a class="anchor" href="#동적-변환-따라가기-turtlefollowing의-mentorpi-버전">#</a></h3>
+<p>움직이는 가상의 목표 프레임 <code>target</code>을 <code>odom</code> 아래에 10 Hz로 발행하고(원본의 turtle1 역할), 로봇(turtle2 역할)이 <code>base_footprint</code>에서 본 <code>target</code>의 위치로 원본과 같은 제어 법칙을 적용해 따라갑니다. 실물 안전을 위해 속도는 제한합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import TransformStamped, Twist
+from tf2_ros import TransformBroadcaster, Buffer, TransformListener
+import mentorpi_sim as sim                                                    # 시뮬 전용
+sim.setup(world=&quot;empty&quot;, duration=24.0, start=(0.0, 0.0, 0.0))               # 시뮬 전용
+
+
+class Follower(Node):
+    def __init__(self):
+        super().__init__(&#x27;tf_follower&#x27;)
+        self.br = TransformBroadcaster(self)
+        self.buf = Buffer()
+        self.listener = TransformListener(self.buf, self)
+        self.pub = self.create_publisher(Twist, &#x27;/cmd_vel&#x27;, 10)
+        self.t = 0.0
+        self.ticks = 0
+        self.create_timer(0.1, self.on_timer)
+
+    def publish_target(self):              # 반지름 0.8 m 원 위를 0.1 m/s로 도는 목표
+        a = 0.125 * self.t
+        tf = TransformStamped()
+        tf.header.stamp = self.get_clock().now().to_msg()
+        tf.header.frame_id, tf.child_frame_id = &#x27;odom&#x27;, &#x27;target&#x27;
+        tf.transform.translation.x = 0.4 + 0.8 * math.cos(a)
+        tf.transform.translation.y = 0.8 * math.sin(a)
+        tf.transform.rotation.w = 1.0
+        self.br.sendTransform(tf)
+
+    def on_timer(self):
+        self.ticks += 1
+        self.t = self.ticks * 0.1
+        self.publish_target()
+        try:
+            tr = self.buf.lookup_transform(&#x27;base_footprint&#x27;, &#x27;target&#x27;, rclpy.time.Time())
+        except Exception:
+            return                         # 아직 변환이 없으면 다음 주기에
+        x, y = tr.transform.translation.x, tr.transform.translation.y
+        dist = math.hypot(x, y)
+        cmd = Twist()
+        cmd.angular.z = max(-0.5, min(0.5, 1.0 * math.atan2(y, x)))
+        if dist &gt; 0.25:
+            cmd.linear.x = max(0.0, min(0.2, 0.5 * dist))
+        self.pub.publish(cmd)
+        if self.ticks % 30 == 0:                 # 3초마다 출력
+            print(&#x27;t=%4.1f s  목표까지 %.2f m  방위 %+5.1f deg&#x27; % (self.t, dist, math.degrees(math.atan2(y, x))))
+
+
+rclpy.init()
+node = Follower()
+try:
+    rclpy.spin(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    node.pub.publish(Twist())
+    node.destroy_node()
+    rclpy.shutdown()</code></pre></div>
+<p>예상 출력(대략):</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">t= 3.0 s  목표까지 0.63 m  방위  +8.8 deg
+t= 6.0 s  목표까지 0.26 m  방위 +23.9 deg
+t= 9.0 s  목표까지 0.25 m  방위 +14.8 deg
+t=12.0 s  목표까지 0.25 m  방위  +8.0 deg
+t=15.0 s  목표까지 0.26 m  방위  +6.8 deg
+t=18.0 s  목표까지 0.25 m  방위  +7.1 deg
+t=21.0 s  목표까지 0.25 m  방위  +7.3 deg</code></pre></div>
+<p>처음 1.2 m 떨어진 목표에 6초쯤 만에 다가간 뒤, 멈춤 거리(0.25 m) 근처를 유지하며 원을 따라 돕니다. 방위가 0으로 가지 않는 것은 비례 제어만 쓰고 있어서 <strong>움직이는 목표에 대한 정상상태 오차</strong>가 남기 때문입니다(과제 3).</p>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> ①에서 <code>lookup_transform</code>의 두 인자를 바꾸면 결과가 어떻게 달라지는지 설명할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> ②의 결과가 손 계산과 일치했다.</label></li><li><label class="check-item"><input type="checkbox"> ③의 제어 법칙이 원본 turtle_following과 어디가 같고 어디가 다른지(속도 제한, 최소 거리) 말할 수 있다.</label></li></ul></div></div>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">안전 확인 (실물 실습 전 필수)</div><div class="callout-body"><ul><li>turtlesim 예제는 로봇을 움직이지 않습니다. ③을 실물에서 돌릴 때만 주행하므로, 사방 1.5 m를 비우고 속도 제한(0.2 m/s, 0.5 rad/s)을 유지합니다.</li><li><code>static_transform_publisher</code>로 이미 존재하는 프레임(<code>base_link</code> 등)의 부모를 바꾸면 TF 트리가 깨져 내비게이션이 오동작합니다. 실험용 프레임은 새 이름을 씁니다.</li></ul></div></div>
+<ol><li>원본 <code>tf_demo</code>를 빌드하고 정적 변환·리스너를 실행합니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">cd ~/hiwonder_ws &amp;&amp; colcon build --packages-select tf_demo &amp;&amp; source install/setup.bash
+ros2 run tf_demo static_tf_broadcaster         # 터미널 1
+ros2 run tf_demo tf_listener                    # 터미널 2 → Get world --&gt; home transform: [10, 5, 0] ...
+ros2 run tf2_ros tf2_echo world home            # 터미널 3</code></pre></div>
+<ol><li>거북이 따라가기(도구 설치: <code>sudo apt install ros-humble-turtle-tf2-py ros-humble-tf2-tools</code>).</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 launch turtle_tf2_py turtle_tf2_demo.launch.py      # 공식 데모
+ros2 run turtlesim turtle_teleop_key                      # 방향키로 turtle1 조종
+ros2 run tf2_ros tf2_echo turtle2 turtle1
+ros2 launch tf_demo turtle_following.launch.py            # 원본 예제 버전</code></pre></div>
+<ol><li>MentorPi의 실제 TF 트리를 확인합니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">~/.stop_ros.sh
+ros2 launch controller controller.launch.py               # robot_state_publisher 포함
+ros2 run tf2_tools view_frames                            # frames_YYYY-MM-DD.pdf 생성
+ros2 run tf2_ros tf2_echo base_footprint lidar_frame      # (-0.012, 0, 0.1625)
+ros2 run tf2_ros tf2_echo odom base_footprint             # 로봇을 손으로 밀면 값이 변함
+ros2 param get /robot_state_publisher robot_description | head -20</code></pre></div>
+<ol><li>URDF 모델을 RViz2에서 봅니다(원본 <code>urdf_demo</code>). 자세한 RViz2 사용법은 R07에서 다룹니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 launch urdf_demo rviz_view.launch.py</code></pre></div>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td><code>&quot;home&quot; passed to lookupTransform argument target_frame does not exist</code></td><td>브로드캐스터 미실행, 프레임 이름 오타(<code>house</code>/<code>home</code>)</td><td><code>ros2 run tf2_tools view_frames</code>로 실제 프레임 이름 확인</td></tr><tr><td><code>Lookup would require extrapolation into the future</code></td><td>특정 시각으로 조회했는데 변환이 아직 안 옴</td><td><code>rclpy.time.Time()</code>(최신값) 사용, 또는 <code>timeout</code> 인자로 잠시 대기</td></tr><tr><td>시작 직후 첫 조회만 실패</td><td>리스너가 아직 <code>/tf</code>를 받지 못함</td><td>예외 처리 후 다음 주기에 재시도(③처럼)</td></tr><tr><td>변환 값의 부호·회전이 반대</td><td><code>lookup_transform</code> 인자 순서 반대</td><td>(target, source) = "target에서 본 source"</td></tr><tr><td><code>TF_REPEATED_DATA</code> / 트리가 끊겼다 이어짐</td><td>같은 자식 프레임을 두 노드가 발행</td><td>부모는 하나뿐. EKF와 odom_publisher의 TF 발행 설정 확인</td></tr><tr><td>RViz2에서 모델이 흰색·빨간 에러</td><td><code>robot_description</code> 미발행, Fixed Frame 없음</td><td><code>robot_state_publisher</code> 실행, Fixed Frame을 <code>base_link</code>로</td></tr><tr><td><code>check_urdf</code> 오류 <code>link has no parent</code></td><td>조인트 누락으로 트리가 둘로 나뉨</td><td>모든 링크가 하나의 루트에 연결되도록 joint 추가</td></tr><tr><td>launch 인자를 바꿔도 동작이 그대로</td><td>노드가 선언한 파라미터 이름과 launch가 넘긴 이름이 다름</td><td><code>ros2 param list /노드</code>로 실제 이름 확인 (원본 <code>target_frame</code>/<code>source_frame</code>)</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">기본 과제</div><div class="callout-body"><ol><li>②에 <code>imu_link</code>(URDF: base_link 기준 원점, yaw −1.57 rad)를 추가하고 <code>lookup_transform(&#x27;base_footprint&#x27;, &#x27;imu_link&#x27;)</code>의 yaw가 −90°인지 확인합니다. IMU 데이터의 x축이 로봇의 어느 방향인지 설명합니다.</li><li>원본 <code>simple_demo.urdf</code>에 반지름 0.1 m 구(<code>sphere</code>) 머리(<code>head</code>)를 base_link 위 0.4 m에 <code>fixed</code>로 붙이고, 오른쪽 다리를 <code>revolute</code>(y축, ±0.5 rad)로 바꿉니다. <code>check_urdf</code>로 트리를 확인합니다.</li></ol></div></div>
+<div class="callout callout-task"><div class="callout-title">심화 과제</div><div class="callout-body"><ol><li>③의 추종 제어에 목표의 속도를 예측하는 <strong>앞먹임(feed-forward)</strong> 항을 더해(이전 주기와의 위치 차로 목표 속도 추정) 정상상태 방위 오차를 줄여 봅니다. 개선 전후 거리·방위 그래프를 <code>mentorpi_sim.plot</code>으로 비교합니다.</li><li>원본 <code>turtle_following.launch.py</code>의 파라미터 이름 문제를 고쳐, launch 인자 하나로 "turtle2가 turtle1을 따라가기 ↔ turtle1의 정적 목표점을 따라가기"를 전환하도록 만듭니다.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>5. ROS2 Basic Course</em> — Lesson 16 ROS2 TF2 Robot Coordinate System Manager, Lesson 17 ROS2 URDF Robot Modeling Method</li><li>원본 예제: <code>5. ROS2 Basic Course/ros2_ws/tf_demo</code>, <code>urdf_demo</code> (<code>simple_demo.urdf</code>, <code>simple_demo.xacro</code>)</li><li>원본 소스: <code>src/simulations/mentorpi_description/urdf/mentorpi.xacro</code>, <code>mecanum.xacro</code>, <code>launch/robot_description.launch.py</code></li><li>TF2 개요: https://docs.ros.org/en/humble/Concepts/Intermediate/About-Tf2.html</li><li>TF2 튜토리얼(Python 브로드캐스터·리스너): https://docs.ros.org/en/humble/Tutorials/Intermediate/Tf2/Tf2-Main.html</li><li>REP-105 이동로봇 좌표계: https://www.ros.org/reps/rep-0105.html</li><li>URDF 튜토리얼: https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/URDF-Main.html</li><li>xacro 사용법: https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html</li></ul>
+      <nav class="pager"><a class="pager-prev" href="r05.html"><span>이전 · R05</span>파라미터·launch·DDS·분산 통신</a><a class="pager-next" href="r07.html"><span>다음 · R07</span>RViz2·RQT·Gazebo 도구</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#왜-좌표계를-관리해야-하는가">왜 좌표계를 관리해야 하는가</a><a class="toc-l3" href="#동차-변환-행렬">동차 변환 행렬</a><a class="toc-l3" href="#계산-예-라이다-점을-odom-좌표로">계산 예: 라이다 점을 odom 좌표로</a><a class="toc-l2" href="#mentorpi의-tf-트리">MentorPi의 TF 트리</a><a class="toc-l3" href="#쿼터니언">쿼터니언</a><a class="toc-l2" href="#tf2-프로그래밍">TF2 프로그래밍</a><a class="toc-l3" href="#원본-tfdemo-해설">원본 tf_demo 해설</a><a class="toc-l3" href="#tf-명령행-도구">TF 명령행 도구</a><a class="toc-l2" href="#urdf-로봇을-글로-기술하기">URDF: 로봇을 글로 기술하기</a><a class="toc-l3" href="#link">link</a><a class="toc-l3" href="#joint">joint</a><a class="toc-l3" href="#원본-simpledemo-urdf와-xacro">원본 simple_demo.urdf와 xacro</a><a class="toc-l3" href="#robotstatepublisher">robot_state_publisher</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l3" href="#원본-tfdemo-정적-변환과-리스너">① 원본 tf_demo: 정적 변환과 리스너</a><a class="toc-l3" href="#mentorpi-센서-프레임-라이다-점을-odom으로">② MentorPi 센서 프레임: 라이다 점을 odom으로</a><a class="toc-l3" href="#동적-변환-따라가기-turtlefollowing의-mentorpi-버전">③ 동적 변환 따라가기: turtle_following의 MentorPi 버전</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

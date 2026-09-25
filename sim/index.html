@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MentorPi 2D 시뮬레이터 — studyMentorPi</title>
+<meta name="description" content="메카넘·애커만 섀시 주행, 라이다 회피·추종·경비, 점유격자 SLAM, A*·DWA 내비게이션과 AMCL, 라인 트레이싱을 브라우저에서 돌려 보는 MentorPi 2D 시뮬레이터.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/file-guard.js"></script>
+<link rel="stylesheet" href="../assets/css/sim.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<style>
+  .sim-page { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+  .scene-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px 16px 4px; border-bottom: 1px solid var(--border-soft); }
+  .scene-bar label { display: flex; flex-direction: column; gap: 3px; font-size: 11.5px; font-weight: 600; color: var(--text-dim); }
+  .scene-bar select, .tab-body select { font: inherit; font-size: 12.5px; padding: 6px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+  .scene-bar .row { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding-bottom: 8px; }
+  .tabs button { font-size: 12px; padding: 10px 2px; }
+  .scene-bar .chk { background: none; border: 0; padding: 0; backdrop-filter: none; }
+  .hud { font: 12px/1.55 var(--mono); background: var(--overlay); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 10px; min-width: 240px; color: var(--text); }
+  .hud b { color: var(--text-faint); font-weight: 600; display: inline-block; min-width: 54px; }
+  .hud .gt { color: var(--accent); } .hud .od { color: var(--warn); } .hud .am { color: var(--task); }
+  .cam { background: var(--overlay); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px; font-size: 11px; color: var(--text-faint); }
+  .cam canvas { display: block; width: 240px; height: 180px; image-rendering: pixelated; border-radius: 6px; background: #ddd; }
+  .joy { width: 104px; height: 104px; opacity: .9; border-radius: 50%; background: var(--overlay); border: 1px solid var(--border); position: relative; touch-action: none; }
+  .joy i { position: absolute; left: 50%; top: 50%; width: 38px; height: 38px; margin: -19px 0 0 -19px; border-radius: 50%; background: var(--accent); opacity: .85; }
+  .joy-lbl { font-size: 11px; color: var(--text-faint); text-align: center; margin-top: 4px; }
+  .info-box { font-size: 12.5px; background: var(--overlay); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 6px 10px; max-width: 440px; color: var(--text); }
+  .keys { display: grid; grid-template-columns: repeat(3, 34px); gap: 4px; margin: 6px 0 10px; }
+  .keys kbd { display: grid; place-items: center; height: 30px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg); font: 600 12px var(--mono); color: var(--text-dim); }
+  .keys kbd.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .wheels { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 8px 0; }
+  .wheels div { background: var(--bg); border: 1px solid var(--border-soft); border-radius: var(--radius-sm); padding: 6px 8px; font: 12px var(--mono); }
+  .wheels span { display: block; font: 600 10.5px var(--sans); color: var(--text-faint); }
+  .modebtns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 8px 0 12px; }
+  .modebtns button.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .tab-body p.hint, .tab-body .hint { font-size: 12.5px; color: var(--text-faint); line-height: 1.6; }
+  .speed-row { display: flex; gap: 6px; align-items: center; font-size: 12px; color: var(--text-faint); }
+  .legend-chk { display: flex; flex-direction: column; gap: 6px; }
+  .stat-line { font: 12px var(--mono); color: var(--text-dim); margin: 6px 0; }
+  .tool-nav { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tool-nav a[aria-current="page"] { color: var(--accent); border-color: var(--accent-dim); }
+  @media (max-width: 900px) {
+    .sim-page { height: auto; overflow: auto; }
+    .sim-layout { grid-template-columns: 1fr; }
+    .sim-stage { height: 64vh; min-height: 380px; }
+    .sim-panel { border-left: 0; border-top: 1px solid var(--border); }
+    .cam canvas { width: 160px; height: 120px; }
+    .hud { min-width: 0; font-size: 11px; }
+    .sim-top { flex-wrap: wrap; }
+    .sim-top-actions { margin-left: 0; flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body class="sim-page">
+<header class="sim-top">
+  <a class="sim-back" href="../index.html">&larr; 강의</a>
+  <div class="sim-title"><strong>MentorPi 2D 시뮬레이터</strong><span id="subTitle">불러오는 중…</span></div>
+  <div class="sim-top-actions">
+    <nav class="tool-nav" aria-label="도구">
+      <a class="sim-back" href="index.html" aria-current="page">2D 시뮬레이터</a>
+      <a class="sim-back" href="../tools/playground.html">Playground</a>
+      <a class="sim-back" href="../tools/kinematics-lab.html">기구학 실험실</a>
+      <a class="sim-back" href="../tools/color-lab.html">HSV 색 실험실</a>
+      <a class="sim-back" href="../tools/urdf-viewer.html">URDF 뷰어</a>
+    </nav>
+    <button class="theme-btn" type="button" data-theme-toggle aria-label="테마 전환">테마</button>
+  </div>
+</header>
+<main class="sim-layout">
+  <section class="sim-stage" id="stage">
+    <div class="viewport"><canvas id="cv" aria-label="2D 월드"></canvas></div>
+    <div class="stage-overlay stage-tl"><div class="hud" id="hud"></div></div>
+    <div class="stage-overlay stage-tr">
+      <div class="cam" id="camBox" hidden><canvas id="cam" width="160" height="120"></canvas><div>가상 카메라 (ROI 3개, 가중치 0.7/0.2/0.1)</div></div>
+      <div class="chk legend-chk" style="flex-direction:column;align-items:flex-start">
+        <label><input type="checkbox" id="chkRays" checked> 라이다 레이</label>
+        <label><input type="checkbox" id="chkTrail" checked> 궤적</label>
+        <label><input type="checkbox" id="chkOdom" checked> 오도메트리 추정</label>
+      </div>
+    </div>
+    <div class="stage-overlay stage-bl"><div class="joy" id="joy" aria-label="가상 조이스틱"><i id="joyKnob"></i></div><div class="joy-lbl">드래그: 전후·회전</div></div>
+    <div class="stage-overlay stage-br"><div class="info-box" id="info">W/S 전후 · A/D 회전 · Q/E 옆으로(메카넘) · Space 정지</div></div>
+  </section>
+  <aside class="sim-panel">
+    <div class="scene-bar">
+      <label>월드<select id="selWorld"></select></label>
+      <label>섀시<select id="selChassis"><option value="mecanum">메카넘 (MentorPi M1)</option><option value="ackermann">애커만 (MentorPi A1)</option></select></label>
+      <div class="row">
+        <label class="chk"><input type="checkbox" id="chkNoise" checked> 잡음·미끄러짐</label>
+        <span class="speed-row">배속 <select id="selSpeed"><option value="1">1×</option><option value="2">2×</option><option value="4">4×</option></select></span>
+        <button class="s-btn" id="btnReset" type="button">&#8634; 리셋</button>
+        <button class="s-btn" id="btnPause" type="button">&#10074;&#10074; 일시정지</button>
+      </div>
+    </div>
+    <div class="tabs" role="tablist">
+      <button type="button" data-tab="drive" class="active">주행</button>
+      <button type="button" data-tab="lidar">라이다</button>
+      <button type="button" data-tab="slam">SLAM</button>
+      <button type="button" data-tab="nav">내비</button>
+      <button type="button" data-tab="line">라인</button>
+    </div>
+
+    <div class="tab-body active" data-body="drive">
+      <div class="sub-title">수동 주행 (/cmd_vel)</div>
+      <div class="keys" aria-hidden="true"><kbd data-k="q">Q</kbd><kbd data-k="w">W</kbd><kbd data-k="e">E</kbd><kbd data-k="a">A</kbd><kbd data-k="s">S</kbd><kbd data-k="d">D</kbd></div>
+      <div class="field-grid two">
+        <label>최대 선속도 <output id="oV">0.20</output><input type="range" id="rV" min="0.05" max="0.6" step="0.05" value="0.2"></label>
+        <label>최대 각속도 <output id="oW">0.50</output><input type="range" id="rW" min="0.1" max="3" step="0.1" value="0.5"></label>
+      </div>
+      <p class="hint">실물 <code>/cmd_vel</code>은 0.2 m/s, 0.5 rad/s로 잘립니다(app_cmd_vel_callback). 더 빠르게 시험하려면 <code>/controller/cmd_vel</code>처럼 제한을 풀어 보세요.</p>
+      <label class="chk block"><input type="checkbox" id="chkUnlimited"> /controller/cmd_vel (제한 해제)</label>
+      <div class="sub-title">바퀴 · 조향</div>
+      <div class="wheels" id="wheels"></div>
+      <div class="sub-title">오도메트리 오차</div>
+      <div class="stat-line" id="odoErr">—</div>
+      <div class="panel-actions"><button class="s-btn" id="btnOdoReset" type="button">odom 원점 재설정</button></div>
+    </div>
+
+    <div class="tab-body" data-body="lidar">
+      <div class="sub-title">라이다 앱 (app/lidar_controller.py)</div>
+      <div class="modebtns">
+        <button class="s-btn" type="button" data-lmode="avoid">회피</button>
+        <button class="s-btn" type="button" data-lmode="follow">추종</button>
+        <button class="s-btn" type="button" data-lmode="guard">경비</button>
+      </div>
+      <div class="field-grid">
+        <label>임계값 m <output id="oTh">0.60</output><input type="range" id="rTh" min="0.3" max="1.5" step="0.05" value="0.6"></label>
+        <label>스캔 각 ° <output id="oSa">90</output><input type="range" id="rSa" min="10" max="180" step="5" value="90"></label>
+        <label>속도 m/s <output id="oSp">0.20</output><input type="range" id="rSp" min="0.05" max="0.4" step="0.05" value="0.2"></label>
+      </div>
+      <p class="hint"><b>회피</b>: 좌·우 최소거리가 임계값 이하이면 ω = 6·speed로 90°(양쪽이면 180°) 회전. <b>추종</b>: 가장 가까운 점의 각도·거리에 PID(1.6, 0, 0.16)/(1.7, 0, 0.16)를 걸어 임계값/2 거리를 유지. <b>경비</b>: 회전만 해서 물체를 정면에 둡니다.</p>
+      <div class="panel-actions">
+        <button class="s-btn primary" id="btnLidarStop" type="button">&#9632; 정지</button>
+        <button class="s-btn" id="btnMover" type="button">움직이는 목표 추가</button>
+        <button class="s-btn" id="btnPlace" type="button">클릭으로 장애물 놓기</button>
+      </div>
+      <div class="sub-title">부채꼴 표시</div>
+      <label class="chk block"><input type="checkbox" id="chkSector" checked> 스캔 창(±스캔 각/2)과 임계값 원 표시</label>
+    </div>
+
+    <div class="tab-body" data-body="slam">
+      <div class="sub-title">점유 격자 지도 (log-odds)</div>
+      <label class="chk block"><input type="checkbox" id="chkSlam"> 지도 작성 켜기</label>
+      <label>위치 출처 <select id="selSlamPose"><option value="gt">실제 위치 (완벽한 위치추정 가정)</option><option value="odom">오도메트리만 (드리프트 → 지도 번짐)</option></select></label>
+      <div class="field-grid two" style="margin-top:10px">
+        <label>해상도 m <select id="selRes"><option value="0.05" selected>0.05</option><option value="0.1">0.10</option><option value="0.025">0.025</option></select></label>
+        <label>최대 거리 m <output id="oMr">5.0</output><input type="range" id="rMr" min="1" max="12" step="0.5" value="5"></label>
+      </div>
+      <div class="stat-line" id="slamStat">—</div>
+      <div class="panel-actions">
+        <button class="s-btn" id="btnSlamClear" type="button">지도 지우기</button>
+        <button class="s-btn" id="btnSlamSave" type="button">map.pgm 저장</button>
+        <button class="s-btn" id="btnExplore" type="button">자동 탐색 (회피 주행)</button>
+      </div>
+      <p class="hint">빔이 지나간 칸은 <b>빈칸</b>(log-odds −0.4), 빔 끝은 <b>점유</b>(+0.85). 회색 = 미확인. slam_toolbox는 여기에 <b>스캔 매칭</b>과 <b>루프 클로저</b>로 위치까지 함께 추정합니다 — “오도메트리만”으로 한 바퀴 돌아 지도가 어떻게 번지는지 비교해 보세요.</p>
+    </div>
+
+    <div class="tab-body" data-body="nav">
+      <div class="sub-title">목표 지정</div>
+      <p class="hint">지도 위를 <b>클릭</b>하면 목표 위치, <b>드래그</b>하면 목표 방향까지 지정합니다 (RViz의 <i>Nav2 Goal</i>).</p>
+      <div class="field-grid two">
+        <label>지도 <select id="selNavMap"><option value="world">알려진 지도 (map_server)</option><option value="slam">SLAM 탭에서 만든 지도</option></select></label>
+        <label>지역 제어기 <select id="selCtrl"><option value="pp">Pure Pursuit</option><option value="dwa">DWA</option></select></label>
+      </div>
+      <div class="field-grid two">
+        <label>위치추정 <select id="selLoc"><option value="gt">실제 위치</option><option value="odom">오도메트리</option><option value="amcl">AMCL (파티클)</option></select></label>
+        <label>팽창 반경 m <output id="oInf">0.30</output><input type="range" id="rInf" min="0.14" max="0.6" step="0.02" value="0.3"></label>
+      </div>
+      <label class="chk block"><input type="checkbox" id="chkCost" checked> 코스트맵 표시</label>
+      <div class="panel-actions">
+        <button class="s-btn" id="btnNavCancel" type="button">&#9632; 취소</button>
+        <button class="s-btn" id="btnWaypoints" type="button">다중 지점 모드: 끔</button>
+        <button class="s-btn" id="btnWpGo" type="button" disabled>순회 시작</button>
+      </div>
+      <div class="sub-title">AMCL</div>
+      <div class="panel-actions">
+        <button class="s-btn" id="btnPoseEst" type="button">2D Pose Estimate (클릭·드래그)</button>
+        <button class="s-btn" id="btnGlobal" type="button">전역 초기화</button>
+        <button class="s-btn" id="btnKidnap" type="button">로봇 납치</button>
+      </div>
+      <div class="stat-line" id="navStat">—</div>
+    </div>
+
+    <div class="tab-body" data-body="line">
+      <div class="sub-title">라인 트레이싱 (app/line_following.py)</div>
+      <p class="hint">트랙 월드에서 가상 카메라가 앞쪽 바닥을 봅니다. 화면 아래쪽 ROI 3개에서 검은 선의 중심을 찾아 가중 평균(0.7/0.2/0.1)하고, 편향각 <code>−atan((cx − W/2)/(H/2))</code>에 PID(1.1, 0, 0)를 걸어 각속도를 냅니다. 전방 ±45°에 0.4 m 안 장애물이 있으면 멈춥니다.</p>
+      <div class="field-grid">
+        <label>Kp <output id="oKp">1.10</output><input type="range" id="rKp" min="0" max="4" step="0.1" value="1.1"></label>
+        <label>Kd <output id="oKd">0.00</output><input type="range" id="rKd" min="0" max="1" step="0.02" value="0"></label>
+        <label>속도 <output id="oLs">0.15</output><input type="range" id="rLs" min="0.05" max="0.4" step="0.05" value="0.15"></label>
+      </div>
+      <div class="panel-actions">
+        <button class="s-btn primary" id="btnLineGo" type="button">&#9654; 시작</button>
+        <button class="s-btn" id="btnLineStop" type="button">&#9632; 정지</button>
+        <button class="s-btn" id="btnLineObs" type="button">트랙 위 장애물</button>
+      </div>
+      <div class="stat-line" id="lineStat">—</div>
+    </div>
+  </aside>
+</main>
+<script type="module" src="sim.js"></script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<svg viewBox="0 0 720 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="OpenCV HSV의 H 축 0에서 179까지와 빨강의 두 구간">
+  <text class="lbl" x="360" y="24" text-anchor="middle">OpenCV H = 색상각(0~360°) ÷ 2  →  0 ~ 179</text>
+  <text class="tag" x="60" y="62" text-anchor="middle">빨강</text>
+  <text class="tag" x="160" y="62" text-anchor="middle">노랑</text>
+  <text class="tag" x="260" y="62" text-anchor="middle">초록</text>
+  <text class="tag" x="360" y="62" text-anchor="middle">청록</text>
+  <text class="tag" x="460" y="62" text-anchor="middle">파랑</text>
+  <text class="tag" x="560" y="62" text-anchor="middle">자홍</text>
+  <text class="tag" x="657" y="62" text-anchor="middle">빨강</text>
+  <rect class="box" x="60" y="72" width="600" height="36"/>
+  <rect class="hi" x="60" y="72" width="33" height="36"/>
+  <rect class="hi" x="627" y="72" width="33" height="36"/>
+  <path class="ln" d="M60 108 V116 M160 108 V116 M260 108 V116 M360 108 V116 M460 108 V116 M560 108 V116 M657 108 V116" stroke-width="1.2"/>
+  <text class="tag mono" x="60" y="130" text-anchor="middle">0</text>
+  <text class="tag mono" x="160" y="130" text-anchor="middle">30</text>
+  <text class="tag mono" x="260" y="130" text-anchor="middle">60</text>
+  <text class="tag mono" x="360" y="130" text-anchor="middle">90</text>
+  <text class="tag mono" x="460" y="130" text-anchor="middle">120</text>
+  <text class="tag mono" x="560" y="130" text-anchor="middle">150</text>
+  <text class="tag mono" x="657" y="130" text-anchor="middle">179</text>
+  <path class="ln-hi" d="M76 140 L76 160 L643 160 L643 140" stroke-width="1.6" fill="none"/>
+  <text class="sub" x="360" y="178" text-anchor="middle">빨강은 색상환에서 0°(=360°)를 걸치므로 양 끝 두 구간을 합쳐야 합니다</text>
+  <text class="lbl mono" x="360" y="210" text-anchor="middle">mask = inRange(hsv, (0,S,V), (10,255,255)) | inRange(hsv, (170,S,V), (179,255,255))</text>
+  <text class="sub" x="360" y="240" text-anchor="middle">S 최소값을 올리면 흰색·회색(채도 낮음)이 섞이지 않고, V 범위는 조명에 맞춰 넓게 둡니다</text>
+</svg>
