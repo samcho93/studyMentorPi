@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>studyMentorPi · MentorPi 이동로봇 인터랙티브 강의</title>
+<meta name="description" content="Hiwonder MentorPi(라즈베리파이 5 + ROS 2)로 배우는 이동로봇: 섀시 기구학·라이다·SLAM·내비게이션·비전·자율주행 한국어 인터랙티브 강의.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="assets/css/main.css">
+<link rel="stylesheet" href="assets/css/mentorpi.css">
+<link rel="stylesheet" href="assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="assets/js/theme.js"></script>
+</head>
+<body class="home">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="hero-tag">MentorPi &middot; Raspberry Pi 5 &middot; ROS 2 Humble &middot; LiDAR &middot; SLAM &middot; Nav2 &middot; Vision AI</div>
+    <h1>studyMentorPi</h1>
+    <p class="hero-lede">
+      Hiwonder <b>MentorPi</b>(메카넘 / 애커만 섀시, 라즈베리파이 5, 2D 라이다, 3D 깊이 카메라)로 배우는
+      <b>이동로봇 인터랙티브 강의</b>입니다. 리눅스·파이썬·OpenCV·ROS 2 기초에서 출발해
+      <b>섀시 기구학 &rarr; 오도메트리 &rarr; 라이다 &rarr; SLAM &rarr; 내비게이션</b>을 차례로 쌓고,
+      색 인식·MediaPipe·YOLOv5·자율주행·군집 제어까지 이어집니다. 모든 핵심 알고리즘은 브라우저의
+      <b>2D 시뮬레이터</b>와 <b>ROS 2 Playground</b>(rclpy 호환 Python)에서 먼저 돌려 보고 실물로 옮깁니다. 총 46개 챕터.
+    </p>
+    <div class="hero-cta">
+      <a class="btn primary" href="lessons/b01.html">B01부터 시작</a>
+      <a class="btn" href="sim/index.html">2D 시뮬레이터</a>
+      <a class="btn" href="tools/playground.html">ROS 2 Playground</a>
+      <a class="btn" href="tools/kinematics-lab.html">섀시 기구학 실험실</a>
+      <a class="btn" href="tools/color-lab.html">HSV 색 실험실</a>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
+      <div class="progress-text"><span id="progText">0 / 46 챕터 완료</span>
+      <button class="link-btn" id="resetProg" type="button">진행률 초기화</button></div>
+    </div>
+  </div>
+  <div class="hero-art">
+    <div class="hero-flow">
+      <div class="flow-step"><b>1</b><span>기초 &middot; 하드웨어<small>Linux · Python · RPi5 · 확장보드 · Docker</small></span></div>
+      <div class="flow-arrow">&darr;</div>
+      <div class="flow-step"><b>2</b><span>ROS 2 &middot; OpenCV<small>Node · Topic · Service · TF2 · URDF · 영상처리</small></span></div>
+      <div class="flow-arrow">&darr;</div>
+      <div class="flow-step"><b>3</b><span>이동로봇 핵심<small>메카넘·애커만 · IMU/Odom · LiDAR · SLAM · Nav2</small></span></div>
+      <div class="flow-arrow">&darr;</div>
+      <div class="flow-step hot"><b>4</b><span>비전 AI &middot; 자율주행<small>색 추적 · MediaPipe · YOLOv5 · 차선 · 군집</small></span></div>
+    </div>
+    <div class="hero-art-cap">같은 rclpy 코드 — 브라우저 시뮬 &rarr; MentorPi 실물</div>
+  </div>
+</header>
+
+<section class="facts">
+  <div class="fact"><div class="fact-n">2</div><div class="fact-l">종 섀시 (메카넘 · 애커만)</div></div>
+  <div class="fact"><div class="fact-n">360&deg;</div><div class="fact-l">2D 라이다 + 3D 깊이 카메라</div></div>
+  <div class="fact"><div class="fact-n">18</div><div class="fact-l">개 원본 강좌를 4개 트랙으로 재구성</div></div>
+  <div class="fact"><div class="fact-n">0</div><div class="fact-l">설치 없이 시작 (브라우저 시뮬)</div></div>
+</section>
+
+<section class="curriculum">
+  <h2>커리큘럼</h2>
+  <div class="track-block" data-track="base"><h2 class="track-h track-base">기초·하드웨어</h2><p class="track-desc">MentorPi 구성과 첫 구동, 개발 환경, 리눅스·파이썬 기초, 라즈베리파이 5와 확장보드(RRC Lite)로 LED·버튼·서보·모터를 직접 제어하고 Docker로 ROS 2 환경을 다룹니다.</p><section class="part"><header class="part-head"><div class="part-no">B-1</div><div><h3>MentorPi 시작하기</h3></div></header><div class="part-list"><a class="lesson-card" href="lessons/b01.html" data-slug="b01"><div class="lc-no">B01</div><div class="lc-main"><div class="lc-title">MentorPi 소개와 하드웨어 구성</div><div class="lc-sum">메카넘/애커만 두 섀시, 라즈베리파이 5, RRC Lite 확장보드, 라이다·깊이 카메라 — 이동로봇을 이루는 블록과 배터리·충전 규칙을 익힙니다.</div><div class="lc-meta"><span class="lc-min">50분 · 입문</span><span class="tag">URDF 뷰어</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/b02.html" data-slug="b02"><div class="lc-no">B02</div><div class="lc-main"><div class="lc-title">첫 구동: 앱과 무선 조이패드 제어</div><div class="lc-sum">전원 켜기부터 WonderPi 앱 연결, 핫스팟/LAN 모드, 무선 조이패드 조작까지 — 로봇을 처음 움직여 봅니다.</div><div class="lc-meta"><span class="lc-min">50분 · 입문</span><span class="tag">2D 시뮬레이터</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/b03.html" data-slug="b03"><div class="lc-no">B03</div><div class="lc-main"><div class="lc-title">개발 환경: VNC·버전 설정·시스템 구조</div><div class="lc-sum">VNC 원격 접속, 섀시/라이다/카메라 버전 설정, 공식 이미지의 폴더 구조와 Docker 기반 ROS 2 실행 흐름, 서보 편차 보정.</div><div class="lc-meta"><span class="lc-min">60분 · 입문</span></div></div><div class="lc-check" aria-hidden="true"></div></a></div></section><section class="part"><header class="part-head"><div class="part-no">B-2</div><div><h3>리눅스·파이썬</h3></div></header><div class="part-list"><a class="lesson-card" href="lessons/b04.html" data-slug="b04"><div class="lc-no">B04</div><div class="lc-main"><div class="lc-title">리눅스 기초: 설치·명령어·권한</div><div class="lc-sum">리눅스 소개, VirtualBox에 Ubuntu 설치와 소스 변경, 디렉터리 구조, 자주 쓰는 명령, 사용자와 권한(chmod·sudo)을 실습합니다.</div><div class="lc-meta"><span class="lc-min">90분 · 입문</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/b05.html" data-slug="b05"><div class="lc-no">B05</div><div class="lc-main"><div class="lc-title">파이썬 기초: 문법·제어문·함수</div><div class="lc-sum">Hello World부터 자료형·연산자·조건문·반복문·함수와 모듈, 컨테이너 자료형까지 로봇 코드를 읽고 쓰는 데 필요한 문법.</div><div class="lc-meta"><span class="lc-min">90분 · 입문</span><span class="tag">ROS 2 Playground</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/b06.html" data-slug="b06"><div class="lc-no">B06</div><div class="lc-main"><div class="lc-title">파이썬 심화: 클래스·예외·스레드·NumPy</div><div class="lc-sum">클래스와 파일 입출력, 예외 처리, 내장 함수, 멀티스레딩, pip, NumPy 배열 연산 — ROS 2 노드 작성의 발판.</div><div class="lc-meta"><span class="lc-min">90분 · 초급</span><span class="tag">ROS 2 Playground</span></div></div><div class="lc-check" aria-hidden="true"></div></a></div></section><section class="part"><header class="part-head"><div class="part-no">B-3</div><div><h3>라즈베리파이 5와 확장보드</h3></div></header><div class="part-list"><a class="lesson-card" href="lessons/b07.html" data-slug="b07"><div class="lc-no">B07</div><div class="lc-main"><div class="lc-title">라즈베리파이 5: 하드웨어와 시스템</div><div class="lc-sum">RPi 5 사양과 포트(GPIO·PCIe·CSI/DSI·UART·RTC), OS 설치, 원격 접속·파일 전송, raspi-config·config.txt, 네트워크 설정.</div><div class="lc-meta"><span class="lc-min">70분 · 초급</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/b08.html" data-slug="b08"><div class="lc-no">B08</div><div class="lc-main"><div class="lc-title">GPIO·UART·I2C와 확장보드 입출력</div><div class="lc-sum">gpiozero로 입력·출력·풀업/풀다운, UART·I2C 통신, RRC Lite 확장보드의 RGB LED·버튼·부저를 ros_robot_controller_sdk로 제어합니다.</div><div class="lc-meta"><span class="lc-min">90분 · 초급</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/b09.html" data-slug="b09"><div class="lc-no">B09</div><div class="lc-main"><div class="lc-title">서보와 DC 모터 제어</div><div class="lc-sum">PWM 서보(각도·속도·다중 제어), 버스 서보 상태 읽기·속도 조정, 엔코더 DC 모터 구동 — 섀시 구동의 최하위 계층.</div><div class="lc-meta"><span class="lc-min">90분 · 초급</span><span class="tag">섀시 기구학 실험실</span></div></div><div class="lc-check" aria-hidden="true"></div></a></div></section><section class="part"><header class="part-head"><div class="part-no">B-4</div><div><h3>컨테이너</h3></div></header><div class="part-list"><a class="lesson-card" href="lessons/b10.html" data-slug="b10"><div class="lc-no">B10</div><div class="lc-main"><div class="lc-title">Docker 기초와 ROS 2 컨테이너</div><div class="lc-sum">이미지와 컨테이너, 생성·실행·관리, Dockerfile, 장치·볼륨 연결, 컨테이너 안의 ROS, 저장소 — MentorPi가 ROS 2를 돌리는 방식.</div><div class="lc-meta"><span class="lc-min">90분 · 초급</span></div></div><div class="lc-check" aria-hidden="true"></div></a></div></section></div><div class="track-block" data-track="ros"><h2 class="track-h track-ros">ROS 2·OpenCV 기초</h2><p class="track-desc">노드·토픽·서비스·액션·파라미터·launch·TF2·URDF까지 ROS 2 핵심을 익히고, OpenCV로 영상 처리의 기본기를 쌓습니다. 모든 ROS 2 예제는 브라우저 Playground에서 먼저 실행해 봅니다.</p><section class="part"><header class="part-head"><div class="part-no">R-1</div><div><h3>ROS 2 통신</h3></div></header><div class="part-list"><a class="lesson-card" href="lessons/r01.html" data-slug="r01"><div class="lc-no">R01</div><div class="lc-main"><div class="lc-title">ROS 2 개요·설치·명령행 도구</div><div class="lc-sum">ROS 1과 ROS 2의 차이, DDS 기반 구조, Humble 설치, ros2 node/topic/service/param/bag 명령으로 그래프를 관찰합니다.</div><div class="lc-meta"><span class="lc-min">70분 · 초급</span><span class="tag">ROS 2 Playground</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/r02.html" data-slug="r02"><div class="lc-no">R02</div><div class="lc-main"><div class="lc-title">워크스페이스·패키지·노드</div><div class="lc-sum">colcon 워크스페이스, ament_python 패키지 생성, rclpy Node 클래스와 타이머, 실행 진입점(entry_points)을 만듭니다.</div><div class="lc-meta"><span class="lc-min">80분 · 초급</span><span class="tag">ROS 2 Playground</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/r03.html" data-slug="r03"><div class="lc-no">R03</div><div class="lc-main"><div class="lc-title">토픽: 발행과 구독</div><div class="lc-sum">Publisher/Subscriber, 메시지 타입(std_msgs·geometry_msgs), QoS 기초 — /cmd_vel을 발행해 시뮬레이터 로봇을 움직입니다.</div><div class="lc-meta"><span class="lc-min">90분 · 초급</span><span class="tag">ROS 2 Playground</span><span class="tag">2D 시뮬레이터</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/r04.html" data-slug="r04"><div class="lc-no">R04</div><div class="lc-main"><div class="lc-title">서비스·액션·커스텀 인터페이스</div><div class="lc-sum">요청-응답 서비스, 피드백이 있는 액션, .msg/.srv/.action 인터페이스 정의와 빌드.</div><div class="lc-meta"><span class="lc-min">90분 · 중급</span><span class="tag">ROS 2 Playground</span></div></div><div class="lc-check" aria-hidden="true"></div></a></div></section><section class="part"><header class="part-head"><div class="part-no">R-2</div><div><h3>ROS 2 시스템</h3></div></header><div class="part-list"><a class="lesson-card" href="lessons/r05.html" data-slug="r05"><div class="lc-no">R05</div><div class="lc-main"><div class="lc-title">파라미터·launch·DDS·분산 통신</div><div class="lc-sum">declare_parameter와 YAML, Python launch 파일로 여러 노드 기동, DDS QoS, ROS_DOMAIN_ID로 PC-로봇 분산 통신.</div><div class="lc-meta"><span class="lc-min">90분 · 중급</span><span class="tag">ROS 2 Playground</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/r06.html" data-slug="r06"><div class="lc-no">R06</div><div class="lc-main"><div class="lc-title">TF2 좌표계와 URDF 모델링</div><div class="lc-sum">map→odom→base_footprint→base_link→laser_frame 트리, 정적/동적 브로드캐스터와 리스너, URDF link·joint로 로봇을 기술합니다.</div><div class="lc-meta"><span class="lc-min">100분 · 중급</span><span class="tag">URDF 뷰어</span><span class="tag">ROS 2 Playground</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/r07.html" data-slug="r07"><div class="lc-no">R07</div><div class="lc-main"><div class="lc-title">RViz2·RQT·Gazebo 도구</div><div class="lc-sum">RViz2 디스플레이(TF·LaserScan·Map·Path), rqt_graph·rqt_plot·rqt_console, Gazebo 물리 시뮬레이션 개요.</div><div class="lc-meta"><span class="lc-min">60분 · 초급</span><span class="tag">2D 시뮬레이터</span></div></div><div class="lc-check" aria-hidden="true"></div></a></div></section><section class="part"><header class="part-head"><div class="part-no">R-3</div><div><h3>OpenCV 영상 처리</h3></div></header><div class="part-list"><a class="lesson-card" href="lessons/r08.html" data-slug="r08"><div class="lc-no">R08</div><div class="lc-main"><div class="lc-title">OpenCV 시작: 이미지·영상·그리기</div><div class="lc-sum">컴퓨터 비전 개요, OpenCV 모듈 구조, 이미지·동영상·카메라 읽기와 표시, 도형·글자 그리기, 픽셀·ROI·채널 기본 연산.</div><div class="lc-meta"><span class="lc-min">80분 · 초급</span><span class="tag">HSV 색 실험실</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/r09.html" data-slug="r09"><div class="lc-no">R09</div><div class="lc-main"><div class="lc-title">색 공간·기하 변환·스무딩</div><div class="lc-sum">BGR↔HSV·GRAY 변환, 이동·회전·어파인·원근 변환, 평균·가우시안·미디언·양방향 필터.</div><div class="lc-meta"><span class="lc-min">80분 · 초급</span><span class="tag">HSV 색 실험실</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/r10.html" data-slug="r10"><div class="lc-no">R10</div><div class="lc-main"><div class="lc-title">엣지·모폴로지·임계값 처리</div><div class="lc-sum">Canny·Sobel 엣지, 침식·팽창·열림·닫힘, 전역·적응형·Otsu 이진화 — 색 인식과 라인 트레이싱의 전처리.</div><div class="lc-meta"><span class="lc-min">80분 · 중급</span><span class="tag">HSV 색 실험실</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/r11.html" data-slug="r11"><div class="lc-no">R11</div><div class="lc-main"><div class="lc-title">윤곽선·특징 매칭·코너 검출</div><div class="lc-sum">findContours와 면적·중심·외접 도형, ORB/SIFT 특징점 매칭, Harris·Shi-Tomasi 코너.</div><div class="lc-meta"><span class="lc-min">80분 · 중급</span><span class="tag">HSV 색 실험실</span></div></div><div class="lc-check" aria-hidden="true"></div></a></div></section></div><div class="track-block" data-track="mobile"><h2 class="track-h track-mobile">이동로봇 핵심</h2><p class="track-desc">메카넘·애커만 섀시 기구학, IMU·오도메트리 보정, 라이다 응용, 깊이 카메라, URDF와 SLAM 지도 작성, AMCL·경로계획·다중 지점 내비게이션까지 — 이동로봇의 중심 기술을 시뮬레이터와 실물로 익힙니다.</p><section class="part"><header class="part-head"><div class="part-no">M-1</div><div><h3>섀시와 모션 제어</h3></div></header><div class="part-list"><a class="lesson-card" href="lessons/m01.html" data-slug="m01"><div class="lc-no">M01</div><div class="lc-main"><div class="lc-title">메카넘 휠 섀시 기구학</div><div class="lc-sum">45° 롤러가 만드는 전방향 이동, (vx, vy, ωz) → 네 바퀴 속도 역기구학과 순기구학, MentorPi mecanum.py 해설.</div><div class="lc-meta"><span class="lc-min">90분 · 중급</span><span class="tag">섀시 기구학 실험실</span><span class="tag">2D 시뮬레이터</span><span class="tag">ROS 2 Playground</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/m02.html" data-slug="m02"><div class="lc-no">M02</div><div class="lc-main"><div class="lc-title">애커만 조향 섀시 기구학</div><div class="lc-sum">자전거 모델, 회전 반경과 조향각 δ = atan(L·ω/v), 좌·우 바퀴 속도차, 최대 조향각 제한과 최소 회전 반경.</div><div class="lc-meta"><span class="lc-min">90분 · 중급</span><span class="tag">섀시 기구학 실험실</span><span class="tag">2D 시뮬레이터</span><span class="tag">ROS 2 Playground</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/m03.html" data-slug="m03"><div class="lc-no">M03</div><div class="lc-main"><div class="lc-title">IMU·오도메트리 보정과 발행</div><div class="lc-sum">IMU 캘리브레이션, 선속도·각속도 보정 계수, 휠 오도메트리 적분과 /odom·/imu 발행, EKF 융합 개념.</div><div class="lc-meta"><span class="lc-min">90분 · 중급</span><span class="tag">2D 시뮬레이터</span><span class="tag">ROS 2 Playground</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/m04.html" data-slug="m04"><div class="lc-no">M04</div><div class="lc-main"><div class="lc-title">cmd_vel 속도 제어 프로그래밍</div><div class="lc-sum">geometry_msgs/Twist로 메카넘·애커만 속도 제어 노드를 작성하고, 정사각형·원·8자 주행과 속도 제한을 구현합니다.</div><div class="lc-meta"><span class="lc-min">90분 · 중급</span><span class="tag">ROS 2 Playground</span><span class="tag">2D 시뮬레이터</span></div></div><div class="lc-check" aria-hidden="true"></div></a></div></section><section class="part"><header class="part-head"><div class="part-no">M-2</div><div><h3>센서: 라이다·깊이 카메라</h3></div></header><div class="part-list"><a class="lesson-card" href="lessons/m05.html" data-slug="m05"><div class="lc-no">M05</div><div class="lc-main"><div class="lc-title">라이다 원리와 LaserScan</div><div class="lc-sum">삼각측량·ToF 거리 측정, 360° 스캔, sensor_msgs/LaserScan 필드(angle_min·increment·ranges) 해석과 좌표 변환.</div><div class="lc-meta"><span class="lc-min">70분 · 중급</span><span class="tag">2D 시뮬레이터</span><span class="tag">ROS 2 Playground</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/m06.html" data-slug="m06"><div class="lc-no">M06</div><div class="lc-main"><div class="lc-title">라이다 응용: 회피·추종·경비</div><div class="lc-sum">섹터 최소거리로 장애물 회피, 가장 가까운 물체 추종(P 제어), 경비 모드(물체를 향해 회전) — 세 가지 반응형 행동.</div><div class="lc-meta"><span class="lc-min">100분 · 중급</span><span class="tag">2D 시뮬레이터</span><span class="tag">ROS 2 Playground</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/m07.html" data-slug="m07"><div class="lc-no">M07</div><div class="lc-main"><div class="lc-title">깊이 카메라와 포인트 클라우드</div><div class="lc-sum">구조광/스테레오 깊이 카메라 구성, ROS 2 SDK 설치, RGB·Depth·PointCloud2 토픽, 웹 실시간 모니터링.</div><div class="lc-meta"><span class="lc-min">80분 · 중급</span></div></div><div class="lc-check" aria-hidden="true"></div></a></div></section><section class="part"><header class="part-head"><div class="part-no">M-3</div><div><h3>SLAM 지도 작성</h3></div></header><div class="part-list"><a class="lesson-card" href="lessons/m08.html" data-slug="m08"><div class="lc-no">M08</div><div class="lc-main"><div class="lc-title">MentorPi URDF 모델</div><div class="lc-sum">URDF 문법 복습, mentorpi_description의 xacro 구조(메카넘/애커만), base_footprint·lidar·imu 링크와 RViz 표시.</div><div class="lc-meta"><span class="lc-min">70분 · 중급</span><span class="tag">URDF 뷰어</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/m09.html" data-slug="m09"><div class="lc-no">M09</div><div class="lc-main"><div class="lc-title">SLAM 원리와 slam_toolbox 지도 작성</div><div class="lc-sum">위치추정과 지도작성의 닭-달걀 문제, 점유 격자, 스캔 매칭과 루프 클로저, slam_toolbox로 2D 지도 작성·저장.</div><div class="lc-meta"><span class="lc-min">100분 · 중급</span><span class="tag">2D 시뮬레이터</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/m10.html" data-slug="m10"><div class="lc-no">M10</div><div class="lc-main"><div class="lc-title">RTAB-Map 3D 비주얼 SLAM</div><div class="lc-sum">깊이 카메라 기반 RTAB-Map의 구조(메모리 관리·루프 클로저), 3D 지도 작성과 저장, 2D SLAM과의 비교.</div><div class="lc-meta"><span class="lc-min">70분 · 고급</span></div></div><div class="lc-check" aria-hidden="true"></div></a></div></section><section class="part"><header class="part-head"><div class="part-no">M-4</div><div><h3>자율 내비게이션</h3></div></header><div class="part-list"><a class="lesson-card" href="lessons/m11.html" data-slug="m11"><div class="lc-no">M11</div><div class="lc-main"><div class="lc-title">Nav2 자율 내비게이션과 AMCL</div><div class="lc-sum">Nav2 구성(맵 서버·코스트맵·플래너·컨트롤러·BT), 파티클 필터 AMCL 위치추정, 초기 위치 지정과 목표 전송.</div><div class="lc-meta"><span class="lc-min">100분 · 고급</span><span class="tag">2D 시뮬레이터</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/m12.html" data-slug="m12"><div class="lc-no">M12</div><div class="lc-main"><div class="lc-title">경로 계획: 전역 A*와 지역 DWA</div><div class="lc-sum">코스트맵 팽창, A*/Dijkstra 전역 경로, DWA 속도 공간 샘플링과 평가 함수, 파라미터 튜닝.</div><div class="lc-meta"><span class="lc-min">100분 · 고급</span><span class="tag">2D 시뮬레이터</span><span class="tag">ROS 2 Playground</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/m13.html" data-slug="m13"><div class="lc-no">M13</div><div class="lc-main"><div class="lc-title">다중 지점 내비게이션과 3D 내비게이션</div><div class="lc-sum">단일·다중 목표 순회, 동적 장애물 회피, Python으로 목표 전송(Simple Commander), RTAB-Map 3D 내비게이션.</div><div class="lc-meta"><span class="lc-min">90분 · 고급</span><span class="tag">2D 시뮬레이터</span><span class="tag">ROS 2 Playground</span></div></div><div class="lc-check" aria-hidden="true"></div></a></div></section></div><div class="track-block" data-track="ai"><h2 class="track-h track-ai">비전 AI·자율주행</h2><p class="track-desc">ROS 2 + OpenCV 색 인식·QR·라인 트레이싱·색 추적, MediaPipe 인간-로봇 상호작용, YOLOv5 학습과 배포, 차선 유지·표지판·신호등·주차를 묶은 자율주행, 여러 대를 함께 움직이는 군집 제어.</p><section class="part"><header class="part-head"><div class="part-no">A-1</div><div><h3>ROS 2 + OpenCV 응용</h3></div></header><div class="part-list"><a class="lesson-card" href="lessons/a01.html" data-slug="a01"><div class="lc-no">A01</div><div class="lc-main"><div class="lc-title">색 임계값 조정과 색 인식</div><div class="lc-sum">LAB/HSV 임계값 도구로 색 범위를 정하고, 마스크·윤곽선·중심점으로 색을 인식해 ROS 2 토픽으로 발행합니다.</div><div class="lc-meta"><span class="lc-min">80분 · 중급</span><span class="tag">HSV 색 실험실</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/a02.html" data-slug="a02"><div class="lc-no">A02</div><div class="lc-main"><div class="lc-title">QR 코드 생성과 인식</div><div class="lc-sum">qrcode로 생성, OpenCV QRCodeDetector로 인식하고 내용에 따라 로봇 동작을 바꾸는 노드를 만듭니다.</div><div class="lc-meta"><span class="lc-min">60분 · 초급</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/a03.html" data-slug="a03"><div class="lc-no">A03</div><div class="lc-main"><div class="lc-title">자율 라인 트레이싱</div><div class="lc-sum">ROI 분할과 색 이진화로 선의 중심을 찾고, PID로 각속도를 계산해 선을 따라가며 라이다로 장애물에서 멈춥니다.</div><div class="lc-meta"><span class="lc-min">90분 · 중급</span><span class="tag">2D 시뮬레이터</span><span class="tag">HSV 색 실험실</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/a04.html" data-slug="a04"><div class="lc-no">A04</div><div class="lc-main"><div class="lc-title">색 추적</div><div class="lc-sum">목표 색의 중심 오차(x)와 크기(면적)를 PID 입력으로 삼아 회전·전후진을 제어하는 추적 노드.</div><div class="lc-meta"><span class="lc-min">80분 · 중급</span><span class="tag">HSV 색 실험실</span><span class="tag">ROS 2 Playground</span></div></div><div class="lc-check" aria-hidden="true"></div></a></div></section><section class="part"><header class="part-head"><div class="part-no">A-2</div><div><h3>MediaPipe 상호작용</h3></div></header><div class="part-list"><a class="lesson-card" href="lessons/a05.html" data-slug="a05"><div class="lc-no">A05</div><div class="lc-main"><div class="lc-title">MediaPipe 소개와 손끝 궤적 인식</div><div class="lc-sum">MediaPipe 솔루션(Hands·Pose·Face), 21개 손 랜드마크, 손끝 궤적을 그리고 제스처로 로봇을 움직입니다.</div><div class="lc-meta"><span class="lc-min">80분 · 중급</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/a06.html" data-slug="a06"><div class="lc-no">A06</div><div class="lc-main"><div class="lc-title">손 추종·자세 제어·포즈 감지</div><div class="lc-sum">손 위치 추종, 손가락 개수/자세로 동작 명령, 인체 포즈 랜드마크로 쓰러짐 감지 등 상호작용 응용.</div><div class="lc-meta"><span class="lc-min">90분 · 중급</span></div></div><div class="lc-check" aria-hidden="true"></div></a></div></section><section class="part"><header class="part-head"><div class="part-no">A-3</div><div><h3>머신러닝·YOLOv5</h3></div></header><div class="part-list"><a class="lesson-card" href="lessons/a07.html" data-slug="a07"><div class="lc-no">A07</div><div class="lc-main"><div class="lc-title">머신러닝과 YOLOv5 이해</div><div class="lc-sum">지도·비지도·강화 학습, 딥러닝 라이브러리(PyTorch·TensorFlow·ONNX), YOLO 계열 구조와 출력(박스·신뢰도·NMS).</div><div class="lc-meta"><span class="lc-min">80분 · 중급</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/a08.html" data-slug="a08"><div class="lc-no">A08</div><div class="lc-main"><div class="lc-title">YOLOv5 데이터셋·학습·배포</div><div class="lc-sum">사진 수집, labelImg 라벨링, 데이터셋 구성과 학습, 모델 변환 후 yolov5_ros2 노드로 로봇에서 추론.</div><div class="lc-meta"><span class="lc-min">120분 · 고급</span></div></div><div class="lc-check" aria-hidden="true"></div></a></div></section><section class="part"><header class="part-head"><div class="part-no">A-4</div><div><h3>자율주행과 군집</h3></div></header><div class="part-list"><a class="lesson-card" href="lessons/a09.html" data-slug="a09"><div class="lc-no">A09</div><div class="lc-main"><div class="lc-title">자율주행 준비와 차선 유지</div><div class="lc-sum">맵 깔기와 소품 설치, 카메라 원근 변환·차선 검출, 차선 중심 오차 PID로 차선을 유지합니다.</div><div class="lc-meta"><span class="lc-min">100분 · 고급</span><span class="tag">2D 시뮬레이터</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/a10.html" data-slug="a10"><div class="lc-no">A10</div><div class="lc-main"><div class="lc-title">표지판·신호등 인식</div><div class="lc-sum">YOLOv5로 교통 표지판·신호등을 검출하고, 거리·신뢰도 조건으로 정지·서행·방향 결정을 내립니다.</div><div class="lc-meta"><span class="lc-min">90분 · 고급</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/a11.html" data-slug="a11"><div class="lc-no">A11</div><div class="lc-main"><div class="lc-title">회전 판단·자율 주차·통합 주행</div><div class="lc-sum">교차로 회전 결정, 주차 구역 인식과 주차 동작, 상태 기계로 모든 기능을 엮은 통합 자율주행.</div><div class="lc-meta"><span class="lc-min">120분 · 고급</span><span class="tag">2D 시뮬레이터</span></div></div><div class="lc-check" aria-hidden="true"></div></a><a class="lesson-card" href="lessons/a12.html" data-slug="a12"><div class="lc-no">A12</div><div class="lc-main"><div class="lc-title">군집 제어: 마스터-슬레이브</div><div class="lc-sum">여러 대의 MentorPi 네트워크·환경변수 구성, 네임스페이스와 대형 유지, 조이패드로 군집을 함께 조종합니다.</div><div class="lc-meta"><span class="lc-min">80분 · 고급</span></div></div><div class="lc-check" aria-hidden="true"></div></a></div></section></div>
+</section>
+
+<footer class="site-foot">
+  <p>폴리텍 AI응용소프트웨어과 강의 자료. Hiwonder MentorPi 공식 교재(영문)를 바탕으로 한국어로 재구성·보강했습니다.
+  명령어·경로는 공식 이미지(ROS 2 Humble, Docker) 기준이며 펌웨어/이미지 버전에 따라 다를 수 있습니다. 실물 주행 실습은 넓고 안전한 공간에서 진행하세요.</p>
+  <p class="foot-links">
+    <a href="https://github.com/samcho93/studyMentorPi" target="_blank" rel="noopener">이 사이트 저장소</a>
+    <a href="https://www.hiwonder.com/" target="_blank" rel="noopener">Hiwonder</a>
+    <a href="https://docs.ros.org/en/humble/" target="_blank" rel="noopener">ROS 2 Humble 문서</a>
+    <a href="https://docs.nav2.org/" target="_blank" rel="noopener">Nav2 문서</a>
+    <a href="https://pyodide.org" target="_blank" rel="noopener">Pyodide</a>
+  </p>
+</footer>
+
+</main>
+<script src="assets/js/site.js"></script>
+
+</body>
+</html>
