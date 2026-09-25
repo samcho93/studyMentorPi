@@ -1,0 +1,42 @@
+<svg viewBox="0 0 720 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="핀홀 카메라 모델: 영상면의 픽셀 u와 깊이 Z로 광학 좌표계의 3D 점 X를 역투영하는 기하">
+  <defs>
+    <marker id="arr-m07-pinhole" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-m07-pinhole-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <!-- optical axis z -->
+  <path class="ln" d="M70 200 L640 200" stroke-width="1.4" marker-end="url(#arr-m07-pinhole)"/>
+  <text class="lbl mono" x="648" y="204">z (앞)</text>
+  <!-- x axis at camera centre (drawn up = +x to the right in image) -->
+  <path class="ln" d="M90 200 L90 60" stroke-width="1.4" marker-end="url(#arr-m07-pinhole)"/>
+  <text class="lbl mono" x="98" y="66">x (오른쪽)</text>
+  <text class="sub" x="98" y="82">y는 화면 안쪽(아래)</text>
+  <!-- camera centre -->
+  <circle cx="90" cy="200" r="6" class="hi"/>
+  <text class="tag" x="90" y="226" text-anchor="middle">광학 중심 O</text>
+  <!-- image plane -->
+  <path d="M230 70 L230 250" style="stroke:var(--text-dim)" stroke-width="2.4"/>
+  <text class="tag" x="230" y="268" text-anchor="middle">영상면 (z = f)</text>
+  <path class="ln" d="M90 240 L230 240" stroke-width="1" marker-start="url(#arr-m07-pinhole)" marker-end="url(#arr-m07-pinhole)"/>
+  <text class="sub mono" x="160" y="256" text-anchor="middle">fx [px]</text>
+  <!-- principal point -->
+  <circle cx="230" cy="200" r="4" style="fill:var(--text-dim)"/>
+  <text class="sub mono" x="238" y="216">cx</text>
+  <!-- projected pixel -->
+  <circle cx="230" cy="152" r="5" class="hi"/>
+  <text class="lbl mono hi" x="240" y="146">u</text>
+  <path d="M222 152 L222 200" style="stroke:var(--accent)" stroke-width="1.4" stroke-dasharray="3 3"/>
+  <text class="sub mono" x="176" y="180" text-anchor="middle">u − cx</text>
+  <!-- ray to 3D point -->
+  <path class="ln-hi" d="M90 200 L560 38" stroke-width="2.2"/>
+  <circle cx="560" cy="38" r="7" class="hi"/>
+  <text class="lbl mono hi" x="574" y="42">P = (X, Y, Z)</text>
+  <!-- X and Z dims -->
+  <path d="M560 46 L560 200" style="stroke:var(--text-faint)" stroke-width="1.2" stroke-dasharray="4 4"/>
+  <text class="lbl mono" x="570" y="128">X</text>
+  <path class="ln" d="M90 282 L560 282" stroke-width="1" marker-start="url(#arr-m07-pinhole)" marker-end="url(#arr-m07-pinhole)"/>
+  <text class="lbl mono" x="325" y="298" text-anchor="middle">Z = depth(u, v)</text>
+  <!-- similar triangles box -->
+  <rect class="box-hi" x="300" y="212" width="250" height="56" rx="6"/>
+  <text class="lbl mono" x="425" y="235" text-anchor="middle">(u − cx) / fx = X / Z</text>
+  <text class="lbl mono" x="425" y="257" text-anchor="middle">→ X = (u − cx) · Z / fx</text>
+</svg>

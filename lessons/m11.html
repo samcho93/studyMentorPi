@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M11. Nav2 자율 내비게이션과 AMCL · studyMentorPi</title>
+<meta name="description" content="Nav2 구성(맵 서버·코스트맵·플래너·컨트롤러·BT), 파티클 필터 AMCL 위치추정, 초기 위치 지정과 목표 전송.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-mobile">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" class="active" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="m11" data-track="mobile">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-mobile">이동로봇 핵심</span> M-4 자율 내비게이션 &middot; 약 100분 &middot; 고급</div>
+    <h1><span class="lesson-no">M11</span>Nav2 자율 내비게이션과 AMCL</h1>
+    <p class="lede">Nav2 구성(맵 서버·코스트맵·플래너·컨트롤러·BT), 파티클 필터 AMCL 위치추정, 초기 위치 지정과 목표 전송.</p>
+    <div class="requires">선수 챕터: <a href="m09.html">M09</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      <a class="ghost-btn" href="../sim/index.html">2D 시뮬레이터</a><a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>Nav2의 구성 요소(BT Navigator, Planner·Controller·Behavior·Smoother 서버, 코스트맵, 수명주기 관리자)와 MentorPi에서 속도 명령이 모터까지 가는 경로를 설명할 수 있습니다.</li><li>파티클 필터의 <strong>예측(predict) → 갱신(update) → 재표본(resample)</strong> 세 단계를 식과 코드로 구현합니다.</li><li>AMCL의 움직임 모델(<code>alpha1~5</code>), 가능도장 센서 모델(<code>z_hit</code>, <code>sigma_hit</code>), KLD 적응 표본 수(<code>pf_err</code>, <code>pf_z</code>)를 MentorPi 파라미터 값으로 해석합니다.</li><li>코스트맵의 층(static·obstacle·voxel·inflation)과 비용 값(0, 253, 254, 255)의 의미를 말하고, MentorPi 설정의 특징(작은 <code>robot_radius</code>·<code>inflation_radius</code>)을 평가합니다.</li><li>실물에서 저장한 지도로 내비게이션을 띄우고 <strong>2D Pose Estimate</strong>로 초기 위치를 준 뒤 목표를 보냅니다.</li></ul>
+<h2 id="내비게이션이-풀어야-할-문제">내비게이션이 풀어야 할 문제<a class="anchor" href="#내비게이션이-풀어야-할-문제">#</a></h2>
+<p>교재 표현대로 내비게이션은 "<strong>내가 어디 있는지</strong> 알고, <strong>어디로 갈지</strong> 정하고, 가는 동안 <strong>부딪히지 않게</strong> 속도를 내는" 일입니다. Nav2(Navigation 2)는 이것을 역할별 서버로 나눈 ROS 2 표준 스택입니다.</p>
+<div class="table-wrap"><table><thead><tr><th>질문</th><th>담당</th><th>MentorPi 구성</th></tr></thead><tbody><tr><td>지도는?</td><td><code>map_server</code></td><td><code>slam/maps/map_01.yaml</code> (M09에서 저장)</td></tr><tr><td>나는 지도 어디에?</td><td><code>amcl</code></td><td>파티클 필터, <code>map → odom</code> TF 발행</td></tr><tr><td>어떤 길로?</td><td><code>planner_server</code> (전역)</td><td><code>nav2_navfn_planner/NavfnPlanner</code></td></tr><tr><td>지금 얼마의 속도로?</td><td><code>controller_server</code> (지역)</td><td><code>dwb_core::DWBLocalPlanner</code> (또는 TEB)</td></tr><tr><td>막히면?</td><td><code>behavior_server</code></td><td>spin, backup, drive_on_heading, wait, assisted_teleop</td></tr><tr><td>전체 순서는?</td><td><code>bt_navigator</code></td><td>행동 트리(Behavior Tree) XML</td></tr></tbody></table></div>
+<h2 id="nav2-구조">Nav2 구조<a class="anchor" href="#nav2-구조">#</a></h2>
+<figure class="fig" id="fig-m11-nav2"><svg viewBox="0 0 720 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="MentorPi Nav2 구조: RViz 목표가 BT Navigator로 가고, Planner와 Controller 서버가 코스트맵을 쓰며, 속도 명령은 velocity_smoother와 odom_publisher를 거쳐 모터로 감">
+  <defs>
+    <marker id="arr-m11-nav2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-m11-nav2-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <!-- goal source -->
+  <rect class="box" x="14" y="20" width="130" height="44" rx="6"/>
+  <text class="lbl" x="79" y="40" text-anchor="middle">RViz / Python</text>
+  <text class="sub mono" x="79" y="56" text-anchor="middle">navigate_to_pose</text>
+  <path class="ln-hi" d="M144 42 L206 42" stroke-width="1.8" marker-end="url(#arr-m11-nav2-hi)"/>
+  <!-- BT navigator -->
+  <rect class="box-hi" x="208" y="16" width="200" height="52" rx="8"/>
+  <text class="lbl" x="308" y="38" text-anchor="middle">BT Navigator</text>
+  <text class="sub" x="308" y="56" text-anchor="middle">행동 트리 (계획·추종·복구 순서)</text>
+  <!-- servers -->
+  <path class="ln" d="M250 68 L130 104 M308 68 L308 104 M366 68 L486 104" stroke-width="1.4" marker-end="url(#arr-m11-nav2)"/>
+  <rect class="box" x="30" y="106" width="200" height="60" rx="6"/>
+  <text class="lbl" x="130" y="126" text-anchor="middle">Planner Server</text>
+  <text class="sub mono" x="130" y="142" text-anchor="middle">NavfnPlanner</text>
+  <text class="sub" x="130" y="158" text-anchor="middle">전역 코스트맵 (map, 0.05 m)</text>
+  <rect class="box" x="246" y="106" width="200" height="60" rx="6"/>
+  <text class="lbl" x="346" y="126" text-anchor="middle">Controller Server</text>
+  <text class="sub mono" x="346" y="142" text-anchor="middle">DWBLocalPlanner · 10 Hz</text>
+  <text class="sub" x="346" y="158" text-anchor="middle">지역 코스트맵 (odom, 3×3 m)</text>
+  <rect class="box" x="462" y="106" width="200" height="60" rx="6"/>
+  <text class="lbl" x="562" y="126" text-anchor="middle">Behavior Server</text>
+  <text class="sub mono" x="562" y="142" text-anchor="middle">spin · backup · wait …</text>
+  <text class="sub" x="562" y="158" text-anchor="middle">막혔을 때 복구</text>
+  <!-- path to controller -->
+  <path class="ln" d="M230 150 L244 150" stroke-width="1.4" marker-end="url(#arr-m11-nav2)"/>
+  <text class="tag" x="237" y="182" text-anchor="middle">Path</text>
+  <!-- cmd chain -->
+  <path class="ln-hi" d="M346 166 L346 212" stroke-width="1.8" marker-end="url(#arr-m11-nav2-hi)"/>
+  <text class="sub mono" x="354" y="194">cmd_vel_nav</text>
+  <rect class="box" x="246" y="214" width="200" height="44" rx="6"/>
+  <text class="lbl" x="346" y="234" text-anchor="middle">velocity_smoother</text>
+  <text class="sub mono" x="346" y="250" text-anchor="middle">max [0.26, 0, 1.0]</text>
+  <path class="ln-hi" d="M446 236 L486 236" stroke-width="1.8" marker-end="url(#arr-m11-nav2-hi)"/>
+  <text class="sub mono" x="466" y="228" text-anchor="middle">cmd_vel</text>
+  <rect class="box-hi" x="488" y="214" width="220" height="44" rx="6"/>
+  <text class="lbl mono" x="598" y="234" text-anchor="middle">odom_publisher</text>
+  <text class="sub" x="598" y="250" text-anchor="middle">≤ 0.2 m/s, ≤ 0.5 rad/s 로 자름</text>
+  <path class="ln-hi" d="M598 258 L598 290" stroke-width="1.8" marker-end="url(#arr-m11-nav2-hi)"/>
+  <text class="lbl" x="598" y="310" text-anchor="middle">역기구학 → 모터</text>
+  <!-- localization -->
+  <rect class="box" x="14" y="214" width="200" height="72" rx="6"/>
+  <text class="lbl" x="114" y="234" text-anchor="middle">map_server + amcl</text>
+  <text class="sub mono" x="114" y="252" text-anchor="middle">map_01.yaml · /scan_raw</text>
+  <text class="sub mono" x="114" y="270" text-anchor="middle">TF map → odom</text>
+  <path class="ln" d="M114 214 L114 168" stroke-width="1.4" marker-end="url(#arr-m11-nav2)"/>
+  <text class="sub" x="114" y="306" text-anchor="middle">EKF: TF odom → base_footprint</text>
+  <text class="tag" x="14" y="332">모든 서버는 nav2_container 안의 컴포저블 노드, lifecycle_manager가 autostart</text>
+</svg><figcaption>MentorPi에서 Nav2가 목표를 받아 모터 명령을 내기까지: BT Navigator가 서버들을 액션으로 호출하고, 제어 명령은 velocity_smoother와 odom_publisher를 거쳐 모터로 갑니다.</figcaption></figure>
+<h3 id="bt-navigator와-서버들">BT Navigator와 서버들<a class="anchor" href="#bt-navigator와-서버들">#</a></h3>
+<p><strong>BT Navigator</strong>가 "주 서버"이고 나머지는 부품입니다. 행동 트리(behavior tree)는 "경로를 1 Hz로 다시 계산하면서 따라가고, 실패하면 코스트맵을 지우고 → 제자리 회전 → 후진을 시도하라" 같은 절차를 트리로 기술한 XML입니다. <code>nav2_params.yaml</code>의 <code>bt_navigator.plugin_lib_names</code>에 나오는 <code>nav2_compute_path_to_pose_action_bt_node</code>, <code>nav2_follow_path_action_bt_node</code>, <code>nav2_spin_action_bt_node</code>, <code>nav2_recovery_node_bt_node</code> … 가 트리의 잎(leaf) 노드들입니다.</p>
+<div class="table-wrap"><table><thead><tr><th>서버</th><th>역할 (교재)</th><th>입력 → 출력</th></tr></thead><tbody><tr><td>Planner Server</td><td>지도 위 경로 계산</td><td>목표 + 전역 코스트맵 → <code>nav_msgs/Path</code></td></tr><tr><td>Controller Server</td><td>ROS 1의 지역 계획기. 경로를 따라가는 속도 계산</td><td>경로 + 지역 코스트맵 + 오도메트리 → <code>cmd_vel</code></td></tr><tr><td>Behavior Server</td><td>교재의 "Recovery Server". 막혔을 때 스스로 빠져나옴</td><td>spin, backup 등</td></tr><tr><td>Smoother Server</td><td>전역 경로 다듬기</td><td><code>nav2_smoother::SimpleSmoother</code></td></tr><tr><td>Waypoint Follower</td><td>여러 목표 순회 (M13)</td><td></td></tr><tr><td>Velocity Smoother</td><td>속도·가속 제한</td><td><code>cmd_vel_nav</code> → <code>cmd_vel</code></td></tr></tbody></table></div>
+<h3 id="수명주기와-컨테이너">수명주기와 컨테이너<a class="anchor" href="#수명주기와-컨테이너">#</a></h3>
+<p>Nav2 노드는 <strong>수명주기 노드</strong>(lifecycle node)라서 unconfigured → inactive → active 상태를 거쳐야 일합니다. <code>lifecycle_manager_localization</code>(map_server, amcl)과 <code>lifecycle_manager_navigation</code>(controller_server, smoother_server, planner_server, behavior_server, bt_navigator, waypoint_follower, velocity_smoother)이 <code>autostart: true</code>로 이들을 순서대로 켭니다. MentorPi는 모든 노드를 <code>nav2_container</code>(<code>component_container_isolated</code>) 한 프로세스에 <strong>컴포저블 노드</strong>로 올려 메모리와 복사 비용을 줄입니다.</p>
+<h3 id="launch-구조와-속도-명령-경로">launch 구조와 속도 명령 경로<a class="anchor" href="#launch-구조와-속도-명령-경로">#</a></h3>
+<p><code>ros2 launch navigation navigation.launch.py map:=map_01</code>(원본 <code>navigation/launch/navigation.launch.py</code>):</p>
+<div class="table-wrap"><table><thead><tr><th>단계</th><th>파일</th><th>내용</th></tr></thead><tbody><tr><td>base_launch</td><td><code>slam/launch/include/robot.launch.py</code></td><td>컨트롤러·EKF·라이다·깊이 카메라 (M09와 같음)</td></tr><tr><td>10 s 후</td><td><code>navigation/launch/include/bringup.launch.py</code></td><td><code>nav2_container</code> + <code>localization.launch.py</code> + <code>navigation_base.launch.py</code></td></tr><tr><td>localization</td><td><code>include/localization.launch.py</code></td><td><code>nav2_map_server::MapServer</code>, <code>nav2_amcl::AmclNode</code></td></tr><tr><td>navigation</td><td><code>include/navigation_base.launch.py</code></td><td>컨트롤러 파라미터: <code>use_teb</code> 인자에 따라 <code>config/nav2_controller_dwb.yaml</code>(기본) 또는 <code>nav2_controller_teb.yaml</code></td></tr></tbody></table></div>
+<p>소스를 따라가면 속도 명령은 이렇게 흐릅니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">controller_server  --cmd_vel_nav--&gt;  velocity_smoother  --cmd_vel--&gt;  odom_publisher (app_cmd_vel_callback)
+                                     max [0.26, 0, 1.0]                |linear| ≤ 0.2 m/s, |angular| ≤ 0.5 rad/s 로 자름
+                                                                        → 메카넘/애커만 역기구학 → 모터</code></pre></div>
+<p>DWB의 <code>max_vel_x</code>는 0.4 m/s, velocity_smoother의 <code>max_velocity</code>는 0.26 m/s이지만, 마지막에 <code>odom_publisher_node.py</code>의 <code>app_cmd_vel_callback</code>이 <code>/cmd_vel</code>을 <strong>0.2 m/s, 0.5 rad/s로 한 번 더 자릅니다</strong>(R03, M04). 실제 내비게이션 속도 상한은 이 값입니다. 안전장치이니 그대로 둡니다.</p>
+<h2 id="위치추정-amcl">위치추정: AMCL<a class="anchor" href="#위치추정-amcl">#</a></h2>
+<h3 id="왜-필요한가">왜 필요한가<a class="anchor" href="#왜-필요한가">#</a></h3>
+<p>오도메트리 <code>odom → base_footprint</code>는 부드럽고 빠르지만 <strong>드리프트</strong>가 쌓입니다. AMCL(Adaptive Monte Carlo Localization)은 라이다 스캔을 저장된 지도와 비교해 <strong>지도 기준 위치</strong>를 추정하고, 그 차이를 <code>map → odom</code> 변환으로 발행합니다. 결과 TF 체인은 <code>map → odom → base_footprint → lidar_frame</code>입니다. 교재 말대로 <code>map → odom</code>을 내는 것은 AMCL 대신 SLAM, UWB, QR 코드 위치추정 등 무엇이든 될 수 있습니다(M13의 RTAB-Map이 그 예).</p>
+<h3 id="베이즈-필터와-파티클">베이즈 필터와 파티클<a class="anchor" href="#베이즈-필터와-파티클">#</a></h3>
+<p>위치추정은 <strong>믿음</strong>(belief) <span class="math">bel(xₜ)</span> — "지금 로봇이 xₜ에 있을 확률 분포"를 갱신하는 문제입니다.</p>
+<div class="table-wrap"><table><thead><tr><th>단계</th><th>식</th><th>뜻</th></tr></thead><tbody><tr><td>예측</td><td><span class="math">bel⁻(xₜ) = ∫ p(xₜ | uₜ, xₜ₋₁) · bel(xₜ₋₁) dxₜ₋₁</span></td><td>움직임 모델로 믿음을 옮기고 퍼뜨림</td></tr><tr><td>갱신</td><td><span class="math">bel(xₜ) = η · p(zₜ | xₜ) · bel⁻(xₜ)</span></td><td>관측이 잘 설명되는 곳의 믿음을 키움</td></tr></tbody></table></div>
+<p>분포를 식으로 들고 다니는 대신 <strong>표본(파티클) N개</strong>로 들고 다니는 것이 파티클 필터입니다. 파티클 하나 = "로봇이 여기 있을지도 모른다"는 가설 <span class="math">(x, y, θ)</span>와 가중치 <span class="math">w</span>.</p>
+<figure class="fig" id="fig-m11-pf"><svg viewBox="0 0 720 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="파티클 필터 한 주기: 예측 단계에서 파티클을 이동하고 퍼뜨리며, 갱신 단계에서 가능도로 가중치를 주고, 재표본 단계에서 무거운 파티클을 복제함">
+  <defs>
+    <marker id="arr-m11-pf" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <!-- stage titles -->
+  <text class="lbl" x="115" y="24" text-anchor="middle">① 예측 (움직임 모델)</text>
+  <text class="lbl" x="360" y="24" text-anchor="middle">② 갱신 (센서 모델)</text>
+  <text class="lbl" x="605" y="24" text-anchor="middle">③ 재표본</text>
+  <!-- stage 1: particles before (faint) and after (moved + spread) -->
+  <g style="fill:var(--text-faint)">
+    <circle cx="40" cy="120" r="4"/><circle cx="48" cy="112" r="4"/><circle cx="52" cy="128" r="4"/><circle cx="60" cy="118" r="4"/><circle cx="44" cy="136" r="4"/>
+  </g>
+  <path class="ln-hi" d="M72 120 L120 120" stroke-width="1.6" marker-end="url(#arr-m11-pf)"/>
+  <text class="tag" x="96" y="108" text-anchor="middle">u</text>
+  <g class="hi">
+    <circle cx="140" cy="100" r="4"/><circle cx="162" cy="112" r="4"/><circle cx="150" cy="134" r="4"/><circle cx="176" cy="126" r="4"/><circle cx="134" cy="146" r="4"/>
+    <circle cx="186" cy="104" r="4"/><circle cx="158" cy="92" r="4"/>
+  </g>
+  <text class="sub" x="115" y="186" text-anchor="middle">모든 파티클을 u만큼 옮기고</text>
+  <text class="sub" x="115" y="202" text-anchor="middle">alpha 잡음으로 퍼뜨림</text>
+  <!-- stage 2: wall and weighted particles -->
+  <path d="M430 60 L430 148" style="stroke:var(--text)" stroke-width="4"/>
+  <text class="tag" x="436" y="70">벽 (지도)</text>
+  <path d="M330 120 L426 120" style="stroke:var(--danger)" stroke-width="1.2" stroke-dasharray="4 3"/>
+  <text class="tag" x="360" y="168" text-anchor="middle">스캔 끝점이 벽과 맞을수록 무거움</text>
+  <g class="hi">
+    <circle cx="300" cy="100" r="3"/><circle cx="322" cy="112" r="9"/><circle cx="310" cy="134" r="5"/><circle cx="336" cy="126" r="11"/>
+    <circle cx="294" cy="146" r="2.5"/><circle cx="346" cy="104" r="7"/><circle cx="318" cy="92" r="3"/>
+  </g>
+  <text class="sub" x="360" y="186" text-anchor="middle">w ← w · p(z | x), 정규화</text>
+  <text class="sub" x="360" y="202" text-anchor="middle">가능도장: z_hit·N(d; σ=0.2) + z_rand</text>
+  <!-- stage 3: resampled -->
+  <g class="hi">
+    <circle cx="580" cy="112" r="4"/><circle cx="586" cy="118" r="4"/><circle cx="594" cy="124" r="4"/><circle cx="600" cy="128" r="4"/>
+    <circle cx="606" cy="120" r="4"/><circle cx="610" cy="108" r="4"/><circle cx="596" cy="110" r="4"/>
+  </g>
+  <text class="sub" x="605" y="186" text-anchor="middle">가중치 비례로 N개 다시 뽑기</text>
+  <text class="sub" x="605" y="202" text-anchor="middle">(저분산 재표본, 가중치 1/N)</text>
+  <!-- arrows between stages -->
+  <path class="ln-hi" d="M222 120 L262 120" stroke-width="1.6" marker-end="url(#arr-m11-pf)"/>
+  <path class="ln-hi" d="M492 120 L540 120" stroke-width="1.6" marker-end="url(#arr-m11-pf)"/>
+  <!-- loop back -->
+  <path class="ln" d="M605 214 L605 238 L115 238 L115 214" stroke-width="1.4" stroke-dasharray="5 4"/>
+  <text class="tag" x="360" y="254" text-anchor="middle">update_min_d 0.25 m 또는 update_min_a 0.2 rad 움직일 때마다 반복 · 파티클 500~3000 (KLD)</text>
+</svg><figcaption>파티클 필터 한 주기: 예측(움직임 + 잡음) → 갱신(스캔 가능도로 가중치) → 재표본(무거운 파티클 복제, 가벼운 파티클 제거).</figcaption></figure>
+<ol><li><strong>예측</strong>: 오도메트리가 "0.25 m 전진, 5° 회전"이라고 하면 모든 파티클을 그만큼 옮기되, <strong>각자 다른 잡음</strong>을 더합니다. 잡음 크기가 <code>alpha1~5</code>입니다.</li><li><strong>갱신</strong>: 각 파티클 자리에서 스캔을 지도에 겹쳐 보고 가능도 <span class="math">p(z | x)</span>를 가중치로 곱합니다. 벽과 잘 맞는 파티클이 무거워집니다.</li><li><strong>재표본</strong>: 가중치에 비례해 파티클을 다시 뽑습니다. 무거운 파티클은 여러 번 복제되고 가벼운 것은 사라집니다. <strong>저분산(체계적) 재표본</strong>은 난수 하나로 N개를 등간격으로 뽑아 표본 편향을 줄입니다.</li><li><strong>추정</strong>: 가중 평균과 공분산이 로봇 위치와 불확실성입니다(RViz의 초록 화살표 구름과 타원).</li></ol>
+<h3 id="실습-1d-파티클-필터">실습: 1D 파티클 필터<a class="anchor" href="#실습-1d-파티클-필터">#</a></h3>
+<p>문 세 개(1.5, 4.0, 7.0 m)가 있는 10 m 복도에서, 로봇이 <strong>자기 위치를 전혀 모른 채</strong>(파티클을 복도 전체에 균일하게 뿌림) 0.5 m씩 이동하며 "문이 보인다/안 보인다"만으로 위치를 찾습니다. 순수 numpy 코드라 결과가 매번 같습니다.</p>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import numpy as np
+
+rng = np.random.default_rng(0)
+DOORS = np.array([1.5, 4.0, 7.0])       # 복도(0~10 m)의 문 위치 = 지도
+N, STEP, SIG_MOVE = 500, 0.5, 0.1        # 파티클 수, 한 번 이동량, 이동 잡음
+
+def near_door(x):                        # 문 앞(±0.3 m)이면 True
+    return np.min(np.abs(x[:, None] - DOORS[None, :]), axis=1) &lt; 0.3
+
+def likelihood(z, x):                    # 센서 모델 p(z | x): 적중률 0.9
+    w = np.where(near_door(x) == z, 0.9, 0.1)
+    return np.where((x &lt; 0.0) | (x &gt; 10.0), 1e-3, w)   # 복도 밖 = 지도상 벽
+
+def low_variance_resample(p, w):         # 체계적(저분산) 재표본
+    u = (rng.random() + np.arange(N)) / N
+    idx = np.searchsorted(np.cumsum(w), u)
+    return p[np.minimum(idx, N - 1)]
+
+true_x = 0.5
+p = rng.uniform(0.0, 10.0, N)            # 전역 위치추정: 복도 전체에 균일 분포
+w = np.full(N, 1.0 / N)
+print(&quot;step true   z      mean   std   N_eff&quot;)
+for k in range(14):
+    # 1) 예측: 이동 명령 u = +0.5 m에 잡음을 더해 모든 파티클을 옮김
+    true_x += STEP
+    p = p + STEP + rng.normal(0.0, SIG_MOVE, N)
+    # 2) 갱신: 관측 z(문 보임?)의 가능도로 가중치 곱하고 정규화
+    z = bool(near_door(np.array([true_x]))[0])
+    w = w * likelihood(z, p)
+    w = w / w.sum()
+    n_eff = 1.0 / np.sum(w ** 2)
+    mean = np.sum(w * p)
+    std = np.sqrt(np.sum(w * (p - mean) ** 2))
+    print(&quot;%4d %5.2f  %-5s %6.2f %5.2f %6.1f&quot; % (k + 1, true_x, z, mean, std, n_eff))
+    # 3) 재표본: 유효 파티클 수가 절반 밑으로 떨어지면
+    if n_eff &lt; N / 2:
+        p = low_variance_resample(p, w)
+        w = np.full(N, 1.0 / N)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">step true   z      mean   std   N_eff
+   1  1.00  False   5.73  2.70  400.5
+   2  1.50  True    5.15  2.50  150.2
+   3  2.00  False   5.71  2.49  387.8
+   4  2.50  False   6.09  2.43  350.0
+   5  3.00  False   6.36  2.32  320.3
+   6  3.50  False   6.88  2.27  272.1
+   7  4.00  True    5.57  2.05  112.2
+   8  4.50  False   5.74  1.85  354.1
+   9  5.00  False   5.78  1.32  317.2
+  10  5.50  False   6.24  1.29  314.4
+  11  6.00  False   6.74  1.30  313.4
+  12  6.50  False   7.30  1.38  282.0
+  13  7.00  True    7.06  0.47  178.5
+  14  7.50  False   7.55  0.23  417.9</code></pre></div>
+<p>읽는 법:</p>
+<ul><li>2단계에서 첫 문을 봤지만 <strong>어느 문인지 모릅니다.</strong> 파티클이 세 문 앞에 모여 평균(5.15)은 의미 없고 표준편차가 큽니다(다봉 분포).</li><li>7단계에서 두 번째 문을 보면 "문 → 2.5 m 뒤 문" 패턴과 어긋나는 가설이 약해져 표준편차가 2.0 → 1.3 m로 줄고, 13단계 세 번째 문에서 0.47 → 0.23 m로 수렴합니다. 문 간격이 2.5 m와 3.0 m로 <strong>다르기 때문에</strong> 가능한 일입니다. 모든 간격이 같다면 끝까지 구별하지 못합니다(대칭 환경의 함정).</li><li><code>N_eff</code>(유효 파티클 수 <span class="math">1/Σw²</span>)는 가중치가 한쪽에 쏠릴수록 작아집니다. 문을 본 단계(2, 7, 13)에서 크게 떨어지고, 그때 재표본이 일어납니다.</li></ul>
+<div class="callout callout-tip"><div class="callout-title">직접 바꿔 보기</div><div class="callout-body"><p><code>N</code>을 50으로 줄이면 올바른 가설 근처에 파티클이 하나도 안 남아 <strong>엉뚱한 곳으로 수렴</strong>하는 경우가 생깁니다(파티클 고갈). <code>SIG_MOVE</code>를 0으로 두면 재표본 뒤 복제본이 모두 같은 자리에 겹쳐 다양성이 사라집니다. AMCL의 <code>alpha</code> 잡음과 <code>min_particles</code>가 필요한 이유입니다.</p></div></div>
+<h3 id="amcl-파라미터-mentorpi-값">AMCL 파라미터 (MentorPi 값)<a class="anchor" href="#amcl-파라미터-mentorpi-값">#</a></h3>
+<p><code>navigation/config/nav2_params.yaml</code>의 <code>amcl:</code> 절입니다.</p>
+<div class="table-wrap"><table><thead><tr><th>분류</th><th>파라미터</th><th>값</th><th>뜻</th></tr></thead><tbody><tr><td>파티클 수</td><td><code>min_particles</code> / <code>max_particles</code></td><td>500 / 3000</td><td>KLD 적응 표본 수의 하한·상한</td></tr><tr><td></td><td><code>pf_err</code> / <code>pf_z</code></td><td>0.05 / 0.99</td><td>KLD 오차 한계와 분위수(아래 설명)</td></tr><tr><td></td><td><code>resample_interval</code></td><td>1</td><td>필터 갱신마다 재표본</td></tr><tr><td>갱신 조건</td><td><code>update_min_d</code> / <code>update_min_a</code></td><td>0.25 m / 0.2 rad</td><td>이만큼 움직여야 필터를 갱신 (정지 중 과신 방지)</td></tr><tr><td>움직임 모델</td><td><code>robot_model_type</code></td><td><code>nav2_amcl::DifferentialMotionModel</code></td><td>차동 구동 잡음 모델</td></tr><tr><td></td><td><code>alpha1</code> ~ <code>alpha5</code></td><td>모두 0.2</td><td>1: 회전이 만드는 회전 잡음, 2: 이동이 만드는 회전 잡음, 3: 이동이 만드는 이동 잡음, 4: 회전이 만드는 이동 잡음, 5: 횡이동 잡음(Omni 모델 전용)</td></tr><tr><td>센서 모델</td><td><code>laser_model_type</code></td><td><code>likelihood_field</code></td><td>가능도장 모델</td></tr><tr><td></td><td><code>max_beams</code></td><td>60</td><td>한 스캔에서 쓰는 빔 수 (360개 중 균등 추출)</td></tr><tr><td></td><td><code>laser_min_range</code> / <code>laser_max_range</code></td><td>0.2 / 10.0 m</td><td>이 범위 밖 빔 무시</td></tr><tr><td></td><td><code>z_hit</code> / <code>z_rand</code></td><td>0.5 / 0.5</td><td>정상 측정 / 무작위 잡음 성분 비중</td></tr><tr><td></td><td><code>z_short</code> / <code>z_max</code></td><td>0.05 / 0.05</td><td>빔 모델용 (가능도장에서는 영향 적음)</td></tr><tr><td></td><td><code>sigma_hit</code></td><td>0.2 m</td><td>측정점-가장 가까운 벽 거리의 가우시안 표준편차</td></tr><tr><td></td><td><code>laser_likelihood_max_dist</code></td><td>2.0 m</td><td>가능도장 거리 계산 상한</td></tr><tr><td>복구</td><td><code>recovery_alpha_slow</code> / <code>recovery_alpha_fast</code></td><td>0.0 / 0.0</td><td>0이면 무작위 파티클 주입(납치 로봇 복구) 끔</td></tr><tr><td>프레임</td><td><code>global_frame_id</code> / <code>odom_frame_id</code> / <code>base_frame_id</code></td><td>map / odom / base_footprint</td><td></td></tr><tr><td></td><td><code>scan_topic</code></td><td><code>scan_raw</code></td><td></td></tr><tr><td></td><td><code>tf_broadcast</code> / <code>transform_tolerance</code></td><td>true / 1.0 s</td><td><code>map → odom</code> 발행, TF 허용 지연</td></tr><tr><td>초기 자세</td><td><code>set_initial_pose</code> / <code>initial_pose</code></td><td>True / (0, 0, 0)</td><td>시작 시 (0, 0, 0)으로 가정</td></tr></tbody></table></div>
+<p><strong>가능도장 모델</strong>(likelihood field): 지도에서 각 셀과 가장 가까운 벽까지의 거리 <span class="math">d</span>를 미리 계산해 두고, 스캔 끝점이 떨어진 셀의 <span class="math">d</span>로 가능도를 계산합니다.</p>
+<p><span class="math">p(zₖ | x) = z_hit · N(d; 0, sigma_hit²) + z_rand / z_max_range</span></p>
+<p>MentorPi는 <code>z_rand</code> = 0.5로 <strong>무작위 성분을 크게</strong> 잡았습니다. 지도에 없는 사람·의자가 많은 실내에서 이상한 빔 하나가 가중치를 0으로 만들지 않게 하는 보수적 설정입니다.</p>
+<p><strong>KLD 적응 표본 수</strong>: 파티클들이 차지하는 격자 칸(bin) 수 k가 많으면(= 위치를 잘 모르면) 파티클을 늘리고, 몰려 있으면 줄입니다. nav2_amcl은 다음 식을 쓰고, <code>pf_z</code> 값을 분위수 z로 그대로 넣습니다.</p>
+<p><span class="math">n = (k − 1)/(2·pf_err) · (1 − 2/(9(k−1)) + √(2/(9(k−1))) · pf_z)³</span></p>
+<div class="table-wrap"><table><thead><tr><th>차지한 bin 수 k</th><th>계산된 n</th><th>실제 파티클 수 (500~3000으로 자름)</th></tr></thead><tbody><tr><td>10</td><td>131</td><td>500</td></tr><tr><td>50</td><td>588</td><td>588</td></tr><tr><td>100</td><td>1129</td><td>1129</td></tr><tr><td>200</td><td>2188</td><td>2188</td></tr><tr><td>300</td><td>3232</td><td>3000</td></tr></tbody></table></div>
+<p>초기 위치를 잘 찍어 주면 k가 작아 500개로 가볍게 돌고, 위치를 잃으면 최대 3000개까지 늘어납니다. 교재의 "적은 표본으로 실시간성을 높인다"가 이 뜻입니다.</p>
+<div class="callout callout-warn"><div class="callout-title">메카넘 로봇인데 Differential 모델?</div><div class="callout-body"><p>MentorPi 설정은 섀시와 관계없이 <code>DifferentialMotionModel</code>입니다. 메카넘으로 <strong>옆으로</strong> 이동하면 이 모델은 횡이동을 예측하지 못해 파티클이 뒤처지고, 스캔이 맞춰 줄 때까지 위치가 튈 수 있습니다. 메카넘에서 횡이동을 많이 쓸 계획이면 <code>nav2_amcl::OmniMotionModel</code>(이때 <code>alpha5</code> 사용)로 바꿔 비교해 볼 만합니다. 기본 DWB 설정은 <code>max_vel_y: 0.0</code>이라 내비게이션 중에는 횡이동을 쓰지 않습니다.</p></div></div>
+<h2 id="코스트맵">코스트맵<a class="anchor" href="#코스트맵">#</a></h2>
+<p>지도(0/100/−1)는 그대로 경로 계획에 쓰지 못합니다. 로봇은 점이 아니라 크기가 있기 때문입니다. Nav2는 지도를 <strong>코스트맵</strong>(costmap, 셀당 1바이트 0~255)으로 바꿔 씁니다.</p>
+<div class="table-wrap"><table><thead><tr><th>비용 값</th><th>이름</th><th>뜻</th></tr></thead><tbody><tr><td>0</td><td>FREE_SPACE</td><td>자유</td></tr><tr><td>1~252</td><td>팽창 비용</td><td>장애물에 가까울수록 큼</td></tr><tr><td>253</td><td>INSCRIBED_INFLATED_OBSTACLE</td><td>로봇 <strong>중심</strong>이 여기 오면 몸체가 장애물에 닿음</td></tr><tr><td>254</td><td>LETHAL_OBSTACLE</td><td>장애물 셀 자체</td></tr><tr><td>255</td><td>NO_INFORMATION</td><td>모름</td></tr></tbody></table></div>
+<p>코스트맵은 <strong>층(layer) 플러그인</strong>을 쌓아 만듭니다. 교재가 설명하는 <code>Costmap2D</code>/<code>Layer</code> 클래스 구조에서 <code>initialize</code>·<code>matchSize</code>는 한 번, <code>updateBounds</code>·<code>updateCosts</code>는 <code>update_frequency</code>마다 호출됩니다. 장애물 층은 스캔 빔을 따라 <strong>Bresenham 선</strong>으로 셀을 비우고(clearing) 끝점을 채웁니다(marking) — M09의 역센서 모델과 같은 일입니다.</p>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>전역 코스트맵 (<code>global_costmap</code>)</th><th>지역 코스트맵 (<code>local_costmap</code>)</th></tr></thead><tbody><tr><td>쓰는 곳</td><td>Planner Server</td><td>Controller Server</td></tr><tr><td>좌표계</td><td><code>map</code></td><td><code>odom</code>, <code>rolling_window: true</code> (로봇 따라 이동)</td></tr><tr><td>크기·해상도</td><td>지도 전체, 0.05 m</td><td>3 × 3 m, <strong>0.03 m</strong></td></tr><tr><td>갱신 / 발행</td><td>1.0 / 1.0 Hz</td><td>5.0 / 2.0 Hz</td></tr><tr><td>층</td><td><code>static_layer</code>, <code>obstacle_layer</code>, <code>inflation_layer</code></td><td><code>voxel_layer</code>, <code>inflation_layer</code></td></tr><tr><td><code>robot_radius</code></td><td>0.05 m</td><td>0.05 m</td></tr><tr><td>팽창</td><td><code>inflation_radius</code> 0.05, <code>cost_scaling_factor</code> 5.0</td><td><code>inflation_radius</code> 0.05, <code>cost_scaling_factor</code> 2.0</td></tr><tr><td>관측</td><td><code>/scan_raw</code>, <code>obstacle_max_range</code> 2.5, <code>raytrace_max_range</code> 3.0</td><td>같음 + <code>z_voxels</code> 16 × <code>z_resolution</code> 0.03</td></tr><tr><td>모름 영역</td><td><code>track_unknown_space: true</code></td><td></td></tr></tbody></table></div>
+<div class="callout callout-danger"><div class="callout-title">`robot_radius` 0.05 m는 실제 로봇보다 작다</div><div class="callout-body"><p>URDF(M08)의 바퀴 위치만 봐도 로봇 중심에서 바퀴까지 약 0.1 m이고, 차체 외곽은 그보다 큽니다. <code>robot_radius: 0.05</code>, <code>inflation_radius: 0.05</code>이면 코스트맵은 로봇을 <strong>지름 10 cm 공</strong>으로 보고, 팽창도 사실상 없습니다. 좁은 틈으로 경로를 내서 차체 모서리가 벽이나 의자 다리에 걸릴 수 있습니다. 원본 값의 의도(좁은 공간 통과)를 이해하되, 실습 공간이 좁지 않다면 M12에서 <code>robot_radius</code> 0.12~0.15 m, <code>inflation_radius</code> 0.25~0.3 m로 바꿔 비교합니다. 팽창 비용식과 튜닝은 M12에서 다룹니다.</p></div></div>
+<h2 id="실습-시뮬레이션">실습 (시뮬레이션)<a class="anchor" href="#실습-시뮬레이션">#</a></h2>
+<p class="cta-row"><a class="ghost-btn cta" href="../sim/index.html">2D 시뮬레이터 열기</a></p>
+<ol><li><strong>room</strong> 월드에서 <strong>SLAM</strong> 모드로 지도를 먼저 만듭니다(M09).</li><li><strong>내비게이션</strong> 모드로 바꾸고 지도 위를 클릭해 목표를 줍니다. 전역 경로(A*)와 지역 제어(DWA 또는 Pure Pursuit)가 로봇을 움직입니다.</li><li><strong>오도메트리 오차 표시</strong>를 켜고 긴 경로를 여러 번 왕복합니다. 오도메트리 추정과 실제 위치가 얼마나 벌어지는지 보고, 실물에서 AMCL이 이 차이를 어떻게 메우는지 설명합니다.</li><li>목표를 벽 바로 옆, 좁은 틈 사이에 찍어 보고 경로가 벽에서 얼마나 떨어지는지 관찰합니다(코스트맵 팽창).</li></ol>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">안전 확인 (실물 실습 전 필수)</div><div class="callout-body"><ul><li>내비게이션은 <strong>로봇이 스스로 움직입니다.</strong> 목표를 보내기 전에 경로 주변에 사람·애완동물·깨지기 쉬운 물건이 없는지 확인하고, 한 사람은 항상 로봇 곁에 있습니다.</li><li>첫 시험 목표는 <strong>1 m 이내, 탁 트인 곳</strong>으로 잡습니다.</li><li>속도는 <code>app_cmd_vel_callback</code>의 0.2 m/s, 0.5 rad/s로 제한됩니다. 이 제한을 풀지 않습니다.</li><li>멈출 때: RViz Navigation 2 패널의 <strong>Cancel</strong>, 또는 launch 터미널 Ctrl+C. 계속 움직이면 <code>ros2 topic pub --once /controller/cmd_vel geometry_msgs/msg/Twist &quot;{}&quot;</code>, 최후에는 전원 스위치.</li><li>계단·경사로가 있는 곳에서는 하지 않습니다. 2D 라이다는 아래로 꺼진 곳을 보지 못합니다.</li></ul></div></div>
+<ol><li>M09에서 저장한 지도(<code>~/ros2_ws/src/slam/maps/map_01.yaml</code>)가 있는지 확인하고 내비게이션을 띄웁니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash"># 로봇
+~/.stop_ros.sh
+ls ~/ros2_ws/src/slam/maps
+ros2 launch navigation navigation.launch.py map:=map_01
+
+# 가상머신 (M09에서 준비한 워크스페이스)
+ros2 launch navigation rviz_navigation.launch.py</code></pre></div>
+<ol><li>약 10 s 뒤 Nav2가 활성화됐는지 확인합니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 lifecycle get /amcl                 # active [3]
+ros2 lifecycle get /bt_navigator         # active [3]
+ros2 param get /amcl max_particles       # 3000</code></pre></div>
+<ol><li>RViz 도구 모음의 <strong>2D Pose Estimate</strong>를 누르고, 지도에서 로봇의 실제 위치를 클릭한 채 <strong>로봇이 바라보는 방향으로 끌었다 놓습니다.</strong> 파티클 구름(<code>/particle_cloud</code>)이 그 주변에 모이고, 스캔(빨간 점)이 지도의 벽과 겹치는지 봅니다. 어긋나면 다시 찍습니다. CLI로도 줄 수 있습니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 topic pub --once /initialpose geometry_msgs/msg/PoseWithCovarianceStamped \
+  &quot;{header: {frame_id: map}, pose: {pose: {position: {x: 0.0, y: 0.0}, orientation: {z: 0.0, w: 1.0}}}}&quot;</code></pre></div>
+<ol><li>로봇을 제자리에서 조금 회전시키거나 0.3 m쯤 움직이면(<code>update_min_d</code> 0.25 m, <code>update_min_a</code> 0.2 rad) 필터가 갱신되며 구름이 좁아집니다.</li><li><strong>Nav2 Goal</strong>(교재의 "2D Nav Goal")로 목표를 클릭·드래그합니다. 초록 선(직선 참고선)과 진한 파란 선(계획된 경로)이 나타나고 로봇이 출발합니다. CLI로 목표를 줄 수도 있습니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose \
+  &quot;{pose: {header: {frame_id: map}, pose: {position: {x: 1.0, y: 0.0}, orientation: {w: 1.0}}}}&quot; --feedback</code></pre></div>
+<ol><li>경로 위에 상자를 놓아 로봇이 돌아가는지(지역 코스트맵의 voxel 층) 확인합니다. 끝나면 Ctrl+C 후 호스트 터미널에서 <code>sudo systemctl restart start_node.service</code>.</li></ol>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> 예측·갱신·재표본이 각각 무엇을 바꾸는지(파티클 위치 / 가중치 / 파티클 집합) 말할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> 2D Pose Estimate를 잘못 찍었을 때와 잘 찍었을 때 파티클 구름과 스캔 정합을 비교했다.</label></li><li><label class="check-item"><input type="checkbox"> Nav2의 속도 명령이 모터까지 가는 경로와, 실제 상한이 0.2 m/s인 이유를 설명할 수 있다.</label></li></ul></div></div>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td>RViz에 지도가 안 뜸</td><td>지도 이름 오타, 10 s 지연 전, <code>map_server</code> inactive</td><td><code>map:=</code> 값과 <code>slam/maps/*.yaml</code> 이름 일치 확인, <code>ros2 lifecycle get /map_server</code></td></tr><tr><td>목표를 줘도 "Robot is out of bounds"/경로 없음</td><td>초기 위치 미설정, 로봇 위치가 벽 속</td><td>2D Pose Estimate로 실제 위치·방향 지정</td></tr><tr><td>스캔이 지도 벽과 어긋난 채 수렴</td><td>초기 방향 틀림, 대칭 환경</td><td>방향까지 정확히 다시 지정, 특징 있는 곳에서 조금 움직이기</td></tr><tr><td>로봇이 제자리에서 계속 돌기만 함 (spin 복구 반복)</td><td>경로 추종 실패 → 행동 트리 복구</td><td>코스트맵에 가짜 장애물이 있는지 확인, <code>clear costmap</code> 후 재시도</td></tr><tr><td>좁은 틈에서 차체가 긁힘</td><td><code>robot_radius</code>·<code>inflation_radius</code> 0.05 m</td><td>M12에서 값 상향 후 비교</td></tr><tr><td>"Timed out waiting for transform from base_footprint to map"</td><td>AMCL이 아직 TF를 안 냄, 초기 자세 없음</td><td>초기 자세 지정, <code>/amcl</code> 로그 확인</td></tr><tr><td>목표 근처에서 멈추지 않고 맴돎</td><td>목표 허용오차보다 제어가 거칢</td><td><code>xy_goal_tolerance</code>·<code>yaw_goal_tolerance</code>(0.25) 확인 (M12)</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">기본 과제</div><div class="callout-body"><ol><li>1D 파티클 필터에서 문 위치를 <code>[1.5, 4.0, 6.5]</code>(간격이 모두 2.5 m)로 바꿔 실행하고, 수렴이 어떻게 달라지는지 설명합니다.</li><li>KLD 식으로 k = 20, 150일 때 파티클 수를 계산하고, <code>min_particles</code>를 100으로 바꾸면 어떤 장단점이 있을지 씁니다.</li></ol></div></div>
+<div class="callout callout-task"><div class="callout-title">심화 과제</div><div class="callout-body"><ol><li>1D 코드에 <strong>납치 로봇</strong>(kidnapped robot) 상황을 넣습니다: 10단계에서 <code>true_x</code>를 2.0으로 순간 이동시키고, 무작위 파티클을 일부(예: 5 %) 주입하는 코드를 추가해 복구되는지 봅니다. AMCL의 <code>recovery_alpha_slow/fast</code>가 이 기능이며 MentorPi에서는 0(꺼짐)인 이유를 토론합니다.</li><li>로봇에서 <code>ros2 topic echo /amcl_pose</code>의 공분산 대각선(x, y, yaw)을 로봇이 정지했을 때, 0.5 m 움직였을 때 기록해 비교합니다.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>13. Navigation Lesson</em> — Lesson 1 ROS Robot Autonomous Navigation, Lesson 2 AMCL Adaptive Monte Carlo Positioning</li><li>원본 소스: <code>src/navigation/config/nav2_params.yaml</code>, <code>src/navigation/launch/navigation.launch.py</code>, <code>src/navigation/launch/include/bringup.launch.py</code>, <code>include/localization.launch.py</code>, <code>include/navigation_base.launch.py</code>, <code>src/driver/controller/controller/odom_publisher_node.py</code></li><li>Nav2 문서: https://docs.nav2.org/</li><li>AMCL 설정: https://docs.nav2.org/configuration/packages/configuring-amcl.html</li><li>코스트맵 설정: https://docs.nav2.org/configuration/packages/configuring-costmaps.html</li><li>S. Thrun, W. Burgard, D. Fox, <em>Probabilistic Robotics</em>, 4장(파티클 필터), 6장(가능도장 모델), 8장(MCL·KLD 표본)</li><li>D. Fox, "KLD-Sampling: Adaptive Particle Filters", NIPS 2001</li></ul>
+      <nav class="pager"><a class="pager-prev" href="m10.html"><span>이전 · M10</span>RTAB-Map 3D 비주얼 SLAM</a><a class="pager-next" href="m12.html"><span>다음 · M12</span>경로 계획: 전역 A*와 지역 DWA</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#내비게이션이-풀어야-할-문제">내비게이션이 풀어야 할 문제</a><a class="toc-l2" href="#nav2-구조">Nav2 구조</a><a class="toc-l3" href="#bt-navigator와-서버들">BT Navigator와 서버들</a><a class="toc-l3" href="#수명주기와-컨테이너">수명주기와 컨테이너</a><a class="toc-l3" href="#launch-구조와-속도-명령-경로">launch 구조와 속도 명령 경로</a><a class="toc-l2" href="#위치추정-amcl">위치추정: AMCL</a><a class="toc-l3" href="#왜-필요한가">왜 필요한가</a><a class="toc-l3" href="#베이즈-필터와-파티클">베이즈 필터와 파티클</a><a class="toc-l3" href="#실습-1d-파티클-필터">실습: 1D 파티클 필터</a><a class="toc-l3" href="#amcl-파라미터-mentorpi-값">AMCL 파라미터 (MentorPi 값)</a><a class="toc-l2" href="#코스트맵">코스트맵</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,53 @@
+<svg viewBox="0 0 720 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="MentorPi Nav2 구조: RViz 목표가 BT Navigator로 가고, Planner와 Controller 서버가 코스트맵을 쓰며, 속도 명령은 velocity_smoother와 odom_publisher를 거쳐 모터로 감">
+  <defs>
+    <marker id="arr-m11-nav2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-m11-nav2-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <!-- goal source -->
+  <rect class="box" x="14" y="20" width="130" height="44" rx="6"/>
+  <text class="lbl" x="79" y="40" text-anchor="middle">RViz / Python</text>
+  <text class="sub mono" x="79" y="56" text-anchor="middle">navigate_to_pose</text>
+  <path class="ln-hi" d="M144 42 L206 42" stroke-width="1.8" marker-end="url(#arr-m11-nav2-hi)"/>
+  <!-- BT navigator -->
+  <rect class="box-hi" x="208" y="16" width="200" height="52" rx="8"/>
+  <text class="lbl" x="308" y="38" text-anchor="middle">BT Navigator</text>
+  <text class="sub" x="308" y="56" text-anchor="middle">행동 트리 (계획·추종·복구 순서)</text>
+  <!-- servers -->
+  <path class="ln" d="M250 68 L130 104 M308 68 L308 104 M366 68 L486 104" stroke-width="1.4" marker-end="url(#arr-m11-nav2)"/>
+  <rect class="box" x="30" y="106" width="200" height="60" rx="6"/>
+  <text class="lbl" x="130" y="126" text-anchor="middle">Planner Server</text>
+  <text class="sub mono" x="130" y="142" text-anchor="middle">NavfnPlanner</text>
+  <text class="sub" x="130" y="158" text-anchor="middle">전역 코스트맵 (map, 0.05 m)</text>
+  <rect class="box" x="246" y="106" width="200" height="60" rx="6"/>
+  <text class="lbl" x="346" y="126" text-anchor="middle">Controller Server</text>
+  <text class="sub mono" x="346" y="142" text-anchor="middle">DWBLocalPlanner · 10 Hz</text>
+  <text class="sub" x="346" y="158" text-anchor="middle">지역 코스트맵 (odom, 3×3 m)</text>
+  <rect class="box" x="462" y="106" width="200" height="60" rx="6"/>
+  <text class="lbl" x="562" y="126" text-anchor="middle">Behavior Server</text>
+  <text class="sub mono" x="562" y="142" text-anchor="middle">spin · backup · wait …</text>
+  <text class="sub" x="562" y="158" text-anchor="middle">막혔을 때 복구</text>
+  <!-- path to controller -->
+  <path class="ln" d="M230 150 L244 150" stroke-width="1.4" marker-end="url(#arr-m11-nav2)"/>
+  <text class="tag" x="237" y="182" text-anchor="middle">Path</text>
+  <!-- cmd chain -->
+  <path class="ln-hi" d="M346 166 L346 212" stroke-width="1.8" marker-end="url(#arr-m11-nav2-hi)"/>
+  <text class="sub mono" x="354" y="194">cmd_vel_nav</text>
+  <rect class="box" x="246" y="214" width="200" height="44" rx="6"/>
+  <text class="lbl" x="346" y="234" text-anchor="middle">velocity_smoother</text>
+  <text class="sub mono" x="346" y="250" text-anchor="middle">max [0.26, 0, 1.0]</text>
+  <path class="ln-hi" d="M446 236 L486 236" stroke-width="1.8" marker-end="url(#arr-m11-nav2-hi)"/>
+  <text class="sub mono" x="466" y="228" text-anchor="middle">cmd_vel</text>
+  <rect class="box-hi" x="488" y="214" width="220" height="44" rx="6"/>
+  <text class="lbl mono" x="598" y="234" text-anchor="middle">odom_publisher</text>
+  <text class="sub" x="598" y="250" text-anchor="middle">≤ 0.2 m/s, ≤ 0.5 rad/s 로 자름</text>
+  <path class="ln-hi" d="M598 258 L598 290" stroke-width="1.8" marker-end="url(#arr-m11-nav2-hi)"/>
+  <text class="lbl" x="598" y="310" text-anchor="middle">역기구학 → 모터</text>
+  <!-- localization -->
+  <rect class="box" x="14" y="214" width="200" height="72" rx="6"/>
+  <text class="lbl" x="114" y="234" text-anchor="middle">map_server + amcl</text>
+  <text class="sub mono" x="114" y="252" text-anchor="middle">map_01.yaml · /scan_raw</text>
+  <text class="sub mono" x="114" y="270" text-anchor="middle">TF map → odom</text>
+  <path class="ln" d="M114 214 L114 168" stroke-width="1.4" marker-end="url(#arr-m11-nav2)"/>
+  <text class="sub" x="114" y="306" text-anchor="middle">EKF: TF odom → base_footprint</text>
+  <text class="tag" x="14" y="332">모든 서버는 nav2_container 안의 컴포저블 노드, lifecycle_manager가 autostart</text>
+</svg>

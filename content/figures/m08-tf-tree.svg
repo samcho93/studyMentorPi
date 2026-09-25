@@ -1,0 +1,43 @@
+<svg viewBox="0 0 720 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="MentorPi 메카넘 URDF 링크 트리: base_footprint에서 base_link, 네 바퀴, depth_cam, lidar_frame, imu_link로 이어지는 조인트와 오프셋">
+  <defs>
+    <marker id="arr-m08-tf-tree" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <!-- dynamic frames from other nodes -->
+  <rect class="box" x="20" y="20" width="110" height="34" rx="6" stroke-dasharray="4 3"/>
+  <text class="lbl mono" x="75" y="42" text-anchor="middle">map</text>
+  <rect class="box" x="20" y="92" width="110" height="34" rx="6" stroke-dasharray="4 3"/>
+  <text class="lbl mono" x="75" y="114" text-anchor="middle">odom</text>
+  <path class="ln" d="M75 54 L75 90" stroke-width="1.4" marker-end="url(#arr-m08-tf-tree)"/>
+  <text class="sub" x="84" y="77">AMCL / SLAM</text>
+  <path class="ln" d="M75 126 L75 162" stroke-width="1.4" marker-end="url(#arr-m08-tf-tree)"/>
+  <text class="sub" x="84" y="149">EKF 오도메트리</text>
+  <!-- URDF part -->
+  <rect x="10" y="158" width="700" height="162" rx="10" style="fill:none;stroke:var(--accent-dim)" stroke-dasharray="6 4"/>
+  <text class="tag" x="700" y="314" text-anchor="end">URDF → robot_state_publisher</text>
+  <rect class="box-hi" x="20" y="164" width="130" height="34" rx="6"/>
+  <text class="lbl mono" x="85" y="186" text-anchor="middle">base_footprint</text>
+  <path class="ln-hi" d="M150 181 L196 181" stroke-width="1.6" marker-end="url(#arr-m08-tf-tree)"/>
+  <text class="sub mono" x="173" y="172" text-anchor="middle">z 0.07</text>
+  <rect class="box-hi" x="198" y="164" width="104" height="34" rx="6"/>
+  <text class="lbl mono" x="250" y="186" text-anchor="middle">base_link</text>
+  <!-- children -->
+  <path class="ln" d="M302 181 L330 181 L330 300 M330 206 L356 206 M330 232 L356 232 M330 258 L356 258 M330 284 L356 284 M330 181 L356 181" stroke-width="1.4"/>
+  <rect class="box" x="356" y="170" width="132" height="22" rx="4"/>
+  <text class="tag mono" x="422" y="185" text-anchor="middle">lidar_frame</text>
+  <text class="sub mono" x="496" y="185">fixed (−0.012, 0, 0.0925)</text>
+  <rect class="box" x="356" y="196" width="132" height="22" rx="4"/>
+  <text class="tag mono" x="422" y="211" text-anchor="middle">depth_cam</text>
+  <text class="sub mono" x="496" y="211">fixed (0.061, 0, 0.051)</text>
+  <rect class="box" x="356" y="222" width="132" height="22" rx="4"/>
+  <text class="tag mono" x="422" y="237" text-anchor="middle">imu_link</text>
+  <text class="sub mono" x="496" y="237">fixed (0, 0, 0) yaw −1.57</text>
+  <rect class="box" x="356" y="248" width="132" height="22" rx="4"/>
+  <text class="tag mono" x="422" y="263" text-anchor="middle">wheel_lf / rf_Link</text>
+  <text class="sub mono" x="496" y="263">cont. (0.067, ±0.076, −0.018)</text>
+  <rect class="box" x="356" y="274" width="132" height="22" rx="4"/>
+  <text class="tag mono" x="422" y="289" text-anchor="middle">wheel_lb / rb_Link</text>
+  <text class="sub mono" x="496" y="289">cont. (−0.068, ±0.076, −0.018)</text>
+  <text class="sub" x="30" y="236">바닥 위 로봇 중심 (z = 0)</text>
+  <text class="sub" x="30" y="254">내비게이션·SLAM의 로봇 프레임</text>
+  <text class="sub" x="30" y="296">라이다 높이 = 0.07 + 0.0925 ≈ 0.1625 m</text>
+</svg>

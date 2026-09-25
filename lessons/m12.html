@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M12. 경로 계획: 전역 A*와 지역 DWA · studyMentorPi</title>
+<meta name="description" content="코스트맵 팽창, A*/Dijkstra 전역 경로, DWA 속도 공간 샘플링과 평가 함수, 파라미터 튜닝.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-mobile">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" class="active" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="m12" data-track="mobile">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-mobile">이동로봇 핵심</span> M-4 자율 내비게이션 &middot; 약 100분 &middot; 고급</div>
+    <h1><span class="lesson-no">M12</span>경로 계획: 전역 A*와 지역 DWA</h1>
+    <p class="lede">코스트맵 팽창, A*/Dijkstra 전역 경로, DWA 속도 공간 샘플링과 평가 함수, 파라미터 튜닝.</p>
+    <div class="requires">선수 챕터: <a href="m11.html">M11</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      <a class="ghost-btn" href="../sim/index.html">2D 시뮬레이터</a><a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>코스트맵 <strong>팽창</strong>(inflation) 비용식을 MentorPi 파라미터로 계산하고, <code>robot_radius</code>·<code>inflation_radius</code>·<code>cost_scaling_factor</code>가 경로에 주는 영향을 설명합니다.</li><li>Dijkstra와 A*의 차이(휴리스틱 h, 허용 가능성)를 설명하고, 격자 A*를 직접 구현해 확장 노드 수를 비교합니다.</li><li>DWA의 <strong>동적 창</strong>(dynamic window)과 궤적 평가 함수를 유도하고, 가상 MentorPi를 <code>/odom</code>·<code>/scan</code>으로 움직이는 간이 DWA를 작성합니다.</li><li>MentorPi의 DWB 설정(속도·가속 한계, 샘플 수, <code>sim_time</code>, critic 가중치)을 읽고, TEB와 비교해 튜닝 방향을 정합니다.</li></ul>
+<h2 id="두-층의-계획">두 층의 계획<a class="anchor" href="#두-층의-계획">#</a></h2>
+<p>Nav2의 경로 계획은 <strong>두 층</strong>입니다(교재 L2 "전역 경로 계획"과 L3 "DWA").</p>
+<div class="table-wrap"><table><thead><tr><th></th><th>전역 계획 (global planner)</th><th>지역 계획 / 제어 (local planner, controller)</th></tr></thead><tbody><tr><td>질문</td><td>출발점에서 목표까지 <strong>어느 길</strong>로?</td><td>지금 이 순간 <strong>어떤 속도</strong>로?</td></tr><tr><td>입력</td><td>전역 코스트맵(정적 지도 + 장애물)</td><td>지역 코스트맵(3 × 3 m) + 오도메트리 + 전역 경로</td></tr><tr><td>주기</td><td>목표가 바뀔 때 / 행동 트리가 요청할 때</td><td><code>controller_frequency</code> 10 Hz</td></tr><tr><td>알고리즘</td><td>Dijkstra, A* (NavFn), Smac, Theta*</td><td>DWA/DWB, TEB, MPPI, Regulated Pure Pursuit</td></tr><tr><td>MentorPi</td><td><code>nav2_navfn_planner/NavfnPlanner</code></td><td><code>dwb_core::DWBLocalPlanner</code> (기본), <code>teb_local_planner::TebLocalPlannerROS</code> (<code>use_teb:=true</code>)</td></tr></tbody></table></div>
+<p>전역 경로는 지도 전체를 보지만 로봇의 속도·가속 한계는 모르고, 지역 계획은 속도 한계를 알지만 멀리 보지 못합니다. 둘을 합쳐야 "멀리 보고, 지금 할 수 있는 만큼 움직이는" 주행이 됩니다.</p>
+<h2 id="코스트맵-팽창">코스트맵 팽창<a class="anchor" href="#코스트맵-팽창">#</a></h2>
+<p>M11에서 본 대로 로봇 <strong>중심</strong>이 비용 253(내접 원) 셀에 들어가면 몸체가 장애물에 닿습니다. 팽창 층은 장애물로부터 거리 <span class="math">d</span>에 따라 비용을 줍니다(Nav2 <code>InflationLayer</code>).</p>
+<div class="table-wrap"><table><thead><tr><th>거리 d</th><th>비용</th></tr></thead><tbody><tr><td><span class="math">d = 0</span> (장애물 셀)</td><td>254 LETHAL</td></tr><tr><td><span class="math">0 &lt; d ≤ r_ins</span> (내접 반지름 = <code>robot_radius</code>)</td><td>253 INSCRIBED</td></tr><tr><td><span class="math">r_ins &lt; d ≤</span> <code>inflation_radius</code></td><td><span class="math">252 · exp(−cost_scaling_factor · (d − r_ins))</span></td></tr><tr><td><span class="math">d &gt;</span> <code>inflation_radius</code></td><td>0 (FREE)</td></tr></tbody></table></div>
+<figure class="fig" id="fig-m12-inflation"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="팽창 비용 곡선: 장애물 거리 d에 따른 코스트맵 비용. robot_radius 0.05 m까지 253, 그 뒤 cost_scaling_factor 2와 5의 지수 감소 곡선, 원본 설정은 0.05 m에서 바로 0">
+  <defs>
+    <marker id="arr-m12-inflation" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <!-- axes: d 0..0.35 -> x 80..460, cost 0..254 -> y 250..40 -->
+  <path class="ln" d="M80 250 L476 250" stroke-width="1.4" marker-end="url(#arr-m12-inflation)"/>
+  <path class="ln" d="M80 250 L80 26" stroke-width="1.4" marker-end="url(#arr-m12-inflation)"/>
+  <text class="sub mono" x="476" y="270" text-anchor="end">d [m]</text>
+  <text class="sub" x="88" y="24">비용</text>
+  <!-- ticks -->
+  <g class="sub mono" text-anchor="middle">
+    <text x="80" y="266">0</text><text x="134" y="266">0.05</text><text x="189" y="266">0.10</text>
+    <text x="243" y="266">0.15</text><text x="297" y="266">0.20</text><text x="351" y="266">0.25</text><text x="406" y="266">0.30</text>
+  </g>
+  <g class="sub mono" text-anchor="end">
+    <text x="74" y="44">254</text><text x="74" y="150">127</text><text x="74" y="254">0</text>
+  </g>
+  <path d="M80 145 L460 145" style="stroke:var(--border)" stroke-width="0.8" stroke-dasharray="2 4"/>
+  <!-- lethal / inscribed zone -->
+  <rect x="80" y="40" width="54" height="210" style="fill:var(--danger);opacity:0.12"/>
+  <text class="tag" x="107" y="236" text-anchor="middle">253</text>
+  <text class="tag" x="107" y="222" text-anchor="middle">내접</text>
+  <path d="M80 40 L134 41" style="stroke:var(--danger)" stroke-width="2.4"/>
+  <!-- original config: drop to 0 at 0.05 -->
+  <path d="M134 41 L134 250 L460 250" style="stroke:var(--warn)" stroke-width="2.6" stroke-dasharray="6 4"/>
+  <!-- curves (inflation_radius 0.3) -->
+  <path class="ln-hi" d="M134 42 L148 47 L161 52 L175 57 L189 61 L202 66 L216 71 L229 75 L243 79 L256 84 L270 88 L284 92 L297 96 L311 99 L324 103 L338 107 L351 110 L365 114 L379 117 L392 120 L406 124 L406 250" stroke-width="2.2"/>
+  <path d="M134 42 L148 54 L161 66 L175 77 L189 88 L202 98 L216 107 L229 115 L243 124 L256 131 L270 138 L284 145 L297 152 L311 158 L324 163 L338 168 L351 173 L365 178 L379 182 L392 186 L406 190 L406 250" style="fill:none;stroke:var(--text-dim)" stroke-width="2.2"/>
+  <!-- legend -->
+  <line x1="500" y1="60" x2="530" y2="60" style="stroke:var(--warn)" stroke-width="2.6" stroke-dasharray="6 4"/>
+  <text class="lbl" x="538" y="64">원본 설정</text>
+  <text class="sub mono" x="538" y="80">radius = inflation = 0.05</text>
+  <line x1="500" y1="110" x2="530" y2="110" style="stroke:var(--accent)" stroke-width="2.2"/>
+  <text class="lbl" x="538" y="114">scaling 2.0</text>
+  <text class="sub mono" x="538" y="130">inflation 0.3 (가정)</text>
+  <line x1="500" y1="160" x2="530" y2="160" style="stroke:var(--text-dim)" stroke-width="2.2"/>
+  <text class="lbl" x="538" y="164">scaling 5.0</text>
+  <text class="sub mono" x="538" y="180">inflation 0.3 (가정)</text>
+  <text class="sub" x="500" y="222">cost = 252·exp(−k·(d − r_ins))</text>
+  <text class="sub" x="500" y="240">k 클수록 빨리 줄어 → 벽에 더 가까이</text>
+</svg><figcaption>팽창 비용 곡선. MentorPi 원본 설정(robot_radius = inflation_radius = 0.05 m)은 팽창 구간이 없고, inflation_radius를 0.3 m로 늘리면 cost_scaling_factor가 곡선의 기울기를 정합니다.</figcaption></figure>
+<p><span class="math">r_ins</span> = 0.05 m, <code>inflation_radius</code>를 0.3 m로 늘렸다고 가정한 계산값입니다.</p>
+<div class="table-wrap"><table><thead><tr><th>d [m]</th><th>0.10</th><th>0.15</th><th>0.20</th><th>0.25</th><th>0.30</th></tr></thead><tbody><tr><td><code>cost_scaling_factor</code> 2.0 (지역 원본 값)</td><td>228</td><td>206</td><td>187</td><td>169</td><td>153</td></tr><tr><td><code>cost_scaling_factor</code> 5.0 (전역 원본 값)</td><td>196</td><td>153</td><td>119</td><td>93</td><td>72</td></tr></tbody></table></div>
+<ul><li><code>cost_scaling_factor</code>가 <strong>클수록</strong> 비용이 빨리 줄어 로봇이 벽에 <strong>더 가깝게</strong> 지나갑니다(반직관적이니 주의).</li><li>원본 값은 <code>robot_radius</code> = <code>inflation_radius</code> = 0.05 m라서 <strong>253 링만 있고 완만한 구간이 없습니다.</strong> 경로 계획기는 벽에서 5 cm만 떨어지면 비용 0으로 보고 벽에 바짝 붙은 최단 경로를 냅니다. 좁은 통로 통과에는 유리하지만, 실제 차체(중심에서 바퀴까지 약 0.1 m, M08)를 생각하면 모서리가 걸릴 위험이 있습니다.</li><li>Nav2 권장은 경로가 <strong>통로 한가운데</strong>로 가도록 팽창 구간을 통로 폭의 절반 정도까지 넉넉히 두는 것입니다.</li></ul>
+<h2 id="전역-계획-dijkstra와-a">전역 계획: Dijkstra와 A*<a class="anchor" href="#전역-계획-dijkstra와-a">#</a></h2>
+<p>격자 코스트맵의 각 셀을 그래프의 노드로, 이웃 셀로 가는 것을 간선으로 보면 경로 계획은 <strong>최단 경로 문제</strong>입니다. 간선 비용 = 이동 거리 + 코스트맵 비용(가까울수록 비쌈), 치명 셀(253 이상)은 간선 없음.</p>
+<h3 id="dijkstra">Dijkstra<a class="anchor" href="#dijkstra">#</a></h3>
+<p>교재 L2의 설명대로, 출발점 거리를 0, 나머지를 ∞로 두고 <strong>아직 확정 안 된 노드 중 거리가 가장 작은 것</strong>을 꺼내 확정하고 이웃의 거리를 갱신하는 일을 반복합니다. 우선순위 큐로 <span class="math">O((V + E) log V)</span>. 출발점에서 <strong>모든 방향으로 동심원처럼</strong> 퍼지며, 목표를 꺼내는 순간 최단 경로가 확정됩니다.</p>
+<h3 id="a">A*<a class="anchor" href="#a">#</a></h3>
+<p>A*는 우선순위를 <span class="math">f(n) = g(n) + h(n)</span>으로 줍니다.</p>
+<div class="table-wrap"><table><thead><tr><th>항</th><th>뜻</th></tr></thead><tbody><tr><td><span class="math">g(n)</span></td><td>출발점에서 n까지 실제로 쌓인 비용 (Dijkstra의 거리)</td></tr><tr><td><span class="math">h(n)</span></td><td>n에서 목표까지의 <strong>추정</strong> 비용 (휴리스틱)</td></tr></tbody></table></div>
+<ul><li><span class="math">h = 0</span>이면 Dijkstra와 같습니다.</li><li><span class="math">h</span>가 실제 남은 비용을 <strong>절대 넘지 않으면</strong>(허용 가능, admissible) A*도 최단 경로를 보장합니다. 이때 목표 쪽으로 치우쳐 탐색하므로 확장 노드가 줄어듭니다.</li><li><span class="math">h</span>에 1보다 큰 가중치를 곱하면(weighted A*) 더 빨라지지만 최단은 보장하지 못합니다.</li></ul>
+<p>교재가 드는 두 휴리스틱과 8방향 격자에 맞는 것:</p>
+<div class="table-wrap"><table><thead><tr><th>휴리스틱</th><th>식 (dx, dy = 격자 차)</th><th>쓰임</th></tr></thead><tbody><tr><td>맨해튼</td><td><span class="math">dx + dy</span></td><td>4방향 이동 격자에서 허용 가능</td></tr><tr><td>대각(옥타일)</td><td><span class="math">(dx + dy) + (√2 − 2) · min(dx, dy)</span></td><td>8방향 이동 격자에서 허용 가능 (정확한 장애물 없는 거리)</td></tr><tr><td>유클리드</td><td><span class="math">√(dx² + dy²)</span></td><td>항상 허용 가능하지만 8방향 격자에서는 과소추정 → 덜 효율적</td></tr></tbody></table></div>
+<h3 id="실습-격자-a와-dijkstra-비교">실습: 격자 A*와 Dijkstra 비교<a class="anchor" href="#실습-격자-a와-dijkstra-비교">#</a></h3>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import heapq
+import math
+import numpy as np
+
+grid = np.zeros((12, 20), dtype=np.uint8)   # 0 = 빈칸, 1 = 장애물 (셀 0.05 m라 치면 0.6 x 1.0 m)
+grid[2:10, 6] = 1                           # 세로 벽
+grid[2, 6:14] = 1                           # 가로 벽
+grid[4:12, 13] = 1                          # 두 번째 세로 벽
+start, goal = (6, 2), (8, 17)               # (행, 열)
+MOVES = [(-1, 0, 1), (1, 0, 1), (0, -1, 1), (0, 1, 1),
+         (-1, -1, math.sqrt(2)), (-1, 1, math.sqrt(2)), (1, -1, math.sqrt(2)), (1, 1, math.sqrt(2))]
+
+def octile(a, b):                           # 8방향 이동에서 허용 가능한(admissible) 휴리스틱
+    dr, dc = abs(a[0] - b[0]), abs(a[1] - b[1])
+    return (dr + dc) + (math.sqrt(2) - 2) * min(dr, dc)
+
+def plan(h_weight):
+    g = {start: 0.0}
+    parent = {start: None}
+    open_list = [(h_weight * octile(start, goal), start)]
+    closed = set()
+    while open_list:
+        f, cur = heapq.heappop(open_list)
+        if cur in closed:
+            continue
+        closed.add(cur)
+        if cur == goal:
+            break
+        for dr, dc, cost in MOVES:
+            nxt = (cur[0] + dr, cur[1] + dc)
+            if not (0 &lt;= nxt[0] &lt; 12 and 0 &lt;= nxt[1] &lt; 20) or grid[nxt]:
+                continue
+            if dr and dc and (grid[cur[0] + dr, cur[1]] or grid[cur[0], cur[1] + dc]):
+                continue                    # 모서리 자르기 금지
+            ng = g[cur] + cost
+            if ng &lt; g.get(nxt, float(&quot;inf&quot;)):
+                g[nxt] = ng
+                parent[nxt] = cur
+                heapq.heappush(open_list, (ng + h_weight * octile(nxt, goal), nxt))
+    path, n = [], goal
+    while n is not None:
+        path.append(n)
+        n = parent[n]
+    return path[::-1], g[goal], len(closed)
+
+for name, w in [(&quot;Dijkstra (h=0)&quot;, 0.0), (&quot;A* (octile)&quot;, 1.0), (&quot;Weighted A* (w=3)&quot;, 3.0)]:
+    path, cost, expanded = plan(w)
+    print(&quot;%-18s cost %.3f  expanded %3d  path cells %d&quot; % (name, cost, expanded, len(path)))
+
+path, _, _ = plan(1.0)
+canvas = np.where(grid == 1, &quot;#&quot;, &quot;.&quot;).astype(object)
+for r, c in path:
+    canvas[r, c] = &quot;*&quot;
+canvas[start], canvas[goal] = &quot;S&quot;, &quot;G&quot;
+print(&quot;\n&quot;.join(&quot;&quot;.join(row) for row in canvas))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">Dijkstra (h=0)     cost 23.485  expanded 198  path cells 22
+A* (octile)        cost 23.485  expanded 146  path cells 22
+Weighted A* (w=3)  cost 24.556  expanded  46  path cells 21
+....................
+.....**********.....
+.....*########*.....
+....*.#.......*.....
+...*..#......#*.....
+...*..#......#*.....
+..S...#......#.*....
+......#......#..*...
+......#......#...G..
+......#......#......
+.............#......
+.............#......</code></pre></div>
+<p>읽는 법:</p>
+<ul><li>Dijkstra와 A*는 <strong>같은 비용</strong>(23.485)의 최단 경로를 찾지만, A*는 확장한 셀이 198 → 146개로 26 % 적습니다. 지도가 클수록 차이가 커집니다.</li><li>가중 A*(w = 3)는 46개만 확장하고 끝났지만 경로가 1.07 셀 더 깁니다 — 최단 보장을 속도와 바꾼 것입니다.</li><li>경로가 벽 모서리에 <strong>바짝 붙어</strong> 돕니다. 이 격자에는 팽창 비용이 없기 때문입니다. 과제 3에서 비용을 더해 봅니다.</li></ul>
+<h3 id="mentorpi의-전역-계획기-설정">MentorPi의 전역 계획기 설정<a class="anchor" href="#mentorpi의-전역-계획기-설정">#</a></h3>
+<p><code>nav2_params.yaml</code>의 <code>planner_server</code>:</p>
+<div class="table-wrap"><table><thead><tr><th>파라미터</th><th>값</th><th>뜻</th></tr></thead><tbody><tr><td><code>planner_plugins</code></td><td><code>[&quot;GridBased&quot;]</code></td><td>계획기 이름</td></tr><tr><td><code>GridBased.plugin</code></td><td><code>nav2_navfn_planner/NavfnPlanner</code></td><td>NavFn: 격자 위 파동 전파(Dijkstra/A*)</td></tr><tr><td><code>use_astar</code></td><td><strong>false</strong></td><td>→ 실제로는 <strong>Dijkstra</strong>로 계획</td></tr><tr><td><code>tolerance</code></td><td>0.5 m</td><td>목표 셀이 막혀 있으면 이 반경 안의 가장 가까운 빈 셀로 계획</td></tr><tr><td><code>allow_unknown</code></td><td>true</td><td>모름(255) 셀도 지나가는 경로 허용</td></tr><tr><td><code>expected_planner_frequency</code></td><td>20.0 Hz</td><td>계획 주기 기대값(늦으면 경고)</td></tr><tr><td><code>smoother_server</code></td><td><code>nav2_smoother::SimpleSmoother</code>, <code>tolerance</code> 1e−10, <code>max_its</code> 1000</td><td>계획된 꺾인 경로를 부드럽게</td></tr></tbody></table></div>
+<p>교재는 A*를 설명하지만 원본 설정은 <code>use_astar: false</code>입니다. 실내 방 한두 개 크기의 지도에서는 Dijkstra도 충분히 빠르기 때문입니다. <code>true</code>로 바꾸면 확장 셀이 줄지만, NavFn의 A*는 경로 품질이 약간 달라질 수 있으니 두 값을 비교해 봅니다(과제).</p>
+<h2 id="지역-계획-dwa">지역 계획: DWA<a class="anchor" href="#지역-계획-dwa">#</a></h2>
+<h3 id="동적-창-dynamic-window">동적 창 (Dynamic Window)<a class="anchor" href="#동적-창-dynamic-window">#</a></h3>
+<p>DWA(Dynamic Window Approach, Fox·Burgard·Thrun 1997)는 <strong>위치 공간이 아니라 속도 공간</strong> <span class="math">(v, ω)</span>에서 탐색합니다. 후보 속도 집합은 세 조건의 교집합입니다.</p>
+<div class="table-wrap"><table><thead><tr><th>집합</th><th>조건</th><th>뜻</th></tr></thead><tbody><tr><td><span class="math">Vs</span></td><td><span class="math">v ∈ [v_min, v_max]</span>, <span class="math">ω ∈ [−ω_max, ω_max]</span></td><td>로봇이 낼 수 있는 속도 (교재의 V·ω 샘플 범위)</td></tr><tr><td><span class="math">Vd</span></td><td><span class="math">v ∈ [v_c − a_v·Δt, v_c + a_v·Δt]</span>, <span class="math">ω ∈ [ω_c − a_ω·Δt, ω_c + a_ω·Δt]</span></td><td><strong>다음 제어 주기 안에</strong> 가속 한계로 도달 가능한 속도 = 동적 창</td></tr><tr><td><span class="math">Va</span></td><td><span class="math">v ≤ √(2 · d(v, ω) · a_v)</span></td><td>그 궤적 위 가장 가까운 장애물 거리 d 안에 <strong>멈출 수 있는</strong> 속도</td></tr></tbody></table></div>
+<figure class="fig" id="fig-m12-dwa"><svg viewBox="0 0 720 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DWA 속도 공간: 전체 속도 범위 Vs 안에서 현재 속도 주변의 동적 창 Vd를 표본화하고, 충돌 궤적을 제외한 뒤 평가 점수가 가장 좋은 속도를 고름">
+  <defs>
+    <marker id="arr-m12-dwa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <!-- velocity space axes: omega horizontal, v vertical -->
+  <path class="ln" d="M40 270 L360 270" stroke-width="1.2" marker-end="url(#arr-m12-dwa)"/>
+  <path class="ln" d="M200 286 L200 20" stroke-width="1.2" marker-end="url(#arr-m12-dwa)"/>
+  <text class="sub mono" x="364" y="274">ω</text>
+  <text class="sub mono" x="208" y="22">v</text>
+  <!-- Vs -->
+  <rect x="60" y="40" width="280" height="210" rx="4" style="fill:none;stroke:var(--text-dim)" stroke-width="1.4"/>
+  <text class="tag" x="66" y="56">Vs: |ω| ≤ 1.0, −0.4 ≤ v ≤ 0.4</text>
+  <!-- Vd -->
+  <rect class="box-hi" x="186" y="100" width="92" height="76" rx="3"/>
+  <text class="tag" x="284" y="112">Vd</text>
+  <text class="sub mono" x="232" y="192" text-anchor="middle">±0.25 m/s · ±0.32 rad/s</text>
+  <!-- samples 5x4 -->
+  <g class="hi">
+    <circle cx="196" cy="110" r="3.4"/><circle cx="214" cy="110" r="3.4"/><circle cx="232" cy="110" r="3.4"/><circle cx="250" cy="110" r="3.4"/><circle cx="268" cy="110" r="3.4"/>
+    <circle cx="196" cy="128" r="3.4"/><circle cx="214" cy="128" r="3.4"/><circle cx="232" cy="128" r="3.4"/><circle cx="250" cy="128" r="3.4"/><circle cx="268" cy="128" r="3.4"/>
+    <circle cx="196" cy="148" r="3.4"/><circle cx="214" cy="148" r="3.4"/><circle cx="232" cy="148" r="3.4"/><circle cx="250" cy="148" r="3.4"/><circle cx="268" cy="148" r="3.4"/>
+    <circle cx="196" cy="166" r="3.4"/><circle cx="214" cy="166" r="3.4"/><circle cx="232" cy="166" r="3.4"/><circle cx="250" cy="166" r="3.4"/><circle cx="268" cy="166" r="3.4"/>
+  </g>
+  <!-- inadmissible (collision) samples crossed -->
+  <g style="stroke:var(--danger)" stroke-width="1.8">
+    <path d="M227 105 L237 115 M237 105 L227 115 M245 105 L255 115 M255 105 L245 115 M227 123 L237 133 M237 123 L227 133"/>
+  </g>
+  <!-- current velocity -->
+  <circle cx="232" cy="138" r="5" style="fill:none;stroke:var(--text)" stroke-width="1.6"/>
+  <text class="sub mono" x="96" y="228">현재 (v_c, ω_c)</text>
+  <path class="ln" d="M150 216 L226 144" stroke-width="1" marker-end="url(#arr-m12-dwa)"/>
+  <!-- best -->
+  <circle cx="214" cy="110" r="7" style="fill:none;stroke:var(--ok)" stroke-width="2.2"/>
+  <text class="sub" x="100" y="86">최고 점수 (v, ω)</text>
+  <path class="ln" d="M150 90 L206 106" stroke-width="1" marker-end="url(#arr-m12-dwa)"/>
+  <!-- right side: trajectories -->
+  <text class="lbl" x="540" y="30" text-anchor="middle">각 표본을 sim_time 동안 예측</text>
+  <circle cx="540" cy="262" r="10" class="hi"/>
+  <path d="M540 252 Q540 150 480 70" style="fill:none;stroke:var(--ok)" stroke-width="2.4"/>
+  <path d="M540 252 L540 64" style="fill:none;stroke:var(--danger)" stroke-width="1.6" stroke-dasharray="5 4"/>
+  <path d="M540 252 Q544 150 610 80" style="fill:none;stroke:var(--text-faint)" stroke-width="1.6"/>
+  <path d="M540 252 Q520 170 440 120" style="fill:none;stroke:var(--text-faint)" stroke-width="1.6"/>
+  <circle cx="548" cy="120" r="26" style="fill:var(--text-dim);opacity:0.35"/>
+  <text class="tag" x="548" y="124" text-anchor="middle">장애물</text>
+  <circle cx="470" cy="46" r="6" class="wr"/>
+  <text class="tag" x="480" y="44">목표</text>
+  <text class="sub" x="540" y="286" text-anchor="middle">빨강 = 충돌(제외) · 초록 = 선택</text>
+  <text class="sub" x="540" y="302" text-anchor="middle">G = α·heading + β·dist + γ·velocity</text>
+</svg><figcaption>속도 공간의 동적 창: 전체 속도 범위 Vs 안에서 현재 속도 주변의 작은 사각형 Vd만 다음 주기에 도달 가능하고, 그 안의 표본 (v, ω)마다 궤적을 예측해 평가합니다.</figcaption></figure>
+<p>MentorPi 값으로 계산하면: 제어 주기 <span class="math">Δt = 1/10</span> s, <code>acc_lim_x</code> 2.5 m/s², <code>acc_lim_theta</code> 3.2 rad/s² → 한 주기에 선속도는 <strong>±0.25 m/s</strong>, 각속도는 <strong>±0.32 rad/s</strong>까지만 바꿀 수 있습니다.</p>
+<h3 id="궤적-예측과-평가">궤적 예측과 평가<a class="anchor" href="#궤적-예측과-평가">#</a></h3>
+<p>창 안의 각 표본 <span class="math">(v, ω)</span>를 <strong>일정 시간(sim_time) 동안 유지한다고 가정</strong>하고 궤적을 예측합니다(교재 L3의 식).</p>
+<p><span class="math">x(t+1) = x(t) + v · cos θ(t) · Δt</span>,  <span class="math">y(t+1) = y(t) + v · sin θ(t) · Δt</span>,  <span class="math">θ(t+1) = θ(t) + ω · Δt</span></p>
+<p>그리고 원 논문의 평가 함수로 점수를 매겨 <strong>최댓값</strong>을 고릅니다.</p>
+<p><span class="math">G(v, ω) = α · heading(v, ω) + β · dist(v, ω) + γ · velocity(v, ω)</span></p>
+<div class="table-wrap"><table><thead><tr><th>항</th><th>뜻</th><th>교재의 표현</th></tr></thead><tbody><tr><td>heading</td><td>궤적 끝에서 로봇이 목표를 얼마나 바로 보는가 (1 − |각도 오차|/π)</td><td>—</td></tr><tr><td>dist</td><td>궤적에서 가장 가까운 장애물까지 여유 (충돌하면 후보 제외)</td><td>장애물 회피 평가</td></tr><tr><td>velocity</td><td>전진 속도가 클수록 좋음 (v / v_max)</td><td>최대 속도 평가</td></tr><tr><td>α, β, γ</td><td>가중치 — 튜닝 대상</td><td>작업에 따라 정의·조정</td></tr></tbody></table></div>
+<h3 id="실습-playground-간이-dwa">실습: Playground 간이 DWA<a class="anchor" href="#실습-playground-간이-dwa">#</a></h3>
+<p>원통 장애물(반지름 0.2 m, (1.2, 0.05))을 사이에 두고 (2.4, 0.3)의 목표로 갑니다. 선속도 0.2 m/s, 각속도 0.5 rad/s 한계(실물 안전 상한과 같음), 가속 한계 1.0 m/s²·3.0 rad/s², 제어 10 Hz, 예측 2 s, 7 × 11 = 77개 표본입니다. 속도는 제한 없는 입력 <code>/controller/cmd_vel</code>로 보내지만 코드 안에서 상한을 지킵니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import numpy as np
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
+from sensor_msgs.msg import LaserScan
+from tf_transformations import euler_from_quaternion
+import mentorpi_sim as sim                                                  # 시뮬 전용
+sim.setup(world=&quot;empty&quot;, duration=25.0, start=(0.0, 0.0, 0.0)); sim.add_cylinder(1.2, 0.05, 0.2)  # 시뮬 전용
+GOAL = np.array([2.4, 0.3])
+V_MAX, W_MAX, ACC_V, ACC_W, DT, SIM_T = 0.2, 0.5, 1.0, 3.0, 0.1, 2.0
+ALPHA, BETA, GAMMA, R_ROBOT, CLR = 0.5, 1.0, 1.0, 0.15, 0.6   # 가중치, 충돌 반경, 여유 상한
+class MiniDWA(Node):
+    def __init__(self):
+        super().__init__(&#x27;mini_dwa&#x27;)
+        self.pose, self.v, self.w, self.obs = None, 0.0, 0.0, np.zeros((0, 2))
+        self.create_subscription(Odometry, &#x27;/odom&#x27;, self.on_odom, 10)
+        self.create_subscription(LaserScan, &#x27;/scan&#x27;, self.on_scan, 10)
+        self.pub = self.create_publisher(Twist, &#x27;/controller/cmd_vel&#x27;, 10)
+        self.create_timer(DT, self.step)
+    def on_odom(self, m):
+        q, p = m.pose.pose.orientation, m.pose.pose.position
+        self.pose = np.array([p.x, p.y, euler_from_quaternion([q.x, q.y, q.z, q.w])[2]])
+    def on_scan(self, m):                                    # 2 m 안의 스캔 점 -&gt; odom 좌표 장애물
+        if self.pose is None: return
+        r = np.array(m.ranges); a = m.angle_min + np.arange(len(r)) * m.angle_increment + self.pose[2]
+        ok = np.isfinite(r) &amp; (r &lt; 2.0)
+        self.obs = self.pose[:2] + np.stack([r[ok] * np.cos(a[ok]), r[ok] * np.sin(a[ok])], 1)
+    def score(self, v, w):                                   # 궤적 예측 + 평가 (높을수록 좋음)
+        x, y, th = self.pose; pts = []
+        for _ in range(int(SIM_T / DT)):
+            th += w * DT; x += v * np.cos(th) * DT; y += v * np.sin(th) * DT; pts.append((x, y))
+        pts = np.array(pts)
+        d = np.min(np.linalg.norm(pts[:, None] - self.obs[None], axis=2)) if len(self.obs) else CLR + R_ROBOT
+        if d &lt; R_ROBOT: return None                          # 충돌 궤적은 버림
+        err = np.arctan2(GOAL[1] - y, GOAL[0] - x) - th
+        heading = 1.0 - abs(np.arctan2(np.sin(err), np.cos(err))) / np.pi
+        return ALPHA * heading + BETA * min(d - R_ROBOT, CLR) / CLR + GAMMA * v / V_MAX
+    def step(self):
+        if self.pose is None: return
+        if np.linalg.norm(GOAL - self.pose[:2]) &lt; 0.15:
+            self.pub.publish(Twist()); self.get_logger().info(&#x27;goal reached&#x27;); rclpy.shutdown(); return
+        vs = np.linspace(max(0.0, self.v - ACC_V * DT), min(V_MAX, self.v + ACC_V * DT), 7)   # 동적 창
+        ws = np.linspace(max(-W_MAX, self.w - ACC_W * DT), min(W_MAX, self.w + ACC_W * DT), 11)
+        cands = [c for c in ((self.score(v, w), v, w) for v in vs for w in ws) if c[0] is not None]
+        cands = cands or [(0.0, 0.0, 0.0)]                   # 전부 충돌이면 정지
+        _, self.v, self.w = max(cands)
+        t = Twist(); t.linear.x, t.angular.z = self.v, self.w; self.pub.publish(t)
+
+rclpy.init()
+node = MiniDWA()
+try:
+    rclpy.spin(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    if rclpy.ok(): node.pub.publish(Twist())
+    print(&quot;t=%.1f s  odom x=%.2f y=%.2f&quot; % (node.get_clock().now().nanoseconds * 1e-9, *node.pose[:2]))
+    node.destroy_node()
+    if rclpy.ok(): rclpy.shutdown()</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[INFO] [13.700] [mini_dwa]: goal reached
+t=13.7 s  odom x=2.27 y=0.36      (대략)</code></pre></div>
+<p>로봇은 원통 앞에서 왼쪽(목표가 있는 +y 쪽)으로 휘어 돌아간 뒤 목표 0.15 m 안에서 멈춥니다. 도착 판정을 <strong>오도메트리</strong>로 하므로, 시뮬레이터의 실제 위치(<code>/ground_truth</code>)와는 수 cm 차이가 날 수 있습니다.</p>
+<div class="callout callout-warn"><div class="callout-title">가중치가 만드는 함정 — 직접 겪어 보기</div><div class="callout-body"><p>Playground에서 확인한 결과입니다(25 s 안에 목표 도달 여부).</p>
+<div class="table-wrap"><table><thead><tr><th>바꾼 값 (ALPHA, BETA, GAMMA, CLR)</th><th>결과</th><th>이유</th></tr></thead><tbody><tr><td>0.5, 1.0, 1.0, 0.6 (기본)</td><td>도달, 약 13.7 s</td><td></td></tr><tr><td>1.0, 1.0, 0.3, <strong>1.0</strong></td><td><strong>출발하지 않음</strong> (0, 0)</td><td>여유 항이 1 m 밖부터 점수를 깎아 "가만히 있기"가 최고점</td></tr><tr><td>0.5, 1.0, <strong>0.2</strong>, 0.6</td><td>0.24 m에서 멈춤</td><td>속도 보상이 약해 여유를 잃느니 서는 쪽을 택함</td></tr><tr><td><strong>2.0</strong>, 1.0, 1.0, 0.6</td><td>원통 앞(x ≈ 0.86)에 갇힘</td><td>목표 방향 항이 너무 커서 정면으로 붙은 뒤, 동적 창(한 주기 ±0.3 rad/s) 안에서는 충분히 꺾지 못함</td></tr><tr><td>0.5, <strong>0.0</strong>, 1.0, 0.6</td><td>원통 앞(x ≈ 0.91)에 갇힘</td><td>여유 항이 없어 충돌 직전까지 직진</td></tr></tbody></table></div>
+<p>이것이 DWA가 <strong>국소 최소</strong>(local minimum)에 빠지는 전형입니다. 실제 Nav2는 목표 방향 대신 <strong>전역 경로를 따라가는 항</strong>(PathAlign, PathDist)을 넣어 이 문제를 줄입니다.</p></div></div>
+<h2 id="mentorpi의-dwb-설정">MentorPi의 DWB 설정<a class="anchor" href="#mentorpi의-dwb-설정">#</a></h2>
+<p>Nav2의 DWA 구현은 <strong>DWB</strong>(<code>dwb_core::DWBLocalPlanner</code>)입니다. 점수 방향이 반대라서 critic들이 <strong>비용</strong>을 내고 <strong>가장 낮은</strong> 궤적을 고릅니다: <span class="math">cost = Σ scaleᵢ · criticᵢ(궤적)</span>. 파일은 <code>navigation/config/nav2_controller_dwb.yaml</code>입니다.</p>
+<h3 id="속도-가속-샘플">속도·가속·샘플<a class="anchor" href="#속도-가속-샘플">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>파라미터</th><th>값</th><th>뜻</th></tr></thead><tbody><tr><td><code>controller_frequency</code></td><td>10.0 Hz</td><td>제어 주기 (Δt = 0.1 s)</td></tr><tr><td><code>min_vel_x</code> / <code>max_vel_x</code></td><td>−0.4 / 0.4 m/s</td><td>전·후진 속도 범위</td></tr><tr><td><code>min_vel_y</code> / <code>max_vel_y</code></td><td>0.0 / 0.0</td><td><strong>횡이동 안 씀</strong> (메카넘도 차동처럼 주행)</td></tr><tr><td><code>max_vel_theta</code></td><td>1.0 rad/s</td><td>회전 속도 상한</td></tr><tr><td><code>max_speed_xy</code> / <code>min_speed_xy</code></td><td>0.4 / 0.0 m/s</td><td>병진 속력 범위</td></tr><tr><td><code>acc_lim_x</code> / <code>decel_lim_x</code></td><td>2.5 / −2.5 m/s²</td><td>가감속 한계 → 동적 창 ±0.25 m/s</td></tr><tr><td><code>acc_lim_theta</code> / <code>decel_lim_theta</code></td><td>3.2 / −3.2 rad/s²</td><td>→ 동적 창 ±0.32 rad/s</td></tr><tr><td><code>vx_samples</code> / <code>vy_samples</code> / <code>vtheta_samples</code></td><td>20 / 5 / 20</td><td>창 안 표본 수 (vy는 범위 0이라 실제 1) → 약 400개 궤적</td></tr><tr><td><code>sim_time</code></td><td>1.7 s</td><td>궤적 예측 시간</td></tr><tr><td><code>linear_granularity</code> / <code>angular_granularity</code></td><td>0.05 m / 0.025 rad</td><td>궤적 위 점 간격</td></tr><tr><td><code>trans_stopped_velocity</code></td><td>0.25 m/s</td><td>이 속도 미만이면 "정지"로 간주</td></tr><tr><td><code>short_circuit_trajectory_evaluation</code></td><td>True</td><td>이미 최저 비용보다 커지면 나머지 critic 계산 생략</td></tr><tr><td><code>xy_goal_tolerance</code> / <code>yaw_goal_tolerance</code></td><td>0.25 m / 0.25 rad</td><td><code>general_goal_checker</code>(<code>stateful: True</code>)</td></tr><tr><td><code>required_movement_radius</code> / <code>movement_time_allowance</code></td><td>0.5 m / 10.0 s</td><td><code>progress_checker</code>: 10 s 동안 0.5 m 못 가면 실패 → 복구</td></tr><tr><td><code>failure_tolerance</code></td><td>0.3 s</td><td>유효 궤적이 없어도 이 시간까지는 버팀</td></tr></tbody></table></div>
+<p>DWB의 <code>max_vel_x</code> 0.4 m/s는 M11에서 본 대로 <code>velocity_smoother</code>(0.26)와 <code>odom_publisher</code>(0.2)에서 다시 잘립니다. DWB는 0.4 m/s 궤적도 평가하지만 로봇은 0.2 m/s로만 가므로, 예측과 실제가 어긋나 경로를 비틀거리며 따라갈 수 있습니다. **<code>max_vel_x</code>를 실제 상한(0.2)에 맞추는 것**이 첫 번째 튜닝 후보입니다.</p>
+<h3 id="critic과-가중치">critic과 가중치<a class="anchor" href="#critic과-가중치">#</a></h3>
+<p><code>critics: [&quot;RotateToGoal&quot;, &quot;Oscillation&quot;, &quot;BaseObstacle&quot;, &quot;GoalAlign&quot;, &quot;PathAlign&quot;, &quot;PathDist&quot;, &quot;GoalDist&quot;]</code></p>
+<div class="table-wrap"><table><thead><tr><th>critic</th><th>scale</th><th>평가 내용</th></tr></thead><tbody><tr><td><code>BaseObstacle</code></td><td>0.02</td><td>궤적이 지나는 셀의 코스트맵 비용 합. 치명 셀이면 궤적 폐기</td></tr><tr><td><code>PathDist</code></td><td>32.0</td><td>궤적 끝이 <strong>전역 경로</strong>에서 얼마나 먼가</td></tr><tr><td><code>PathAlign</code></td><td>32.0 (<code>forward_point_distance</code> 0.1)</td><td>로봇 앞 0.1 m 점이 전역 경로와 얼마나 나란한가</td></tr><tr><td><code>GoalDist</code></td><td>24.0</td><td>궤적 끝이 목표(경로 끝 쪽 지역 목표)에서 얼마나 먼가</td></tr><tr><td><code>GoalAlign</code></td><td>24.0 (<code>forward_point_distance</code> 0.1)</td><td>앞 점이 목표 방향과 나란한가</td></tr><tr><td><code>RotateToGoal</code></td><td>32.0 (<code>slowing_factor</code> 5.0, <code>lookahead_time</code> −1.0)</td><td>목표 위치에 도착한 뒤 <strong>제자리 회전</strong>으로 방향 맞추기</td></tr><tr><td><code>Oscillation</code></td><td>(기본)</td><td>앞뒤로 흔들리는 명령 반복에 벌점</td></tr></tbody></table></div>
+<p>원 논문의 heading·dist·velocity와 대응시키면 PathAlign·GoalAlign이 heading, BaseObstacle이 dist 역할이고, velocity 항은 따로 없이 "경로·목표까지 남은 거리" 항들이 앞으로 가게 만듭니다. <code>BaseObstacle</code> 0.02는 경로 추종 항(24~32)에 비해 <strong>아주 작습니다.</strong> 팽창 구간도 없는 원본 코스트맵(0.05 m)과 합쳐지면, 로봇은 장애물 비용을 거의 신경 쓰지 않고 경로에 붙어 갑니다. 장애물 옆을 여유 있게 지나게 하려면 팽창 반경과 <code>BaseObstacle.scale</code>을 함께 올립니다.</p>
+<h3 id="teb-대안-컨트롤러">TEB (대안 컨트롤러)<a class="anchor" href="#teb-대안-컨트롤러">#</a></h3>
+<p>교재 L3 후반의 <strong>TEB</strong>(Timed Elastic Band)는 샘플링이 아니라 <strong>최적화</strong>로 궤적을 만듭니다. 경로를 시간 간격이 붙은 자세 열로 보고, 매끄러움·장애물 거리·속도/가속 제약을 목적함수에 넣어 비선형 최적화로 탄력 있게 당깁니다. <code>use_teb:=true</code>로 켜며 설정은 <code>nav2_controller_teb.yaml</code>입니다.</p>
+<div class="table-wrap"><table><thead><tr><th>TEB 파라미터</th><th>값</th><th>뜻</th></tr></thead><tbody><tr><td><code>max_vel_x</code> / <code>max_vel_theta</code></td><td>0.4 / 2.0</td><td>속도 한계</td></tr><tr><td><code>acc_lim_x</code> / <code>acc_lim_theta</code></td><td>2.5 / 3.2</td><td>가속 한계</td></tr><tr><td><code>footprint_model</code></td><td><code>circular</code>, <code>radius</code> 0.05</td><td>로봇 모양</td></tr><tr><td><code>min_obstacle_dist</code> / <code>inflation_dist</code></td><td>0.15 / 0.3 m</td><td>장애물 최소 거리 / 비용을 주는 거리</td></tr><tr><td><code>dt_ref</code> / <code>dt_hysteresis</code></td><td>0.6 / 0.1 s</td><td>자세 사이 시간 간격 목표</td></tr><tr><td><code>costmap_converter_plugin</code></td><td><code>costmap_converter::CostmapToPolygonsDBSMCCH</code></td><td>코스트맵 장애물을 다각형으로 변환</td></tr><tr><td><code>no_inner_iterations</code> / <code>no_outer_iterations</code></td><td>5 / 4</td><td>최적화 반복 수</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th></th><th>DWB (DWA)</th><th>TEB</th></tr></thead><tbody><tr><td>방식</td><td>속도 공간 표본 + 평가</td><td>궤적 최적화</td></tr><tr><td>장점</td><td>단순, 예측 가능, 계산 일정</td><td>좁은 곳·후진 기동에 강함, 애커만에 적합</td></tr><tr><td>단점</td><td>국소 최소, 긴 기동 계획 불가</td><td>계산 무거움, 파라미터 많음</td></tr></tbody></table></div>
+<h2 id="튜닝-가이드">튜닝 가이드<a class="anchor" href="#튜닝-가이드">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>먼저 바꿀 값</th><th>방향</th></tr></thead><tbody><tr><td>벽·의자 다리에 너무 붙어 지나감</td><td><code>inflation_radius</code>, <code>robot_radius</code> (전역·지역)</td><td>0.05 → 0.12~0.15 (radius), 0.25~0.3 (inflation)</td></tr><tr><td>좁은 문을 못 지나감</td><td><code>inflation_radius</code>, <code>cost_scaling_factor</code></td><td>inflation 줄이거나 scaling 키움</td></tr><tr><td>경로를 비틀거리며 따라감</td><td><code>max_vel_x</code>, <code>sim_time</code></td><td>실제 상한 0.2로 맞추기, <code>sim_time</code> 1.0~1.5</td></tr><tr><td>목표 근처에서 맴돎</td><td><code>xy_goal_tolerance</code>, <code>RotateToGoal.slowing_factor</code></td><td>허용오차 약간 키우기</td></tr><tr><td>장애물 앞에서 멈춰 복구만 반복</td><td><code>BaseObstacle.scale</code>, <code>PathDist.scale</code></td><td>장애물 항 키우고 경로 항 약간 낮추기</td></tr><tr><td>CPU 부하가 큼</td><td><code>vx_samples</code>, <code>vtheta_samples</code>, 지역 코스트맵 <code>resolution</code></td><td>샘플 20 → 10, 해상도 0.03 → 0.05</td></tr></tbody></table></div>
+<p>한 번에 <strong>하나만</strong> 바꾸고, 같은 출발·목표로 3회씩 비교해 기록합니다.</p>
+<h2 id="실습-시뮬레이션">실습 (시뮬레이션)<a class="anchor" href="#실습-시뮬레이션">#</a></h2>
+<p class="cta-row"><a class="ghost-btn cta" href="../sim/index.html">2D 시뮬레이터 열기</a></p>
+<ol><li><strong>maze</strong> 월드에서 SLAM 지도를 만든 뒤 <strong>내비게이션</strong> 모드로 바꿉니다.</li><li>목표를 클릭하면 표시되는 A* 전역 경로와 로봇의 실제 궤적(DWA)을 비교합니다. 전역 경로의 모서리를 로봇이 어떻게 둥글게 깎는지 관찰합니다.</li><li>지역 제어를 <strong>DWA</strong>와 <strong>Pure Pursuit</strong>로 바꿔 같은 목표로 주행시키고, 도착 시간과 장애물과의 최소 거리를 비교합니다.</li><li>통로 가운데에 장애물을 추가(가능하면)하고 DWA가 어떻게 피하는지, 국소 최소에 빠지는 배치가 있는지 찾아봅니다.</li></ol>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">안전 확인 (실물 실습 전 필수)</div><div class="callout-body"><ul><li>파라미터를 바꾼 뒤 첫 주행은 <strong>1 m 이내 짧은 목표</strong>로 하고, 한 사람은 항상 로봇 곁에서 멈출 준비를 합니다.</li><li><code>max_vel_x</code>를 올려도 실제 상한은 <code>odom_publisher</code>의 0.2 m/s입니다. 이 안전 제한을 코드에서 풀지 않습니다.</li><li><code>robot_radius</code>·<code>inflation_radius</code>를 <strong>줄이는</strong> 실험은 장애물 옆을 스치게 됩니다. 부딪혀도 괜찮은 종이 상자로만 합니다.</li><li>원본 설정 파일은 반드시 백업합니다(<code>cp nav2_params.yaml nav2_params.yaml.bak</code>).</li><li>멈출 때: RViz <strong>Cancel</strong>, Ctrl+C, 계속 움직이면 <code>ros2 topic pub --once /controller/cmd_vel geometry_msgs/msg/Twist &quot;{}&quot;</code>, 최후에는 전원 스위치.</li></ul></div></div>
+<ol><li>설정 파일을 백업하고 현재 값을 확인합니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">~/.stop_ros.sh
+cd ~/ros2_ws/src/navigation/config
+cp nav2_params.yaml nav2_params.yaml.bak
+cp nav2_controller_dwb.yaml nav2_controller_dwb.yaml.bak
+grep -n &quot;robot_radius\|inflation_radius\|cost_scaling_factor\|use_astar&quot; nav2_params.yaml
+grep -n &quot;max_vel_x\|sim_time\|critics\|scale&quot; nav2_controller_dwb.yaml</code></pre></div>
+<ol><li>원본 값으로 내비게이션을 띄우고(가상머신에서 RViz), 같은 출발점·목표로 3회 주행해 시간과 벽과의 최소 거리를 기록합니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 launch navigation navigation.launch.py map:=map_01
+# 가상머신: ros2 launch navigation rviz_navigation.launch.py</code></pre></div>
+<ol><li>실행 중에 코스트맵 파라미터를 바꿔 봅니다(재시작 없이 반영되는 값).</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 param set /global_costmap/global_costmap inflation_layer.inflation_radius 0.3
+ros2 param set /local_costmap/local_costmap inflation_layer.inflation_radius 0.3
+ros2 param get /controller_server FollowPath.max_vel_x</code></pre></div>
+<p>RViz의 전역 코스트맵 표시에서 벽 주변 색 띠가 넓어지는지 확인하고, 같은 목표로 다시 주행합니다.</p>
+<ol><li><code>robot_radius</code>(두 코스트맵), <code>use_astar</code>, DWB의 <code>max_vel_x</code> 같은 값은 <strong>파일을 고친 뒤 launch를 다시 시작</strong>해 비교합니다. 한 번에 하나씩 바꿉니다.</li><li>TEB도 시험해 봅니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 launch navigation navigation.launch.py map:=map_01 use_teb:=true</code></pre></div>
+<ol><li>끝나면 <code>.bak</code>으로 원본을 되돌리고, 호스트에서 <code>sudo systemctl restart start_node.service</code>.</li></ol>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> 팽창 비용식으로 d = 0.2 m의 비용을 계산하고, RViz 코스트맵 색과 대조했다.</label></li><li><label class="check-item"><input type="checkbox"> A*가 Dijkstra보다 적게 확장하면서도 같은 최단 경로를 내는 조건(허용 가능 휴리스틱)을 설명할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> MentorPi DWB의 동적 창 크기(±0.25 m/s, ±0.32 rad/s)를 파라미터로부터 계산했다.</label></li></ul></div></div>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td>"Failed to create plan" / 경로 없음</td><td>목표가 치명 셀 안, 팽창을 키워 통로가 막힘</td><td>목표를 빈 곳으로, <code>inflation_radius</code>·<code>robot_radius</code> 줄이기, <code>tolerance</code> 확인</td></tr><tr><td>알 수 없는 영역(회색)으로 경로가 남</td><td><code>allow_unknown: true</code></td><td>지도 보완(M09) 또는 <code>false</code>로</td></tr><tr><td>"No valid trajectories" 후 복구 반복</td><td>모든 DWB 궤적이 치명 셀과 충돌, 가짜 장애물</td><td>지역 코스트맵 확인, <code>ros2 service call /local_costmap/clear_entirely_local_costmap nav2_msgs/srv/ClearEntireCostmap</code></td></tr><tr><td>제자리에서 좌우로 흔들림</td><td>각속도 샘플 대비 가속 한계·critic 균형 문제</td><td><code>Oscillation</code> 유지, <code>PathAlign</code>·<code>GoalAlign</code> 조정, <code>vtheta_samples</code> 조정</td></tr><tr><td>목표에 와서 한참 제자리 회전</td><td><code>RotateToGoal</code>과 <code>yaw_goal_tolerance</code> 0.25 rad</td><td>방향이 중요하지 않으면 허용오차 키우기</td></tr><tr><td><code>ros2 param set</code>이 반영 안 됨</td><td>시작 시에만 읽는 파라미터</td><td>파일 수정 후 launch 재시작</td></tr><tr><td>Playground DWA가 출발하지 않음</td><td>여유 항 가중치가 속도 항보다 큼</td><td><code>CLR</code> 줄이거나 <code>GAMMA</code> 키우기 (위 경고 참고)</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">기본 과제</div><div class="callout-body"><ol><li>팽창 비용식으로 <code>cost_scaling_factor</code> 1.0, 3.0, 10.0일 때 d = 0.1~0.3 m 비용 표를 만들고, 어떤 값이 "벽에서 멀리"를 가장 강하게 요구하는지 설명합니다.</li><li>A* 코드의 휴리스틱을 맨해튼 <span class="math">dx + dy</span>로 바꿔 실행하고, 8방향 격자에서 맨해튼이 <strong>허용 가능하지 않은</strong> 이유와 결과 비용 차이를 설명합니다.</li></ol></div></div>
+<div class="callout callout-task"><div class="callout-title">심화 과제</div><div class="callout-body"><ol><li>A* 코드에 코스트맵 비용을 추가합니다: 장애물에서 거리 1셀인 칸은 이동 비용 +3, 2셀인 칸은 +1. 경로가 벽에서 떨어지는지 확인합니다(<code>scipy</code> 없이 numpy로 거리 계산).</li><li>Playground DWA에 <strong>전역 경로 추종 항</strong>을 추가합니다: 목표 대신 A*(과제 3)로 만든 경로 점 중 로봇 앞 0.5 m 점을 heading 목표로 쓰고, 경로까지의 거리 항(PathDist)을 넣어 가중치 함정 실험(위 경고)을 다시 해 봅니다.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>13. Navigation Lesson</em> — Lesson 2 AMCL Adaptive Monte Carlo Positioning(전역 경로 계획: Dijkstra, A*), Lesson 3 DWA Path Planning(DWA, TEB)</li><li>원본 소스: <code>src/navigation/config/nav2_params.yaml</code>(<code>planner_server</code>, <code>global_costmap</code>, <code>local_costmap</code>, <code>velocity_smoother</code>), <code>src/navigation/config/nav2_controller_dwb.yaml</code>, <code>src/navigation/config/nav2_controller_teb.yaml</code>, <code>src/navigation/launch/include/navigation_base.launch.py</code></li><li>Nav2 NavFn: https://docs.nav2.org/configuration/packages/configuring-navfn.html</li><li>Nav2 DWB: https://docs.nav2.org/configuration/packages/configuring-dwb-controller.html</li><li>Nav2 튜닝 가이드: https://docs.nav2.org/tuning/index.html</li><li>Red Blob Games — A* 소개: https://www.redblobgames.com/pathfinding/a-star/introduction.html</li><li>D. Fox, W. Burgard, S. Thrun, "The Dynamic Window Approach to Collision Avoidance", IEEE RAM, 1997</li><li>C. Rösmann 외, "Trajectory modification considering dynamic constraints of autonomous robots", ROBOTIK 2012 / teb_local_planner: https://github.com/rst-tu-dortmund/teb_local_planner</li></ul>
+      <nav class="pager"><a class="pager-prev" href="m11.html"><span>이전 · M11</span>Nav2 자율 내비게이션과 AMCL</a><a class="pager-next" href="m13.html"><span>다음 · M13</span>다중 지점 내비게이션과 3D 내비게이션</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#두-층의-계획">두 층의 계획</a><a class="toc-l2" href="#코스트맵-팽창">코스트맵 팽창</a><a class="toc-l2" href="#전역-계획-dijkstra와-a">전역 계획: Dijkstra와 A*</a><a class="toc-l3" href="#dijkstra">Dijkstra</a><a class="toc-l3" href="#a">A*</a><a class="toc-l3" href="#실습-격자-a와-dijkstra-비교">실습: 격자 A*와 Dijkstra 비교</a><a class="toc-l3" href="#mentorpi의-전역-계획기-설정">MentorPi의 전역 계획기 설정</a><a class="toc-l2" href="#지역-계획-dwa">지역 계획: DWA</a><a class="toc-l3" href="#동적-창-dynamic-window">동적 창 (Dynamic Window)</a><a class="toc-l3" href="#궤적-예측과-평가">궤적 예측과 평가</a><a class="toc-l3" href="#실습-playground-간이-dwa">실습: Playground 간이 DWA</a><a class="toc-l2" href="#mentorpi의-dwb-설정">MentorPi의 DWB 설정</a><a class="toc-l3" href="#속도-가속-샘플">속도·가속·샘플</a><a class="toc-l3" href="#critic과-가중치">critic과 가중치</a><a class="toc-l3" href="#teb-대안-컨트롤러">TEB (대안 컨트롤러)</a><a class="toc-l2" href="#튜닝-가이드">튜닝 가이드</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

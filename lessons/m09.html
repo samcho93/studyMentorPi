@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M09. SLAM 원리와 slam_toolbox 지도 작성 · studyMentorPi</title>
+<meta name="description" content="위치추정과 지도작성의 닭-달걀 문제, 점유 격자, 스캔 매칭과 루프 클로저, slam_toolbox로 2D 지도 작성·저장.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-mobile">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" class="active" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="m09" data-track="mobile">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-mobile">이동로봇 핵심</span> M-3 SLAM 지도 작성 &middot; 약 100분 &middot; 중급</div>
+    <h1><span class="lesson-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</h1>
+    <p class="lede">위치추정과 지도작성의 닭-달걀 문제, 점유 격자, 스캔 매칭과 루프 클로저, slam_toolbox로 2D 지도 작성·저장.</p>
+    <div class="requires">선수 챕터: <a href="m08.html">M08</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      <a class="ghost-btn" href="../sim/index.html">2D 시뮬레이터</a><a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>SLAM(Simultaneous Localization and Mapping)이 왜 "닭이 먼저냐 달걀이 먼저냐" 문제인지 설명하고, 전처리 → 매칭 → 지도 융합 흐름을 말할 수 있습니다.</li><li>점유 격자(occupancy grid)의 <strong>로그 오즈(log-odds) 갱신식</strong>을 유도하고, 라이다 한 빔으로 셀을 갱신하는 코드를 작성합니다.</li><li>스캔 매칭(scan matching), 포즈 그래프(pose graph), 루프 클로저(loop closure)의 역할을 설명하고 <code>slam.yaml</code>의 해당 파라미터와 연결합니다.</li><li>MentorPi에서 <code>slam.launch.py</code>로 지도를 만들고 <code>map_saver_cli</code>로 저장한 뒤, 지도 품질을 기준에 따라 판정합니다.</li></ul>
+<h2 id="slam-문제">SLAM 문제<a class="anchor" href="#slam-문제">#</a></h2>
+<p>내비게이션을 하려면 <strong>지도</strong>가 있어야 하고, 지도에서 <strong>내 위치</strong>를 알아야 합니다. 그런데</p>
+<ul><li>지도를 그리려면 스캔을 찍은 순간의 로봇 위치를 정확히 알아야 하고,</li><li>위치를 정확히 알려면 비교할 지도가 있어야 합니다.</li></ul>
+<p>바퀴 오도메트리(M03)만 믿고 스캔을 겹치면 어떻게 될까요? 오도메트리는 미끄러짐·바퀴 지름 오차 때문에 <strong>이동할수록 오차가 쌓입니다</strong>(드리프트). 한 바퀴 돌아 출발점에 왔을 때 복도 끝이 두 겹으로 그려집니다. SLAM은 위치와 지도를 <strong>동시에</strong> 추정해 이 오차를 잡습니다. 확률로 쓰면 다음 분포를 구하는 문제입니다.</p>
+<p><span class="math">p(x₁…ₜ, m | z₁…ₜ, u₁…ₜ)</span>  — 명령 u와 관측 z가 주어졌을 때 궤적 x와 지도 m의 결합 분포</p>
+<p>교재는 과정을 세 단계로 요약합니다. 이 장은 각 단계에서 <strong>실제로 무슨 계산을 하는지</strong> 보강합니다.</p>
+<div class="table-wrap"><table><thead><tr><th>단계</th><th>교재 설명</th><th>실제 계산 (slam_toolbox 기준)</th></tr></thead><tbody><tr><td>① 전처리</td><td>라이다 점구름의 이상치 제거·필터링</td><td>최소/최대 거리 자르기, 스캔 버퍼링, 움직였을 때만 처리</td></tr><tr><td>② 매칭</td><td>현재 스캔을 기존 지도에 맞춰 위치 찾기</td><td><strong>상관 스캔 매칭</strong>(correlative scan matching)으로 자세 보정</td></tr><tr><td>③ 지도 융합</td><td>새 스캔을 지도에 합침</td><td>포즈 그래프에 노드·제약 추가, <strong>루프 클로저</strong> 후 최적화, 점유 격자 다시 그리기</td></tr></tbody></table></div>
+<h2 id="점유-격자와-로그-오즈">점유 격자와 로그 오즈<a class="anchor" href="#점유-격자와-로그-오즈">#</a></h2>
+<h3 id="격자-지도">격자 지도<a class="anchor" href="#격자-지도">#</a></h3>
+<p>2D SLAM의 결과물은 <strong>점유 격자 지도</strong>(occupancy grid map)입니다. 공간을 해상도 <code>resolution</code>(MentorPi는 0.05 m)의 정사각형 셀로 나누고, 셀마다 "장애물이 있을 확률" <span class="math">p(mᵢ)</span>를 저장합니다. ROS의 <code>nav_msgs/OccupancyGrid</code>는 이 값을 0~100(%)과 −1(모름)로 담고, 파일로 저장하면 PGM 영상 + YAML이 됩니다.</p>
+<h3 id="빔-하나가-알려-주는-것">빔 하나가 알려 주는 것<a class="anchor" href="#빔-하나가-알려-주는-것">#</a></h3>
+<p>라이다 빔 하나가 거리 r에서 반사됐다면,</p>
+<ul><li>로봇에서 r 직전까지 빔이 <strong>지나간 셀은 비어 있을</strong> 가능성이 높고,</li><li>r 지점의 셀은 <strong>점유</strong>됐을 가능성이 높고,</li><li>r 너머는 <strong>아무 정보가 없습니다</strong>(가려짐).</li></ul>
+<p>지나간 셀을 찾는 데는 원본 AMCL 레슨에도 나오는 <strong>Bresenham 직선 알고리즘</strong>이 쓰입니다(정수 덧셈만으로 선 위 셀을 나열). 아래 실습 코드는 더 단순하게 빔을 따라 반 셀 간격으로 표본을 찍습니다.</p>
+<figure class="fig" id="fig-m09-raycast"><svg viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="역센서 모델: 라이다 빔이 지나간 셀은 비어 있음 쪽으로, 끝 셀은 점유 쪽으로 로그 오즈를 갱신하고 그 너머는 정보가 없음">
+  <defs>
+    <marker id="arr-m09-raycast" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <!-- grid 12 x 5 cells of 40px starting x=60,y=40 -->
+  <g class="ln" stroke-width="1">
+    <path d="M60 40 L540 40 M60 80 L540 80 M60 120 L540 120 M60 160 L540 160 M60 200 L540 200 M60 240 L540 240"/>
+    <path d="M60 40 L60 240 M100 40 L100 240 M140 40 L140 240 M180 40 L180 240 M220 40 L220 240 M260 40 L260 240 M300 40 L300 240 M340 40 L340 240 M380 40 L380 240 M420 40 L420 240 M460 40 L460 240 M500 40 L500 240 M540 40 L540 240"/>
+  </g>
+  <!-- free cells along the ray (row 3: y 120-160) -->
+  <g style="fill:var(--ok);opacity:0.28">
+    <rect x="100" y="120" width="40" height="40"/><rect x="140" y="120" width="40" height="40"/>
+    <rect x="180" y="120" width="40" height="40"/><rect x="220" y="120" width="40" height="40"/>
+    <rect x="260" y="120" width="40" height="40"/><rect x="300" y="120" width="40" height="40"/>
+  </g>
+  <!-- hit cell -->
+  <rect x="340" y="120" width="40" height="40" style="fill:var(--danger);opacity:0.55"/>
+  <!-- unknown beyond -->
+  <g style="fill:var(--text-faint);opacity:0.18">
+    <rect x="380" y="120" width="40" height="40"/><rect x="420" y="120" width="40" height="40"/>
+    <rect x="460" y="120" width="40" height="40"/><rect x="500" y="120" width="40" height="40"/>
+  </g>
+  <!-- wall -->
+  <path d="M362 44 L362 236" style="stroke:var(--text)" stroke-width="4"/>
+  <text class="tag" x="370" y="58">실제 벽</text>
+  <!-- robot and beam -->
+  <circle cx="80" cy="140" r="13" class="hi"/>
+  <text class="tag" x="80" y="182" text-anchor="middle">로봇</text>
+  <path class="ln-hi" d="M94 140 L356 140" stroke-width="2.4" marker-end="url(#arr-m09-raycast)"/>
+  <text class="sub mono" x="220" y="112" text-anchor="middle">빔 거리 r</text>
+  <!-- legend -->
+  <rect x="566" y="54" width="18" height="18" style="fill:var(--ok);opacity:0.4"/>
+  <text class="lbl" x="592" y="68">지나간 셀</text>
+  <text class="sub mono" x="592" y="86">l += l_free (−0.4)</text>
+  <rect x="566" y="110" width="18" height="18" style="fill:var(--danger);opacity:0.6"/>
+  <text class="lbl" x="592" y="124">끝 셀</text>
+  <text class="sub mono" x="592" y="142">l += l_occ (+0.85)</text>
+  <rect x="566" y="166" width="18" height="18" style="fill:var(--text-faint);opacity:0.3"/>
+  <text class="lbl" x="592" y="180">너머 (가려짐)</text>
+  <text class="sub mono" x="592" y="198">변화 없음</text>
+  <text class="sub" x="360" y="268" text-anchor="middle">p = 1 − 1/(1 + e^l) · l = 0 ↔ p = 0.5(모름) · 반복 관측이 쌓일수록 |l| 증가 (±5에서 포화)</text>
+</svg><figcaption>라이다 빔 한 개로 셀을 갱신하는 역센서 모델: 빔이 지나간 셀은 l_free(음수), 끝 셀은 l_occ(양수)를 더하고, 너머는 그대로 둡니다.</figcaption></figure>
+<h3 id="로그-오즈-갱신식-유도">로그 오즈 갱신식 유도<a class="anchor" href="#로그-오즈-갱신식-유도">#</a></h3>
+<p>셀 하나에 대해 관측 <span class="math">z₁…ₜ</span>가 주어졌을 때의 점유 확률을 베이즈 규칙으로 갱신하면(셀들이 독립이고, 관측이 서로 조건부 독립이라 가정),</p>
+<p><span class="math">p(m | z₁…ₜ) = p(m | zₜ) · p(zₜ) · p(m | z₁…ₜ₋₁) / ( p(m) · p(zₜ | z₁…ₜ₋₁) )</span></p>
+<p>같은 식을 "비어 있음(¬m)"에 대해서도 쓰고 둘을 나누면 번거로운 정규화 항이 사라집니다.</p>
+<p><span class="math">p(m|z₁…ₜ) / p(¬m|z₁…ₜ) = [p(m|zₜ) / p(¬m|zₜ)] · [p(m|z₁…ₜ₋₁) / p(¬m|z₁…ₜ₋₁)] · [p(¬m) / p(m)]</span></p>
+<p>양변에 로그를 취하고 <strong>로그 오즈</strong> <span class="math">l = log(p / (1 − p))</span>로 쓰면 곱이 덧셈이 됩니다.</p>
+<p><span class="math">lₜ = lₜ₋₁ + log( p(m|zₜ) / (1 − p(m|zₜ)) ) − l₀</span></p>
+<div class="table-wrap"><table><thead><tr><th>항</th><th>뜻</th><th>값 예</th></tr></thead><tbody><tr><td><span class="math">lₜ₋₁</span></td><td>지금까지의 믿음</td><td>처음엔 0 (p = 0.5, 모름)</td></tr><tr><td><span class="math">log(p(m|zₜ)/(1−p(m|zₜ)))</span></td><td><strong>역센서 모델</strong>(inverse sensor model): 이번 빔이 이 셀에 대해 주는 증거</td><td>끝 셀 p = 0.7 → +0.85, 지나간 셀 p = 0.4 → −0.41</td></tr><tr><td><span class="math">l₀</span></td><td>사전 확률의 로그 오즈</td><td>p(m) = 0.5면 0</td></tr></tbody></table></div>
+<p>장점은 세 가지입니다. ① 갱신이 <strong>덧셈 한 번</strong>이라 빠르고, ② 0과 1 근처에서 확률이 수치적으로 뭉개지지 않으며, ③ 상한·하한(예: ±5)으로 잘라 두면 한번 벽이던 곳도 여러 번 비어 보이면 다시 빈 곳으로 돌아옵니다(움직이는 사람 지우기). 확률로 돌릴 때는 <span class="math">p = 1 − 1/(1 + e^l)</span>입니다.</p>
+<h3 id="지도-파일의-문턱값">지도 파일의 문턱값<a class="anchor" href="#지도-파일의-문턱값">#</a></h3>
+<p><code>map_saver_cli</code>가 저장한 MentorPi의 <code>slam/maps/map_01.yaml</code>입니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">yaml</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-yaml">image: map_01.pgm
+mode: trinary
+resolution: 0.05
+origin: [-7.18, -7.41, 0]
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.25</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>키</th><th>뜻</th></tr></thead><tbody><tr><td><code>mode: trinary</code></td><td>셀을 점유(검정, 0)·빈 곳(흰색, 254)·모름(회색, 205) 세 값으로 저장</td></tr><tr><td><code>resolution</code></td><td>픽셀 하나 = 0.05 m. 원본 지도 <code>map_01.pgm</code>은 411 × 315 픽셀 → 약 20.6 m × 15.8 m</td></tr><tr><td><code>origin</code></td><td>영상 <strong>왼쪽 아래</strong> 픽셀의 map 좌표 (x, y, yaw)</td></tr><tr><td><code>occupied_thresh</code> / <code>free_thresh</code></td><td>확률 &gt; 0.65면 점유, &lt; 0.25면 빈 곳, 그 사이는 모름</td></tr></tbody></table></div>
+<h3 id="실습-playground에서-점유-격자-만들기">실습: Playground에서 점유 격자 만들기<a class="anchor" href="#실습-playground에서-점유-격자-만들기">#</a></h3>
+<p>가상 MentorPi를 제자리에서 한 바퀴 돌리며 <code>/scan</code>과 실제 자세 <code>/ground_truth</code>로 로그 오즈 격자를 만듭니다. <strong>위치를 정확히 안다고 가정</strong>한 "지도 작성(mapping only)"이라서 SLAM의 절반만 푸는 셈입니다. 실물에는 <code>/ground_truth</code>가 없으므로, 이 자리를 SLAM이 추정한 자세가 채웁니다.</p>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import numpy as np
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist, Pose2D
+from sensor_msgs.msg import LaserScan
+import mentorpi_sim as sim                                     # 시뮬 전용
+sim.setup(world=&quot;empty&quot;, duration=17.0, start=(0.0, 0.0, 0.0))  # 시뮬 전용
+sim.add_box(1.5, 0.5, 0.6, 0.6); sim.add_cylinder(-1.0, -1.2, 0.25)  # 시뮬 전용
+RES, SIZE = 0.1, 70                     # 0.1 m 셀, 7 m x 7 m, 원점 = 격자 중앙
+L_OCC, L_FREE, L_MAX = 0.85, -0.4, 5.0  # 로그 오즈 증분과 포화값
+
+class GridMapper(Node):
+    def __init__(self):
+        super().__init__(&#x27;grid_mapper&#x27;)
+        self.L = np.zeros((SIZE, SIZE))   # L[ix, iy], 0 = 모름(p = 0.5)
+        self.pose, self.scans = None, 0
+        self.create_subscription(Pose2D, &#x27;/ground_truth&#x27;, self.on_pose, 10)   # 시뮬 전용
+        self.create_subscription(LaserScan, &#x27;/scan&#x27;, self.on_scan, 10)
+        self.pub = self.create_publisher(Twist, &#x27;/cmd_vel&#x27;, 10)
+        self.create_timer(0.1, self.turn)
+    def on_pose(self, msg):
+        self.pose = (msg.x, msg.y, msg.theta)
+    def turn(self):
+        t = Twist(); t.angular.z = 0.4; self.pub.publish(t)
+    def on_scan(self, msg):
+        if self.pose is None: return
+        px, py, th = self.pose
+        r = np.array(msg.ranges)
+        a = msg.angle_min + np.arange(len(r)) * msg.angle_increment + th
+        hit = np.isfinite(r)
+        r = np.where(hit, r, 4.0)                           # 반사 없음: 4 m까지만 비움
+        s = np.arange(0.0, 12.0, RES / 2)                   # 빔 위 표본 거리
+        m = s[None, :] &lt; (r[:, None] - RES / 2)
+        fx = (px + s[None, :] * np.cos(a)[:, None])[m]
+        fy = (py + s[None, :] * np.sin(a)[:, None])[m]
+        free = set(zip((fx // RES).astype(int), (fy // RES).astype(int)))
+        ox = ((px + r[hit] * np.cos(a[hit])) // RES).astype(int)
+        oy = ((py + r[hit] * np.sin(a[hit])) // RES).astype(int)
+        free -= set(zip(ox, oy))
+        fi, fj = np.array(list(free)).T + SIZE // 2
+        self.L[fi, fj] += L_FREE                            # 빔이 지나간 셀: 비어 있음 쪽으로
+        self.L[ox + SIZE // 2, oy + SIZE // 2] += L_OCC     # 빔 끝 셀: 점유 쪽으로
+        np.clip(self.L, -L_MAX, L_MAX, out=self.L)
+        self.scans += 1
+
+rclpy.init()
+node = GridMapper()
+try:
+    rclpy.spin(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    node.pub.publish(Twist())
+    P = 1.0 - 1.0 / (1.0 + np.exp(node.L))                  # 로그 오즈 -&gt; 확률
+    print(&quot;scans:&quot;, node.scans, &quot; occupied:&quot;, (P &gt; 0.65).sum(), &quot; free:&quot;, (P &lt; 0.25).sum(),
+          &quot; unknown:&quot;, ((P &gt;= 0.25) &amp; (P &lt;= 0.65)).sum())
+    for row in P.T[::-5, ::5]:                              # 위쪽 = +y, 한 글자 = 0.5 m
+        print(&quot;&quot;.join(&quot;#&quot; if p &gt; 0.65 else &quot;.&quot; if p &lt; 0.25 else &quot;?&quot; for p in row))
+    node.destroy_node()
+    rclpy.shutdown()</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[sim] 시뮬레이션 시간 17.0 s 종료 (sim.setup(duration=...)으로 변경)
+scans: 170  occupied: 446  free: 3006  unknown: 1448      (대략)
+??????????????
+?#############
+?#...........#
+?#...........#
+?#..........??
+?#........????
+?#........????
+?#...........#
+?#...........#
+?#...?.......#
+?#..?........#
+?#.??........#
+?#??.........#
+????##########</code></pre></div>
+<p>읽는 법(숫자와 모양은 월드 구현과 잡음에 따라 조금 다릅니다):</p>
+<ul><li><code>#</code> 테두리가 6 m 방의 벽이고, 오른쪽 가운데 <code>?</code> 덩어리는 상자 <strong>뒤쪽 그림자</strong>(빔이 닿지 않은 곳)입니다. 왼쪽 아래 <code>?</code>는 원통의 그림자입니다. 상자·원통 자체는 0.5 m 간격으로 찍는 출력에서 잘 안 보입니다.</li><li>가장자리 바깥 <code>?</code>는 벽 너머 — 빔이 벽에서 멈췄으니 정보가 없습니다.</li><li><code>L_OCC</code>를 0.2로 줄이면 벽이 흐려지고, <code>L_FREE</code>를 −1.5로 키우면 한 번 잘못 본 빔에도 벽이 지워집니다. 두 값을 바꿔 가며 결과를 비교해 보세요.</li></ul>
+<div class="callout callout-tip"><div class="callout-title">`/ground_truth` 대신 `/odom`을 쓰면?</div><div class="callout-body"><p><code>on_pose</code>를 <code>/odom</code> 구독으로 바꾸고 로봇을 앞뒤로 움직이면서 지도를 그려 보면 드리프트 때문에 벽이 번지는 것이 보입니다. 그 번짐을 없애는 것이 다음 절의 <strong>스캔 매칭</strong>입니다.</p></div></div>
+<h2 id="스캔-매칭">스캔 매칭<a class="anchor" href="#스캔-매칭">#</a></h2>
+<p>오도메트리가 "대략 여기쯤"이라고 알려 주면, 스캔 매칭은 그 <strong>주변을 뒤져서</strong> 현재 스캔이 지도(또는 최근 스캔들)와 가장 잘 겹치는 자세를 찾습니다.</p>
+<p><span class="math">x* = argmax_x Σᵢ M( T(x) · pᵢ )</span>  — 스캔 점 pᵢ를 자세 x로 옮겼을 때 지도 M에서 "점유" 값의 합(응답, response)이 가장 큰 x</p>
+<p>slam_toolbox는 Karto SLAM의 <strong>상관 스캔 매처</strong>(correlative scan matcher)를 씁니다. 가능한 (x, y, θ)를 격자처럼 <strong>전부 시험</strong>하되, 거친 탐색 → 세밀 탐색 두 단계로 나눠 계산을 줄입니다. <code>slam.yaml</code>의 파라미터가 곧 탐색 범위입니다.</p>
+<div class="table-wrap"><table><thead><tr><th>파라미터</th><th>MentorPi 값</th><th>뜻</th></tr></thead><tbody><tr><td><code>correlation_search_space_dimension</code></td><td>0.5</td><td>위치 탐색 창 한 변 [m] (오도메트리 예측 ±0.25 m)</td></tr><tr><td><code>correlation_search_space_resolution</code></td><td>0.01</td><td>위치 탐색 간격 [m]</td></tr><tr><td><code>correlation_search_space_smear_deviation</code></td><td>0.1</td><td>지도 점을 번지게(smear) 하는 폭 — 응답 곡면을 부드럽게</td></tr><tr><td><code>coarse_search_angle_offset</code></td><td>0.349</td><td>거친 각도 탐색 범위 ±0.349 rad (±20°)</td></tr><tr><td><code>coarse_angle_resolution</code></td><td>0.0349</td><td>거친 각도 간격 (2°)</td></tr><tr><td><code>fine_search_angle_offset</code></td><td>0.00349</td><td>세밀 각도 탐색 범위 (0.2°)</td></tr><tr><td><code>distance_variance_penalty</code> / <code>angle_variance_penalty</code></td><td>0.5 / 1.0</td><td>오도메트리 예측에서 멀어질수록 점수 깎기</td></tr><tr><td><code>minimum_distance_penalty</code> / <code>minimum_angle_penalty</code></td><td>0.5 / 0.9</td><td>깎는 양의 하한</td></tr><tr><td><code>link_match_minimum_response_fine</code></td><td>0.1</td><td>이 응답 미만이면 매칭 실패로 보고 연결 안 함</td></tr><tr><td><code>use_response_expansion</code></td><td>true</td><td>응답이 낮으면 탐색 창을 넓혀 재시도</td></tr></tbody></table></div>
+<p>탐색 창이 ±0.25 m, ±20°라는 뜻은 <strong>스캔 사이에 오도메트리가 이보다 크게 틀리면 매칭이 실패</strong>한다는 뜻입니다. 로봇을 빨리 돌리거나(특히 회전), 바퀴가 헛돌면 지도가 찢어지는 이유입니다. 교재가 "천천히 움직일수록 좋은 지도"라고 하는 근거가 이 숫자들입니다.</p>
+<h2 id="포즈-그래프와-루프-클로저">포즈 그래프와 루프 클로저<a class="anchor" href="#포즈-그래프와-루프-클로저">#</a></h2>
+<figure class="fig" id="fig-m09-posegraph"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="포즈 그래프와 루프 클로저: 최적화 전에는 누적 오차로 고리가 벌어지고, 루프 클로저 제약을 더해 최적화하면 고리가 닫힘">
+  <defs>
+    <marker id="arr-m09-posegraph" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <text class="lbl" x="170" y="24" text-anchor="middle">① 최적화 전 (오도메트리 + 연속 매칭)</text>
+  <text class="lbl" x="550" y="24" text-anchor="middle">② 루프 클로저 후 최적화</text>
+  <!-- left: open loop drifting -->
+  <path class="ln" d="M60 230 L140 232 L220 226 L285 190 L300 120 L262 64 L186 50 L112 70 L78 128 L92 190" stroke-width="2"/>
+  <g class="hi">
+    <circle cx="60" cy="230" r="6"/><circle cx="140" cy="232" r="6"/><circle cx="220" cy="226" r="6"/>
+    <circle cx="285" cy="190" r="6"/><circle cx="300" cy="120" r="6"/><circle cx="262" cy="64" r="6"/>
+    <circle cx="186" cy="50" r="6"/><circle cx="112" cy="70" r="6"/><circle cx="78" cy="128" r="6"/>
+  </g>
+  <circle cx="92" cy="190" r="7" class="wr"/>
+  <text class="sub mono" x="46" y="252">x₀</text>
+  <text class="sub mono" x="102" y="196">xₙ</text>
+  <!-- loop closure constraint (dashed) -->
+  <path d="M90 197 L64 224" style="stroke:var(--warn)" stroke-width="2" stroke-dasharray="5 4"/>
+  <text class="sub" x="120" y="216">누적 오차 → 고리가 안 닫힘</text>
+  <text class="tag" x="36" y="206" text-anchor="middle">루프</text>
+  <!-- arrow between -->
+  <path class="ln" d="M346 150 L394 150" stroke-width="2" marker-end="url(#arr-m09-posegraph)"/>
+  <text class="tag" x="370" y="138" text-anchor="middle">Ceres</text>
+  <text class="tag" x="370" y="172" text-anchor="middle">LM</text>
+  <!-- right: closed loop -->
+  <path class="ln-hi" d="M440 230 L520 234 L600 230 L668 196 L680 128 L646 70 L570 56 L494 72 L452 130 L442 196 Z" stroke-width="2"/>
+  <g class="hi">
+    <circle cx="440" cy="230" r="6"/><circle cx="520" cy="234" r="6"/><circle cx="600" cy="230" r="6"/>
+    <circle cx="668" cy="196" r="6"/><circle cx="680" cy="128" r="6"/><circle cx="646" cy="70" r="6"/>
+    <circle cx="570" cy="56" r="6"/><circle cx="494" cy="72" r="6"/><circle cx="452" cy="130" r="6"/>
+    <circle cx="442" cy="196" r="6"/>
+  </g>
+  <text class="sub" x="560" y="150" text-anchor="middle">오차를 모든 제약에 나눠 분배</text>
+  <!-- legend -->
+  <line x1="40" y1="280" x2="72" y2="280" style="stroke:var(--border)" stroke-width="2"/>
+  <text class="sub" x="80" y="284">연속 스캔 매칭 제약 (최근 20개, 1.5 m 이내)</text>
+  <line x1="390" y1="280" x2="422" y2="280" style="stroke:var(--warn)" stroke-width="2" stroke-dasharray="5 4"/>
+  <text class="sub" x="430" y="284">루프 클로저 제약 (3.0 m 이내 후보, 응답 ≥ 0.45)</text>
+</svg><figcaption>포즈 그래프: 노드는 스캔을 찍은 자세, 실선은 연속 스캔 매칭 제약, 점선은 루프 클로저 제약. 최적화가 누적 오차를 고리 전체로 나눠 줍니다.</figcaption></figure>
+<p>slam_toolbox는 모든 스캔을 지도에 바로 태우지 않습니다. 로봇이 <code>minimum_travel_distance</code>(0.1 m) 또는 <code>minimum_travel_heading</code>(0.5 rad)보다 많이 움직였을 때만 <strong>노드</strong>(자세 + 그때의 스캔)를 만들고, 노드 사이에 <strong>제약</strong>(edge, "노드 i에서 본 노드 j는 여기")을 답니다.</p>
+<ul><li><strong>연속 제약</strong>: 새 노드를 최근 노드들(<code>scan_buffer_size</code> 20개, <code>link_scan_maximum_distance</code> 1.5 m 이내)과 스캔 매칭해 얻습니다.</li><li><strong>루프 클로저 제약</strong>: 새 노드 근처(<code>loop_search_maximum_distance</code> 3.0 m)에 <strong>오래전에 지나간 노드</strong>가 있으면, 넓은 창(<code>loop_search_space_dimension</code> 8.0 m, 해상도 0.05 m)으로 매칭을 시도합니다. 연속 체인 <code>loop_match_minimum_chain_size</code> 10개 이상이 거친 응답 0.35, 세밀 응답 0.45를 넘고 분산이 3.0 이하면 "같은 곳에 돌아왔다"고 인정합니다.</li></ul>
+<p>루프가 닫히면 최적화기가 모든 노드 자세 <span class="math">x</span>를 동시에 고쳐 제약 오차의 제곱합을 최소화합니다.</p>
+<p><span class="math">x* = argmin_x Σ_(i,j) eᵢⱼ(x)ᵀ Ωᵢⱼ eᵢⱼ(x)</span>   ( <span class="math">eᵢⱼ</span> = 제약이 말하는 상대 자세와 현재 추정의 차이, <span class="math">Ωᵢⱼ</span> = 그 제약의 신뢰도(정보 행렬) )</p>
+<p>MentorPi는 <code>solver_plugin: solver_plugins::CeresSolver</code>, <code>ceres_linear_solver: SPARSE_NORMAL_CHOLESKY</code>, <code>ceres_trust_strategy: LEVENBERG_MARQUARDT</code>로 이 비선형 최소제곱 문제를 풉니다. 결과로 지도 전체가 "탁" 하고 펴지는 순간이 RViz에서 보입니다.</p>
+<div class="callout callout-warn"><div class="callout-title">잘못된 루프 클로저는 지도를 망친다</div><div class="callout-body"><p>비슷하게 생긴 두 복도를 같은 곳으로 착각하면 최적화가 지도를 접어 버립니다. 그래서 루프 판정 문턱(0.35/0.45, 체인 10개)이 연속 매칭 문턱(0.1)보다 훨씬 엄격합니다. 반복 구조가 많은 곳에서는 문턱을 높이거나 <code>do_loop_closing</code>을 잠시 끄고 비교해 봅니다.</p></div></div>
+<h2 id="mentorpi의-slam-구성">MentorPi의 SLAM 구성<a class="anchor" href="#mentorpi의-slam-구성">#</a></h2>
+<h3 id="launch-구조">launch 구조<a class="anchor" href="#launch-구조">#</a></h3>
+<p><code>ros2 launch slam slam.launch.py</code>는 다음을 순서대로 띄웁니다(원본 <code>slam/launch/slam.launch.py</code>).</p>
+<div class="table-wrap"><table><thead><tr><th>단계</th><th>포함 파일</th><th>내용</th></tr></thead><tbody><tr><td>base_launch</td><td><code>slam/launch/include/robot.launch.py</code></td><td><code>controller.launch.py</code>(모터·오도메트리·IMU·<strong>EKF</strong>), <code>lidar.launch.py</code>(LD19 → <code>/scan_raw</code>, 프레임 <code>lidar_frame</code>), <code>depth_camera.launch.py</code>, 조이스틱</td></tr><tr><td>10 s 후 slam_launch</td><td><code>slam/launch/include/slam_base.launch.py</code></td><td><code>slam_toolbox</code> 패키지의 **<code>sync_slam_toolbox_node</code>** (이름 <code>slam_toolbox</code>), 파라미터 <code>config/slam.yaml</code></td></tr></tbody></table></div>
+<p><code>sync</code>(동기) 모드는 들어온 스캔을 <strong>빠짐없이 순서대로</strong> 처리합니다. 처리 시간이 밀리면 지연이 쌓이지만 지도 품질은 좋습니다. 비동기(<code>async_slam_toolbox_node</code>)는 늦으면 스캔을 건너뜁니다. 오도메트리 <code>odom → base_footprint</code>는 <code>robot_localization</code> EKF가 바퀴 오도메트리(<code>odom_raw</code>), 라이다 오도메트리(<code>odom_rf2o</code>), IMU를 융합해 발행하고, slam_toolbox는 그 위에 <code>map → odom</code>을 발행합니다.</p>
+<h3 id="slam-yaml-주요-파라미터">slam.yaml 주요 파라미터<a class="anchor" href="#slam-yaml-주요-파라미터">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>파라미터</th><th>값</th><th>뜻</th></tr></thead><tbody><tr><td><code>mode</code></td><td><code>mapping</code></td><td><code>localization</code>으로 바꾸면 저장된 지도에서 위치추정만</td></tr><tr><td><code>odom_frame</code> / <code>map_frame</code> / <code>base_frame</code></td><td><code>odom</code> / <code>map</code> / <code>base_footprint</code></td><td>TF 프레임 (M08)</td></tr><tr><td><code>scan_topic</code></td><td><code>scan_raw</code></td><td>라이다 토픽 (필터 전 원본)</td></tr><tr><td><code>resolution</code></td><td>0.05</td><td>지도 셀 크기 [m]</td></tr><tr><td><code>max_laser_range</code></td><td>12.0</td><td>지도에 그릴 최대 거리 [m] (LD19 사양)</td></tr><tr><td><code>minimum_time_interval</code></td><td>0.5</td><td>노드 사이 최소 시간 [s]</td></tr><tr><td><code>minimum_travel_distance</code> / <code>minimum_travel_heading</code></td><td>0.1 / 0.5</td><td>새 노드를 만드는 최소 이동 [m] / 회전 [rad]</td></tr><tr><td><code>map_update_interval</code></td><td>0.2</td><td><code>/map</code> 격자 재생성 주기 [s]</td></tr><tr><td><code>transform_publish_period</code></td><td>0.02</td><td><code>map → odom</code> TF 발행 주기 [s] (50 Hz)</td></tr><tr><td><code>throttle_scans</code></td><td>1</td><td>스캔을 몇 개마다 하나씩 쓸지 (1 = 전부)</td></tr><tr><td><code>use_scan_matching</code> / <code>use_scan_barycenter</code></td><td>true / true</td><td>스캔 매칭 사용, 스캔 무게중심으로 거리 계산</td></tr><tr><td><code>do_loop_closing</code></td><td>true</td><td>루프 클로저 사용</td></tr><tr><td><code>stack_size_to_use</code></td><td>40000000</td><td>큰 지도 직렬화용 스택 크기</td></tr><tr><td><code>enable_interactive_mode</code></td><td>true</td><td>RViz 플러그인에서 노드를 끌어 수동 보정</td></tr></tbody></table></div>
+<h2 id="실습-시뮬레이션">실습 (시뮬레이션)<a class="anchor" href="#실습-시뮬레이션">#</a></h2>
+<p class="cta-row"><a class="ghost-btn cta" href="../sim/index.html">2D 시뮬레이터 열기</a></p>
+<ol><li>월드를 <strong>room</strong> 또는 <strong>maze</strong>로, 섀시를 메카넘으로 고릅니다. <strong>라이다 표시</strong>를 켭니다.</li><li><strong>SLAM</strong> 모드를 켜고 키보드(또는 가상 조이스틱)로 천천히 방을 한 바퀴 돕니다. 회색(모름) 격자가 흰색(빈 곳)·검은색(점유)으로 바뀌는 과정을 관찰합니다.</li><li><strong>오도메트리 오차 표시</strong>를 켜고 같은 경로를 빠르게 돌아 봅니다. 추정 경로와 실제 경로가 벌어질 때 지도가 어떻게 번지는지 비교합니다.</li><li>제자리에서 빠르게 회전(0.5 rad/s 이상)한 경우와 천천히 회전한 경우의 지도 선명도를 비교하고, 위 스캔 매칭 탐색 창(±20°)과 연결해 설명합니다.</li></ol>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">안전 확인 (실물 실습 전 필수)</div><div class="callout-body"><ul><li>지도 작성 중에는 로봇이 계속 움직입니다. <strong>사람이 로봇 옆을 따라다니며</strong> 계단·책상 다리·전선 쪽으로 가지 않게 지킵니다.</li><li>키보드 조종 속도는 원본 <code>teleop_key_control.py</code> 기준 0.2 m/s, 0.5 rad/s입니다. 속도를 올리지 않습니다(빠를수록 지도도 나빠집니다).</li><li>멈출 때는 키보드 노드 터미널에서 정지 키를 누르거나 Ctrl+C. 로봇이 계속 움직이면 <code>ros2 topic pub --once /controller/cmd_vel geometry_msgs/msg/Twist &quot;{}&quot;</code>, 최후에는 전원 스위치.</li><li>지도에 <strong>나중에 치울 물건</strong>(가방, 사람)이 찍히지 않게 주변을 정리합니다.</li></ul></div></div>
+<h3 id="1-가상머신-준비-처음-한-번">1) 가상머신 준비 (처음 한 번)<a class="anchor" href="#1-가상머신-준비-처음-한-번">#</a></h3>
+<p>교재 방식은 로봇에서 SLAM을 돌리고 <strong>같은 LAN의 PC 가상머신</strong>에서 RViz로 봅니다. 먼저 로봇의 패키지를 가상머신으로 옮깁니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash"># 로봇 (컨테이너 터미널)
+~/.stop_ros.sh
+cd ros2_ws/src/
+zip -r src.zip navigation slam simulations
+mv src.zip /home/ubuntu/shared
+cd .. &amp;&amp; cp .typerc /home/ubuntu/shared      # 로봇 종류 환경 파일</code></pre></div>
+<p>WinSCP로 로봇(<code>192.168.149.1</code>, 교재의 기본 계정)에 접속해 <code>docker/tmp</code>의 <code>src.zip</code>과 숨김 파일 <code>.typerc</code>를 PC로 내려받고, 가상머신 홈으로 끌어다 놓습니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash"># 가상머신 (HiWonder_ros2_humble 이미지)
+mkdir -p ros2_ws/src
+unzip src.zip
+mv simulations slam navigation /home/ubuntu/ros2_ws/src/
+mv .typerc ros2_ws/
+cd ros2_ws/ &amp;&amp; colcon build
+gedit ~/.bashrc      # 아래 두 줄 추가
+#   source /home/ubuntu/ros2_ws/.typerc
+#   source /home/ubuntu/ros2_ws/install/setup.bash
+source ~/.bashrc</code></pre></div>
+<p>로봇을 <strong>LAN 모드</strong>로 바꿔(<code>vim hiwonder-toolbox/wifi_conf.py</code>에서 모드·SSID·비밀번호 수정 후 <code>sudo systemctl restart wifi.service</code> 또는 재부팅) 가상머신과 같은 공유기에 붙이고, 두 쪽의 <code>ROS_DOMAIN_ID</code>가 같은지(기본 0) 확인합니다. 가상머신 네트워크는 <strong>브리지</strong> 모드여야 합니다.</p>
+<h3 id="2-지도-작성">2) 지도 작성<a class="anchor" href="#2-지도-작성">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash"># 로봇 터미널 1
+~/.stop_ros.sh
+ros2 launch slam slam.launch.py
+
+# 가상머신 터미널
+ros2 launch slam rviz_slam.launch.py
+
+# 로봇 터미널 2
+ros2 launch peripherals teleop_key_control.launch.py</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>키</th><th>동작</th></tr></thead><tbody><tr><td>W</td><td>짧게 누르면 전진 상태로 전환 (계속 전진)</td></tr><tr><td>S</td><td>짧게 누르면 후진 상태로 전환</td></tr><tr><td>A</td><td>길게 누르면 전·후진을 끊고 좌회전</td></tr><tr><td>D</td><td>길게 누르면 전·후진을 끊고 우회전</td></tr></tbody></table></div>
+<p>지도 작성 요령(교재 주의사항 + 이 장의 원리):</p>
+<ol><li>긴 <strong>직선 벽 앞</strong>이나 막힌 공간에서 시작합니다. 첫 스캔에 점이 많아야 첫 노드가 튼튼합니다.</li><li>제자리에서 <strong>천천히 360°</strong> 돌아 주변을 한 번 훑습니다.</li><li>넓은 공간은 먼저 <strong>큰 고리(loop)를 한 바퀴</strong> 돌아 루프 클로저를 일으킨 뒤, 작은 구석을 채웁니다.</li><li>같은 곳을 다시 지날 때 RViz에서 지도가 살짝 "펴지는" 순간이 루프 클로저입니다.</li></ol>
+<h3 id="3-지도-저장">3) 지도 저장<a class="anchor" href="#3-지도-저장">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">cd ~/ros2_ws/src/slam/maps &amp;&amp; ros2 run nav2_map_server map_saver_cli -f &quot;map_01&quot; --ros-args -p map_subscribe_transient_local:=true
+ls ~/ros2_ws/src/slam/maps        # map_01.pgm, map_01.yaml</code></pre></div>
+<p>원본 <code>slam/slam/map_save.py</code>도 <code>/slam_toolbox/save_map</code> 서비스 요청을 받으면 같은 명령을 실행합니다. 지도 이름을 바꾸면(<code>map_02</code>) M11의 내비게이션 명령에서도 <code>map:=map_02</code>로 바꿉니다. 끝나면 모든 터미널에서 Ctrl+C 후, 호스트 터미널에서 <code>sudo systemctl restart start_node.service</code>로 앱 서비스를 되돌립니다.</p>
+<h3 id="4-지도-품질-판정">4) 지도 품질 판정<a class="anchor" href="#4-지도-품질-판정">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>기준</th><th>확인 방법</th></tr></thead><tbody><tr><td>장애물 가장자리가 선명한가</td><td>벽이 한 줄(1~2셀)인지, 두 겹·번짐이 없는지</td></tr><tr><td>실제 환경과 어긋남이 없는가</td><td>복도가 휘거나 고리가 닫히지 않은 곳이 없는지</td></tr><tr><td>로봇이 다닐 영역에 회색이 없는가</td><td>모름(205) 영역이 통로에 남으면 내비게이션이 경로를 못 냄</td></tr><tr><td>나중에 없어질 물체가 찍히지 않았는가</td><td>사람·가방이 벽처럼 남으면 AMCL 위치추정을 방해</td></tr><tr><td>로봇이 다닐 전체 범위를 덮는가</td><td>목표를 찍을 곳이 모두 흰색인지</td></tr></tbody></table></div>
+<div class="callout callout-info"><div class="callout-title">지도 품질 올리기</div><div class="callout-body"><p>SLAM은 오도메트리를 초기값으로 씁니다. IMU 보정과 선속도·각속도 보정(M03, 교재 <em>9. Motion Control Lesson — Lesson 3</em>)을 하면 스캔 매칭 탐색 창 안에 들어오는 비율이 올라가 지도가 좋아집니다.</p></div></div>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> 로그 오즈 갱신식 <span class="math">lₜ = lₜ₋₁ + log(p/(1−p)) − l₀</span>의 각 항을 설명할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> 스캔 매칭 탐색 창 값 두 개(0.5 m, ±0.349 rad)가 로봇 조종 속도와 어떤 관계인지 말할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> <code>map_01.pgm</code>과 <code>map_01.yaml</code>을 저장하고, 위 판정 기준으로 스스로 평가했다.</label></li></ul></div></div>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td>RViz에 지도가 안 뜸, "No map received"</td><td>slam_toolbox가 10 s 지연 후 시작, 도메인 ID·네트워크 불일치</td><td>10 s 이상 기다림, <code>ros2 topic list</code>에 <code>/map</code>이 보이는지 가상머신에서 확인, <code>ROS_DOMAIN_ID</code>·LAN 확인</td></tr><tr><td>"Message Filter dropping message: frame 'lidar_frame'"</td><td>TF(<code>odom → base_footprint</code> 또는 URDF) 없음, 시계 차이</td><td><code>controller.launch.py</code>가 떠 있는지, 로봇과 PC 시간 동기 확인</td></tr><tr><td>회전할 때 지도가 찢어지거나 겹침</td><td>스캔 사이 회전이 탐색 창(±20°)을 넘음, 바퀴 미끄러짐</td><td>회전을 천천히, 바닥 미끄럼 확인, IMU 보정</td></tr><tr><td>한 바퀴 돌았는데 고리가 안 닫힘</td><td>루프 후보가 3 m 밖, 응답 문턱 미달</td><td>같은 경로를 더 가깝게 다시 지나기, 특징 많은 곳에서 고리 만들기</td></tr><tr><td>지도가 갑자기 크게 접힘</td><td>잘못된 루프 클로저</td><td>처음부터 다시, 반복 구조 구역은 천천히, 필요하면 <code>loop_match_minimum_response_fine</code> 상향</td></tr><tr><td><code>map_saver_cli</code> 시간 초과</td><td><code>/map</code>을 transient local로 못 받음</td><td>교재 명령의 <code>-p map_subscribe_transient_local:=true</code>를 빠뜨리지 않음</td></tr><tr><td>저장한 지도 위치가 엉뚱함</td><td>다른 폴더에서 저장</td><td><code>cd ~/ros2_ws/src/slam/maps</code>에서 실행 (내비게이션이 이 폴더를 읽음)</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">기본 과제</div><div class="callout-body"><ol><li>Playground 코드에서 <code>L_OCC</code>, <code>L_FREE</code>를 (0.85, −0.4), (0.4, −0.4), (0.85, −1.5) 세 가지로 바꿔 점유·빈 곳·모름 셀 수를 표로 정리하고 차이를 설명합니다.</li><li><code>map_01.yaml</code>의 <code>origin</code>과 <code>resolution</code>으로, PGM 영상의 픽셀 (행 100, 열 200)이 map 좌표로 어디인지 계산합니다. (힌트: PGM은 위에서부터 행을 세고, origin은 왼쪽 아래)</li></ol></div></div>
+<div class="callout callout-task"><div class="callout-title">심화 과제</div><div class="callout-body"><ol><li>Playground 코드의 <code>/ground_truth</code>를 <code>/odom</code>으로 바꾸고(쿼터니언 → yaw는 <code>tf_transformations.euler_from_quaternion</code>), 로봇을 1 m 전진 → 180° 회전 → 1 m 전진시키며 지도를 만들어 벽 번짐을 관찰합니다. 번짐 폭과 오도메트리 오차를 비교합니다.</li><li>두 스캔(1차 자세에서 찍은 스캔과 0.1 m 옮겨 찍은 스캔)의 점들을 numpy로 만들고, (dx, dy)를 ±0.2 m 범위 0.01 m 간격으로 전부 시도해 겹치는 점 수가 최대인 이동을 찾는 <strong>초간단 상관 스캔 매처</strong>를 작성합니다.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>12. Mapping Lesson</em> — Lesson 3 SLAM Mapping Principle, Lesson 4 slam_toolbox Mapping Algorithm, Install WinSCP Remote Tool</li><li>원본 소스: <code>src/slam/config/slam.yaml</code>, <code>src/slam/launch/slam.launch.py</code>, <code>src/slam/launch/include/slam_base.launch.py</code>, <code>src/slam/launch/include/robot.launch.py</code>, <code>src/slam/maps/map_01.yaml</code>, <code>src/slam/slam/map_save.py</code>, <code>src/peripherals/peripherals/teleop_key_control.py</code></li><li>slam_toolbox: https://github.com/SteveMacenski/slam_toolbox</li><li>Open Karto: https://github.com/ros-perception/open_karto</li><li>Nav2 map_server / map_saver: https://docs.nav2.org/configuration/packages/configuring-map-server.html</li><li>S. Thrun, W. Burgard, D. Fox, <em>Probabilistic Robotics</em>, 9장(점유 격자 지도)</li><li>E. Olson, "Real-Time Correlative Scan Matching", ICRA 2009</li></ul>
+      <nav class="pager"><a class="pager-prev" href="m08.html"><span>이전 · M08</span>MentorPi URDF 모델</a><a class="pager-next" href="m10.html"><span>다음 · M10</span>RTAB-Map 3D 비주얼 SLAM</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#slam-문제">SLAM 문제</a><a class="toc-l2" href="#점유-격자와-로그-오즈">점유 격자와 로그 오즈</a><a class="toc-l3" href="#격자-지도">격자 지도</a><a class="toc-l3" href="#빔-하나가-알려-주는-것">빔 하나가 알려 주는 것</a><a class="toc-l3" href="#로그-오즈-갱신식-유도">로그 오즈 갱신식 유도</a><a class="toc-l3" href="#지도-파일의-문턱값">지도 파일의 문턱값</a><a class="toc-l3" href="#실습-playground에서-점유-격자-만들기">실습: Playground에서 점유 격자 만들기</a><a class="toc-l2" href="#스캔-매칭">스캔 매칭</a><a class="toc-l2" href="#포즈-그래프와-루프-클로저">포즈 그래프와 루프 클로저</a><a class="toc-l2" href="#mentorpi의-slam-구성">MentorPi의 SLAM 구성</a><a class="toc-l3" href="#launch-구조">launch 구조</a><a class="toc-l3" href="#slam-yaml-주요-파라미터">slam.yaml 주요 파라미터</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l3" href="#1-가상머신-준비-처음-한-번">1) 가상머신 준비 (처음 한 번)</a><a class="toc-l3" href="#2-지도-작성">2) 지도 작성</a><a class="toc-l3" href="#3-지도-저장">3) 지도 저장</a><a class="toc-l3" href="#4-지도-품질-판정">4) 지도 품질 판정</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

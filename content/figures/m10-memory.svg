@@ -1,0 +1,50 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="RTAB-Map 처리 흐름: RGB-D와 스캔, 오도메트리 입력이 노드가 되어 STM, WM, LTM으로 이동하고 WM에서 루프 클로저를 검출해 그래프를 최적화함">
+  <defs>
+    <marker id="arr-m10-memory" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-m10-memory-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <!-- inputs -->
+  <rect class="box" x="16" y="30" width="150" height="46" rx="6"/>
+  <text class="lbl" x="91" y="50" text-anchor="middle">rgbd_sync</text>
+  <text class="sub mono" x="91" y="67" text-anchor="middle">rgb0 + depth0 + info</text>
+  <rect class="box" x="16" y="88" width="150" height="30" rx="6"/>
+  <text class="sub mono" x="91" y="108" text-anchor="middle">/scan_raw  ·  /odom</text>
+  <path class="ln" d="M166 70 L214 96" stroke-width="1.6" marker-end="url(#arr-m10-memory)"/>
+  <path class="ln" d="M166 103 L214 103" stroke-width="1.6" marker-end="url(#arr-m10-memory)"/>
+  <!-- new node -->
+  <rect class="box-hi" x="216" y="80" width="110" height="46" rx="6"/>
+  <text class="lbl" x="271" y="100" text-anchor="middle">새 노드</text>
+  <text class="sub" x="271" y="117" text-anchor="middle">자세 + BoW + 스캔</text>
+  <path class="ln" d="M326 103 L360 103" stroke-width="1.6" marker-end="url(#arr-m10-memory)"/>
+  <!-- STM -->
+  <rect class="box" x="362" y="70" width="90" height="66" rx="8"/>
+  <text class="lbl mono" x="407" y="96" text-anchor="middle">STM</text>
+  <text class="sub" x="407" y="114" text-anchor="middle">최근 노드</text>
+  <text class="sub" x="407" y="128" text-anchor="middle">(비교 제외)</text>
+  <path class="ln" d="M452 103 L486 103" stroke-width="1.6" marker-end="url(#arr-m10-memory)"/>
+  <!-- WM -->
+  <rect class="box-hi" x="488" y="60" width="110" height="86" rx="8"/>
+  <text class="lbl mono" x="543" y="88" text-anchor="middle">WM</text>
+  <text class="sub" x="543" y="106" text-anchor="middle">루프 검출 대상</text>
+  <text class="sub" x="543" y="122" text-anchor="middle">BoW 유사도</text>
+  <text class="sub" x="543" y="138" text-anchor="middle">+ 베이즈 필터</text>
+  <!-- LTM -->
+  <rect class="box" x="488" y="206" width="110" height="66" rx="8"/>
+  <text class="lbl mono" x="543" y="232" text-anchor="middle">LTM</text>
+  <text class="sub mono" x="543" y="252" text-anchor="middle">rtabmap.db</text>
+  <path class="ln" d="M530 148 L530 204" stroke-width="1.6" marker-end="url(#arr-m10-memory)"/>
+  <text class="tag" x="524" y="170" text-anchor="end">처리 시간·노드 수</text>
+  <text class="tag" x="524" y="184" text-anchor="end">한도 초과 → 내보내기</text>
+  <path class="ln-hi" d="M558 204 L558 148" stroke-width="1.6" marker-end="url(#arr-m10-memory-hi)"/>
+  <text class="tag" x="566" y="170">루프 이웃</text>
+  <text class="tag" x="566" y="184">다시 불러오기</text>
+  <!-- loop closure to optimizer -->
+  <path class="ln-hi" d="M598 103 L630 103 L630 40 L271 40 L271 78" stroke-width="1.6" marker-end="url(#arr-m10-memory-hi)"/>
+  <text class="tag" x="450" y="34" text-anchor="middle">루프 가설 채택 → 기하 검증(ICP) → 그래프 최적화</text>
+  <!-- outputs -->
+  <rect class="box" x="216" y="206" width="220" height="66" rx="6"/>
+  <text class="lbl" x="326" y="228" text-anchor="middle">지도 출력</text>
+  <text class="sub" x="326" y="246" text-anchor="middle">3D 점구름 · 2D /map 격자</text>
+  <text class="sub" x="326" y="262" text-anchor="middle">map → odom TF</text>
+  <path class="ln" d="M271 126 L271 204" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arr-m10-memory)"/>
+</svg>

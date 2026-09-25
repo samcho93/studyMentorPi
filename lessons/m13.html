@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M13. 다중 지점 내비게이션과 3D 내비게이션 · studyMentorPi</title>
+<meta name="description" content="단일·다중 목표 순회, 동적 장애물 회피, Python으로 목표 전송(Simple Commander), RTAB-Map 3D 내비게이션.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-mobile">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" class="active" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="m13" data-track="mobile">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-mobile">이동로봇 핵심</span> M-4 자율 내비게이션 &middot; 약 90분 &middot; 고급</div>
+    <h1><span class="lesson-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</h1>
+    <p class="lede">단일·다중 목표 순회, 동적 장애물 회피, Python으로 목표 전송(Simple Commander), RTAB-Map 3D 내비게이션.</p>
+    <div class="requires">선수 챕터: <a href="m12.html">M12</a> <a href="m10.html">M10</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      <a class="ghost-btn" href="../sim/index.html">2D 시뮬레이터</a><a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>Nav2의 세 가지 목표 액션(<code>navigate_to_pose</code>, <code>navigate_through_poses</code>, <code>follow_waypoints</code>)의 차이를 설명하고, RViz의 단일·다중 목표 도구를 사용합니다.</li><li><code>waypoint_follower</code>의 파라미터(<code>stop_on_failure</code>, <code>wait_at_waypoint</code>)와 목표 판정(<code>xy_goal_tolerance</code>) 값을 해석합니다.</li><li>주행 중 새 장애물이 나타났을 때 지역 코스트맵 → 컨트롤러 → 행동 트리 재계획·복구가 어떤 순서로 반응하는지 설명합니다.</li><li>Python(Nav2 Simple Commander)으로 여러 목표를 보내는 스크립트를 작성하고, Playground에서 오도메트리 기반 경유점 추종기를 구현합니다.</li><li>RTAB-Map 3D 내비게이션(<code>rtabmap_navigation.launch.py</code>)이 2D 내비게이션과 어떻게 다른지(위치추정 주체, 지도 형식) 설명합니다.</li></ul>
+<h2 id="목표를-주는-세-가지-방법">목표를 주는 세 가지 방법<a class="anchor" href="#목표를-주는-세-가지-방법">#</a></h2>
+<p>Nav2는 목표를 <strong>액션</strong>(action, R07)으로 받습니다. 액션은 오래 걸리는 작업에 맞게 목표 → 진행 피드백 → 결과를 주고받고, 도중에 취소할 수 있습니다.</p>
+<div class="table-wrap"><table><thead><tr><th>액션 서버</th><th>타입</th><th>목표</th><th>동작</th><th>RViz</th></tr></thead><tbody><tr><td><code>/navigate_to_pose</code></td><td><code>nav2_msgs/action/NavigateToPose</code></td><td>자세 1개</td><td>전역 계획 → 추종 → 필요 시 복구</td><td><strong>Nav2 Goal</strong> (교재 "2D Nav Goal")</td></tr><tr><td><code>/navigate_through_poses</code></td><td><code>nav2_msgs/action/NavigateThroughPoses</code></td><td>자세 여러 개</td><td><strong>한 번에</strong> 모든 점을 지나는 경로를 계획해 멈추지 않고 통과. 각 점의 방향도 고려</td><td>웨이포인트 모드 → <strong>Start Nav Through Poses</strong></td></tr><tr><td><code>/follow_waypoints</code></td><td><code>nav2_msgs/action/FollowWaypoints</code></td><td>자세 여러 개</td><td>점마다 <code>navigate_to_pose</code>를 <strong>차례로</strong> 호출. 도착하면 작업(대기 등) 수행</td><td>웨이포인트 모드 → <strong>Start Waypoint Following</strong></td></tr></tbody></table></div>
+<figure class="fig" id="fig-m13-actions"><svg viewBox="0 0 720 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="navigate_through_poses는 네 점을 지나는 경로 하나로 멈추지 않고 통과하고, follow_waypoints는 점마다 navigate_to_pose로 도착해 멈추고 대기한 뒤 다음 점으로 이동">
+  <defs>
+    <marker id="arr-m13-actions" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+    <marker id="arr-m13-actions-f" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <text class="lbl mono" x="180" y="24" text-anchor="middle">navigate_through_poses</text>
+  <text class="lbl mono" x="540" y="24" text-anchor="middle">follow_waypoints</text>
+  <path class="ln" d="M360 40 L360 250" stroke-width="1" stroke-dasharray="4 4"/>
+  <!-- left: smooth path through 4 points (square) -->
+  <path class="ln-hi" d="M70 220 L230 220 Q290 220 290 170 L290 110 Q290 70 250 70 L110 70 Q70 70 70 110 L70 150" stroke-width="2.4" marker-end="url(#arr-m13-actions)"/>
+  <g class="wr">
+    <circle cx="260" cy="220" r="6"/><circle cx="290" cy="80" r="6"/><circle cx="80" cy="70" r="6"/><circle cx="70" cy="160" r="6"/>
+  </g>
+  <circle cx="70" cy="220" r="8" class="hi"/>
+  <text class="sub" x="70" y="244" text-anchor="middle">출발</text>
+  <text class="sub" x="180" y="130" text-anchor="middle">경로 하나로 계획</text>
+  <text class="sub" x="180" y="148" text-anchor="middle">점에서 멈추지 않음</text>
+  <text class="sub" x="180" y="166" text-anchor="middle">지난 점은 BT가 제거</text>
+  <!-- right: segmented with stops -->
+  <path class="ln-hi" d="M438 220 L612 220" stroke-width="2.4" marker-end="url(#arr-m13-actions)"/>
+  <path class="ln-hi" d="M620 212 L620 88" stroke-width="2.4" marker-end="url(#arr-m13-actions)"/>
+  <path class="ln-hi" d="M612 80 L448 80" stroke-width="2.4" marker-end="url(#arr-m13-actions)"/>
+  <path class="ln-hi" d="M440 88 L440 152" stroke-width="2.4" marker-end="url(#arr-m13-actions)"/>
+  <g class="wr">
+    <circle cx="620" cy="220" r="7"/><circle cx="620" cy="80" r="7"/><circle cx="440" cy="80" r="7"/><circle cx="440" cy="160" r="7"/>
+  </g>
+  <circle cx="430" cy="220" r="8" class="hi"/>
+  <text class="sub" x="430" y="244" text-anchor="middle">출발</text>
+  <text class="tag" x="712" y="244" text-anchor="end">① 도착 판정 0.25 m</text>
+  <text class="tag" x="628" y="72">② 대기 200 ms</text>
+  <text class="tag" x="380" y="66">③ 다음 goal</text>
+  <text class="sub" x="530" y="140" text-anchor="middle">점마다 navigate_to_pose</text>
+  <text class="sub" x="530" y="158" text-anchor="middle">도착 → 작업 플러그인 → 다음</text>
+  <text class="sub" x="530" y="176" text-anchor="middle">stop_on_failure: false</text>
+  <text class="tag" x="360" y="278" text-anchor="middle">RViz: Waypoint 모드 → Start Nav Through Poses / Start Waypoint Following</text>
+</svg><figcaption>두 가지 다중 목표 방식: navigate_through_poses는 경로 하나로 부드럽게 통과하고, follow_waypoints는 점마다 도착·정지·대기한 뒤 다음 점으로 갑니다.</figcaption></figure>
+<p>교재는 두 버튼의 차이를 "Nav Through Poses는 각 점에서 로봇의 <strong>자세(방향)</strong> 를 제어하고, Waypoint Following은 신경 쓰지 않는다"고 설명합니다. 구현 관점에서 더 큰 차이는 <strong>멈추느냐</strong>입니다.</p>
+<ul><li><code>navigate_through_poses</code>: BT가 남은 점들을 지나는 경로를 계획하고, 지나간 점은 <code>nav2_remove_passed_goals_action_bt_node</code>로 지웁니다. 중간에 멈추지 않으므로 순찰·배달 경로에 적합합니다.</li><li><code>follow_waypoints</code>: 점마다 완전한 내비게이션 한 번입니다. 각 점에서 목표 판정(<code>xy_goal_tolerance</code> 0.25 m, <code>yaw_goal_tolerance</code> 0.25 rad)을 통과해야 다음으로 넘어가고, 도착 후 <strong>작업 플러그인</strong>을 실행할 수 있습니다.</li></ul>
+<h3 id="waypointfollower-설정-mentorpi-값">waypoint_follower 설정 (MentorPi 값)<a class="anchor" href="#waypointfollower-설정-mentorpi-값">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>파라미터</th><th>값</th><th>뜻</th></tr></thead><tbody><tr><td><code>loop_rate</code></td><td>20</td><td>진행 확인 주기 [Hz]</td></tr><tr><td><code>stop_on_failure</code></td><td>false</td><td>한 점에서 실패해도 <strong>다음 점으로 계속</strong> (결과에 실패한 점 번호가 남음)</td></tr><tr><td><code>waypoint_task_executor_plugin</code></td><td><code>wait_at_waypoint</code></td><td>도착 후 할 일</td></tr><tr><td><code>wait_at_waypoint.plugin</code></td><td><code>nav2_waypoint_follower::WaitAtWaypoint</code></td><td>정해진 시간 대기</td></tr><tr><td><code>wait_at_waypoint.waypoint_pause_duration</code></td><td>200</td><td>대기 시간 [<strong>ms</strong>] — 0.2 s</td></tr></tbody></table></div>
+<p>사진 찍기처럼 도착 후 할 일을 바꾸려면 <code>nav2_waypoint_follower::PhotoAtWaypoint</code> 플러그인을 쓰거나 직접 플러그인을 만듭니다. <code>stop_on_failure: false</code> 덕분에 막힌 점 하나 때문에 순찰 전체가 멈추지는 않습니다.</p>
+<h2 id="주행-중-장애물-회피의-흐름">주행 중 장애물 회피의 흐름<a class="anchor" href="#주행-중-장애물-회피의-흐름">#</a></h2>
+<p>교재 L4는 "장애물을 만나면 돌아가며 자세와 경로를 계속 조정한다"고만 설명합니다. 내부에서는 층마다 반응 속도가 다릅니다.</p>
+<div class="table-wrap"><table><thead><tr><th>단계</th><th>누가</th><th>주기</th><th>하는 일</th></tr></thead><tbody><tr><td>① 감지</td><td>지역 코스트맵 <code>voxel_layer</code></td><td>5 Hz</td><td><code>/scan_raw</code> 끝점을 표시(marking, <code>obstacle_max_range</code> 2.5 m), 빔 경로를 비움(clearing, <code>raytrace_max_range</code> 3.0 m)</td></tr><tr><td>② 회피</td><td>Controller Server (DWB)</td><td>10 Hz</td><td>새 장애물 셀을 지나는 궤적을 <code>BaseObstacle</code>이 폐기 → 옆으로 비켜 가는 궤적 선택</td></tr><tr><td>③ 재계획</td><td>BT Navigator + Planner</td><td>기본 BT에서 약 1 Hz</td><td>전역 코스트맵(<code>obstacle_layer</code>)에 장애물이 반영되면 새 전역 경로</td></tr><tr><td>④ 복구</td><td>Behavior Server</td><td>진행 실패 시</td><td><code>progress_checker</code>(10 s 동안 0.5 m 미만 이동) 또는 유효 궤적 없음 → 코스트맵 지우기 → spin → backup/wait</td></tr></tbody></table></div>
+<p>그래서 사람이 <strong>잠깐</strong> 앞을 지나가면 ②에서 비켜 가고, 상자로 통로를 <strong>막으면</strong> ③에서 다른 길을 찾고, 길이 아예 없으면 ④의 회전·후진을 반복하다 실패를 보고합니다. 사람이 지나간 뒤 자리가 비면 clearing이 셀을 지워 다시 지나갈 수 있게 됩니다.</p>
+<div class="callout callout-warn"><div class="callout-title">라이다 높이 밑의 장애물</div><div class="callout-body"><p>코스트맵 입력은 <code>/scan_raw</code> 하나입니다(깊이 카메라 점구름은 넣지 않음). 라이다 스캔 평면(바닥에서 약 0.16 m, M08)보다 낮은 물체 — 신발, 낮은 상자, 로봇 청소기 — 는 보이지 않아 그대로 들이받습니다. 순찰 경로는 이런 물체가 없는 곳으로 정합니다.</p></div></div>
+<h2 id="python으로-목표-보내기-nav2-simple-commander">Python으로 목표 보내기 (Nav2 Simple Commander)<a class="anchor" href="#python으로-목표-보내기-nav2-simple-commander">#</a></h2>
+<p>RViz 클릭 대신 코드로 목표를 보내면 순찰·배달을 자동화할 수 있습니다. Nav2의 <code>nav2_simple_commander</code> 패키지는 액션 클라이언트를 감싼 <code>BasicNavigator</code> 클래스를 제공합니다. MentorPi 원본 소스에는 이 예제가 없으므로, 로봇 컨테이너에 패키지가 설치돼 있는지 먼저 확인합니다(<code>ros2 pkg list | grep simple_commander</code>, 없으면 <code>sudo apt install ros-humble-nav2-simple-commander</code>).</p>
+<div class="code-block code-robot"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-robot">실물 전용</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">#!/usr/bin/env python3
+# patrol.py — navigation.launch.py 실행 + 초기 위치 지정 후 실행
+import rclpy
+from geometry_msgs.msg import PoseStamped
+from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
+from tf_transformations import quaternion_from_euler
+
+def make_pose(nav, x, y, yaw):
+    p = PoseStamped()
+    p.header.frame_id = &#x27;map&#x27;
+    p.header.stamp = nav.get_clock().now().to_msg()
+    p.pose.position.x, p.pose.position.y = x, y
+    q = quaternion_from_euler(0.0, 0.0, yaw)
+    p.pose.orientation.x, p.pose.orientation.y, p.pose.orientation.z, p.pose.orientation.w = q
+    return p
+
+def main():
+    rclpy.init()
+    nav = BasicNavigator()
+    nav.waitUntilNav2Active()                     # amcl·bt_navigator가 active 될 때까지 대기
+    points = [(1.0, 0.0, 0.0), (1.0, 1.0, 1.57), (0.0, 1.0, 3.14), (0.0, 0.0, 0.0)]
+    goals = [make_pose(nav, *p) for p in points]
+    nav.followWaypoints(goals)                    # 또는 nav.goThroughPoses(goals)
+    try:
+        while not nav.isTaskComplete():
+            fb = nav.getFeedback()
+            if fb:
+                print(&#x27;waypoint %d/%d&#x27; % (fb.current_waypoint + 1, len(goals)))
+            rclpy.spin_once(nav, timeout_sec=1.0)
+    except KeyboardInterrupt:
+        nav.cancelTask()                          # Ctrl+C면 목표 취소 → 로봇 정지
+    result = nav.getResult()
+    print(&#x27;result:&#x27;, {TaskResult.SUCCEEDED: &#x27;succeeded&#x27;, TaskResult.CANCELED: &#x27;canceled&#x27;,
+                      TaskResult.FAILED: &#x27;failed&#x27;}.get(result, result))
+    nav.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == &#x27;__main__&#x27;:
+    main()</code></pre></div>
+<ul><li>좌표는 <strong>map 프레임</strong>입니다. RViz의 <strong>Publish Point</strong> 도구로 지도 위를 클릭하면 <code>/clicked_point</code>에 좌표가 찍히므로(<code>ros2 topic echo /clicked_point</code>), 이것으로 순찰 점을 모읍니다.</li><li><code>followWaypoints</code> 피드백의 <code>current_waypoint</code>로 진행 상황을, 결과의 <code>missed_waypoints</code>로 실패한 점을 알 수 있습니다.</li><li><code>goToPose(pose)</code>는 단일 목표, <code>goThroughPoses(poses)</code>는 멈추지 않는 통과입니다.</li></ul>
+<p>CLI로도 같은 액션을 보낼 수 있습니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 action send_goal /follow_waypoints nav2_msgs/action/FollowWaypoints \
+  &quot;{poses: [{header: {frame_id: map}, pose: {position: {x: 1.0, y: 0.0}, orientation: {w: 1.0}}},
+            {header: {frame_id: map}, pose: {position: {x: 0.0, y: 0.0}, orientation: {w: 1.0}}}]}&quot; --feedback</code></pre></div>
+<h2 id="실습-playground-경유점-추종기">실습: Playground 경유점 추종기<a class="anchor" href="#실습-playground-경유점-추종기">#</a></h2>
+<p>Playground에는 Nav2가 없으므로, <code>follow_waypoints</code>의 핵심 — "현재 점에 도착(허용오차 안)하면 다음 점으로" — 을 오도메트리로 직접 구현합니다. 메카넘 섀시는 옆으로도 움직일 수 있으므로 방향은 0 rad로 유지한 채 x·y 속도로 바로 이동합니다(횡이동을 쓰지 않는 DWB 설정과 다른 점). 속도는 안전 상한이 걸린 <code>/cmd_vel</code>로 보냅니다.</p>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist, Pose2D
+from nav_msgs.msg import Odometry
+from tf_transformations import euler_from_quaternion
+import mentorpi_sim as sim                                       # 시뮬 전용
+sim.setup(chassis=&quot;mecanum&quot;, world=&quot;empty&quot;, duration=30.0, start=(0.0, 0.0, 0.0))  # 시뮬 전용
+
+WAYPOINTS = [(1.0, 0.0), (1.0, 1.0), (0.0, 1.0), (0.0, 0.0)]    # odom 좌표 [m]
+KP, V_MAX, TOL = 1.2, 0.2, 0.05                                  # P 이득, 속도 상한, 도착 허용오차
+
+class WaypointFollower(Node):
+    def __init__(self):
+        super().__init__(&#x27;waypoint_follower_demo&#x27;)
+        self.pose, self.truth, self.idx, self.t0 = None, None, 0, None
+        self.create_subscription(Odometry, &#x27;/odom&#x27;, self.on_odom, 10)
+        self.create_subscription(Pose2D, &#x27;/ground_truth&#x27;, self.on_truth, 10)   # 시뮬 전용
+        self.pub = self.create_publisher(Twist, &#x27;/cmd_vel&#x27;, 10)
+        self.create_timer(0.05, self.control)
+    def on_odom(self, m):
+        q = m.pose.pose.orientation
+        yaw = euler_from_quaternion([q.x, q.y, q.z, q.w])[2]
+        self.pose = (m.pose.pose.position.x, m.pose.pose.position.y, yaw)
+    def on_truth(self, m):
+        self.truth = (m.x, m.y)
+    def control(self):
+        if self.pose is None:
+            return
+        now = self.get_clock().now().nanoseconds * 1e-9
+        self.t0 = now if self.t0 is None else self.t0
+        gx, gy = WAYPOINTS[self.idx]
+        x, y, yaw = self.pose
+        ex, ey = gx - x, gy - y                                  # odom 좌표 오차
+        if math.hypot(ex, ey) &lt; TOL:
+            err = math.hypot(self.truth[0] - gx, self.truth[1] - gy) if self.truth else float(&#x27;nan&#x27;)
+            self.get_logger().info(&#x27;WP%d (%.1f, %.1f) reached t=%.1f s  true error %.3f m&#x27; % (
+                self.idx + 1, gx, gy, now - self.t0, err))
+            self.idx += 1
+            if self.idx == len(WAYPOINTS):
+                self.pub.publish(Twist()); rclpy.shutdown()
+            return
+        bx = math.cos(yaw) * ex + math.sin(yaw) * ey             # odom -&gt; 로봇 좌표
+        by = -math.sin(yaw) * ex + math.cos(yaw) * ey
+        s = min(1.0, V_MAX / max(1e-6, KP * math.hypot(bx, by)))  # 속도 벡터 크기 제한
+        t = Twist()
+        t.linear.x, t.linear.y = KP * bx * s, KP * by * s        # 메카넘: 옆으로도 이동
+        t.angular.z = -1.0 * yaw                                 # 방향은 0 rad 유지
+        self.pub.publish(t)
+
+rclpy.init()
+node = WaypointFollower()
+try:
+    rclpy.spin(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    if rclpy.ok(): node.pub.publish(Twist())
+    node.destroy_node()
+    if rclpy.ok(): rclpy.shutdown()</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[INFO] [5.300] [waypoint_follower_demo]: WP1 (1.0, 0.0) reached t=5.2 s  true error 0.099 m      (대략)
+[INFO] [10.600] [waypoint_follower_demo]: WP2 (1.0, 1.0) reached t=10.5 s  true error 0.108 m
+[INFO] [15.900] [waypoint_follower_demo]: WP3 (0.0, 1.0) reached t=15.8 s  true error 0.067 m
+[INFO] [21.200] [waypoint_follower_demo]: WP4 (0.0, 0.0) reached t=21.1 s  true error 0.046 m</code></pre></div>
+<p>읽는 법:</p>
+<ul><li>한 변 1 m를 최고 0.2 m/s로 가므로 점 사이 약 5 s입니다. 도착 직전에는 P 제어라 속도가 줄어듭니다.</li><li><strong>true error</strong>는 오도메트리로는 도착했다고 판단한 순간 실제 위치(<code>/ground_truth</code>)와 목표의 거리입니다. 오도메트리 드리프트가 그대로 드러납니다. 실물 Nav2는 AMCL이 <code>map → odom</code>을 보정하므로 이 오차가 쌓이지 않습니다(M11).</li><li><code>TOL</code>을 0.25(Nav2의 <code>xy_goal_tolerance</code>)로 바꾸면 각 점을 훨씬 일찍 "도착"으로 판정해 모서리를 크게 깎고 지나갑니다. <code>navigate_through_poses</code>가 점을 부드럽게 통과하는 모습과 비슷해집니다.</li></ul>
+<h2 id="rtab-map-3d-내비게이션">RTAB-Map 3D 내비게이션<a class="anchor" href="#rtab-map-3d-내비게이션">#</a></h2>
+<p>M10에서 만든 RTAB-Map 데이터베이스로 내비게이션을 합니다. 원본 <code>navigation/launch/rtabmap_navigation.launch.py</code>의 구성은 2D 내비게이션과 이렇게 다릅니다.</p>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>2D (<code>navigation.launch.py</code>)</th><th>3D (<code>rtabmap_navigation.launch.py</code>)</th></tr></thead><tbody><tr><td>지도</td><td><code>slam/maps/map_01.yaml</code> (<code>map_server</code>)</td><td><code>~/.ros/rtabmap.db</code> (RTAB-Map이 <code>/map</code> 발행)</td></tr><tr><td>위치추정 (<code>map → odom</code>)</td><td>AMCL (라이다 + 격자 지도)</td><td><strong>RTAB-Map 위치추정 모드</strong> (영상 + 스캔)</td></tr><tr><td><code>bringup.launch.py</code> 인자</td><td><code>rtabmap: false</code> → <code>localization.launch.py</code> 포함</td><td><code>rtabmap: &#x27;true&#x27;</code> → <code>localization.launch.py</code> <strong>제외</strong>(UnlessCondition)</td></tr><tr><td>RTAB-Map 파라미터</td><td>—</td><td>M10과 같은 값 + <code>Mem/IncrementalMemory: &#x27;False&#x27;</code>, <code>Mem/InitWMWithAllNodes: &#x27;True&#x27;</code>, <code>grid_size: &#x27;20&#x27;</code>; <code>-d</code> 인자 <strong>없음</strong></td></tr><tr><td>플래너·컨트롤러</td><td>NavFn + DWB (같은 <code>nav2_params.yaml</code>)</td><td>같음</td></tr><tr><td>초기 위치</td><td>2D Pose Estimate로 직접 지정</td><td>필요 없음 — 카메라가 아는 장면을 보면 <strong>스스로</strong> 위치를 찾음(전역 위치추정)</td></tr></tbody></table></div>
+<ul><li><code>Mem/IncrementalMemory: False</code>는 "지도를 더 키우지 말고 <strong>위치추정만</strong>" 하라는 뜻입니다.</li><li><code>Mem/InitWMWithAllNodes: True</code>는 시작할 때 데이터베이스의 모든 노드를 작업 메모리(WM)에 올려 <strong>어디서든</strong> 루프(재위치추정)를 찾게 합니다.</li><li>매핑 launch와 달리 <code>-d</code>가 없어서 M10에서 만든 데이터베이스를 지우지 않고 읽습니다.</li><li>교재 L5는 이 launch의 구성을 "rtabmap_launch(3D 내비게이션 알고리즘), navigation_launch(2D 내비게이션 알고리즘), bringup_launch(초기화)"로 설명합니다. 즉 <strong>경로 계획·제어는 2D Nav2 그대로</strong>이고, 지도와 위치추정만 RTAB-Map이 맡습니다.</li></ul>
+<h2 id="실습-시뮬레이션">실습 (시뮬레이션)<a class="anchor" href="#실습-시뮬레이션">#</a></h2>
+<p class="cta-row"><a class="ghost-btn cta" href="../sim/index.html">2D 시뮬레이터 열기</a></p>
+<ol><li><strong>room</strong> 월드에서 SLAM으로 지도를 만든 뒤 <strong>내비게이션</strong> 모드로 바꿉니다.</li><li>목표를 차례로 네 곳 클릭해 순찰 경로를 만들어 봅니다(한 목표에 도착하면 다음 목표를 클릭). 각 구간의 전역 경로(A*)와 실제 궤적을 비교합니다.</li><li>로봇이 주행하는 도중 경로 앞에 장애물을 두어(가능하면) 지역 제어가 비켜 가는지, 전역 경로가 다시 계산되는지 관찰합니다.</li><li><strong>오도메트리 오차 표시</strong>를 켠 채로 순찰을 여러 바퀴 돌리고, 오차가 쌓이는 모습을 위 Playground 결과(true error)와 비교합니다.</li></ol>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">안전 확인 (실물 실습 전 필수)</div><div class="callout-body"><ul><li>다중 지점 주행은 로봇이 <strong>오래, 멀리</strong> 스스로 움직입니다. 경로 전체를 먼저 걸어 보며 계단·문턱·케이블·낮은 물체(라이다에 안 보임)를 치웁니다.</li><li>첫 순찰은 1 m 간격 2~3점, 사람 한 명이 로봇을 따라다니며 멈출 준비를 합니다.</li><li>멈추는 방법을 미리 확인합니다: RViz Navigation 2 패널의 <strong>Cancel</strong>, 스크립트 터미널 Ctrl+C(<code>cancelTask</code>), 그래도 움직이면 <code>ros2 topic pub --once /controller/cmd_vel geometry_msgs/msg/Twist &quot;{}&quot;</code>, 최후에는 전원 스위치.</li><li>속도 상한(0.2 m/s, 0.5 rad/s)을 풀지 않습니다. 3D 내비게이션은 계산이 무거워 명령이 늦을 수 있으니 더 넓은 공간에서 합니다.</li></ul></div></div>
+<h3 id="1-단일-다중-목표-2d">1) 단일·다중 목표 (2D)<a class="anchor" href="#1-단일-다중-목표-2d">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash"># 로봇
+~/.stop_ros.sh
+ros2 launch navigation navigation.launch.py map:=map_01
+
+# 가상머신
+ros2 launch navigation rviz_navigation.launch.py</code></pre></div>
+<ol><li><strong>2D Pose Estimate</strong>로 초기 위치를 지정합니다(M11).</li><li><strong>단일 목표</strong>: <strong>Nav2 Goal</strong>로 한 점을 찍습니다. 초록 선(직선)과 진한 파란 선(계획 경로)을 확인합니다.</li><li><strong>다중 목표</strong>: Navigation 2 패널에서 <strong>Waypoint / Nav Through Poses Mode</strong> 버튼을 누르고, <strong>Nav2 Goal</strong> 도구로 점을 여러 개 찍습니다(화살표로 방향까지 지정).</li><li><strong>Start Nav Through Poses</strong>와 <strong>Start Waypoint Following</strong>을 번갈아 실행해, 점에서 멈추는지·방향을 맞추는지 비교합니다.</li><li>주행 중에 상자를 경로에 놓았다 치워 보며 회피·재계획을 관찰합니다.</li><li>위 <code>patrol.py</code>를 로봇에 저장해 실행합니다(좌표는 <code>/clicked_point</code>로 확인한 값으로 수정).</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 topic echo /clicked_point            # RViz Publish Point로 클릭한 좌표 확인
+python3 ~/patrol.py</code></pre></div>
+<h3 id="2-rtab-map-3d-내비게이션">2) RTAB-Map 3D 내비게이션<a class="anchor" href="#2-rtab-map-3d-내비게이션">#</a></h3>
+<p>M10에서 만든 <code>~/.ros/rtabmap.db</code>가 있어야 합니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash"># 로봇
+~/.stop_ros.sh
+ros2 launch navigation rtabmap_navigation.launch.py
+
+# 가상머신
+ros2 launch navigation rviz_rtabmap_navigation.launch.py</code></pre></div>
+<ol><li>로봇을 매핑 때 지나간 곳에 두고 카메라가 아는 장면을 보게 합니다. RViz에 지도와 로봇 위치가 나타나면 위치추정 성공입니다(초기 위치 지정 불필요).</li><li><strong>Nav2 Goal</strong>로 목표를 찍습니다. 교재 설명대로 파란 사각형으로 된 직선 참고선과 진한 파란 계획 경로가 표시되고 로봇이 출발합니다. 다중 목표는 <strong>Publish Point</strong>/웨이포인트 모드로 줍니다.</li><li><code>ros2 topic hz /map</code>, <code>top</code>으로 부하를 보고, 2D 내비게이션과 반응 속도를 비교합니다.</li><li>끝나면 모든 터미널 Ctrl+C, 호스트에서 <code>sudo systemctl restart start_node.service</code>.</li></ol>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> <code>navigate_through_poses</code>와 <code>follow_waypoints</code>의 차이를 "멈춤·방향·작업 플러그인" 세 관점으로 말할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> 주행 중 장애물이 나타났을 때 ①감지 ②회피 ③재계획 ④복구가 각각 어느 노드에서 일어나는지 설명할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> RTAB-Map 내비게이션에서 AMCL이 실행되지 않는 이유(launch 조건)를 찾았다.</label></li></ul></div></div>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td>Waypoint 모드 버튼이 없음</td><td>RViz에 Navigation 2 패널이 안 보임</td><td>원본 <code>rviz_navigation.launch.py</code>로 실행(설정 파일에 패널 포함), Panels 메뉴에서 추가</td></tr><tr><td>순찰 중 한 점을 건너뜀</td><td>그 점이 막힘 → <code>stop_on_failure: false</code>라 다음 점으로</td><td>결과의 <code>missed_waypoints</code> 확인, 점 위치를 빈 곳으로</td></tr><tr><td>각 점에서 오래 제자리 회전</td><td><code>follow_waypoints</code>가 점마다 <code>yaw_goal_tolerance</code> 0.25 rad 판정</td><td>방향이 중요 없으면 <code>navigate_through_poses</code> 사용</td></tr><tr><td><code>patrol.py</code>가 <code>waitUntilNav2Active</code>에서 멈춤</td><td>초기 위치 미지정으로 amcl이 준비 안 됨</td><td>RViz 2D Pose Estimate 먼저, 또는 <code>nav.setInitialPose(...)</code></td></tr><tr><td><code>ModuleNotFoundError: nav2_simple_commander</code></td><td>패키지 미설치</td><td><code>sudo apt install ros-humble-nav2-simple-commander</code> (컨테이너 안)</td></tr><tr><td>3D 내비게이션에서 위치가 안 잡힘</td><td>매핑 때와 다른 방향·조명, DB 없음</td><td>매핑 경로 위에서 같은 방향으로 카메라를 향함, <code>~/.ros/rtabmap.db</code> 확인</td></tr><tr><td>3D 내비게이션이 끊기고 늦게 반응</td><td>큰 DB, 라즈베리파이 부하</td><td>매핑 범위 축소(M10 경고), 다른 무거운 노드 끄기</td></tr><tr><td>낮은 물체에 부딪힘</td><td>코스트맵 입력이 라이다 한 평면뿐</td><td>경로에서 치우기, (심화) 깊이 카메라 점구름을 voxel 층 관측원으로 추가</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">기본 과제</div><div class="callout-body"><ol><li>Playground 추종기의 <code>TOL</code>을 0.05, 0.15, 0.25로 바꿔 총 주행 시간과 각 점의 true error를 표로 정리하고, Nav2 <code>xy_goal_tolerance</code> 선택과 연결해 설명합니다.</li><li>실물(또는 시뮬레이터)에서 같은 네 점을 <code>navigate_through_poses</code>와 <code>follow_waypoints</code>로 각각 돌고 총 시간을 비교합니다.</li></ol></div></div>
+<div class="callout callout-task"><div class="callout-title">심화 과제</div><div class="callout-body"><ol><li>Playground 추종기를 <strong>애커만 섀시</strong>(<code>chassis=&quot;ackermann&quot;</code>)용으로 바꿉니다. 횡이동 대신 목표 방향으로 조향하는 Pure Pursuit(전방 주시 거리 0.3 m, 곡률 <span class="math">κ = 2·sin α / L_d</span>, <span class="math">ω = v·κ</span>)로 구현합니다.</li><li><code>patrol.py</code>를 확장해 순찰을 <strong>무한 반복</strong>하되, 각 점 도착 시 <code>/scan_raw</code>의 전방 최소 거리를 기록해 CSV로 저장하는 "경비 순찰" 노드를 만듭니다. 순찰 중 Ctrl+C로 안전하게 멈추는지 확인합니다.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>13. Navigation Lesson</em> — Lesson 4 Point-to-Point and Multi-Point Navigation and Obstacle Avoidance, Lesson 5 RTAB-VSLAM 3D Navigation</li><li>원본 소스: <code>src/navigation/launch/navigation.launch.py</code>, <code>src/navigation/launch/rtabmap_navigation.launch.py</code>, <code>src/navigation/launch/include/bringup.launch.py</code>, <code>src/navigation/launch/include/rtabmap.launch.py</code>, <code>src/navigation/config/nav2_params.yaml</code>(<code>waypoint_follower</code>, <code>bt_navigator</code>), <code>src/navigation/config/nav2_controller_dwb.yaml</code>(<code>general_goal_checker</code>, <code>progress_checker</code>)</li><li>Nav2 Simple Commander: https://docs.nav2.org/commander_api/index.html</li><li>Nav2 Waypoint Follower: https://docs.nav2.org/configuration/packages/configuring-waypoint-follower.html</li><li>Nav2 행동 트리 개요: https://docs.nav2.org/behavior_trees/index.html</li><li>RTAB-Map ROS 2 (위치추정 모드, <code>Mem/IncrementalMemory</code>): https://github.com/introlab/rtabmap_ros</li></ul>
+      <nav class="pager"><a class="pager-prev" href="m12.html"><span>이전 · M12</span>경로 계획: 전역 A*와 지역 DWA</a><a class="pager-next" href="a01.html"><span>다음 · A01</span>색 임계값 조정과 색 인식</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#목표를-주는-세-가지-방법">목표를 주는 세 가지 방법</a><a class="toc-l3" href="#waypointfollower-설정-mentorpi-값">waypoint_follower 설정 (MentorPi 값)</a><a class="toc-l2" href="#주행-중-장애물-회피의-흐름">주행 중 장애물 회피의 흐름</a><a class="toc-l2" href="#python으로-목표-보내기-nav2-simple-commander">Python으로 목표 보내기 (Nav2 Simple Commander)</a><a class="toc-l2" href="#실습-playground-경유점-추종기">실습: Playground 경유점 추종기</a><a class="toc-l2" href="#rtab-map-3d-내비게이션">RTAB-Map 3D 내비게이션</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l3" href="#1-단일-다중-목표-2d">1) 단일·다중 목표 (2D)</a><a class="toc-l3" href="#2-rtab-map-3d-내비게이션">2) RTAB-Map 3D 내비게이션</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

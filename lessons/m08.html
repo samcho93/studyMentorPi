@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M08. MentorPi URDF 모델 · studyMentorPi</title>
+<meta name="description" content="URDF 문법 복습, mentorpi_description의 xacro 구조(메카넘/애커만), base_footprint·lidar·imu 링크와 RViz 표시.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-mobile">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" class="active" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="m08" data-track="mobile">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-mobile">이동로봇 핵심</span> M-3 SLAM 지도 작성 &middot; 약 70분 &middot; 중급</div>
+    <h1><span class="lesson-no">M08</span>MentorPi URDF 모델</h1>
+    <p class="lede">URDF 문법 복습, mentorpi_description의 xacro 구조(메카넘/애커만), base_footprint·lidar·imu 링크와 RViz 표시.</p>
+    <div class="requires">선수 챕터: <a href="m07.html">M07</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      <a class="ghost-btn" href="../tools/urdf-viewer.html">URDF 뷰어</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>URDF의 <code>&lt;link&gt;</code>·<code>&lt;joint&gt;</code>·<code>&lt;origin&gt;</code>·<code>&lt;axis&gt;</code>와 관절 종류(fixed, continuous, revolute …)를 읽고, 링크 트리를 그릴 수 있습니다.</li><li>xacro가 URDF에 더하는 기능(속성, 매크로, 조건부 include)을 설명하고, <code>mentorpi.xacro</code>가 <code>MACHINE_TYPE</code>으로 섀시 모델을 고르는 방식을 해석합니다.</li><li><code>mecanum.xacro</code>·<code>ack.xacro</code>의 실제 링크·조인트 이름과 오프셋으로 TF 트리를 그리고, 동차 변환 행렬로 센서 좌표를 로봇 좌표로 바꿉니다.</li><li><code>robot_state_publisher</code>가 URDF를 TF로 바꾸는 과정을 이해하고, RViz·URDF 뷰어에서 모델을 확인합니다.</li></ul>
+<h2 id="urdf가-하는-일">URDF가 하는 일<a class="anchor" href="#urdf가-하는-일">#</a></h2>
+<p>URDF(Unified Robot Description Format)는 로봇을 <strong>강체(link)와 그 사이 관절(joint)의 트리</strong>로 기술하는 XML 파일입니다. SLAM·내비게이션에서 URDF가 중요한 이유는 하나입니다.</p>
+<blockquote><p>라이다는 <code>lidar_frame</code> 기준으로 거리를 재지만, 지도와 경로는 <code>base_footprint</code> 기준으로 계산합니다. <strong>두 좌표계 사이의 변환</strong>을 누군가 알려 줘야 합니다.</p></blockquote>
+<p>그 변환을 URDF가 담고, <code>robot_state_publisher</code> 노드가 URDF를 읽어 <code>/tf_static</code>(고정 관절)과 <code>/tf</code>(움직이는 관절)로 발행합니다. 라이다가 로봇 중심에서 1.2 cm 뒤에 달려 있다는 사실을 URDF가 모르면, 지도의 벽이 1.2 cm씩 어긋나게 쌓입니다.</p>
+<h2 id="urdf-문법-복습">URDF 문법 복습<a class="anchor" href="#urdf-문법-복습">#</a></h2>
+<h3 id="link">link<a class="anchor" href="#link">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">xml</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-xml">&lt;link name=&quot;base_link&quot;&gt;
+  &lt;inertial&gt;   &lt;!-- 질량·관성 (동역학 시뮬레이션용) --&gt;
+    &lt;origin xyz=&quot;7.8e-05 3.7e-05 0.0068&quot; rpy=&quot;0 0 0&quot;/&gt;
+    &lt;mass value=&quot;0.080358&quot;/&gt;
+    &lt;inertia ixx=&quot;9.92e-05&quot; ixy=&quot;3.2e-08&quot; ixz=&quot;1.16e-05&quot; iyy=&quot;0.000292&quot; iyz=&quot;-2.9e-08&quot; izz=&quot;0.000368&quot;/&gt;
+  &lt;/inertial&gt;
+  &lt;visual&gt;     &lt;!-- 화면에 그릴 모양 --&gt;
+    &lt;geometry&gt;&lt;mesh filename=&quot;package://mentorpi_description/meshes/mecanum/base_link.STL&quot;/&gt;&lt;/geometry&gt;
+  &lt;/visual&gt;
+  &lt;collision&gt;  &lt;!-- 충돌 계산용 모양 (보통 단순화) --&gt;
+    &lt;geometry&gt;&lt;mesh filename=&quot;package://mentorpi_description/meshes/mecanum/base_link.STL&quot;/&gt;&lt;/geometry&gt;
+  &lt;/collision&gt;
+&lt;/link&gt;</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>태그</th><th>뜻</th><th>비고</th></tr></thead><tbody><tr><td><code>&lt;inertial&gt;</code></td><td>질량(<code>mass</code>, kg), 관성 텐서 6개 성분(<code>ixx ixy ixz iyy iyz izz</code>, kg·m²)</td><td>관성 텐서는 대칭이라 6개면 충분</td></tr><tr><td><code>&lt;visual&gt;</code></td><td>그릴 모양: <code>box</code>, <code>cylinder</code>, <code>sphere</code>, <code>mesh</code></td><td><code>material</code>로 색 지정</td></tr><tr><td><code>&lt;collision&gt;</code></td><td>충돌 모양</td><td>메시 대신 상자·원통을 쓰면 계산이 빠름</td></tr><tr><td><code>&lt;origin xyz rpy&gt;</code></td><td>링크 좌표계 안에서 그 요소의 위치·자세</td><td>m, rad</td></tr></tbody></table></div>
+<p><code>&lt;link name=&quot;imu_link&quot;/&gt;</code>처럼 <strong>내용이 없는 링크</strong>도 쓸 수 있습니다. 센서 좌표계처럼 "위치만 있는 점"을 만들 때입니다.</p>
+<h3 id="joint">joint<a class="anchor" href="#joint">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">xml</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-xml">&lt;joint name=&quot;wheel_lf_Joint&quot; type=&quot;continuous&quot;&gt;
+  &lt;origin xyz=&quot;0.067052 0.07591 -0.018408&quot; rpy=&quot;0 0 0&quot;/&gt;   &lt;!-- 부모 좌표계에서 본 자식 원점 --&gt;
+  &lt;parent link=&quot;base_link&quot;/&gt;
+  &lt;child link=&quot;wheel_lf_Link&quot;/&gt;
+  &lt;axis xyz=&quot;0.00012228 1 -4.0642E-05&quot;/&gt;                    &lt;!-- 회전축 (자식 좌표계 기준) --&gt;
+&lt;/joint&gt;</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>type</th><th>움직임</th><th>필요한 태그</th><th>MentorPi 예</th></tr></thead><tbody><tr><td><code>fixed</code></td><td>없음</td><td>origin</td><td>라이다, 카메라, IMU, base_footprint→base_link</td></tr><tr><td><code>continuous</code></td><td>무한 회전</td><td>axis</td><td>네 바퀴</td></tr><tr><td><code>revolute</code></td><td>범위 있는 회전</td><td>axis, <code>limit lower upper effort velocity</code></td><td>(조향 서보를 모델링한다면)</td></tr><tr><td><code>prismatic</code></td><td>직선 이동</td><td>axis, limit</td><td>—</td></tr><tr><td><code>floating</code>, <code>planar</code></td><td>6/3 자유도</td><td>—</td><td>드묾</td></tr></tbody></table></div>
+<p><code>&lt;origin&gt;</code>의 <code>rpy</code>는 roll(x)·pitch(y)·yaw(z) 순서의 <strong>고정축 회전</strong>이고 행렬로는 <span class="math">R = Rz(yaw)·Ry(pitch)·Rx(roll)</span>입니다. 교재는 <code>limit</code>의 <code>velocity</code>를 m/s로 설명하지만, 회전 관절에서는 <strong>rad/s</strong>, 직선 관절에서만 m/s입니다.</p>
+<h3 id="xacro">xacro<a class="anchor" href="#xacro">#</a></h3>
+<p>xacro(XML macro)는 URDF를 만들어 내는 전처리기입니다. <code>xacro 파일.xacro</code> 명령이 순수 URDF를 출력합니다.</p>
+<div class="table-wrap"><table><thead><tr><th>기능</th><th>문법</th><th>MentorPi에서</th></tr></thead><tbody><tr><td>속성(상수)</td><td><code>&lt;xacro:property name=&quot;M_PI&quot; value=&quot;3.14159...&quot;/&gt;</code>, <code>${M_PI/2}</code></td><td><code>imu.urdf.xacro</code>, <code>inertial_matrix.xacro</code></td></tr><tr><td>수식</td><td><code>${0.025 - 0.0295 + 0.0965/2 + 0.0678}</code></td><td>IMU 높이 계산</td></tr><tr><td>매크로</td><td><code>&lt;xacro:macro name=&quot;cylinder_inertial&quot; params=&quot;m r h&quot;&gt;</code></td><td>원통·구·상자 관성 공식</td></tr><tr><td>include</td><td><code>&lt;xacro:include filename=&quot;$(find pkg)/urdf/x.xacro&quot;/&gt;</code></td><td>섀시별 모델 불러오기</td></tr><tr><td>조건</td><td><code>&lt;xacro:if value=&quot;${machine == &#x27;MentorPi_Mecanum&#x27;}&quot;&gt;</code></td><td>섀시 선택</td></tr><tr><td>환경 변수</td><td><code>$(env MACHINE_TYPE)</code></td><td>로봇마다 다른 값</td></tr></tbody></table></div>
+<p><code>inertial_matrix.xacro</code>의 원통 매크로는 교과서 공식 그대로입니다: <span class="math">Ixx = Iyy = m(3r² + h²)/12</span>, <span class="math">Izz = m r²/2</span>.</p>
+<h2 id="mentorpidescription-패키지-구조">mentorpi_description 패키지 구조<a class="anchor" href="#mentorpidescription-패키지-구조">#</a></h2>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">src/simulations/mentorpi_description/
+├── urdf/
+│   ├── mentorpi.xacro          # 최상위: MACHINE_TYPE으로 섀시 선택
+│   ├── mecanum.xacro           # 메카넘 섀시 전체 (링크·조인트)
+│   ├── ack.xacro               # 애커만 섀시 전체 + imu.urdf.xacro include
+│   ├── imu.urdf.xacro          # 애커만용 IMU 링크
+│   ├── lidar.urdf.xacro        # lidar_link → lidar_frame (현재 최상위에서 include 안 함)
+│   ├── inertial_matrix.xacro   # 관성 매크로
+│   └── materials.xacro         # 색 정의
+├── meshes/mecanum/*.STL, meshes/acker/*.STL
+├── launch/display.launch.py, robot_description.launch.py, rviz.launch.py
+└── rviz/view.rviz</code></pre></div>
+<p>최상위 <code>mentorpi.xacro</code>의 핵심은 여섯 줄입니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">xml</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-xml">&lt;xacro:property name=&quot;machine&quot; value=&quot;$(env MACHINE_TYPE)&quot;/&gt;
+&lt;xacro:if value=&quot;${machine == &#x27;MentorPi_Mecanum&#x27;}&quot;&gt;
+    &lt;xacro:include filename=&quot;$(find mentorpi_description)/urdf/mecanum.xacro&quot;/&gt;
+&lt;/xacro:if&gt;
+&lt;xacro:if value=&quot;${machine == &#x27;MentorPi_Acker&#x27;}&quot;&gt;
+    &lt;xacro:include filename=&quot;$(find mentorpi_description)/urdf/ack.xacro&quot;/&gt;
+&lt;/xacro:if&gt;</code></pre></div>
+<p>즉 <strong>같은 launch 파일이 섀시에 따라 다른 모델</strong>을 냅니다. 컨테이너의 <code>MACHINE_TYPE</code> 환경 변수(B03 로봇 버전 설정)가 틀리면 모델도 틀립니다.</p>
+<h2 id="링크-조인트-표-실제-값">링크·조인트 표 (실제 값)<a class="anchor" href="#링크-조인트-표-실제-값">#</a></h2>
+<figure class="fig" id="fig-m08-tf-tree"><svg viewBox="0 0 720 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="MentorPi 메카넘 URDF 링크 트리: base_footprint에서 base_link, 네 바퀴, depth_cam, lidar_frame, imu_link로 이어지는 조인트와 오프셋">
+  <defs>
+    <marker id="arr-m08-tf-tree" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <!-- dynamic frames from other nodes -->
+  <rect class="box" x="20" y="20" width="110" height="34" rx="6" stroke-dasharray="4 3"/>
+  <text class="lbl mono" x="75" y="42" text-anchor="middle">map</text>
+  <rect class="box" x="20" y="92" width="110" height="34" rx="6" stroke-dasharray="4 3"/>
+  <text class="lbl mono" x="75" y="114" text-anchor="middle">odom</text>
+  <path class="ln" d="M75 54 L75 90" stroke-width="1.4" marker-end="url(#arr-m08-tf-tree)"/>
+  <text class="sub" x="84" y="77">AMCL / SLAM</text>
+  <path class="ln" d="M75 126 L75 162" stroke-width="1.4" marker-end="url(#arr-m08-tf-tree)"/>
+  <text class="sub" x="84" y="149">EKF 오도메트리</text>
+  <!-- URDF part -->
+  <rect x="10" y="158" width="700" height="162" rx="10" style="fill:none;stroke:var(--accent-dim)" stroke-dasharray="6 4"/>
+  <text class="tag" x="700" y="314" text-anchor="end">URDF → robot_state_publisher</text>
+  <rect class="box-hi" x="20" y="164" width="130" height="34" rx="6"/>
+  <text class="lbl mono" x="85" y="186" text-anchor="middle">base_footprint</text>
+  <path class="ln-hi" d="M150 181 L196 181" stroke-width="1.6" marker-end="url(#arr-m08-tf-tree)"/>
+  <text class="sub mono" x="173" y="172" text-anchor="middle">z 0.07</text>
+  <rect class="box-hi" x="198" y="164" width="104" height="34" rx="6"/>
+  <text class="lbl mono" x="250" y="186" text-anchor="middle">base_link</text>
+  <!-- children -->
+  <path class="ln" d="M302 181 L330 181 L330 300 M330 206 L356 206 M330 232 L356 232 M330 258 L356 258 M330 284 L356 284 M330 181 L356 181" stroke-width="1.4"/>
+  <rect class="box" x="356" y="170" width="132" height="22" rx="4"/>
+  <text class="tag mono" x="422" y="185" text-anchor="middle">lidar_frame</text>
+  <text class="sub mono" x="496" y="185">fixed (−0.012, 0, 0.0925)</text>
+  <rect class="box" x="356" y="196" width="132" height="22" rx="4"/>
+  <text class="tag mono" x="422" y="211" text-anchor="middle">depth_cam</text>
+  <text class="sub mono" x="496" y="211">fixed (0.061, 0, 0.051)</text>
+  <rect class="box" x="356" y="222" width="132" height="22" rx="4"/>
+  <text class="tag mono" x="422" y="237" text-anchor="middle">imu_link</text>
+  <text class="sub mono" x="496" y="237">fixed (0, 0, 0) yaw −1.57</text>
+  <rect class="box" x="356" y="248" width="132" height="22" rx="4"/>
+  <text class="tag mono" x="422" y="263" text-anchor="middle">wheel_lf / rf_Link</text>
+  <text class="sub mono" x="496" y="263">cont. (0.067, ±0.076, −0.018)</text>
+  <rect class="box" x="356" y="274" width="132" height="22" rx="4"/>
+  <text class="tag mono" x="422" y="289" text-anchor="middle">wheel_lb / rb_Link</text>
+  <text class="sub mono" x="496" y="289">cont. (−0.068, ±0.076, −0.018)</text>
+  <text class="sub" x="30" y="236">바닥 위 로봇 중심 (z = 0)</text>
+  <text class="sub" x="30" y="254">내비게이션·SLAM의 로봇 프레임</text>
+  <text class="sub" x="30" y="296">라이다 높이 = 0.07 + 0.0925 ≈ 0.1625 m</text>
+</svg><figcaption>MentorPi 메카넘 모델의 링크 트리와 주요 조인트 오프셋(m). 괄호 안은 부모 좌표계에서 본 자식 원점입니다.</figcaption></figure>
+<p><code>mecanum.xacro</code>의 조인트입니다(모두 부모 좌표계 기준, 단위 m·rad).</p>
+<div class="table-wrap"><table><thead><tr><th>조인트</th><th>type</th><th>부모 → 자식</th><th>origin xyz</th><th>rpy</th></tr></thead><tbody><tr><td><code>base_footprint_to_base_link</code></td><td>fixed</td><td><code>base_footprint</code> → <code>base_link</code></td><td>(0, 0, 0.07)</td><td>0 0 0</td></tr><tr><td><code>wheel_lf_Joint</code></td><td>continuous</td><td><code>base_link</code> → <code>wheel_lf_Link</code></td><td>(0.067052, 0.07591, −0.018408)</td><td>0 0 0</td></tr><tr><td><code>wheel_rf_Joint</code></td><td>continuous</td><td><code>base_link</code> → <code>wheel_rf_Link</code></td><td>(0.067052, −0.07591, −0.018408)</td><td>0 0 0</td></tr><tr><td><code>wheel_lb_Joint</code></td><td>continuous</td><td><code>base_link</code> → <code>wheel_lb_Link</code></td><td>(−0.06764, 0.07591, −0.018414)</td><td>0 0 0</td></tr><tr><td><code>wheel_rb_Joint</code></td><td>continuous</td><td><code>base_link</code> → <code>wheel_rb_Link</code></td><td>(−0.067621, −0.07591, −0.018408)</td><td>0 0 0</td></tr><tr><td><code>cam_Joint</code></td><td>fixed</td><td><code>base_link</code> → <code>depth_cam</code></td><td>(0.061376, −0.00013463, 0.051154)</td><td>0 0 0</td></tr><tr><td><code>lidar_Joint</code></td><td>fixed</td><td><code>base_link</code> → <code>lidar_frame</code></td><td>(−0.012242, −8.533e−05, 0.092501)</td><td>0 0 0</td></tr><tr><td><code>imu_joint</code></td><td>fixed</td><td><code>base_link</code> → <code>imu_link</code></td><td>(0, 0, 0)</td><td>0 0 −1.57</td></tr></tbody></table></div>
+<p><code>ack.xacro</code>에서 달라지는 값입니다.</p>
+<div class="table-wrap"><table><thead><tr><th>조인트</th><th>애커만 origin xyz</th><th>메모</th></tr></thead><tbody><tr><td><code>wheel_lf_Joint</code> / <code>wheel_rf_Joint</code></td><td>(0.06679, ±0.069739, −0.0288)</td><td>앞바퀴. 조향은 모델링하지 않음(continuous만)</td></tr><tr><td><code>wheel_lb_Joint</code> / <code>wheel_rb_Joint</code></td><td>(−0.070313, ±0.07014, −0.027793)</td><td>뒷바퀴</td></tr><tr><td><code>cam_Joint</code></td><td>(0.064015, −0.00013463, 0.051155)</td><td></td></tr><tr><td><code>lidar_Joint</code></td><td>(−0.0096019, −8.533e−05, 0.092501)</td><td></td></tr><tr><td><code>imu_joint</code></td><td>(0, 0, 0.11159), rpy (0, 0, −π/2)</td><td><code>imu.urdf.xacro</code>: z = 0.025 − 0.0295 + 0.0965/2 + 0.06784</td></tr></tbody></table></div>
+<p>읽을거리:</p>
+<ul><li>**<code>base_footprint</code>** 는 바닥 위(z = 0)에 있는 로봇 중심점입니다. 2D 내비게이션은 모두 이 프레임을 로봇 위치로 씁니다(<code>slam.yaml</code>의 <code>base_frame: base_footprint</code>, <code>nav2_params.yaml</code>의 <code>robot_base_frame: base_footprint</code>). <code>base_link</code>는 그보다 0.07 m 위의 차체 원점입니다.</li><li><strong>IMU 링크가 z축으로 −90° 돌아가 있습니다.</strong> 확장보드의 IMU 칩이 돌려져 장착됐기 때문이고, 이 회전이 있어야 IMU의 가속도·각속도가 로봇 축으로 올바르게 바뀝니다.</li><li>라이다 링크 이름은 <code>lidar_frame</code>이고, 원본 <code>slam/launch/include/robot.launch.py</code>가 라이다 드라이버에 <code>lidar_frame = &#x27;{}lidar_frame&#x27;</code>을 넘겨 스캔 메시지의 <code>frame_id</code>와 URDF가 일치하게 합니다.</li><li><code>lidar.urdf.xacro</code>는 <code>lidar_link → lidar_frame</code>을 π만큼 돌리는 조인트를 정의하지만, 최상위 <code>mentorpi.xacro</code>에서 include하지 않으므로 <strong>현재 모델에는 쓰이지 않습니다.</strong> 파일이 있다고 쓰이는 것은 아닙니다.</li></ul>
+<div class="callout callout-info"><div class="callout-title">URDF의 바퀴 간격 ≠ 기구학 파라미터</div><div class="callout-body"><p>URDF 바퀴 조인트로 계산한 메카넘 바퀴 간격은 앞뒤 0.1347 m, 좌우 0.1518 m입니다. 한편 속도 제어 코드(<code>controller/mecanum.py</code>, M01)는 wheelbase 0.1368 m, track_width 0.1446 m를 씁니다. URDF 조인트 원점은 <strong>CAD 메시의 좌표 원점</strong>(바퀴 축 어딘가)이고, 기구학 값은 <strong>바퀴가 바닥에 닿는 점</strong> 사이 거리를 보정한 값이라 다릅니다. 모터 명령에는 기구학 값을, 시각화·TF에는 URDF 값을 씁니다.</p></div></div>
+<h2 id="tf로-센서-좌표-바꾸기">TF로 센서 좌표 바꾸기<a class="anchor" href="#tf로-센서-좌표-바꾸기">#</a></h2>
+<p>조인트의 <code>origin</code>은 <strong>동차 변환 행렬</strong>(homogeneous transform) 하나입니다.</p>
+<p><span class="math">T = [R  t; 0 0 0 1]</span>,  <span class="math">R = Rz(yaw)·Ry(pitch)·Rx(roll)</span>, <span class="math">t = (x, y, z)</span></p>
+<p>체인을 따라 곱하면 멀리 떨어진 두 프레임 사이 변환이 됩니다: <span class="math">T(footprint→lidar) = T(footprint→base) · T(base→lidar)</span>. 아래 코드는 <code>mecanum.xacro</code>의 값으로 이 계산을 합니다.</p>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/urdf-viewer.html">URDF 뷰어 열기</a></p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import numpy as np
+np.set_printoptions(suppress=True)
+
+def T(xyz, rpy=(0.0, 0.0, 0.0)):
+    &quot;&quot;&quot;URDF &lt;origin xyz rpy&gt; -&gt; 4x4 homogeneous matrix (R = Rz(yaw) Ry(pitch) Rx(roll)).&quot;&quot;&quot;
+    r, p, y = rpy
+    Rx = np.array([[1, 0, 0], [0, np.cos(r), -np.sin(r)], [0, np.sin(r), np.cos(r)]])
+    Ry = np.array([[np.cos(p), 0, np.sin(p)], [0, 1, 0], [-np.sin(p), 0, np.cos(p)]])
+    Rz = np.array([[np.cos(y), -np.sin(y), 0], [np.sin(y), np.cos(y), 0], [0, 0, 1]])
+    M = np.eye(4)
+    M[:3, :3] = Rz @ Ry @ Rx
+    M[:3, 3] = xyz
+    return M
+
+# mecanum.xacro joint origins
+fp_base = T((0, 0, 0.07))                         # base_footprint_to_base_link
+base_lidar = T((-0.012242, -8.533e-05, 0.092501)) # lidar_Joint
+base_cam = T((0.061376, -0.00013463, 0.051154))   # cam_Joint
+base_imu = T((0, 0, 0), (0, 0, -1.57))            # imu_joint
+
+fp_lidar = fp_base @ base_lidar
+print(&quot;base_footprint -&gt; lidar_frame xyz:&quot;, np.round(fp_lidar[:3, 3], 4))
+print(&quot;base_footprint -&gt; depth_cam  xyz:&quot;, np.round((fp_base @ base_cam)[:3, 3], 4))
+
+p_lidar = np.array([1.0, 0.0, 0.0, 1.0])         # 1 m straight ahead of the lidar
+print(&quot;lidar point in base_footprint   :&quot;, np.round(fp_lidar @ p_lidar, 4)[:3])
+
+a_imu = np.array([1.0, 0.0, 0.0])                # IMU x-axis acceleration
+print(&quot;IMU x-axis in base_link         :&quot;, np.round(base_imu[:3, :3] @ a_imu, 3))
+
+wheels = {&quot;lf&quot;: (0.067052, 0.07591), &quot;rf&quot;: (0.067052, -0.07591),
+          &quot;lb&quot;: (-0.06764, 0.07591), &quot;rb&quot;: (-0.067621, -0.07591)}
+wb = wheels[&quot;lf&quot;][0] - wheels[&quot;lb&quot;][0]
+tw = wheels[&quot;lf&quot;][1] - wheels[&quot;rf&quot;][1]
+print(&quot;URDF wheelbase %.4f m, track %.4f m&quot; % (wb, tw))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">base_footprint -&gt; lidar_frame xyz: [-0.0122 -0.0001  0.1625]
+base_footprint -&gt; depth_cam  xyz: [ 0.0614 -0.0001  0.1212]
+lidar point in base_footprint   : [ 0.9878 -0.0001  0.1625]
+IMU x-axis in base_link         : [ 0.001 -1.     0.   ]
+URDF wheelbase 0.1347 m, track 0.1518 m</code></pre></div>
+<ul><li>라이다 스캔 평면은 바닥에서 <strong>0.1625 m</strong> 높이입니다. 이보다 낮은 물체는 라이다가 못 봅니다(M07의 깊이 카메라가 필요한 이유).</li><li>라이다 1 m 앞의 점은 로봇 중심에서 0.9878 m입니다. 1.2 cm 차이지만 한 바퀴 돌며 지도를 그리면 벽이 두 겹으로 보이는 원인이 됩니다.</li><li>IMU의 x축은 로봇의 <strong>−y 방향</strong>(오른쪽)을 가리킵니다. −1.57은 −π/2(−1.5708)보다 조금 작아서 0.001의 잔차가 남습니다.</li></ul>
+<h2 id="robotstatepublisher와-launch">robot_state_publisher와 launch<a class="anchor" href="#robotstatepublisher와-launch">#</a></h2>
+<p><code>launch/display.launch.py</code>는 세 노드를 띄웁니다.</p>
+<div class="table-wrap"><table><thead><tr><th>노드</th><th>역할</th></tr></thead><tbody><tr><td><code>robot_state_publisher</code></td><td><code>Command([&#x27;xacro &#x27;, urdf_path])</code>로 만든 URDF 문자열을 <code>robot_description</code> 파라미터로 받아, 고정 관절은 <code>/tf_static</code>, 움직이는 관절은 <code>/joint_states</code>를 받아 <code>/tf</code>로 발행</td></tr><tr><td><code>joint_state_publisher_gui</code></td><td>바퀴 각도를 슬라이더로 바꿔 <code>/joint_states</code> 발행(시각화용)</td></tr><tr><td><code>rviz2</code> (<code>rviz.launch.py</code>, 5 s 지연)</td><td><code>rviz/view.rviz</code> 설정으로 모델 표시</td></tr></tbody></table></div>
+<p>실제 주행 launch(<code>controller.launch.py</code> 등)에서는 슬라이더 대신 <code>robot_description.launch.py</code>의 <code>joint_state_publisher</code>가 <code>/controller_manager/joint_states</code>를 받아 씁니다.</p>
+<div class="callout callout-warn"><div class="callout-title">교재 코드와 실제 파일의 차이</div><div class="callout-body"><p>교재 L2의 발췌 코드에는 메시 경로가 <code>package://rosmentor_description/...</code>으로 적혀 있지만, 실제 파일은 <code>package://mentorpi_description/...</code>입니다. 직접 URDF를 만들 때 교재 코드를 복사하면 RViz에 "Could not load resource" 오류가 납니다. 항상 로봇의 실제 파일을 기준으로 합니다.</p></div></div>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">안전 확인 (실물 실습 전 필수)</div><div class="callout-body"><ul><li>이 실습은 모델 파일을 <strong>읽기만</strong> 합니다. <code>mecanum.xacro</code>·<code>ack.xacro</code>를 고칠 때는 먼저 <code>cp mecanum.xacro mecanum.xacro.bak</code>으로 백업합니다. 잘못 고친 URDF는 SLAM·내비게이션의 TF를 망가뜨립니다.</li><li><code>display.launch.py</code>는 모터를 움직이지 않지만, 다른 터미널에서 주행 노드가 떠 있지 않은지 확인합니다.</li><li>끝나면 <code>sudo systemctl restart start_node.service</code>로 앱 서비스를 되돌립니다(호스트 터미널에서).</li></ul></div></div>
+<ol><li>앱 서비스를 끄고 모델 파일을 엽니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">~/.stop_ros.sh
+colcon_cd mentorpi_description
+cd urdf
+vim mentorpi.xacro           # MACHINE_TYPE 분기 확인, :q 로 나가기
+vim mecanum.xacro            # 애커만 로봇이면 ack.xacro
+echo $MACHINE_TYPE           # MentorPi_Mecanum 또는 MentorPi_Acker</code></pre></div>
+<ol><li>xacro를 URDF로 펼쳐 구조를 검사합니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">xacro mentorpi.xacro &gt; /tmp/mentorpi.urdf
+check_urdf /tmp/mentorpi.urdf           # 링크 트리와 오류 출력 (liburdfdom-tools 필요)
+grep -c &quot;&lt;link&quot; /tmp/mentorpi.urdf</code></pre></div>
+<ol><li>모델을 RViz로 봅니다. VNC 데스크톱에서 실행해야 창이 보입니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 launch mentorpi_description display.launch.py</code></pre></div>
+<p>RViz에서 <strong>Fixed Frame</strong>을 <code>base_footprint</code>로 두고 <strong>TF</strong> 디스플레이를 켜서 축 이름을 확인합니다. <code>joint_state_publisher_gui</code> 슬라이더로 바퀴를 돌려 봅니다.</p>
+<ol><li>TF를 숫자로 확인합니다(새 터미널).</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 run tf2_ros tf2_echo base_footprint lidar_frame     # Translation: [-0.012, -0.000, 0.163]
+ros2 run tf2_ros tf2_echo base_link imu_link              # Rotation RPY (deg): 0, 0, -90
+ros2 run tf2_tools view_frames                            # frames_*.pdf 로 TF 트리 저장</code></pre></div>
+<ol><li>브라우저의 URDF 뷰어에서도 같은 링크 트리를 확인하고, 라이다·카메라 위치를 위 표와 비교합니다.</li></ol>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> <code>tf2_echo</code>로 읽은 라이다 높이가 계산값 0.1625 m와 같다.</label></li><li><label class="check-item"><input type="checkbox"> IMU 링크의 −90° 회전이 왜 필요한지 설명할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> 메카넘과 애커만 모델에서 달라지는 조인트를 3개 이상 말할 수 있다.</label></li></ul></div></div>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td><code>xacro: ... KeyError: &#x27;MACHINE_TYPE&#x27;</code> 또는 빈 모델</td><td>환경 변수 없음(컨테이너 밖, 새 셸)</td><td><code>export MACHINE_TYPE=MentorPi_Mecanum</code> 후 실행, 로봇 버전 설정 확인(B03)</td></tr><tr><td>RViz 모델이 흰색/보이지 않음, "Could not load resource"</td><td>메시 <code>package://</code> 경로 오류, 패키지 미빌드</td><td>실제 패키지 이름 <code>mentorpi_description</code> 확인, <code>colcon build</code> 후 <code>source</code></td></tr><tr><td>바퀴가 공중에 떠 있거나 모델이 바닥에 박힘</td><td>Fixed Frame을 <code>base_link</code>로 둠</td><td>Fixed Frame을 <code>base_footprint</code>로 (z 0.07 차이)</td></tr><tr><td><code>check_urdf: command not found</code></td><td>urdfdom 도구 미설치</td><td><code>sudo apt install liburdfdom-tools</code> 또는 xacro 출력만 확인</td></tr><tr><td>지도에서 벽이 두 겹, 회전할 때 번짐</td><td>URDF 라이다 오프셋이 실제 장착과 다름</td><td>장착 위치를 자로 재서 <code>lidar_Joint</code> origin 수정, 스캔 frame_id 확인</td></tr><tr><td><code>joint_state_publisher_gui</code> 창이 안 뜸</td><td>GUI 없는 SSH 셸에서 실행</td><td>VNC 데스크톱 터미널에서 실행</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">기본 과제</div><div class="callout-body"><ol><li><code>ack.xacro</code>의 값으로 위 코드를 고쳐 애커만 모델의 <code>base_footprint → lidar_frame</code>, <code>base_footprint → depth_cam</code> 변환을 구하고 메카넘과 비교합니다.</li><li><code>mecanum.xacro</code>에서 링크 수와 조인트 수를 세고, 조인트 종류별 개수를 표로 정리합니다. <code>check_urdf</code> 출력과 비교합니다.</li></ol></div></div>
+<div class="callout callout-task"><div class="callout-title">심화 과제</div><div class="callout-body"><ol><li>라이다를 20° 기울여 장착했다고 가정하고(<code>lidar_Joint</code>의 rpy = 0 0.349 0), 라이다 1 m 앞의 점이 <code>base_footprint</code>에서 어디에 찍히는지 계산합니다. 이런 오차가 2D SLAM 지도에 어떻게 나타날지 설명합니다.</li><li><code>inertial_matrix.xacro</code>의 <code>box_inertial</code> 매크로로 가로 0.19 m × 세로 0.15 m × 높이 0.05 m, 0.8 kg 상자의 관성 텐서를 계산하고, <code>base_link</code>의 <code>izz</code>와 크기 차이를 비교합니다(원본 값은 차체 셸만의 질량 0.08 kg 기준).</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>12. Mapping Lesson</em> — Lesson 1 URDF Model Introduction, Lesson 2 ROS Robot URDF Model Instruction</li><li>원본 소스: <code>src/simulations/mentorpi_description/urdf/</code> (<code>mentorpi.xacro</code>, <code>mecanum.xacro</code>, <code>ack.xacro</code>, <code>imu.urdf.xacro</code>, <code>lidar.urdf.xacro</code>, <code>inertial_matrix.xacro</code>), <code>launch/display.launch.py</code>, <code>launch/robot_description.launch.py</code></li><li>URDF 튜토리얼 (ROS 2 Humble): https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/URDF-Main.html</li><li>xacro 사용법: https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html</li><li>robot_state_publisher: https://github.com/ros/robot_state_publisher</li><li>REP-105 (base_footprint·odom·map 프레임 규약): https://www.ros.org/reps/rep-0105.html</li></ul>
+      <nav class="pager"><a class="pager-prev" href="m07.html"><span>이전 · M07</span>깊이 카메라와 포인트 클라우드</a><a class="pager-next" href="m09.html"><span>다음 · M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#urdf가-하는-일">URDF가 하는 일</a><a class="toc-l2" href="#urdf-문법-복습">URDF 문법 복습</a><a class="toc-l3" href="#link">link</a><a class="toc-l3" href="#joint">joint</a><a class="toc-l3" href="#xacro">xacro</a><a class="toc-l2" href="#mentorpidescription-패키지-구조">mentorpi_description 패키지 구조</a><a class="toc-l2" href="#링크-조인트-표-실제-값">링크·조인트 표 (실제 값)</a><a class="toc-l2" href="#tf로-센서-좌표-바꾸기">TF로 센서 좌표 바꾸기</a><a class="toc-l2" href="#robotstatepublisher와-launch">robot_state_publisher와 launch</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>

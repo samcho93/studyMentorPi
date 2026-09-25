@@ -1,0 +1,49 @@
+<svg viewBox="0 0 720 310" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DWA 속도 공간: 전체 속도 범위 Vs 안에서 현재 속도 주변의 동적 창 Vd를 표본화하고, 충돌 궤적을 제외한 뒤 평가 점수가 가장 좋은 속도를 고름">
+  <defs>
+    <marker id="arr-m12-dwa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <!-- velocity space axes: omega horizontal, v vertical -->
+  <path class="ln" d="M40 270 L360 270" stroke-width="1.2" marker-end="url(#arr-m12-dwa)"/>
+  <path class="ln" d="M200 286 L200 20" stroke-width="1.2" marker-end="url(#arr-m12-dwa)"/>
+  <text class="sub mono" x="364" y="274">ω</text>
+  <text class="sub mono" x="208" y="22">v</text>
+  <!-- Vs -->
+  <rect x="60" y="40" width="280" height="210" rx="4" style="fill:none;stroke:var(--text-dim)" stroke-width="1.4"/>
+  <text class="tag" x="66" y="56">Vs: |ω| ≤ 1.0, −0.4 ≤ v ≤ 0.4</text>
+  <!-- Vd -->
+  <rect class="box-hi" x="186" y="100" width="92" height="76" rx="3"/>
+  <text class="tag" x="284" y="112">Vd</text>
+  <text class="sub mono" x="232" y="192" text-anchor="middle">±0.25 m/s · ±0.32 rad/s</text>
+  <!-- samples 5x4 -->
+  <g class="hi">
+    <circle cx="196" cy="110" r="3.4"/><circle cx="214" cy="110" r="3.4"/><circle cx="232" cy="110" r="3.4"/><circle cx="250" cy="110" r="3.4"/><circle cx="268" cy="110" r="3.4"/>
+    <circle cx="196" cy="128" r="3.4"/><circle cx="214" cy="128" r="3.4"/><circle cx="232" cy="128" r="3.4"/><circle cx="250" cy="128" r="3.4"/><circle cx="268" cy="128" r="3.4"/>
+    <circle cx="196" cy="148" r="3.4"/><circle cx="214" cy="148" r="3.4"/><circle cx="232" cy="148" r="3.4"/><circle cx="250" cy="148" r="3.4"/><circle cx="268" cy="148" r="3.4"/>
+    <circle cx="196" cy="166" r="3.4"/><circle cx="214" cy="166" r="3.4"/><circle cx="232" cy="166" r="3.4"/><circle cx="250" cy="166" r="3.4"/><circle cx="268" cy="166" r="3.4"/>
+  </g>
+  <!-- inadmissible (collision) samples crossed -->
+  <g style="stroke:var(--danger)" stroke-width="1.8">
+    <path d="M227 105 L237 115 M237 105 L227 115 M245 105 L255 115 M255 105 L245 115 M227 123 L237 133 M237 123 L227 133"/>
+  </g>
+  <!-- current velocity -->
+  <circle cx="232" cy="138" r="5" style="fill:none;stroke:var(--text)" stroke-width="1.6"/>
+  <text class="sub mono" x="96" y="228">현재 (v_c, ω_c)</text>
+  <path class="ln" d="M150 216 L226 144" stroke-width="1" marker-end="url(#arr-m12-dwa)"/>
+  <!-- best -->
+  <circle cx="214" cy="110" r="7" style="fill:none;stroke:var(--ok)" stroke-width="2.2"/>
+  <text class="sub" x="100" y="86">최고 점수 (v, ω)</text>
+  <path class="ln" d="M150 90 L206 106" stroke-width="1" marker-end="url(#arr-m12-dwa)"/>
+  <!-- right side: trajectories -->
+  <text class="lbl" x="540" y="30" text-anchor="middle">각 표본을 sim_time 동안 예측</text>
+  <circle cx="540" cy="262" r="10" class="hi"/>
+  <path d="M540 252 Q540 150 480 70" style="fill:none;stroke:var(--ok)" stroke-width="2.4"/>
+  <path d="M540 252 L540 64" style="fill:none;stroke:var(--danger)" stroke-width="1.6" stroke-dasharray="5 4"/>
+  <path d="M540 252 Q544 150 610 80" style="fill:none;stroke:var(--text-faint)" stroke-width="1.6"/>
+  <path d="M540 252 Q520 170 440 120" style="fill:none;stroke:var(--text-faint)" stroke-width="1.6"/>
+  <circle cx="548" cy="120" r="26" style="fill:var(--text-dim);opacity:0.35"/>
+  <text class="tag" x="548" y="124" text-anchor="middle">장애물</text>
+  <circle cx="470" cy="46" r="6" class="wr"/>
+  <text class="tag" x="480" y="44">목표</text>
+  <text class="sub" x="540" y="286" text-anchor="middle">빨강 = 충돌(제외) · 초록 = 선택</text>
+  <text class="sub" x="540" y="302" text-anchor="middle">G = α·heading + β·dist + γ·velocity</text>
+</svg>

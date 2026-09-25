@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M10. RTAB-Map 3D 비주얼 SLAM · studyMentorPi</title>
+<meta name="description" content="깊이 카메라 기반 RTAB-Map의 구조(메모리 관리·루프 클로저), 3D 지도 작성과 저장, 2D SLAM과의 비교.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css">
+<link rel="stylesheet" href="../assets/css/mentorpi.css">
+<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js"></script>
+</head>
+<body class="lesson-page track-page-mobile">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" class="active" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="m10" data-track="mobile">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-mobile">이동로봇 핵심</span> M-3 SLAM 지도 작성 &middot; 약 70분 &middot; 고급</div>
+    <h1><span class="lesson-no">M10</span>RTAB-Map 3D 비주얼 SLAM</h1>
+    <p class="lede">깊이 카메라 기반 RTAB-Map의 구조(메모리 관리·루프 클로저), 3D 지도 작성과 저장, 2D SLAM과의 비교.</p>
+    <div class="requires">선수 챕터: <a href="m09.html">M09</a> <a href="m07.html">M07</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>RTAB-Map(Real-Time Appearance-Based Mapping)의 구성(오도메트리, 그래프, 루프 클로저 검출, 그래프 최적화, 지도 생성)을 블록도로 설명할 수 있습니다.</li><li>외관 기반(appearance-based) 루프 클로저 검출에서 <strong>시각 단어 가방</strong>(Bag of Words)과 TF-IDF 유사도가 하는 일을 코드로 확인합니다.</li><li>단기 메모리(STM)·작업 메모리(WM)·장기 메모리(LTM)로 나누는 <strong>메모리 관리</strong>가 왜 "실시간"을 보장하는지 설명합니다.</li><li>MentorPi의 <code>rtabmap.launch.py</code> 파라미터(<code>Reg/Strategy</code>, <code>Reg/Force3DoF</code>, <code>Grid/RangeMin</code> …)를 해석하고, 3D 지도를 만들고 데이터베이스를 확인합니다.</li><li>2D 라이다 SLAM(slam_toolbox)과 RGB-D SLAM(RTAB-Map)을 목적에 맞게 고를 수 있습니다.</li></ul>
+<h2 id="rtab-map이란">RTAB-Map이란<a class="anchor" href="#rtab-map이란">#</a></h2>
+<p>RTAB-Map은 RGB-D 카메라·스테레오 카메라·라이다를 입력으로 받는 <strong>그래프 기반 SLAM</strong> 라이브러리입니다. 이름의 두 단어가 핵심입니다.</p>
+<ul><li><strong>Appearance-Based</strong>: "여기 와 본 적 있나?"를 <strong>영상의 생김새</strong>로 판단합니다(M09의 slam_toolbox는 스캔 모양의 상관으로 판단).</li><li><strong>Real-Time</strong>: 지도가 아무리 커져도 루프 클로저 검출 시간을 <strong>정해진 한도 안에</strong> 묶어 둡니다. 교재가 "메모리 관리로 지도 크기를 제한해 항상 고정 시간 안에 처리한다"고 설명하는 부분입니다.</li></ul>
+<figure class="fig" id="fig-m10-memory"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="RTAB-Map 처리 흐름: RGB-D와 스캔, 오도메트리 입력이 노드가 되어 STM, WM, LTM으로 이동하고 WM에서 루프 클로저를 검출해 그래프를 최적화함">
+  <defs>
+    <marker id="arr-m10-memory" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-m10-memory-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <!-- inputs -->
+  <rect class="box" x="16" y="30" width="150" height="46" rx="6"/>
+  <text class="lbl" x="91" y="50" text-anchor="middle">rgbd_sync</text>
+  <text class="sub mono" x="91" y="67" text-anchor="middle">rgb0 + depth0 + info</text>
+  <rect class="box" x="16" y="88" width="150" height="30" rx="6"/>
+  <text class="sub mono" x="91" y="108" text-anchor="middle">/scan_raw  ·  /odom</text>
+  <path class="ln" d="M166 70 L214 96" stroke-width="1.6" marker-end="url(#arr-m10-memory)"/>
+  <path class="ln" d="M166 103 L214 103" stroke-width="1.6" marker-end="url(#arr-m10-memory)"/>
+  <!-- new node -->
+  <rect class="box-hi" x="216" y="80" width="110" height="46" rx="6"/>
+  <text class="lbl" x="271" y="100" text-anchor="middle">새 노드</text>
+  <text class="sub" x="271" y="117" text-anchor="middle">자세 + BoW + 스캔</text>
+  <path class="ln" d="M326 103 L360 103" stroke-width="1.6" marker-end="url(#arr-m10-memory)"/>
+  <!-- STM -->
+  <rect class="box" x="362" y="70" width="90" height="66" rx="8"/>
+  <text class="lbl mono" x="407" y="96" text-anchor="middle">STM</text>
+  <text class="sub" x="407" y="114" text-anchor="middle">최근 노드</text>
+  <text class="sub" x="407" y="128" text-anchor="middle">(비교 제외)</text>
+  <path class="ln" d="M452 103 L486 103" stroke-width="1.6" marker-end="url(#arr-m10-memory)"/>
+  <!-- WM -->
+  <rect class="box-hi" x="488" y="60" width="110" height="86" rx="8"/>
+  <text class="lbl mono" x="543" y="88" text-anchor="middle">WM</text>
+  <text class="sub" x="543" y="106" text-anchor="middle">루프 검출 대상</text>
+  <text class="sub" x="543" y="122" text-anchor="middle">BoW 유사도</text>
+  <text class="sub" x="543" y="138" text-anchor="middle">+ 베이즈 필터</text>
+  <!-- LTM -->
+  <rect class="box" x="488" y="206" width="110" height="66" rx="8"/>
+  <text class="lbl mono" x="543" y="232" text-anchor="middle">LTM</text>
+  <text class="sub mono" x="543" y="252" text-anchor="middle">rtabmap.db</text>
+  <path class="ln" d="M530 148 L530 204" stroke-width="1.6" marker-end="url(#arr-m10-memory)"/>
+  <text class="tag" x="524" y="170" text-anchor="end">처리 시간·노드 수</text>
+  <text class="tag" x="524" y="184" text-anchor="end">한도 초과 → 내보내기</text>
+  <path class="ln-hi" d="M558 204 L558 148" stroke-width="1.6" marker-end="url(#arr-m10-memory-hi)"/>
+  <text class="tag" x="566" y="170">루프 이웃</text>
+  <text class="tag" x="566" y="184">다시 불러오기</text>
+  <!-- loop closure to optimizer -->
+  <path class="ln-hi" d="M598 103 L630 103 L630 40 L271 40 L271 78" stroke-width="1.6" marker-end="url(#arr-m10-memory-hi)"/>
+  <text class="tag" x="450" y="34" text-anchor="middle">루프 가설 채택 → 기하 검증(ICP) → 그래프 최적화</text>
+  <!-- outputs -->
+  <rect class="box" x="216" y="206" width="220" height="66" rx="6"/>
+  <text class="lbl" x="326" y="228" text-anchor="middle">지도 출력</text>
+  <text class="sub" x="326" y="246" text-anchor="middle">3D 점구름 · 2D /map 격자</text>
+  <text class="sub" x="326" y="262" text-anchor="middle">map → odom TF</text>
+  <path class="ln" d="M271 126 L271 204" stroke-width="1.4" stroke-dasharray="4 3" marker-end="url(#arr-m10-memory)"/>
+</svg><figcaption>RTAB-Map의 처리 흐름과 메모리 관리: 새 노드는 STM에 들어가고, 오래된 노드는 WM으로, 처리 시간이 한도를 넘으면 드물게 쓰이는 노드를 LTM(데이터베이스)으로 내보냅니다.</figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th>블록</th><th>하는 일</th><th>MentorPi 설정</th></tr></thead><tbody><tr><td>동기화 (<code>rgbd_sync</code>)</td><td>컬러·깊이·카메라정보를 한 메시지(RGBDImage)로 묶음</td><td><code>approx_sync: True</code>, <code>approx_sync_max_interval: 0.008</code> s</td></tr><tr><td>오도메트리</td><td>이웃 노드 사이 상대 자세</td><td>외부 <code>/odom</code>(EKF) 사용 — 시각 오도메트리 노드를 따로 띄우지 않음</td></tr><tr><td>등록(registration)</td><td>두 노드 사이 변환을 정밀하게 추정</td><td><code>Reg/Strategy: 1</code> (ICP, 라이다 스캔 사용), <code>Reg/Force3DoF: true</code></td></tr><tr><td>루프 클로저 검출</td><td>BoW 유사도 → 베이즈 필터 → 가설 검증</td><td>기본값</td></tr><tr><td>그래프 최적화</td><td>포즈 그래프 최적화(M09와 같은 원리)</td><td><code>Optimizer/GravitySigma: 0</code> (IMU 중력 제약 끔)</td></tr><tr><td>지도 생성</td><td>3D 점구름, 2D 점유 격자(<code>/map</code>)</td><td><code>Grid/Sensor</code>, <code>Grid/RangeMin: 0.2</code> m</td></tr></tbody></table></div>
+<h2 id="외관-기반-루프-클로저">외관 기반 루프 클로저<a class="anchor" href="#외관-기반-루프-클로저">#</a></h2>
+<h3 id="시각-단어-가방-bag-of-words">시각 단어 가방 (Bag of Words)<a class="anchor" href="#시각-단어-가방-bag-of-words">#</a></h3>
+<ol><li>각 키프레임 영상에서 <strong>특징점</strong>(ORB, SURF 등 모서리·얼룩)을 뽑고, 특징점마다 <strong>기술자</strong>(descriptor, 주변 무늬를 요약한 벡터)를 계산합니다.</li><li>비슷한 기술자들을 한 <strong>시각 단어</strong>(visual word)로 묶습니다. RTAB-Map은 들어오는 기술자로 어휘 사전을 점점 키워 갑니다.</li><li>영상 하나는 "어떤 단어가 몇 번 나왔나"라는 <strong>히스토그램</strong>이 됩니다. 문서 검색처럼, 두 영상의 히스토그램이 비슷하면 같은 장소일 가능성이 높습니다.</li></ol>
+<p>흔한 단어(모든 방에 있는 흰 벽 무늬)는 장소를 구별하는 데 도움이 안 되므로 <strong>TF-IDF</strong> 가중치로 깎습니다.</p>
+<p><span class="math">w(단어 k, 영상 i) = (영상 i에서 k의 비율) × log(전체 영상 수 / k가 나온 영상 수)</span></p>
+<p>아래 코드는 키프레임 다섯 개의 BoW 벡터와, 한 바퀴 돌아와 다시 찍은 영상의 유사도를 계산합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import numpy as np
+
+# 시각 단어(visual word) 8개로 이루어진 작은 어휘. 각 키프레임 = 단어 출현 횟수(BoW 벡터)
+frames = {
+    &quot;N1 entry&quot;:   [5, 0, 2, 0, 1, 0, 0, 3],
+    &quot;N2 hall&quot;:    [0, 4, 0, 3, 0, 2, 0, 0],
+    &quot;N3 kitchen&quot;: [1, 0, 0, 0, 6, 0, 4, 0],
+    &quot;N4 living&quot;:  [0, 1, 5, 0, 0, 0, 1, 4],
+    &quot;N5 hall-2&quot;:  [0, 3, 1, 4, 0, 2, 0, 0],
+}
+new = np.array([4, 0, 2, 1, 1, 0, 0, 3], dtype=float)   # 한 바퀴 돌아와 다시 본 현관
+
+names = list(frames)
+M = np.array([frames[k] for k in names], dtype=float)
+df = (M &gt; 0).sum(axis=0)                                  # 단어가 등장한 키프레임 수
+idf = np.log(len(M) / df)                                 # 흔한 단어일수록 가중치↓
+
+def tfidf(v):
+    w = v / v.sum() * idf
+    return w / np.linalg.norm(w)
+
+sims = np.array([tfidf(m) @ tfidf(new) for m in M])
+for n, s in zip(names, sims):
+    print(&quot;%-10s similarity %.3f&quot; % (n, s))
+best = int(np.argmax(sims))
+second = np.sort(sims)[-2]
+print(&quot;best:&quot;, names[best], &quot; margin over 2nd: %.3f&quot; % (sims[best] - second))
+print(&quot;loop closure hypothesis accepted:&quot;, bool(sims[best] &gt; 0.5 and sims[best] - second &gt; 0.2))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">N1 entry   similarity 0.977
+N2 hall    similarity 0.133
+N3 kitchen similarity 0.258
+N4 living  similarity 0.568
+N5 hall-2  similarity 0.181
+best: N1 entry  margin over 2nd: 0.409
+loop closure hypothesis accepted: True</code></pre></div>
+<ul><li><code>N4 living</code>도 0.568로 꽤 높습니다. 거실과 현관이 비슷한 단어(2번, 7번)를 공유하기 때문입니다. 그래서 RTAB-Map은 <strong>가장 높은 점수 하나</strong>만 보지 않고, 이웃 노드들까지 고려한 <strong>베이즈 필터</strong>로 "루프 가설"의 확률을 여러 프레임에 걸쳐 누적한 뒤 문턱(기본 <code>Rtabmap/LoopThr</code> 0.11)을 넘을 때 채택합니다.</li><li>채택된 가설은 마지막으로 <strong>기하 검증</strong>(특징점 3D 대응으로 변환을 계산하고 inlier 수 확인, MentorPi는 <code>Reg/Strategy: 1</code>이라 ICP로 정밀화)을 통과해야 그래프에 제약으로 들어갑니다.</li></ul>
+<h3 id="메모리-관리-stm-wm-ltm">메모리 관리: STM · WM · LTM<a class="anchor" href="#메모리-관리-stm-wm-ltm">#</a></h3>
+<p>루프 클로저 검출은 새 영상을 <strong>과거 모든 노드</strong>와 비교하므로, 지도가 커지면 처리 시간이 계속 늘어납니다. RTAB-Map은 노드를 세 곳으로 나눠 이 문제를 풉니다.</p>
+<div class="table-wrap"><table><thead><tr><th>메모리</th><th>들어 있는 것</th><th>루프 검출 대상?</th></tr></thead><tbody><tr><td>STM (Short-Term Memory)</td><td>방금 만든 최근 노드 몇 개</td><td>아니요 — 바로 이웃은 당연히 비슷하므로 제외</td></tr><tr><td>WM (Working Memory)</td><td>STM에서 넘어온 노드</td><td><strong>예</strong> — 새 영상과 비교하는 대상</td></tr><tr><td>LTM (Long-Term Memory)</td><td>WM에서 내보낸 노드 (SQLite 데이터베이스)</td><td>아니요 — 단, 루프가 닫힌 노드의 <strong>이웃은 WM으로 다시 불러옴</strong>(retrieval)</td></tr></tbody></table></div>
+<p>한 번 처리하는 데 걸린 시간이 한도(<code>Rtabmap/TimeThr</code> [ms])를 넘거나 WM 노드 수가 한도(<code>Rtabmap/MemoryThr</code>)를 넘으면, WM에서 <strong>가중치가 낮은</strong>(자주 다시 보이지 않은) 노드를 LTM으로 내보냅니다. 두 값이 0이면 제한이 없으므로, 설치된 버전의 기본값을 <code>rtabmap --params</code>로 확인합니다. 교재 설명의 "장기 메모리 데이터는 앞으로의 매칭에 쓰이고, 단기 메모리 데이터는 연속된 현재 데이터 매칭에 쓰인다"가 이 구조를 가리킵니다.</p>
+<h2 id="mentorpi의-rtab-map-구성">MentorPi의 RTAB-Map 구성<a class="anchor" href="#mentorpi의-rtab-map-구성">#</a></h2>
+<h3 id="launch-구조">launch 구조<a class="anchor" href="#launch-구조">#</a></h3>
+<p><code>ros2 launch slam rtabmap_slam.launch.py</code>(원본 <code>slam/launch/rtabmap_slam.launch.py</code>):</p>
+<div class="table-wrap"><table><thead><tr><th>단계</th><th>파일</th><th>내용</th></tr></thead><tbody><tr><td>base_launch</td><td><code>slam/launch/include/robot.launch.py</code> (<code>action_name: horizontal</code>)</td><td>컨트롤러·EKF 오도메트리, 라이다(<code>/scan_raw</code>), 깊이 카메라</td></tr><tr><td>10 s 후 rtabmap_launch</td><td><code>slam/launch/include/rtabmap.launch.py</code></td><td><code>rtabmap_sync/rgbd_sync</code> + <code>rtabmap_slam/rtabmap</code> (인자 <code>-d</code>)</td></tr></tbody></table></div>
+<p><code>rtabmap_slam0.launch.py</code>는 slam_toolbox(5 s 후)와 RTAB-Map(10 s 후)을 <strong>함께</strong> 띄우는 변형입니다.</p>
+<h3 id="파라미터와-remapping">파라미터와 remapping<a class="anchor" href="#파라미터와-remapping">#</a></h3>
+<p><code>slam/launch/include/rtabmap.launch.py</code>의 실제 값입니다.</p>
+<div class="table-wrap"><table><thead><tr><th>파라미터</th><th>값</th><th>뜻</th></tr></thead><tbody><tr><td><code>frame_id</code></td><td><code>base_footprint</code></td><td>로봇 프레임</td></tr><tr><td><code>subscribe_rgbd</code> / <code>subscribe_scan</code></td><td>True / True</td><td>동기화된 RGB-D와 라이다 스캔을 함께 구독</td></tr><tr><td><code>queue_size</code></td><td>50</td><td>입력 큐</td></tr><tr><td><code>qos_scan</code>, <code>qos_image</code>, <code>qos_imu</code></td><td><code>qos</code> 인자 (기본 2)</td><td>센서 QoS (2 = best effort)</td></tr><tr><td><code>Reg/Strategy</code></td><td><code>&#x27;1&#x27;</code></td><td>노드 간 변환 추정: 0 = 시각 특징, <strong>1 = ICP(스캔)</strong>, 2 = 시각+ICP</td></tr><tr><td><code>Reg/Force3DoF</code></td><td><code>&#x27;true&#x27;</code></td><td>x, y, yaw만 추정 (바닥을 달리는 로봇이므로 z·roll·pitch 고정)</td></tr><tr><td><code>Grid/RangeMin</code></td><td><code>&#x27;0.2&#x27;</code></td><td>0.2 m 안의 점은 지도에 안 넣음 (로봇 자기 몸체 제거)</td></tr><tr><td><code>Grid/Sensor</code></td><td><code>&#x27;true&#x27;</code></td><td>점유 격자를 만들 센서 선택 (버전별 의미 확인 필요, 아래 팁)</td></tr><tr><td><code>Optimizer/GravitySigma</code></td><td><code>&#x27;0&#x27;</code></td><td>IMU 중력 제약 끔 (이미 2D로 고정했으므로)</td></tr><tr><td><code>use_action_for_goal</code></td><td>True</td><td>목표를 Nav2 액션으로 전달</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>remapping</th><th>실제 토픽</th></tr></thead><tbody><tr><td><code>rgb/image</code></td><td><code>/ascamera/camera_publisher/rgb0/image</code></td></tr><tr><td><code>rgb/camera_info</code></td><td><code>/ascamera/camera_publisher/rgb0/camera_info</code></td></tr><tr><td><code>depth/image</code></td><td><code>/ascamera/camera_publisher/depth0/image_raw</code></td></tr><tr><td><code>odom</code></td><td><code>/odom</code></td></tr><tr><td><code>scan</code></td><td><code>/scan_raw</code></td></tr></tbody></table></div>
+<div class="callout callout-tip"><div class="callout-title">`Grid/Sensor` 값 확인하기</div><div class="callout-body"><p>최신 RTAB-Map에서 <code>Grid/Sensor</code>는 0(라이다 스캔), 1(깊이 영상), 2(둘 다) 정수입니다. 원본 launch는 문자열 <code>&#x27;true&#x27;</code>를 넣는데, 설치된 버전이 이를 어떻게 해석하는지는 로봇에서 <code>ros2 param get /rtabmap Grid/Sensor</code> 또는 <code>rtabmap --params | grep Grid/Sensor</code>로 확인합니다. 3D 장애물(책상 상판)을 2D 지도에 넣고 싶다면 깊이 영상을 쓰는 값이어야 합니다.</p></div></div>
+<div class="callout callout-warn"><div class="callout-title">`-d` 인자: 시작할 때 이전 지도를 지운다</div><div class="callout-body"><p>매핑용 <code>rtabmap</code> 노드는 <code>arguments=[&#x27;-d&#x27;]</code>로 실행됩니다. <code>-d</code>(<code>--delete_db_on_start</code>)는 **시작할 때 기존 데이터베이스(기본 <code>~/.ros/rtabmap.db</code>)를 지웁니다.** 3D 지도를 만든 뒤 <code>rtabmap_slam.launch.py</code>를 다시 실행하면 앞의 지도가 사라집니다. 보관하려면 먼저 복사합니다: <code>cp ~/.ros/rtabmap.db ~/rtabmap_room1.db</code></p></div></div>
+<h2 id="2d-slam과-3d-slam-비교">2D SLAM과 3D SLAM 비교<a class="anchor" href="#2d-slam과-3d-slam-비교">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>slam_toolbox (M09)</th><th>RTAB-Map (이 장)</th></tr></thead><tbody><tr><td>주 센서</td><td>2D 라이다</td><td>RGB-D 카메라 (+ 라이다·오도메트리)</td></tr><tr><td>루프 검출</td><td>스캔 상관 (거리 3 m 안 후보)</td><td>영상 BoW (거리와 무관, 멀리 떨어진 곳도 알아봄)</td></tr><tr><td>결과</td><td>2D 점유 격자 (<code>.pgm</code> + <code>.yaml</code>)</td><td>3D 점구름 + 2D 격자 + 데이터베이스(<code>.db</code>)</td></tr><tr><td>저장</td><td><code>map_saver_cli</code>로 직접 저장</td><td>Ctrl+C로 종료하면 데이터베이스에 자동 저장</td></tr><tr><td>계산량</td><td>가벼움 — 라즈베리파이 5에서 여유</td><td>무거움 — 넓은 범위·긴 시간 매핑 시 내비게이션이 끊길 수 있음</td></tr><tr><td>약점</td><td>스캔 평면 밖 장애물 못 봄</td><td>무늬 없는 벽, 어두운 곳, 빠른 회전(모션 블러)</td></tr><tr><td>내비게이션</td><td><code>navigation.launch.py</code> + AMCL (M11)</td><td><code>rtabmap_navigation.launch.py</code>, RTAB-Map이 위치추정 (M13)</td></tr></tbody></table></div>
+<p>교재가 특징점 방식의 단점으로 드는 것 — 특징 계산이 오래 걸리고, 영상 정보를 일부만 쓰며, <strong>무늬가 적은 곳에서 약하고</strong>, 잘못된 매칭이 결과를 크게 흔든다 — 이 모두 위 표의 "약점"과 "계산량"으로 이어집니다.</p>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">안전 확인 (실물 실습 전 필수)</div><div class="callout-body"><ul><li>3D 매핑 중 로봇은 사람이 키보드로 움직입니다. 로봇 곁에서 계단·케이블·책상 다리를 살피며 진행합니다.</li><li>키보드 조종 속도(0.2 m/s, 0.5 rad/s)를 올리지 않습니다. 빠른 회전은 영상 번짐으로 매칭 실패를 일으킵니다.</li><li>교재 주의: <strong>매핑 범위와 시간을 너무 크게 잡지 않습니다.</strong> 데이터가 많으면 이후 3D 내비게이션에서 라즈베리파이가 버벅이고, 늦은 제어 명령은 충돌로 이어집니다.</li><li>멈출 때는 Ctrl+C, 계속 움직이면 <code>ros2 topic pub --once /controller/cmd_vel geometry_msgs/msg/Twist &quot;{}&quot;</code>, 최후에는 전원 스위치를 끕니다.</li></ul></div></div>
+<ol><li>(M09에서 준비한) 가상머신과 로봇을 같은 LAN에 두고, 로봇에서 매핑을 시작합니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash"># 로봇 터미널 1
+~/.stop_ros.sh
+ros2 launch slam rtabmap_slam.launch.py
+
+# 가상머신 터미널
+ros2 launch slam rviz_rtabmap.launch.py
+
+# 로봇 터미널 2
+ros2 launch peripherals teleop_key_control.launch.py</code></pre></div>
+<ol><li>W/S로 전·후진 상태를 바꾸고 A/D를 길게 눌러 회전하며 방을 천천히 돕니다. RViz에 점구름 지도와 2D 격자가 함께 자라는지 봅니다.</li><li>출발점 근처로 돌아와 <strong>같은 방향</strong>으로 카메라가 같은 장면을 보게 합니다(영상 기반 루프 검출은 같은 모습을 봐야 합니다). 루프가 닫히면 지도가 한 번 보정됩니다.</li><li>입력 상태를 확인합니다(새 터미널).</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 topic hz /ascamera/camera_publisher/rgb0/image      # 약 15 Hz
+ros2 topic hz /scan_raw
+ros2 node list | grep -E &quot;rtabmap|rgbd_sync&quot;
+ros2 param get /rtabmap Reg/Strategy</code></pre></div>
+<ol><li>모든 터미널에서 Ctrl+C로 종료하면 지도가 <strong>자동 저장</strong>됩니다(별도 저장 명령 없음). 데이터베이스를 백업하고 내용을 봅니다.</li></ol>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ls -lh ~/.ros/rtabmap.db
+cp ~/.ros/rtabmap.db ~/rtabmap_backup.db
+rtabmap-databaseViewer ~/.ros/rtabmap.db     # (GUI 도구가 설치돼 있으면) 노드·루프 확인</code></pre></div>
+<ol><li>호스트 터미널에서 <code>sudo systemctl restart start_node.service</code>로 앱 서비스를 되돌립니다.</li></ol>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> 루프가 닫힐 때 RViz 지도가 보정되는 순간을 관찰했다.</label></li><li><label class="check-item"><input type="checkbox"> <code>-d</code> 인자 때문에 다시 실행하면 지도가 지워진다는 것을 알고, 데이터베이스를 백업했다.</label></li><li><label class="check-item"><input type="checkbox"> 같은 방을 slam_toolbox와 RTAB-Map으로 각각 매핑하고 2D 격자의 차이(책상 등)를 비교했다.</label></li></ul></div></div>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td><code>rgbd_sync</code>가 아무것도 발행 안 함</td><td>컬러·깊이 타임스탬프 차이 &gt; 0.008 s, 카메라 미실행</td><td><code>ros2 topic hz</code>로 두 영상 확인, 카메라 드라이버 재시작</td></tr><tr><td>"Did not receive data since 5 seconds!"</td><td>오도메트리·스캔·영상 중 하나 없음, QoS 불일치</td><td><code>robot.launch.py</code> 로그 확인, <code>/odom</code>·<code>/scan_raw</code> 발행 확인</td></tr><tr><td>지도가 계속 겹치고 루프가 안 닫힘</td><td>무늬 없는 벽, 어두움, 다른 방향에서 재방문</td><td>조명 켜기, 포스터 등 특징 추가, 같은 방향으로 재방문</td></tr><tr><td>로봇·RViz가 점점 느려짐</td><td>3D 데이터 누적(교재 경고)</td><td>매핑 범위·시간 축소, 해상도·fps 낮추기</td></tr><tr><td>다시 실행하니 지도가 없음</td><td><code>-d</code>로 데이터베이스 삭제</td><td>매핑 후 <code>rtabmap.db</code> 복사 보관, 내비게이션 launch는 <code>-d</code> 없이 기존 DB 사용</td></tr><tr><td>2D 격자에 로봇 앞 빈 원이 생김</td><td><code>Grid/RangeMin</code> 0.2 m 이내 제거</td><td>정상. 로봇 몸체가 지도에 찍히지 않게 하는 설정</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">기본 과제</div><div class="callout-body"><ol><li>BoW 코드의 <code>new</code> 벡터를 복도(<code>N2</code>)와 비슷하게 바꿔 보고, <code>N2</code>와 <code>N5</code>가 비슷할 때 margin 조건 때문에 가설이 기각되는 경우를 만듭니다. 왜 그런 판정이 안전한지 설명합니다.</li><li>slam_toolbox와 RTAB-Map의 루프 클로저 판정 방식(M09 표와 이 장 표)을 각각 세 줄로 요약해 비교합니다.</li></ol></div></div>
+<div class="callout callout-task"><div class="callout-title">심화 과제</div><div class="callout-body"><ol><li><code>idf</code>를 쓰지 않고(모든 단어 가중치 1) 코사인 유사도만으로 같은 계산을 해 보고, 결과가 어떻게 달라지는지 설명합니다.</li><li>같은 방을 <code>Reg/Strategy</code> 0(시각)과 1(ICP)로 각각 매핑해(launch 파일 복사본에서 값 변경) 루프 클로저 성공 여부와 CPU 사용률(<code>top</code>)을 비교합니다.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>12. Mapping Lesson</em> — Lesson 5 RTAB-VSLAM 3D Mapping</li><li>원본 소스: <code>src/slam/launch/rtabmap_slam.launch.py</code>, <code>src/slam/launch/rtabmap_slam0.launch.py</code>, <code>src/slam/launch/include/rtabmap.launch.py</code>, <code>src/slam/launch/rviz_rtabmap.launch.py</code></li><li>RTAB-Map: https://github.com/introlab/rtabmap , ROS 2 패키지: https://github.com/introlab/rtabmap_ros</li><li>RTAB-Map 파라미터 목록: https://github.com/introlab/rtabmap/blob/master/corelib/include/rtabmap/core/Parameters.h</li><li>M. Labbé, F. Michaud, "Appearance-Based Loop Closure Detection for Online Large-Scale and Long-Term Operation", IEEE T-RO, 2013</li><li>M. Labbé, F. Michaud, "RTAB-Map as an open-source lidar and visual SLAM library for large-scale and long-term online operation", J. Field Robotics, 2019</li></ul>
+      <nav class="pager"><a class="pager-prev" href="m09.html"><span>이전 · M09</span>SLAM 원리와 slam_toolbox 지도 작성</a><a class="pager-next" href="m11.html"><span>다음 · M11</span>Nav2 자율 내비게이션과 AMCL</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#rtab-map이란">RTAB-Map이란</a><a class="toc-l2" href="#외관-기반-루프-클로저">외관 기반 루프 클로저</a><a class="toc-l3" href="#시각-단어-가방-bag-of-words">시각 단어 가방 (Bag of Words)</a><a class="toc-l3" href="#메모리-관리-stm-wm-ltm">메모리 관리: STM · WM · LTM</a><a class="toc-l2" href="#mentorpi의-rtab-map-구성">MentorPi의 RTAB-Map 구성</a><a class="toc-l3" href="#launch-구조">launch 구조</a><a class="toc-l3" href="#파라미터와-remapping">파라미터와 remapping</a><a class="toc-l2" href="#2d-slam과-3d-slam-비교">2D SLAM과 3D SLAM 비교</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js"></script>
+
+</body>
+</html>
