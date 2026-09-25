@@ -6,12 +6,12 @@
 <title>A12. 군집 제어: 마스터-슬레이브 · studyMentorPi</title>
 <meta name="description" content="여러 대의 MentorPi 네트워크·환경변수 구성, 네임스페이스와 대형 유지, 조이패드로 군집을 함께 조종합니다.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css?v=1ede71c3">
-<link rel="stylesheet" href="../assets/css/mentorpi.css?v=1ede71c3">
-<link rel="stylesheet" href="../assets/css/ml-theme.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/main.css?v=afc36b61">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=afc36b61">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=afc36b61">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="../assets/js/theme.js?v=1ede71c3"></script>
+<script src="../assets/js/theme.js?v=afc36b61"></script>
 </head>
 <body class="lesson-page track-page-ai">
 <button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
@@ -120,6 +120,19 @@
 <li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
 <li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
 <li><a href="../lessons/a12.html" class="active" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="project">
+<div class="nav-track-title track-project">프로젝트 (중급 이상)</div>
+<div class="nav-part"><span class="nav-part-no">P-1</span>자율 이동 서비스 로봇</div>
+<ul>
+<li><a href="../lessons/p01.html" data-slug="p01"><span class="nav-no">P01</span>자율 순찰 경비 로봇</a></li>
+<li><a href="../lessons/p02.html" data-slug="p02"><span class="nav-no">P02</span>QR 지시형 실내 배송 로봇</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">P-2</span>지능형 주행</div>
+<ul>
+<li><a href="../lessons/p03.html" data-slug="p03"><span class="nav-no">P03</span>미니 시티 자율주행 챌린지</a></li>
+<li><a href="../lessons/p04.html" data-slug="p04"><span class="nav-no">P04</span>사람 추종 카트 (비전+라이다 융합)</a></li>
 </ul>
 </div>
 </nav>
@@ -381,14 +394,14 @@ ros2 topic echo /robot_2/controller/cmd_vel</code></pre></div>
 <div class="callout callout-task"><div class="callout-title">과제</div><div class="callout-body"><ol><li><strong>(기본)</strong> 대형 변환 코드에서 리더 yaw를 90°로 바꾸면 <code>row</code> 대형의 robot_2 목표점이 어디가 되는지 손으로 먼저 계산하고 확인하세요.</li><li><strong>(기본)</strong> P 추종 시뮬레이션에 피드포워드 <code>p_cmd(ex) + v_leader</code>를 넣어 x 방향 정상상태 오차가 사라지는지 확인하세요. 속도 제한 0.25 m/s와의 관계도 설명합니다.</li><li><strong>(심화)</strong> <code>slave_tf_listener.py</code>에서 방향 오차 불감대를 <code>abs(angle) &lt; 5</code>로 비교하는 부분을 찾아, 각도 단위(rad)를 고려하면 이 조건이 무엇을 뜻하는지 설명하고 올바른 값으로 고치는 방안을 제시하세요.</li><li><strong>(심화)</strong> 세 번째 로봇을 추가해 <code>triangle</code> 대형으로 조이패드 주행을 할 때, 회전 명령에서 대형이 깨지지 않게 하려면 각 로봇에 보낼 <span class="math">(v_x, v_y, ω)</span>를 어떻게 바꿔야 하는지 강체 운동(<span class="math">v_i = v_L + ω × r_i</span>)으로 유도하세요.</li></ol></div></div>
 <h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
 <ul><li>원본 교재: <em>18. Group Control</em> — 01 Configuration for Master-Slave Device and Environment Variable, 02 Group Control Startup</li><li>원본 소스: <code>src/multi/launch/multi_controller.launch.py</code>, <code>joy_control.launch.py</code>, <code>joystick_control_multi.py</code>, <code>src/multi/multi/formation_update.py</code>, <code>slave_tf_listener.py</code>, <code>tf_follower.py</code>, <code>src/driver/sdk/sdk/common.py</code></li><li>ROS 2 Humble — 네임스페이스와 launch: https://docs.ros.org/en/humble/Tutorials/Intermediate/Launch/Using-ROS2-Launch-For-Large-Projects.html</li><li>ROS 2 Humble — ROS_DOMAIN_ID: https://docs.ros.org/en/humble/Concepts/Intermediate/About-Domain-ID.html</li><li>ROS 2 joy 패키지: https://github.com/ros-drivers/joystick_drivers</li><li>chrony (시간 동기화): https://chrony-project.org/</li><li>Desai, Ostrowski &amp; Kumar, <em>Modeling and control of formations of nonholonomic mobile robots</em>, IEEE T-RA (2001)</li></ul>
-      <nav class="pager"><a class="pager-prev" href="a11.html"><span>이전 · A11</span>회전 판단·자율 주차·통합 주행</a><span class="pager-next disabled"></span></nav>
+      <nav class="pager"><a class="pager-prev" href="a11.html"><span>이전 · A11</span>회전 판단·자율 주차·통합 주행</a><a class="pager-next" href="p01.html"><span>다음 · P01</span>자율 순찰 경비 로봇</a></nav>
     </div>
     <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#군집-제어의-원리">군집 제어의 원리</a><a class="toc-l2" href="#네트워크-구성">네트워크 구성</a><a class="toc-l3" href="#마스터-핫스팟-모드">마스터: 핫스팟 모드</a><a class="toc-l3" href="#슬레이브-lan클라이언트-모드">슬레이브: LAN(클라이언트) 모드</a><a class="toc-l2" href="#환경변수-host와-master">환경변수: HOST와 MASTER</a><a class="toc-l2" href="#조이패드-명령-분배">조이패드 명령 분배</a><a class="toc-l2" href="#리더-팔로워-대형">리더-팔로워 대형</a><a class="toc-l3" href="#p-제어-추종과-정상상태-오차">P 제어 추종과 정상상태 오차</a><a class="toc-l2" href="#시간-동기화">시간 동기화</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
   </div>
 </article>
 
 </main>
-<script src="../assets/js/site.js?v=1ede71c3"></script>
-<script type="module" src="../assets/js/lesson-runner.js?v=1ede71c3"></script>
+<script src="../assets/js/site.js?v=afc36b61"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=afc36b61"></script>
 </body>
 </html>

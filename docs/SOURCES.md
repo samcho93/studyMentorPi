@@ -50,5 +50,9 @@
 | A10 | 17. Autonomous Driving — L2 Road Sign Detection, L3 Traffic Light Recognition |
 | A11 | 17. Autonomous Driving — L4 Turning Decision, L5 Autonomous Parking, L6 Integrated Application |
 | A12 | 18. Group Control — 01 Master-Slave Configuration, 02 Group Control Startup |
+| P01 | 통합 프로젝트 — 12. Mapping, 13. Navigation, 10. Lidar(Guarding), src/navigation, src/app/lidar_controller.py |
+| P02 | 통합 프로젝트 — 14. ROS+OpenCV L3 QR, 13. Navigation L4, src/example/qrcode |
+| P03 | 통합 프로젝트 — 17. Autonomous Driving L1~L6, src/example/self_driving, yolov5_ros2 |
+| P04 | 통합 프로젝트 — 15. MediaPipe, 10. Lidar(Following), src/example/body_control, hand_track |
 
 부록(Appendix: RRC Lite 하드웨어/STM32, 시스템 이미지 굽기)은 B03·B08·B09의 참고자료로 인용한다.

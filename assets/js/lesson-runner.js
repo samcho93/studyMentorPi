@@ -14,15 +14,17 @@ panel.className = 'runner';
 panel.setAttribute('aria-label', '코드 실행 결과');
 panel.innerHTML = `
 <div class="rn-head">
-  <strong>실행 결과</strong><span class="rn-status" data-r="status">준비 전</span>
+  <strong data-r="title">실행 결과</strong><span class="rn-status" data-r="status">준비 전</span>
   <button class="rn-x" type="button" data-r="close" aria-label="닫기">&times;</button>
 </div>
 <div class="rn-tabs" role="tablist">
   <button type="button" data-pane="out" aria-selected="true">출력</button>
   <button type="button" data-pane="world" aria-selected="false">2D 재생</button>
+  <button type="button" data-pane="w3d" aria-selected="false">3D 재생</button>
   <button type="button" data-pane="imgs" aria-selected="false">이미지<span data-r="nimg"></span></button>
   <button type="button" data-pane="chart" aria-selected="false">그래프<span data-r="nplot"></span></button>
   <button type="button" data-pane="code" aria-selected="false">코드 수정</button>
+  <button type="button" data-pane="live" aria-selected="false" hidden data-r="liveTab">시뮬레이터</button>
 </div>
 <div class="rn-body">
   <div class="rn-pane on" data-p="out"><pre class="rn-out" data-r="out"></pre></div>
@@ -36,6 +38,8 @@ panel.innerHTML = `
     </div>
     <div class="rn-sum" data-r="sum"></div>
   </div>
+  <div class="rn-pane" data-p="w3d"><div class="rn-frame" data-r="w3d"><p class="rn-empty" style="padding:14px">가상 로봇을 쓰는 코드를 실행하면 MentorPi URDF 모델로 3D 재생합니다.</p></div></div>
+  <div class="rn-pane" data-p="live"><div class="rn-frame" data-r="live"></div></div>
   <div class="rn-pane" data-p="imgs"><div class="rn-imgs" data-r="imgs"></div></div>
   <div class="rn-pane" data-p="chart"><canvas class="rn-cv" data-r="chart"></canvas></div>
   <div class="rn-pane" data-p="code"><textarea class="rn-code" data-r="code" spellcheck="false" aria-label="실행할 코드"></textarea></div>
@@ -53,6 +57,8 @@ function showPane(name) {
   panel.querySelectorAll('.rn-pane').forEach((p) => p.classList.toggle('on', p.dataset.p === name));
   if (name === 'world') { view.resize(); render(); }
   if (name === 'chart') drawChart();
+  if (name === 'w3d') ensure3D();
+  panel.classList.toggle('wide', name === 'live' || name === 'w3d');
 }
 panel.querySelectorAll('.rn-tabs button').forEach((b) => b.addEventListener('click', () => showPane(b.dataset.pane)));
 function open() { panel.classList.add('open'); document.body.classList.add('runner-open'); }
@@ -118,7 +124,8 @@ function finish(m) {
     const s = res.summary;
     R('sum').innerHTML = `시뮬 <b>${s.t.toFixed(1)} s</b> · ${res.chassis} · ${esc(res.world.title)} · 이동 <b>${s.distance.toFixed(2)} m</b> · 충돌 <b>${s.collisions}</b>`;
     out(`■ 시뮬레이션 ${s.t.toFixed(1)} s 기록 → 2D 재생 탭`, 'ok');
-    showPane('world'); frame = 0; play(true);
+    showPane(panel.dataset.pref3d === '1' ? 'w3d' : 'world'); frame = 0; play(true);
+    send3D(res);
   } else {
     if (m.status === 'ok') out('■ 완료', 'ok');
     if (res.images && res.images.length) showPane('imgs');
@@ -216,6 +223,62 @@ function drawChart() {
   });
 }
 
+// ------------------------------------------------------------------ 3D replay (sim3d?embed=replay)
+let f3d = null, f3dReady = false, pending3d = null;
+function ensure3D() {
+  if (f3d) return;
+  f3d = document.createElement('iframe');
+  f3d.title = 'MentorPi 3D 재생';
+  f3d.src = new URL('../sim3d/index.html?embed=replay', location.href).href;
+  R('w3d').innerHTML = '';
+  R('w3d').appendChild(f3d);
+}
+function send3D(res) {
+  pending3d = res;
+  if (!f3d) ensure3D();
+  if (f3dReady) { f3d.contentWindow.postMessage({ type: 'mp-replay', result: res }, '*'); pending3d = null; }
+}
+window.addEventListener('message', (ev) => {
+  if (f3d && ev.source === f3d.contentWindow && ev.data && ev.data.type === 'mp3d-ready') {
+    f3dReady = true;
+    if (pending3d) send3D(pending3d);
+  }
+});
+panel.querySelector('[data-pane="w3d"]').addEventListener('click', () => { panel.dataset.pref3d = '1'; });
+panel.querySelector('[data-pane="world"]').addEventListener('click', () => { panel.dataset.pref3d = '0'; });
+
+// ------------------------------------------------------------------ live simulators inside the panel
+function openLive(href, label) {
+  const u = new URL(href, location.href);
+  u.searchParams.set('embed', '1');
+  const box = R('live');
+  if (!box.firstChild || box.firstChild.dataset.src !== u.href) {
+    box.innerHTML = '';
+    const fr = document.createElement('iframe');
+    fr.title = label; fr.src = u.href; fr.dataset.src = u.href;
+    fr.allow = 'camera';
+    box.appendChild(fr);
+  }
+  R('liveTab').hidden = false;
+  R('liveTab').textContent = label;
+  R('title').textContent = label;
+  open();
+  showPane('live');
+}
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('a[href]');
+  if (!a || e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return;
+  if (!a.closest('.lesson')) return;                     // only links inside the lesson article
+  const href = a.getAttribute('href');
+  let label = null;
+  if (/sim3d\/(index\.html)?(\?|#|$)/.test(href)) label = '3D 시뮬레이터';
+  else if (/(^|\/)sim\/(index\.html)?(\?|#|$)/.test(href)) label = '2D 시뮬레이터';
+  else if (/tools\/(kinematics-lab|color-lab|urdf-viewer)\.html/.test(href)) label = a.textContent.trim().replace(/\s+/g, ' ').slice(0, 20) || '도구';
+  if (!label) return;
+  e.preventDefault();
+  openLive(href, label);
+});
+
 // ------------------------------------------------------------------ wire code blocks
 document.querySelectorAll('.code-block.code-run').forEach((blk) => {
   const btn = blk.querySelector('.run-inline');
@@ -224,6 +287,7 @@ document.querySelectorAll('.code-block.code-run').forEach((blk) => {
     document.querySelectorAll('.code-block.running').forEach((c) => c.classList.remove('running'));
     blk.classList.add('running');
     R('out').textContent = '';
+    R('title').textContent = '실행 결과';
     run(blk.querySelector('code').textContent);
   });
 });

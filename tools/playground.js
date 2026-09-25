@@ -49,7 +49,18 @@ function showPane(id) {
   document.querySelectorAll('.pg-pane').forEach((p) => p.classList.toggle('on', p.id === id));
   if (id === 'paneWorld') { view.resize(); render(); }
   if (id === 'paneChart') drawChart();
+  if (id === 'pane3d') ensure3D();
 }
+// 3D replay of the last run in the URDF simulator (sim3d?embed=replay)
+let f3dReady = false, pending3d = null;
+function ensure3D() { const f = $('f3d'); if (!f.src) f.src = f.dataset.src; }
+function send3D(res) {
+  pending3d = res; ensure3D();
+  if (f3dReady) { $('f3d').contentWindow.postMessage({ type: 'mp-replay', result: res }, '*'); pending3d = null; }
+}
+window.addEventListener('message', (ev) => {
+  if (ev.source === $('f3d').contentWindow && ev.data && ev.data.type === 'mp3d-ready') { f3dReady = true; if (pending3d) send3D(pending3d); }
+});
 document.querySelectorAll('.pg-tabs button').forEach((b) => b.addEventListener('click', () => showPane(b.dataset.pane)));
 
 // ------------------------------------------------------------------ 2D replay
@@ -272,6 +283,7 @@ function finish(m) {
     showPane('paneWorld');
     setFrame(0);
     play(true);
+    send3D(res);
   } else {
     if (m.status === 'ok') out('■ 완료', 'ok');
     render();

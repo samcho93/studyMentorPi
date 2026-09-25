@@ -454,9 +454,11 @@ def lesson_page(cur: dict, cid: str, meta: dict, body_md: str) -> str:
         req_html = '<div class="requires">선수 챕터: %s</div>' % " ".join(
             '<a href="%s.html">%s</a>' % (x, x.upper()) for x in requires if x in cur["index"])
 
-    tools = meta.get("tools") or info.get("tools") or []
-    if isinstance(tools, str):
-        tools = [tools]
+    tools = []
+    for src in (info.get("tools") or [], meta.get("tools") or []):   # curriculum first, then chapter extras
+        for t in ([src] if isinstance(src, str) else src):
+            if t not in tools:
+                tools.append(t)
     tool_btns = "".join('<a class="ghost-btn" href="../%s">%s</a>' % TOOL_LINKS[t]
                         for t in tools if t in TOOL_LINKS)
 
@@ -497,8 +499,7 @@ def lesson_page(cur: dict, cid: str, meta: dict, body_md: str) -> str:
         rel="../", bodyclass="lesson-page track-page-%s" % info["track"],
         sidebar=sidebar_html(cur, cid, "../"),
         content=header,
-        extra=('<script type="module" src="../assets/js/lesson-runner.js?v=%s"></script>' % asset_version()
-               if 'class="code-block code-run"' in content_html else ""))
+        extra='<script type="module" src="../assets/js/lesson-runner.js?v=%s"></script>' % asset_version())
 
 
 def index_page(cur: dict) -> str:

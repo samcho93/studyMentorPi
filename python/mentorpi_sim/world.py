@@ -46,6 +46,11 @@ class World:
     def add_mover(self, x, y, vx=0.0, vy=0.0, r=0.1):
         self.movers.append([x, y, vx, vy, r])
 
+    def add_walker(self, points, speed=0.15, r=0.12, loop=True):
+        """A mover that walks along a polyline (a person for following / intruder demos)."""
+        x, y = points[0]
+        self.movers.append([x, y, 0.0, 0.0, r, {"path": [tuple(p) for p in points], "i": 1, "speed": speed, "loop": loop}])
+
     def _rebuild(self):
         x0, y0, x1, y1 = self.bounds
         segs = [[x0, y0, x1, y0], [x1, y0, x1, y1], [x1, y1, x0, y1], [x0, y1, x0, y0]]
@@ -58,6 +63,24 @@ class World:
     def step_movers(self, dt):
         x0, y0, x1, y1 = self.bounds
         for m in self.movers:
+            if len(m) > 5:
+                w = m[5]
+                if w["i"] >= len(w["path"]):
+                    if not w["loop"]:
+                        m[2] = m[3] = 0.0
+                        continue
+                    w["i"] = 0
+                tx, ty = w["path"][w["i"]]
+                dx, dy = tx - m[0], ty - m[1]
+                d = (dx * dx + dy * dy) ** 0.5
+                if d < 0.02:
+                    w["i"] += 1
+                    continue
+                step = min(d, w["speed"] * dt)
+                m[2], m[3] = dx / d * w["speed"], dy / d * w["speed"]
+                m[0] += dx / d * step
+                m[1] += dy / d * step
+                continue
             m[0] += m[2] * dt
             m[1] += m[3] * dt
             if m[0] - m[4] < x0 or m[0] + m[4] > x1:

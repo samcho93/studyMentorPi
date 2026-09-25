@@ -118,6 +118,7 @@
   <section class="pg-right">
     <div class="pg-tabs" role="tablist">
       <button type="button" role="tab" data-pane="paneWorld" aria-selected="true">2D 재생</button>
+      <button type="button" role="tab" data-pane="pane3d" aria-selected="false">3D 재생</button>
       <button type="button" role="tab" data-pane="paneImgs" aria-selected="false">이미지<span class="badge" id="imgCount"></span></button>
       <button type="button" role="tab" data-pane="paneChart" aria-selected="false">그래프<span class="badge" id="plotCount"></span></button>
     </div>
@@ -137,6 +138,7 @@
         <select id="speed" aria-label="재생 속도"><option value="1">1×</option><option value="2" selected>2×</option><option value="4">4×</option></select>
       </div>
     </div>
+    <div class="pg-pane" id="pane3d"><iframe id="f3d" title="MentorPi 3D 재생" style="flex:1;border:0;width:100%" data-src="../sim3d/index.html?embed=replay"></iframe></div>
     <div class="pg-pane" id="paneImgs"><div class="pg-imgs" id="imgs"><div class="pg-empty">코드에서 <code>cv2.imshow("이름", img)</code>를 부르면 여기에 표시됩니다.</div></div></div>
     <div class="pg-pane" id="paneChart"><canvas id="chart" aria-label="그래프"></canvas></div>
     <div class="pg-summary" id="summary">

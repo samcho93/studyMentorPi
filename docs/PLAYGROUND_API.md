@@ -15,7 +15,8 @@ sim.setup(chassis="mecanum",          # "mecanum" | "ackermann"
           noise=True)                 # 오도메트리·라이다 잡음
 ```
 `sim.setup()`을 부르지 않으면 기본값(mecanum, room, 20 s)이 쓰인다. 월드 크기: empty 6×6 m, room 6×4 m, maze 5×5 m, corridor 8×2 m, arena 4×4 m(상자 여러 개).
-`sim.add_box(x, y, w, h)`, `sim.add_cylinder(x, y, r)`, `sim.add_mover(x, y, vx, vy)`(움직이는 원통 — 추종 실습용)로 장애물을 추가할 수 있다.
+`sim.add_box(x, y, w, h)`, `sim.add_cylinder(x, y, r)`, `sim.add_mover(x, y, vx, vy)`(움직이는 원통 — 추종 실습용), `sim.add_walker([(x,y),...], speed=0.15, r=0.12, loop=True)`(경로를 따라 걷는 사람)로 장애물을 추가할 수 있다.
+`sim.movers()` → `[(x, y, r), ...]` 움직이는 물체의 실제 위치(시뮬 전용 — 카메라 인식 결과를 흉내 낼 때 사용), `sim.pose()` → 실제 로봇 자세 `(x, y, yaw)`.
 
 ## 2. rclpy
 

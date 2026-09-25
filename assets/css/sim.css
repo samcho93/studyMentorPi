@@ -664,3 +664,6 @@
 #tab-tree .servo-table { font-size: 10.5px; }
 #tab-tree .servo-table td { white-space: nowrap; }
 #tab-tree .servo-table tbody tr:hover td { background: var(--accent-soft); color: var(--accent); }
+
+/* lesson side-panel embed */
+html.embed .sim-top { display: none; }

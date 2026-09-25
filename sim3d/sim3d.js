@@ -419,7 +419,8 @@ new ResizeObserver(resize).observe(host);
 let last = 0, frameNo = 0;
 function frame(ts) {
   const dt = last ? Math.min(0.05, (ts - last) / 1000) : 0; last = ts;
-  if (world && robot) {
+  if (REPLAY) { if (rp.res && world) replayTick(dt); }
+  else if (world && robot) {
     advance(dt * Number($('selSpeed').value));
     render(dt * Number($('selSpeed').value));
   }
@@ -443,6 +444,94 @@ window.__sim3d = {
   startNav, setMode: (m) => { stopAll(); mode = m; }, reset,
 };
 
+
+// ------------------------------------------------------------------ embed / replay mode
+// ?embed=1       : live simulator without the site header (used inside the lesson side panel)
+// ?embed=replay  : plays a finished Playground / lesson run (postMessage {type:'mp-replay', result})
+const EMBED = new URLSearchParams(location.search).get('embed');
+const REPLAY = EMBED === 'replay';
+if (EMBED) document.body.classList.add('embed');
+if (REPLAY) document.body.classList.add('embed-replay');
+const rp = { res: null, i: 0, t: 0, playing: false };
+function replayBar() {
+  const bar = document.createElement('div');
+  bar.className = 'rp-bar';
+  bar.innerHTML = `<button type="button" class="s-btn" id="rpPlay">&#9654;</button><span id="rpT">대기 중</span>
+    <input type="range" id="rpSeek" min="0" max="0" value="0" aria-label="재생 위치">
+    <select id="rpSpeed" aria-label="재생 속도"><option value="1">1×</option><option value="2" selected>2×</option><option value="4">4×</option></select>
+    <select id="rpCam" aria-label="시점"><option value="follow">따라가기</option><option value="orbit">자유 궤도</option><option value="top">위에서</option><option value="fpv">1인칭</option></select>`;
+  $('stage').appendChild(bar);
+  $('rpPlay').addEventListener('click', () => {
+    if (!rp.res) return;
+    if (rp.playing) { rp.playing = false; $('rpPlay').innerHTML = '&#9654;'; return; }
+    if (rp.i >= rp.res.frames.length - 1) { rp.i = 0; rp.t = 0; trail = []; }
+    rp.playing = true; $('rpPlay').innerHTML = '&#10074;&#10074;';
+  });
+  $('rpSeek').addEventListener('input', (e) => { rp.playing = false; $('rpPlay').innerHTML = '&#9654;'; setReplayFrame(Number(e.target.value)); });
+  $('rpCam').addEventListener('change', () => { $('selCam').value = $('rpCam').value; });
+  $('info').textContent = '코드를 실행하면 결과가 3D로 재생됩니다.';
+}
+async function loadReplay(res) {
+  rp.res = res; rp.i = 0; rp.t = 0; rp.playing = true;
+  const spec = { title: res.world.title, bounds: res.world.bounds, walls: res.world.walls || [], boxes: res.world.boxes || [],
+    cylinders: res.world.cylinders || [], start: res.start };
+  world = new World(spec, res.world.name || 'replay');
+  const wspec = WORLDS && WORLDS[res.world.name];
+  if (wspec && wspec.track) { world.track = { width: wspec.track.width, points: trackPoints(wspec.track), closed: true }; }
+  rng = makeRng(7);
+  robot = new Robot(world, res.chassis, res.start, false, rng);
+  trail = []; simT = 0; mode = 'replay';
+  buildWorldMeshes();
+  const [x0, y0, x1, y1] = world.bounds;
+  sun.target.position.set((x0 + x1) / 2, (y0 + y1) / 2, 0); scene.add(sun.target);
+  controls.target.set(res.start[0], res.start[1], 0.1);
+  camera.position.set(res.start[0] - 1.2, res.start[1] - 1.6, 1.3);
+  $('selCam').value = $('rpCam').value;
+  await setRobotModel(res.chassis);
+  $('rpSeek').max = Math.max(0, res.frames.length - 1);
+  $('rpPlay').innerHTML = '&#10074;&#10074;';
+  $('info').textContent = `${res.world.title} · ${res.chassis} · ${res.frames.length} 프레임`;
+  setReplayFrame(0);
+}
+function setReplayFrame(i) {
+  const fr = rp.res.frames;
+  rp.i = Math.max(0, Math.min(i, fr.length - 1));
+  const f = fr[rp.i];
+  rp.t = f.t - fr[0].t;
+  [robot.x, robot.y, robot.yaw] = f.gt;
+  [robot.ox, robot.oy, robot.oyaw] = f.od;
+  robot.cmd = f.cmd.slice();
+  robot.v = f.cmd.slice();
+  robot.steer = f.steer || 0;
+  simT = f.t;
+  if (f.scan && f.scan.length) {
+    const n = f.scan.length, k = Math.round(N_RAYS / n);
+    ranges = new Array(N_RAYS).fill(Infinity);
+    f.scan.forEach((r, j) => { ranges[j * k] = r == null ? Infinity : r; });
+  }
+  // movers (walkers / targets) — create meshes on demand
+  world.movers = (f.movers || []).map(([x, y, r]) => [x, y, 0, 0, r]);
+  while (moverMeshes.length < world.movers.length) moverMeshes.push(addCylinder(0, 0, world.movers[moverMeshes.length][4], new THREE.MeshStandardMaterial({ color: 0x7b4fd1 })));
+  trail = fr.slice(0, rp.i + 1).map((q) => [q.gt[0], q.gt[1]]).slice(-3000);
+  $('rpSeek').value = rp.i;
+  $('rpT').textContent = `${f.t.toFixed(1)} / ${fr[fr.length - 1].t.toFixed(1)} s`;
+}
+function replayTick(dt) {
+  const fr = rp.res.frames;
+  if (rp.playing) {
+    rp.t += dt * Number($('rpSpeed').value);
+    let i = rp.i;
+    while (i < fr.length - 1 && fr[i + 1].t - fr[0].t <= rp.t) i++;
+    if (i !== rp.i) setReplayFrame(i);
+    if (rp.i >= fr.length - 1) { rp.playing = false; $('rpPlay').innerHTML = '&#8634;'; }
+  }
+  render(rp.playing ? dt * Number($('rpSpeed').value) : 0);
+}
+window.addEventListener('message', (ev) => {
+  const m = ev.data || {};
+  if (m.type === 'mp-replay' && m.result) loadReplay(m.result).catch((e) => { $('info').textContent = '재생 실패: ' + e.message; });
+});
+
 (async () => {
   WORLDS = await (await fetch('../python/mentorpi_sim/worlds.json')).json();
   delete WORLDS._comment;
@@ -451,6 +540,12 @@ window.__sim3d = {
   $('selWorld').value = q.get('world') || saved.world || 'room';
   $('selChassis').value = q.get('chassis') || saved.chassis || 'mecanum';
   resize();
+  if (REPLAY) {
+    replayBar();
+    requestAnimationFrame(frame);
+    if (window.parent !== window) window.parent.postMessage({ type: 'mp3d-ready' }, '*');
+    return;
+  }
   await reset();
   requestAnimationFrame(frame);
 })().catch((e) => { $('subTitle').textContent = '로드 실패: ' + e.message; console.error(e); });

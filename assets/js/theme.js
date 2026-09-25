@@ -1,3 +1,5 @@
+/* embedded inside the lesson side panel: hide the tool header (see lesson-runner.js) */
+(function () { try { if (new URLSearchParams(location.search).get('embed')) document.documentElement.classList.add('embed'); } catch (e) { /* ignore */ } })();
 /*
  * theme.js — 밝게 / 어둡게 / 시스템 설정 따르기
  * -------------------------------------------------------------------------

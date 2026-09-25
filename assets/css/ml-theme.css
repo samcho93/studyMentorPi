@@ -41,6 +41,7 @@
   --track-ros:     #9333ea;
   --track-mobile:  #1f9d55;
   --track-ai:      #a16207;
+  --track-project: #be123c;
   --safety:        #d64541;
   --safety-soft:   #fdeaea;
   --mono: 'JetBrains Mono', 'D2Coding', Consolas, 'Courier New', monospace;
@@ -83,6 +84,7 @@
   --track-ros:     #9333ea;
   --track-mobile:  #4cc983;
   --track-ai:      #f2c14e;
+  --track-project: #fb7185;
   --safety:        #ff6b61;
   --safety-soft:   #3a1a18;
   color-scheme: dark;
@@ -97,7 +99,7 @@
     --info: #f2c14e; --info-soft: #33290f; --task: #b695ff; --task-soft: #271d3d;
     --ok: #4cc983; --ok-soft: #132e20; --code-fg: #d6deeb; --code-accent: #ffa657;
     --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 6px 20px rgba(0, 0, 0, .25);
-    --track-base: #818cf8; --track-ros: #c084fc; --track-mobile: #4cc983; --track-ai: #f2c14e;
+    --track-base: #818cf8; --track-ros: #c084fc; --track-mobile: #4cc983; --track-ai: #f2c14e; --track-project: #fb7185;
     --safety: #ff6b61; --safety-soft: #3a1a18;
     color-scheme: dark;
   }
@@ -200,6 +202,7 @@ a { color: var(--link); }
 }
 .track-pill.track-ai { color: var(--info); background: var(--info-soft); }
 .track-pill.track-mobile { color: var(--ok); background: var(--ok-soft); }
+.track-pill.track-project { color: var(--track-project); background: var(--danger-soft); }
 .track-pill.track-ros { color: var(--task); background: var(--task-soft); }
 .lesson-head h1 { font-size: clamp(26px, 3.2vw, 32px); letter-spacing: -.02em; }
 .lesson-no { font: 700 13px var(--mono); color: var(--accent); background: var(--accent-soft); border-radius: 6px; padding: 2px 8px; align-self: center; }
