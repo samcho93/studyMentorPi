@@ -6,12 +6,12 @@
 <title>R04. 서비스·액션·커스텀 인터페이스 · studyMentorPi</title>
 <meta name="description" content="요청-응답 서비스, 피드백이 있는 액션, .msg/.srv/.action 인터페이스 정의와 빌드.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css">
-<link rel="stylesheet" href="../assets/css/mentorpi.css">
-<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" href="../assets/css/main.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=1ede71c3">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/theme.js?v=1ede71c3"></script>
 </head>
 <body class="lesson-page track-page-ros">
 <button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
@@ -253,7 +253,7 @@ ros2 interface package demo_interfaces        # 세 인터페이스 목록</code
 <p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
 <h3 id="덧셈-서비스-서버와-클라이언트">① 덧셈 서비스: 서버와 클라이언트<a class="anchor" href="#덧셈-서비스-서버와-클라이언트">#</a></h3>
 <p>실물에서는 서버와 클라이언트가 별도 프로세스지만, 여기서는 한 노드에 둘 다 만듭니다(단일 스레드 실행기에서도 <code>spin_until_future_complete</code>가 서버 콜백까지 처리하므로 동작합니다).</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
 from rclpy.node import Node
 from example_interfaces.srv import AddTwoInts
 import mentorpi_sim as sim                  # 시뮬 전용
@@ -297,7 +297,7 @@ rclpy.shutdown()</code></pre></div>
 -7 + 10 = 3</code></pre></div>
 <h3 id="로봇-제어-서비스-setbool로-주행-켜기-끄기-trigger로-상태-조회">② 로봇 제어 서비스: SetBool로 주행 켜기/끄기, Trigger로 상태 조회<a class="anchor" href="#로봇-제어-서비스-setbool로-주행-켜기-끄기-trigger로-상태-조회">#</a></h3>
 <p>실제 로봇 앱들도 <code>~/enter</code>, <code>~/set_running</code> 같은 서비스로 기능을 켜고 끕니다. 같은 구조를 만들어 봅니다. 노드는 10 Hz로 <code>/cmd_vel</code>을 발행하되, <code>SetBool</code> 서비스로 <code>True</code>를 받았을 때만 전진합니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import time
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import time
 import rclpy
 from rclpy.node import Node
 from std_srvs.srv import SetBool, Trigger
@@ -370,7 +370,7 @@ rclpy.shutdown()</code></pre></div>
 <p>서비스 이름을 <code>노드이름/기능</code>으로 지은 것은 공식 앱의 관례를 따른 것입니다. 실물 rclpy에서는 <strong>private 이름</strong> <code>&#x27;~/set_running&#x27;</code>으로 써도 노드 이름이 붙어 똑같이 <code>/motion_switch/set_running</code>이 됩니다. 실물에서는 <code>ros2 service call /motion_switch/set_running std_srvs/srv/SetBool &quot;{data: true}&quot;</code>로 똑같이 켤 수 있습니다.</p>
 <h3 id="피보나치-액션-피드백과-결과">③ 피보나치 액션: 피드백과 결과<a class="anchor" href="#피보나치-액션-피드백과-결과">#</a></h3>
 <p>원본 FileDownload 액션과 같은 구조입니다. 서버는 0.2초마다 수열을 하나씩 늘려 피드백으로 보내고, 클라이언트는 피드백 콜백으로 진행 상황을 봅니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import time
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import time
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionServer, ActionClient
@@ -464,7 +464,7 @@ ros2 service call /controller/load_calibrate_param std_srvs/srv/Trigger   # 터�
 </article>
 
 </main>
-<script src="../assets/js/site.js"></script>
-
+<script src="../assets/js/site.js?v=1ede71c3"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=1ede71c3"></script>
 </body>
 </html>

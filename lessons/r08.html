@@ -6,12 +6,12 @@
 <title>R08. OpenCV 시작: 이미지·영상·그리기 · studyMentorPi</title>
 <meta name="description" content="컴퓨터 비전 개요, OpenCV 모듈 구조, 이미지·동영상·카메라 읽기와 표시, 도형·글자 그리기, 픽셀·ROI·채널 기본 연산.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css">
-<link rel="stylesheet" href="../assets/css/mentorpi.css">
-<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" href="../assets/css/main.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=1ede71c3">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/theme.js?v=1ede71c3"></script>
 </head>
 <body class="lesson-page track-page-ros">
 <button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
@@ -215,7 +215,7 @@ python3 -c &quot;import cv2; print(cv2.__version__)&quot;</code></pre></div>
 </svg><figcaption>이미지 좌표와 배열 인덱스 — <code>img[y, x]</code>는 (행, 열) 순서이고 채널은 B, G, R 순서입니다</figcaption></figure>
 <p>꼭 기억할 규칙이 세 가지 있습니다.</p>
 <ol><li>**인덱스는 <code>img[y, x]</code>(행, 열) 순서**입니다. 반면 <code>cv2.circle(img, (x, y), …)</code> 같은 그리기 함수의 좌표는 <code>(x, y)</code> 순서입니다. 둘을 섞으면 점이 대각선 반대편에 찍힙니다.</li><li><strong>채널 순서는 BGR</strong>입니다. <code>img[y, x] = [255, 0, 0]</code>은 파란색입니다. ROS의 <code>cv_bridge</code>로 받을 때 <code>&quot;bgr8&quot;</code>을 지정하는 것도 이 때문입니다. (MentorPi의 라인 트레이싱 노드처럼 <code>&quot;rgb8&quot;</code>로 받는 코드도 있으니, 코드마다 어느 쪽인지 확인해야 합니다.)</li><li>**자료형은 <code>uint8</code>(0~255)<strong>입니다. 255를 넘거나 0보다 작아지는 계산은 NumPy에서는 </strong>순환(wrap-around)<strong>, OpenCV 함수에서는 </strong>포화(saturation)**가 일어납니다.</li></ol>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
 import numpy as np
 
 img = np.zeros((240, 320, 3), np.uint8)     # 검은 캔버스: 높이 240, 너비 320
@@ -245,7 +245,7 @@ gray.shape: (240, 320)  ROI 밝기: 29</code></pre></div>
 <ul><li><code>img.size</code>는 <code>H × W × 채널</code>의 원소 수입니다. 흑백 이미지인지 알고 싶으면 <code>len(img.shape) == 2</code>로 확인합니다.</li><li><code>cv2.merge([r, g, b])</code>는 채널 순서를 바꿔 파랑 사각형을 빨강으로 만듭니다. BGR ↔ RGB 혼동이 생기면 화면에서 <strong>빨강과 파랑이 뒤바뀌어</strong> 보이는 이유입니다.</li><li>회색 변환 값 29는 <code>0.114·B + 0.587·G + 0.299·R = 0.114 × 255</code>에서 나옵니다(R09).</li></ul>
 <h3 id="roi는-뷰view-다">ROI는 “뷰(view)”다<a class="anchor" href="#roi는-뷰view-다">#</a></h3>
 <p><code>roi = img[y1:y2, x1:x2]</code>는 <strong>새 배열을 만들지 않고 원본의 일부를 가리키는 뷰</strong>입니다. ROI에 그림을 그리면 원본도 바뀝니다. 원본을 보존하려면 <code>.copy()</code>를 붙입니다. 라인 트레이싱 노드가 화면 아래쪽 몇 줄만 잘라 처리하는 것(A03)도 이 슬라이싱입니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
 import numpy as np
 
 img = np.full((100, 100), 50, np.uint8)
@@ -278,7 +278,7 @@ cv2.destroyAllWindows()
 cv2.imwrite(&quot;out.jpg&quot;, img)                         # 확장자로 형식 결정</code></pre></div>
 <div class="table-wrap"><table><thead><tr><th>함수</th><th>주의할 점</th></tr></thead><tbody><tr><td><code>imread(path, flag)</code></td><td>파일이 없으면 **예외 없이 <code>None</code>**을 돌려줍니다. 바로 <code>img.shape</code>를 부르면 <code>AttributeError</code>가 납니다.</td></tr><tr><td><code>imshow(name, img)</code></td><td>창을 실제로 그리는 것은 <code>waitKey</code>입니다. <code>waitKey</code> 없이 루프를 돌면 창이 멈춘 것처럼 보입니다.</td></tr><tr><td><code>waitKey(ms)</code></td><td>눌린 키의 코드를 돌려주고, 시간 안에 입력이 없으면 <code>-1</code>입니다. <code>ord(&#x27;q&#x27;)</code>와 비교해 종료 키를 만듭니다.</td></tr><tr><td><code>imwrite(path, img)</code></td><td>성공 여부를 <code>True/False</code>로 돌려줍니다. 폴더가 없으면 <code>False</code>입니다.</td></tr></tbody></table></div>
 <p>Playground에서는 <code>imshow</code>가 오른쪽 이미지 패널에 결과를 보여 주고, <code>waitKey()</code>는 곧바로 <code>-1</code>을 돌려줍니다. 샘플 이미지(<code>shapes.png</code>, <code>colors.png</code>, <code>track.png</code>, <code>lane.png</code>, <code>qr.png</code>, <code>scene.png</code>, <code>coins.png</code>)는 <code>imread</code>로 바로 읽을 수 있습니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
 
 for name in [&quot;shapes.png&quot;, &quot;colors.png&quot;, &quot;track.png&quot;, &quot;scene.png&quot;]:
     img = cv2.imread(name)
@@ -315,7 +315,7 @@ cv2.destroyAllWindows()</code></pre></div>
 <p>인식 결과를 눈으로 확인하려면 영상 위에 표시를 그려야 합니다. 모든 그리기 함수는 <strong>원본 배열을 직접 바꾸고</strong>, 좌표는 <code>(x, y)</code>, 색은 BGR 튜플입니다. <code>thickness</code>가 음수(<code>-1</code> 또는 <code>cv2.FILLED</code>)이면 내부를 채웁니다.</p>
 <div class="table-wrap"><table><thead><tr><th>함수</th><th>인자</th><th>용도 예</th></tr></thead><tbody><tr><td><code>cv2.line(img, pt1, pt2, color, thickness)</code></td><td>시작·끝점</td><td>화면 중앙 기준선, 오차 표시</td></tr><tr><td><code>cv2.rectangle(img, pt1, pt2, color, thickness)</code></td><td>대각 두 꼭짓점</td><td>검출 박스</td></tr><tr><td><code>cv2.circle(img, center, radius, color, thickness)</code></td><td>중심·반지름</td><td>색 블록 외접원, 중심점</td></tr><tr><td><code>cv2.polylines(img, [pts], isClosed, color, thickness)</code></td><td>꼭짓점 배열 <code>(N,1,2)</code> 또는 <code>(N,2)</code>, <code>int32</code></td><td>QR 코드 테두리, 회전 사각형</td></tr><tr><td><code>cv2.putText(img, text, org, font, scale, color, thickness)</code></td><td><code>org</code>는 글자 <strong>왼쪽 아래</strong></td><td>인식 결과 문자열</td></tr></tbody></table></div>
 <p>아래 코드는 MentorPi 색 인식 예제(<code>color_detect_demo.py</code>)가 결과를 표시하는 방식을 흉내 낸 HUD입니다. 원본도 검출한 물체에 원을 그리고 화면 왼쪽 아래 <code>(10, h - 10)</code>에 <code>&quot;Color: red&quot;</code>를 씁니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
 import numpy as np
 
 h, w = 240, 320
@@ -413,7 +413,7 @@ if __name__ == &#x27;__main__&#x27;:
 </article>
 
 </main>
-<script src="../assets/js/site.js"></script>
-
+<script src="../assets/js/site.js?v=1ede71c3"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=1ede71c3"></script>
 </body>
 </html>

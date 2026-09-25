@@ -6,12 +6,12 @@
 <title>A01. 색 임계값 조정과 색 인식 · studyMentorPi</title>
 <meta name="description" content="LAB/HSV 임계값 도구로 색 범위를 정하고, 마스크·윤곽선·중심점으로 색을 인식해 ROS 2 토픽으로 발행합니다.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css">
-<link rel="stylesheet" href="../assets/css/mentorpi.css">
-<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" href="../assets/css/main.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=1ede71c3">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/theme.js?v=1ede71c3"></script>
 </head>
 <body class="lesson-page track-page-ai">
 <button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
@@ -244,7 +244,7 @@ size: {width: [640], height: [480]}</code></pre></div>
 </svg><figcaption>색 인식 한 프레임의 처리 순서 (color_detect_demo.py)</figcaption></figure>
 <div class="table-wrap"><table><thead><tr><th>단계</th><th>코드</th><th>이유</th></tr></thead><tbody><tr><td>1. 축소</td><td><code>cv2.resize(img, (320, 240), interpolation=cv2.INTER_NEAREST)</code></td><td>픽셀 수 1/4 → 4배 빠름</td></tr><tr><td>2. 흐림</td><td><code>cv2.GaussianBlur(frame, (3, 3), 3)</code></td><td>센서 잡음 제거</td></tr><tr><td>3. Lab 변환</td><td><code>cv2.cvtColor(frame, cv2.COLOR_BGR2LAB)</code></td><td>조명에 덜 민감한 색 축</td></tr><tr><td>4. 색마다 마스크</td><td><code>cv2.inRange(lab, min, max)</code> (red, green, blue)</td><td>임계값 파일 사용</td></tr><tr><td>5. 침식 → 팽창</td><td>3×3 사각형 커널 한 번씩 (= 열림)</td><td>작은 잡음 점 제거</td></tr><tr><td>6. 가장 큰 윤곽</td><td><code>findContours(..., RETR_EXTERNAL)</code> + 면적 50 초과 중 최대</td><td>잡음 조각 무시</td></tr><tr><td>7. 색 결정</td><td>세 색 중 면적이 가장 큰 색, 단 <strong>200 초과</strong>일 때만</td><td>너무 작은 물체 무시</td></tr><tr><td>8. 표시</td><td><code>minEnclosingCircle</code> → 원래 크기로 좌표 환산 → 원 + <code>&quot;Color: red&quot;</code></td><td>결과 확인</td></tr><tr><td>9. 안정화</td><td>3프레임마다 색 코드(1/2/3)의 <strong>평균을 반올림</strong></td><td>깜빡임 억제</td></tr></tbody></table></div>
 <p>아래 코드는 이 파이프라인을 그대로 옮겨 <code>shapes.png</code>(빨간 원, 초록 사각형, 파란 삼각형, 노란 타원)에 적용합니다. 임계값은 로봇의 <code>Stereo</code> 기본값입니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
 import math
 import numpy as np
 
@@ -292,7 +292,7 @@ blue  최대 윤곽 면적  2444.0 (320x240 기준)
 <ul><li>세 색이 모두 검출되지만, 원본 규칙은 <strong>가장 큰 한 색</strong>만 결과로 냅니다. 초록 사각형이 가장 커서 <code>green</code>이 됩니다.</li><li>노란 타원은 목록에 없는 색이라 무시됩니다. 노랑을 인식하려면 <code>yellow</code> 항목(Stereo 기본값 <code>min [135, 129, 132]</code>)을 추가해야 합니다.</li><li>축소 영상에서 구한 좌표를 <code>640/320</code>, <code>480/240</code>배 해서 원래 영상에 그립니다. 원본은 <code>common.val_map</code>으로 같은 계산을 합니다.</li></ul>
 <h3 id="각-픽셀의-lab-값-확인하기">각 픽셀의 Lab 값 확인하기<a class="anchor" href="#각-픽셀의-lab-값-확인하기">#</a></h3>
 <p>임계값이 왜 이 색을 통과시키는지 보려면 물체 한가운데의 Lab 값을 찍어 보면 됩니다. MentorPi 라인 트레이싱·색 추적 앱의 <strong>색 고르기(ColorPicker)</strong>도 화면을 클릭한 점 주변 2×2 픽셀의 Lab 평균을 여러 프레임 모아 목표색으로 씁니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
 
 LAB = {&quot;red&quot;: ((0, 165, 104), (255, 255, 255)), &quot;green&quot;: ((47, 0, 135), (255, 104, 255)),
        &quot;blue&quot;: ((0, 0, 0), (255, 255, 110))}
@@ -310,7 +310,7 @@ blue 블록    BGR [220, 0, 0]     Lab ( 70, 198,  32) → 통과: [&#x27;blue&#
 <p>회색 배경은 a = b = 128이라 어느 색 범위에도 들지 않습니다. 파랑은 b가 110 이하라서 통과하는데, <strong>파랑 범위는 L과 a를 전혀 제한하지 않으므로</strong> 어두운 그림자(b가 약간 낮은 회색)가 파랑으로 잡히는 일이 실물에서 자주 생깁니다. 이럴 때 LAB_Tool에서 파랑의 L <code>min</code>을 올립니다.</p>
 <h3 id="여러-프레임으로-안정화-평균의-함정">여러 프레임으로 안정화: 평균의 함정<a class="anchor" href="#여러-프레임으로-안정화-평균의-함정">#</a></h3>
 <p>원본은 색을 코드(빨강 1, 초록 2, 파랑 3)로 바꿔 3프레임 모은 뒤 <strong>평균을 반올림</strong>합니다. 빨강과 파랑이 번갈아 보이면 평균이 2가 되어 <strong>보이지도 않은 초록</strong>이 결과로 나옵니다. 범주형 값은 평균이 아니라 <strong>다수결(mode)</strong>로 합쳐야 합니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">from collections import Counter
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">from collections import Counter
 
 CODE = {1: &quot;red&quot;, 2: &quot;green&quot;, 3: &quot;blue&quot;}
 for frames in ([1, 1, 1], [1, 3, 3], [1, 3, 1], [3, 1, 2], [1, 3, 0]):
@@ -328,7 +328,7 @@ for frames in ([1, 1, 1], [1, 3, 3], [1, 3, 1], [3, 1, 2], [1, 3, 0]):
 <div class="table-wrap"><table><thead><tr><th>인터페이스</th><th>이름</th><th>타입</th><th>내용</th></tr></thead><tbody><tr><td>구독</td><td><code>/ascamera/camera_publisher/rgb0/image</code></td><td><code>sensor_msgs/Image</code></td><td>카메라 BGR 영상</td></tr><tr><td>서비스</td><td><code>/color_detect/set_param</code></td><td><code>interfaces/srv/SetColorDetectParam</code></td><td>찾을 색 목록: <code>color_name</code>, <code>detect_type</code>(<code>circle</code>·<code>rect</code>·<code>line</code>)</td></tr><tr><td>서비스</td><td><code>/color_detect/start</code>, <code>/color_detect/stop</code></td><td><code>std_srvs/Trigger</code></td><td>영상 구독 시작/중지</td></tr><tr><td>서비스</td><td><code>/color_detect/set_circle_roi</code> 등</td><td><code>interfaces/srv/SetCircleROI</code></td><td>탐색 영역 제한 (<code>config/roi.yaml</code>)</td></tr><tr><td>발행</td><td><code>/color_detect/color_info</code></td><td><code>interfaces/msg/ColorsInfo</code></td><td><code>ColorInfo[]</code>: <code>color, width, height, x, y, radius, angle</code></td></tr><tr><td>발행</td><td><code>/color_detect/image_result</code></td><td><code>sensor_msgs/Image</code></td><td>결과를 그린 영상</td></tr></tbody></table></div>
 <p><code>detect_type</code>이 <code>circle</code>이면 최소 외접원의 중심·반지름을, <code>rect</code>면 최소 회전 사각형의 중심·각도를, <code>line</code>이면 <code>roi.yaml</code>의 세 띠(가중치 0.1·0.2·0.7)에서 구한 선 중심을 발행합니다. A04의 색 추적 노드가 이 <code>ColorsInfo</code>를 구독합니다.</p>
 <p>Playground에는 카메라 토픽이 없으므로, 아래 노드는 타이머에서 샘플 이미지를 “프레임”으로 삼아 같은 구조를 흉내 냅니다. 실물에서는 타이머 대신 이미지 구독 콜백에 <code>detect()</code>를 넣으면 됩니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
@@ -421,7 +421,7 @@ ros2 topic echo /color_detect/color_info</code></pre></div>
 </article>
 
 </main>
-<script src="../assets/js/site.js"></script>
-
+<script src="../assets/js/site.js?v=1ede71c3"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=1ede71c3"></script>
 </body>
 </html>

@@ -195,7 +195,7 @@
     for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
     return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
   }
-  document.querySelectorAll('.run-btn[data-playground]').forEach(function (btn) {
+  document.querySelectorAll('[data-playground]').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var code = btn.closest('.code-block').querySelector('code').textContent;
       var base = btn.getAttribute('data-playground').replace(/playground$/, '');

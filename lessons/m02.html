@@ -6,12 +6,12 @@
 <title>M02. 애커만 조향 섀시 기구학 · studyMentorPi</title>
 <meta name="description" content="자전거 모델, 회전 반경과 조향각 δ = atan(L·ω/v), 좌·우 바퀴 속도차, 최대 조향각 제한과 최소 회전 반경.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css">
-<link rel="stylesheet" href="../assets/css/mentorpi.css">
-<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" href="../assets/css/main.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=1ede71c3">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/theme.js?v=1ede71c3"></script>
 </head>
 <body class="lesson-page track-page-mobile">
 <button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
@@ -253,7 +253,7 @@ v_R = ω (R + D/2) = v + ω·D/2 = v · (1 + D·tan δ / (2L))</code></pre></div
 <h2 id="실습-시뮬레이션">실습 (시뮬레이션)<a class="anchor" href="#실습-시뮬레이션">#</a></h2>
 <h3 id="1-원본-setvelocity를-python으로-옮겨-보기">1. 원본 set_velocity를 Python으로 옮겨 보기<a class="anchor" href="#1-원본-setvelocity를-python으로-옮겨-보기">#</a></h3>
 <p>원본 로직을 그대로 옮기고, 부호 손실 문제를 고친 버전과 비교합니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
 
 L, T, D = 0.145, 0.133, 0.067          # wheelbase, track_width, wheel_diameter
 MAX = math.radians(29)
@@ -293,7 +293,7 @@ v=+0.0 w=+0.5  delta_req=  +nan°  pulse=None  rps=[0.0, 0.0, 0.0, 0.0]
 <p>다섯째 줄을 보세요. 오른쪽 회전 요청인데 펄스가 왼쪽 한계(1178)이고, 뒷바퀴는 왼쪽이 더 빠른(오른쪽 회전용) 속도입니다. 수정 후에는 1822(오른쪽 한계)가 됩니다. 실제 노드는 <code>int(1278.55)</code> = 1278처럼 소수점을 버리므로 1 µs 차이가 날 수 있습니다.</p>
 <h3 id="2-원-주행과-회전-반경-측정">2. 원 주행과 회전 반경 측정<a class="anchor" href="#2-원-주행과-회전-반경-측정">#</a></h3>
 <p>가상 애커만 로봇에 v = 0.2 m/s, ω = 0.5 rad/s를 한 바퀴(2π/0.5 ≈ 12.6 s) 동안 보내고, 실제 궤적에 원을 맞춰(최소제곱 원 맞춤) 반경을 구합니다. 이론값은 R = v/ω = 0.400 m, 시작점 (0, −0.4)에서 출발하면 원의 중심은 (0, 0)입니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
 import numpy as np
 import rclpy
 from rclpy.node import Node
@@ -350,7 +350,7 @@ sim.plot(list(xs), list(ys), &quot;애커만 원 주행 (v=0.2, w=0.5)&quot;)   
 <p>반경은 이론과 거의 같고, 끝점이 시작점에서 몇 cm 모자란 것은 출발할 때의 가속 구간 때문입니다. <code>sim.plot</code>으로 그린 궤적이 원인지 결과 그래프 패널에서 확인하세요.</p>
 <h3 id="3-조향-한계와-정지-회전-시험">3. 조향 한계와 정지 회전 시험<a class="anchor" href="#3-조향-한계와-정지-회전-시험">#</a></h3>
 <p>ω는 그대로 0.5인데 v를 0.1로 낮추면 요청 δ = 35.9°가 되어 29°에 걸립니다. 세 구간의 실제 각속도를 <code>/imu</code>로 측정합니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
 import time
 import rclpy
 from rclpy.node import Node
@@ -445,7 +445,7 @@ sudo systemctl restart start_node.service        # Docker 밖 시스템 터미�
 </article>
 
 </main>
-<script src="../assets/js/site.js"></script>
-
+<script src="../assets/js/site.js?v=1ede71c3"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=1ede71c3"></script>
 </body>
 </html>

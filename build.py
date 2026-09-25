@@ -258,9 +258,10 @@ class MarkdownRenderer:
             badges = '<span class="code-badge badge-robot">실물 전용</span>'
             cls = " code-robot"
         if "run" in flags:
-            badges = '<span class="code-badge badge-run">시뮬 실행 가능</span>'
-            buttons = ('<button class="run-btn" type="button" data-playground="%splayground">'
-                       'Playground에서 열기</button>' % self.rel)
+            badges = '<span class="code-badge badge-run">브라우저 실행</span>'
+            buttons = ('<button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button>'
+                       '<button class="pg-btn" type="button" data-playground="%splayground" title="Playground에서 편집">Playground</button>'
+                       % self.rel)
             cls = " code-run"
         return ('<div class="code-block%s">'
                 '<div class="code-head"><span class="code-lang">%s</span>%s'
@@ -388,12 +389,12 @@ PAGE = """<!DOCTYPE html>
 <title>{title}</title>
 <meta name="description" content="{desc}">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="{rel}assets/css/main.css">
-<link rel="stylesheet" href="{rel}assets/css/mentorpi.css">
-<link rel="stylesheet" href="{rel}assets/css/ml-theme.css">
+<link rel="stylesheet" href="{rel}assets/css/main.css?v={ver}">
+<link rel="stylesheet" href="{rel}assets/css/mentorpi.css?v={ver}">
+<link rel="stylesheet" href="{rel}assets/css/ml-theme.css?v={ver}">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="{rel}assets/js/theme.js"></script>
+<script src="{rel}assets/js/theme.js?v={ver}"></script>
 </head>
 <body class="{bodyclass}">
 <button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
@@ -404,11 +405,27 @@ PAGE = """<!DOCTYPE html>
 <main class="main">
 {content}
 </main>
-<script src="{rel}assets/js/site.js"></script>
+<script src="{rel}assets/js/site.js?v={ver}"></script>
 {extra}
 </body>
 </html>
 """
+
+
+_VER = None
+
+
+def asset_version() -> str:
+    """Short hash of CSS/JS so browsers refetch them after every change (cache busting)."""
+    global _VER
+    if _VER is None:
+        import hashlib
+        h = hashlib.sha256()
+        for p in sorted((ROOT / "assets").rglob("*")):
+            if p.suffix in (".css", ".js"):
+                h.update(p.read_bytes())
+        _VER = h.hexdigest()[:8]
+    return _VER
 
 
 def lesson_page(cur: dict, cid: str, meta: dict, body_md: str) -> str:
@@ -474,11 +491,14 @@ def lesson_page(cur: dict, cid: str, meta: dict, body_md: str) -> str:
            next=pager("pager-next", "다음", next_id), toc=toc)
 
     return PAGE.format(
+        ver=asset_version(),
         title="%s. %s · studyMentorPi" % (cid.upper(), info["title"]),
         desc=html.escape(info.get("summary", "")),
         rel="../", bodyclass="lesson-page track-page-%s" % info["track"],
         sidebar=sidebar_html(cur, cid, "../"),
-        content=header, extra="")
+        content=header,
+        extra=('<script type="module" src="../assets/js/lesson-runner.js?v=%s"></script>' % asset_version()
+               if 'class="code-block code-run"' in content_html else ""))
 
 
 def index_page(cur: dict) -> str:
@@ -579,6 +599,7 @@ def index_page(cur: dict) -> str:
 """.format(total=total, sections="".join(sections))
 
     return PAGE.format(
+        ver=asset_version(),
         title="studyMentorPi · MentorPi 이동로봇 인터랙티브 강의",
         desc="Hiwonder MentorPi(라즈베리파이 5 + ROS 2)로 배우는 이동로봇: 섀시 기구학·라이다·SLAM·내비게이션·비전·자율주행 한국어 인터랙티브 강의.",
         rel="", bodyclass="home",

@@ -6,12 +6,12 @@
 <title>A08. YOLOv5 데이터셋·학습·배포 · studyMentorPi</title>
 <meta name="description" content="사진 수집, labelImg 라벨링, 데이터셋 구성과 학습, 모델 변환 후 yolov5_ros2 노드로 로봇에서 추론.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css">
-<link rel="stylesheet" href="../assets/css/mentorpi.css">
-<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" href="../assets/css/main.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=1ede71c3">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/theme.js?v=1ede71c3"></script>
 </head>
 <body class="lesson-page track-page-ai">
 <button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
@@ -245,7 +245,7 @@ y_center = (ymin + ymax) / (2·H)      height = (ymax − ymin) / H</code></pre>
 <p>정규화하는 이유는 학습 때 사진 크기를 바꾸거나(<code>--img 640</code>) 뒤집고 잘라도(증강) 라벨을 쉽게 따라 바꾸기 위해서입니다. 클래스 번호는 <code>classes.names</code>의 <strong>줄 순서(0부터)</strong>입니다.</p>
 <p><code>xml2yolo.py</code>가 하는 일을 그대로 옮긴 코드로 확인합니다.</p>
 <p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import xml.etree.ElementTree as ET
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import xml.etree.ElementTree as ET
 
 xml_text = &quot;&quot;&quot;&lt;annotation&gt;
   &lt;folder&gt;JPEGImages&lt;/folder&gt;&lt;filename&gt;12.jpg&lt;/filename&gt;
@@ -305,7 +305,7 @@ python3 software/yolov5/train.py --img 640 --batch 8 --epochs 300 \
 <div class="table-wrap"><table><thead><tr><th>항목</th><th>값</th><th>의미</th></tr></thead><tbody><tr><td><code>lr0</code> / <code>lrf</code></td><td>0.01 / 0.01</td><td>시작 학습률, 마지막 학습률 = lr0 × lrf</td></tr><tr><td><code>momentum</code>, <code>weight_decay</code></td><td>0.937, 0.0005</td><td>SGD 관성, 가중치 크기 벌점(과적합 억제)</td></tr><tr><td><code>warmup_epochs</code></td><td>3.0</td><td>처음에는 학습률을 0에서 천천히 올림</td></tr><tr><td><code>box</code>, <code>cls</code>, <code>obj</code></td><td>0.05, 0.5, 1.0</td><td>세 손실의 가중치(A07)</td></tr><tr><td><code>anchor_t</code></td><td>4.0</td><td>앵커 매칭 비율 한계</td></tr><tr><td><code>hsv_h/s/v</code></td><td>0.015/0.7/0.4</td><td>색상·채도·명도 무작위 변형 → 조명 변화에 강해짐</td></tr><tr><td><code>translate</code>, <code>scale</code></td><td>0.1, 0.5</td><td>위치 ±10 %, 크기 ±50 % 변형</td></tr><tr><td><code>fliplr</code></td><td>0.5</td><td>좌우 뒤집기 확률</td></tr><tr><td><code>mosaic</code></td><td>1.0</td><td>4장을 한 장으로 합치는 모자이크 증강</td></tr></tbody></table></div>
 <div class="callout callout-danger"><div class="callout-title">좌우 뒤집기와 방향 표지판</div><div class="callout-body"><p><code>fliplr: 0.5</code>는 사진의 절반을 좌우 반전합니다. <strong>우회전 표지판을 뒤집으면 좌회전 표지판</strong>이 됩니다. <code>left</code>와 <code>right</code>를 모두 학습하는 데이터셋이라면 두 클래스가 서로 섞여 버리므로, <code>hyp.yaml</code>을 복사해 <code>fliplr: 0.0</code>으로 바꾸고 <code>--hyp</code>로 지정해야 합니다. 원본 표지판 세트는 <code>right</code>만 있어 큰 문제가 드러나지 않을 뿐입니다.</p></div></div>
 <p>학습률은 워밍업 뒤 <strong>선형으로 감소</strong>합니다(<code>train.py</code>의 <code>lf = (1 − e/epochs)·(1 − lrf) + lrf</code>). 또 YOLOv5는 명목 배치 64(<code>nbs</code>)를 기준으로 <strong>기울기 누적(gradient accumulation)</strong>을 합니다. 배치 8이면 8번 모아서 한 번 가중치를 갱신하므로 작은 배치에서도 학습이 안정됩니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
 
 epochs, lr0, lrf = 300, 0.01, 0.01            # hyp.scratch-low.yaml
 warmup_epochs, warmup_bias_lr = 3.0, 0.1
@@ -412,7 +412,7 @@ python3 ~/software/collect_picture/xml2yolo.py --data /home/ubuntu/software/coll
 </article>
 
 </main>
-<script src="../assets/js/site.js"></script>
-
+<script src="../assets/js/site.js?v=1ede71c3"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=1ede71c3"></script>
 </body>
 </html>

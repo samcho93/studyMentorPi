@@ -6,12 +6,12 @@
 <title>A07. 머신러닝과 YOLOv5 이해 · studyMentorPi</title>
 <meta name="description" content="지도·비지도·강화 학습, 딥러닝 라이브러리(PyTorch·TensorFlow·ONNX), YOLO 계열 구조와 출력(박스·신뢰도·NMS).">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css">
-<link rel="stylesheet" href="../assets/css/mentorpi.css">
-<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" href="../assets/css/main.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=1ede71c3">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/theme.js?v=1ede71c3"></script>
 </head>
 <body class="lesson-page track-page-ai">
 <button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
@@ -248,7 +248,7 @@ b_y = (2·σ(t_y) − 0.5 + c_y) · s          b_h = p_h · (2·σ(t_h))²
 <p>클래스가 다르면 겹쳐도 지우지 않으므로(class-aware NMS), 신호등 상자와 그 옆 표지판 상자가 겹쳐도 둘 다 살아남습니다.</p>
 <h3 id="실습-iou와-nms-구현">실습: IoU와 NMS 구현<a class="anchor" href="#실습-iou와-nms-구현">#</a></h3>
 <p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import numpy as np
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import numpy as np
 
 def iou(box, boxes):
     &quot;&quot;&quot;box: (4,), boxes: (N,4)  [x1, y1, x2, y2] → (N,) IoU&quot;&quot;&quot;
@@ -297,7 +297,7 @@ right [150, 150, 250, 250] 0.6</code></pre></div>
 재현율 R = TP / (TP + FN)     &quot;실제 물체 중 찾아낸 비율&quot;</code></pre></div>
 <p>신뢰도 문턱을 낮추면 R은 오르고 P는 떨어집니다. 문턱을 1에서 0까지 내리며 그린 <strong>P–R 곡선 아래 넓이가 AP(Average Precision)</strong>이고, 클래스별 AP의 평균이 <strong>mAP</strong>입니다. YOLOv5가 출력하는 두 지표는 다음과 같습니다.</p>
 <ul><li><code>mAP_0.5</code>: IoU 문턱 0.5에서의 mAP</li><li><code>mAP_0.5:0.95</code>: IoU 문턱 0.5, 0.55, …, 0.95 (10개)의 mAP 평균 — 상자를 <strong>정확히</strong> 그려야 높음</li></ul>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import numpy as np
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import numpy as np
 
 # 검증 세트: 정답(GT) 8개, 예측 10개 (IoU≥0.5로 이미 TP/FP 판정됨)
 scores = np.array([0.95, 0.91, 0.88, 0.80, 0.74, 0.66, 0.60, 0.52, 0.41, 0.30])
@@ -358,7 +358,7 @@ P5/32 매칭 앵커: [(116, 90), (156, 198)]</code></pre></div>
 </article>
 
 </main>
-<script src="../assets/js/site.js"></script>
-
+<script src="../assets/js/site.js?v=1ede71c3"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=1ede71c3"></script>
 </body>
 </html>

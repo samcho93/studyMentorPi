@@ -53,7 +53,7 @@ studyMentorPi/
 front matter(`id, track, title, duration, level, requires, tools`) 후 섹션:
 `## 학습 목표` → 이론/실습 → `## 자주 나는 오류와 해결`(필수) → `## 과제` → `## 참고자료`(필수).
 커스텀 블록 `:::tip|info|warning|danger|safety|check|task|mission`, 그림 `@fig[name] 캡션`, 버튼 `@btn[~/sim/index.html] 라벨`,
-실행 코드 ` ```python run `(Playground 열기 버튼), ` ```python robot `(실물 전용 배지), ` ```bash `, 수식 `$...$`.
+실행 코드 ` ```python run `(▶ 실행 → 강의 페이지 오른쪽 실행 패널 `assets/js/lesson-runner.js`에서 바로 실행, Playground 버튼은 보조), ` ```python robot `(실물 전용 배지), ` ```bash `, 수식 `$...$`.
 실물 실습 섹션(`## 실습 (실물)`)에는 `:::safety` 필수.
 
 ## 5. 개발 명령

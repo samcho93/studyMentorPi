@@ -6,12 +6,12 @@
 <title>M01. 메카넘 휠 섀시 기구학 · studyMentorPi</title>
 <meta name="description" content="45° 롤러가 만드는 전방향 이동, (vx, vy, ωz) → 네 바퀴 속도 역기구학과 순기구학, MentorPi mecanum.py 해설.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css">
-<link rel="stylesheet" href="../assets/css/mentorpi.css">
-<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" href="../assets/css/main.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=1ede71c3">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/theme.js?v=1ede71c3"></script>
 </head>
 <body class="lesson-page track-page-mobile">
 <button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
@@ -315,7 +315,7 @@ vy =  (−v1 + v2 + v3 − v4) / 4
 <h2 id="실습-시뮬레이션">실습 (시뮬레이션)<a class="anchor" href="#실습-시뮬레이션">#</a></h2>
 <h3 id="1-numpy로-역기구학-순기구학-계산">1. NumPy로 역기구학·순기구학 계산<a class="anchor" href="#1-numpy로-역기구학-순기구학-계산">#</a></h3>
 <p>원본 식을 행렬로 옮겨 기본 동작의 바퀴 속도와 모터 rps를 계산하고, 의사역행렬로 되돌려 봅니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
 import numpy as np
 
 WHEELBASE, TRACK, D = 0.1368, 0.1446, 0.065   # odom_publisher_node.py 값
@@ -351,7 +351,7 @@ FK 복원: [ 0.12 -0.05  0.3 ]
 <ul><li>제자리 좌회전의 rps가 네 개 모두 <strong>+0.345</strong>입니다. 부호 반전 <code>[-m1, -m2, …]</code> 때문에 "바퀴 방향은 좌우 반대, 모터 명령은 모두 같음"이 됩니다.</li><li>대각 주행에서 M1·M4가 0이고 M2·M3가 <span class="math">0.2√2 ≈ 0.283</span> m/s입니다. 같은 0.2 m/s라도 대각선은 바퀴가 <strong>1.41배</strong> 빨리 돕니다. M2는 왼쪽 모터라 rps 부호가 −입니다.</li><li>순기구학의 셋째 행이 <span class="math">±1/K = ±7.107</span>입니다. 위에서 유도한 <span class="math">(−v_1 − v_2 + v_3 + v_4)/(4K)</span>와 같습니다.</li><li><code>+ 0.0</code>은 반올림 뒤 남는 <code>-0.</code>을 <code>0.</code>으로 정리하는 트릭입니다.</li></ul>
 <h3 id="2-옆걸음과-대각선-주행">2. 옆걸음과 대각선 주행<a class="anchor" href="#2-옆걸음과-대각선-주행">#</a></h3>
 <p>가상 메카넘 로봇을 4초 동안 왼쪽으로 옆걸음(0.15 m/s), 이어서 4초 동안 오른쪽 앞 대각선(<span class="math">v_x = 0.1</span>, <span class="math">v_y = −0.1</span>)으로 움직이며 <code>/odom</code>과 실제 위치 <code>/ground_truth</code>를 출력합니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
 import time
 import rclpy
 from rclpy.node import Node
@@ -415,7 +415,7 @@ t= 8.0  odom x=+0.395 y=+0.209 yaw= +0.0°  | 실제 x=+0.387 y=+0.217</code></p
 <p><code>/ground_truth</code>는 10 Hz, <code>/odom</code>은 50 Hz라 움직이는 중에는 실제 값이 최대 0.1초 늦은 값이어서 1 cm 안팎 차이가 납니다. yaw가 0°로 유지된 채 위치만 바뀌는 것이 <strong>전방향(holonomic) 이동</strong>입니다. 차동 구동 로봇이나 애커만(M02)은 옆으로 가려면 먼저 몸을 돌려야 합니다. <code>noise=True</code>로 바꿔 다시 실행하면 odom과 실제 값이 조금씩 벌어지는 것을 볼 수 있습니다(M03의 주제).</p>
 <h3 id="3-돌면서-직진하기-세계-좌표-기준-주행">3. 돌면서 직진하기 (세계 좌표 기준 주행)<a class="anchor" href="#3-돌면서-직진하기-세계-좌표-기준-주행">#</a></h3>
 <p>메카넘만 할 수 있는 동작입니다. 로봇은 0.5 rad/s로 계속 돌면서, <strong>세계 좌표 +x 방향</strong>으로 0.15 m/s 직진합니다. 세계 좌표 속도 <span class="math">(V, 0)</span>을 로봇 좌표로 바꾸려면 현재 yaw만큼 <strong>거꾸로</strong> 돌리면 됩니다: <span class="math">v_x = Vcos ψ</span>, <span class="math">v_y = −Vsin ψ</span>.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist, Pose2D
@@ -507,7 +507,7 @@ ros2 launch controller controller.launch.py     # odom_publisher + IMU 필터 + 
 </article>
 
 </main>
-<script src="../assets/js/site.js"></script>
-
+<script src="../assets/js/site.js?v=1ede71c3"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=1ede71c3"></script>
 </body>
 </html>

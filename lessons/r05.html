@@ -6,12 +6,12 @@
 <title>R05. 파라미터·launch·DDS·분산 통신 · studyMentorPi</title>
 <meta name="description" content="declare_parameter와 YAML, Python launch 파일로 여러 노드 기동, DDS QoS, ROS_DOMAIN_ID로 PC-로봇 분산 통신.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css">
-<link rel="stylesheet" href="../assets/css/mentorpi.css">
-<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" href="../assets/css/main.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=1ede71c3">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/theme.js?v=1ede71c3"></script>
 </head>
 <body class="lesson-page track-page-ros">
 <button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
@@ -273,7 +273,7 @@ source ~/.bashrc</code></pre></div>
 <p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
 <h3 id="원본-paramdemo-동작-확인">① 원본 param_demo 동작 확인<a class="anchor" href="#원본-paramdemo-동작-확인">#</a></h3>
 <p><code>ros2 param set</code>을 흉내 내려고 2.5초에 한 번 외부에서 값을 바꾸는 타이머를 추가했습니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
 from rclpy.node import Node
 from rclpy.parameter import Parameter
 import mentorpi_sim as sim                  # 시뮬 전용
@@ -317,7 +317,7 @@ finally:
 [INFO] [minimal_param_node]: Hello hiwonder!</code></pre></div>
 <h3 id="안전한-파라미터-속도-제한-검증기">② 안전한 파라미터: 속도 제한 검증기<a class="anchor" href="#안전한-파라미터-속도-제한-검증기">#</a></h3>
 <p>주행 속도를 파라미터로 받되, 0.2 m/s를 넘는 값은 <strong>콜백에서 거부</strong>합니다. 실물 공식 노드의 속도 제한과 같은 목적을 파라미터 수준에서 구현하는 것입니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
 from rclpy.node import Node
 from rclpy.parameter import Parameter
 from rcl_interfaces.msg import SetParametersResult
@@ -386,7 +386,7 @@ speed=0.00 요청 → 적용
 <p>실물에서는 <code>ros2 param set /safe_cruise speed 0.5</code>를 입력하면 <code>Setting parameter failed: speed는 0~0.2 m/s</code>가 나옵니다.</p>
 <h3 id="qos-호환-실험">③ QoS 호환 실험<a class="anchor" href="#qos-호환-실험">#</a></h3>
 <p>BEST_EFFORT 발행자 하나에 RELIABLE 구독자와 BEST_EFFORT 구독자를 붙여, 각각 몇 개를 받는지 셉니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import time
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import time
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy
@@ -476,7 +476,7 @@ ros2 topic hz /odom            # Wi-Fi에서는 로봇 내부보다 불규칙할
 </article>
 
 </main>
-<script src="../assets/js/site.js"></script>
-
+<script src="../assets/js/site.js?v=1ede71c3"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=1ede71c3"></script>
 </body>
 </html>

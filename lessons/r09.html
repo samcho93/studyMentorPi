@@ -6,12 +6,12 @@
 <title>R09. 색 공간·기하 변환·스무딩 · studyMentorPi</title>
 <meta name="description" content="BGR↔HSV·GRAY 변환, 이동·회전·어파인·원근 변환, 평균·가우시안·미디언·양방향 필터.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css">
-<link rel="stylesheet" href="../assets/css/mentorpi.css">
-<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" href="../assets/css/main.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=1ede71c3">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/theme.js?v=1ede71c3"></script>
 </head>
 <body class="lesson-page track-page-ros">
 <button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
@@ -177,7 +177,7 @@
 <p>Lab은 L(밝기)과 두 개의 색 축 a(−: 초록, +: 빨강), b(−: 파랑, +: 노랑)로 색을 나타냅니다. 8비트 영상에서 OpenCV는 L을 0~255로 늘리고 a·b에 128을 더해 <strong>회색이 (L, 128, 128)</strong>이 되게 합니다. 따라서</p>
 <ul><li>빨강: a가 128보다 <strong>크다</strong>, 초록: a가 128보다 <strong>작다</strong></li><li>노랑: b가 128보다 <strong>크다</strong>, 파랑: b가 128보다 <strong>작다</strong></li></ul>
 <p>MentorPi의 색 임계값 파일(<code>lab_config.yaml</code>)이 빨강을 <code>a ≥ 165</code>, 파랑을 <code>b ≤ 110</code>처럼 잡는 것도 이 축 때문입니다(A01).</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
 import numpy as np
 
 names = [&quot;red&quot;, &quot;green&quot;, &quot;blue&quot;, &quot;yellow&quot;, &quot;white&quot;, &quot;gray&quot;, &quot;dark red&quot;]
@@ -202,7 +202,7 @@ dark red  [0, 0, 120]       36  [0, 255, 120]   [60, 174, 163]</code></pre></div
 <ul><li>빨강과 <strong>어두운 빨강</strong>은 BGR에서 R 값이 255 → 120으로 크게 다르지만, HSV의 H는 둘 다 0이고 V만 다릅니다. Lab에서는 L이 크게 줄고 a가 여전히 128보다 큽니다. 조명이 바뀌어도 “색”을 유지하는 채널이 있다는 뜻입니다.</li><li>흰색과 회색은 HSV의 S가 0이라 H 값이 의미가 없습니다. 채도가 낮은 픽셀은 H로 색을 판별하면 안 됩니다.</li></ul>
 <h3 id="색으로-영역-고르기-inrange">색으로 영역 고르기: inRange<a class="anchor" href="#색으로-영역-고르기-inrange">#</a></h3>
 <p><code>cv2.inRange(img, lower, upper)</code>는 세 채널이 모두 범위 안인 픽셀을 255, 나머지를 0으로 만든 <strong>마스크(mask)</strong>를 돌려줍니다. 빨강은 H가 양 끝에 걸치므로 두 마스크를 OR로 합칩니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
 import numpy as np
 
 img = cv2.imread(&quot;shapes.png&quot;)   # 빨간 원, 초록 사각형, 파란 삼각형, 노란 타원
@@ -240,7 +240,7 @@ dst = cv2.resize(src, None, fx=0.5, fy=0.5)                            # 배율�
 <p>어파인(affine) 변환은 <strong>직선과 평행성을 보존</strong>하는 변환으로, 이동·회전·확대·기울임(shear)을 모두 하나의 2×3 행렬 <span class="math">M</span>으로 표현합니다.</p>
 <div class="table-wrap"><table><thead><tr><th>변환</th><th>행렬 <span class="math">M</span></th><th>만드는 법</th></tr></thead><tbody><tr><td>이동 <span class="math">(t_x, t_y)</span></td><td><code>[[1, 0, tx], [0, 1, ty]]</code></td><td><code>np.float32(...)</code> 직접 작성</td></tr><tr><td>중심 <span class="math">c</span> 기준 회전 θ, 배율 s</td><td><code>[[α, β, (1−α)cx − β·cy], [−β, α, β·cx + (1−α)cy]]</code>, α = s·cosθ, β = s·sinθ</td><td><code>cv2.getRotationMatrix2D(c, θ°, s)</code></td></tr><tr><td>일반 어파인</td><td>점 3쌍으로 결정</td><td><code>cv2.getAffineTransform(src3, dst3)</code></td></tr></tbody></table></div>
 <p>변환된 좌표는 <span class="math">[x', y']^T = M \cdot [x, y, 1]^T</span>입니다. <code>getRotationMatrix2D</code>의 각도는 <strong>양수가 반시계 방향</strong>(화면 기준)입니다. 이미지의 y축이 아래를 향하므로 행렬 부호가 수학 교과서의 회전 행렬과 반대로 보입니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
 import numpy as np
 
 img = cv2.imread(&quot;shapes.png&quot;)
@@ -296,7 +296,7 @@ cv2.imshow(&quot;rotated&quot;, rotated)</code></pre></div>
   <text class="sub" x="540" y="215" text-anchor="middle">직선 유지, 평행은 보존 안 됨 (w′로 나눔)</text>
   <text class="sub mono" x="540" y="238" text-anchor="middle">getPerspectiveTransform · warpPerspective</text>
 </svg><figcaption>어파인 변환(점 3쌍, 평행 유지)과 원근 변환(점 4쌍, 사다리꼴 → 직사각형)</figcaption></figure>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
 import numpy as np
 
 img = cv2.imread(&quot;lane.png&quot;)
@@ -335,7 +335,7 @@ half = cv2.remap(img, xs, 2 * ys, cv2.INTER_LINEAR)           # 위쪽 절반에
 <p>스무딩은 신호의 <strong>고주파 성분(급한 변화)을 줄이고 저주파 성분을 남기는</strong> 필터입니다. 커널(kernel) 창을 한 픽셀씩 옮기며 창 안의 값으로 가운데 픽셀을 새로 계산합니다.</p>
 <div class="table-wrap"><table><thead><tr><th>필터</th><th>가운데 픽셀 =</th><th>함수</th><th>장점</th><th>단점</th></tr></thead><tbody><tr><td>평균 (mean)</td><td>창 안의 산술 평균</td><td><code>cv2.blur(img, (k, k))</code></td><td>가장 단순·빠름</td><td>엣지가 흐려짐, 점 잡음이 번짐</td></tr><tr><td>가우시안</td><td>거리에 따른 가우스 가중 평균</td><td><code>cv2.GaussianBlur(img, (k, k), σ)</code></td><td>자연스러운 흐림, 가우시안 잡음에 적합</td><td>엣지가 흐려짐</td></tr><tr><td>미디언 (median)</td><td>창 안 값의 <strong>중앙값</strong></td><td><code>cv2.medianBlur(img, k)</code></td><td>소금-후추 잡음 제거에 탁월, 엣지 보존</td><td>계산량 큼, 가는 선이 사라질 수 있음</td></tr><tr><td>양방향 (bilateral)</td><td>거리 <strong>와</strong> 밝기 차이로 가중</td><td><code>cv2.bilateralFilter(img, d, σc, σs)</code></td><td>엣지 보존하며 평탄화</td><td>느림</td></tr></tbody></table></div>
 <p>예를 들어 3×3 창의 값이 <code>[12, 15, 13, 14, 255, 16, 11, 14, 13]</code>(가운데 255는 튄 점)이면 평균은 40.3이라 점이 <strong>주변으로 번지고</strong>, 중앙값은 14라 점이 <strong>사라집니다</strong>. 커널 크기 <code>k</code>는 홀수여야 하며, 클수록 더 흐려집니다. 가우시안의 <code>σ</code>를 0으로 주면 커널 크기에서 자동으로 계산합니다. MentorPi 예제는 대부분 <code>cv2.GaussianBlur(img, (3, 3), 3)</code>으로 가볍게 흐린 뒤 색 임계값을 겁니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
 import numpy as np
 
 rng = np.random.default_rng(0)
@@ -440,7 +440,7 @@ if __name__ == &#x27;__main__&#x27;:
 </article>
 
 </main>
-<script src="../assets/js/site.js"></script>
-
+<script src="../assets/js/site.js?v=1ede71c3"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=1ede71c3"></script>
 </body>
 </html>

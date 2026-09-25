@@ -6,12 +6,12 @@
 <title>R11. 윤곽선·특징 매칭·코너 검출 · studyMentorPi</title>
 <meta name="description" content="findContours와 면적·중심·외접 도형, ORB/SIFT 특징점 매칭, Harris·Shi-Tomasi 코너.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css">
-<link rel="stylesheet" href="../assets/css/mentorpi.css">
-<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" href="../assets/css/main.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=1ede71c3">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/theme.js?v=1ede71c3"></script>
 </head>
 <body class="lesson-page track-page-ros">
 <button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
@@ -156,7 +156,7 @@ contours = cv2.findContours(binary, mode, method)[-2]              # 두 버전 
 <p><code>cv2.contourArea(cnt)</code>는 <span class="math">m_{00}</span>과 같은 면적을, <code>cv2.arcLength(cnt, True)</code>는 닫힌 둘레를 돌려줍니다. <span class="math">m_{00} = 0</span>(점이나 선처럼 납작한 윤곽)이면 중심 계산이 0으로 나누기가 되므로 <strong>반드시 먼저 검사</strong>합니다.</p>
 <h3 id="모양-근사와-분류">모양 근사와 분류<a class="anchor" href="#모양-근사와-분류">#</a></h3>
 <p><code>cv2.approxPolyDP(cnt, epsilon, True)</code>는 Douglas-Peucker 알고리즘으로 윤곽을 <strong>꼭짓점이 적은 다각형</strong>으로 줄입니다. <code>epsilon</code>은 원래 곡선과 근사선 사이 허용 거리이며, 보통 둘레의 1~4 %로 잡습니다. 꼭짓점 수로 삼각형(3)·사각형(4)·원(많음)을 구분할 수 있습니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
 import numpy as np
 
 img = cv2.imread(&quot;shapes.png&quot;)
@@ -218,7 +218,7 @@ cv2.imshow(&quot;shapes&quot;, img)</code></pre></div>
   <text class="sub" x="360" y="255" text-anchor="middle">채운 영역 = 윤곽선 내부 · 강조 선 = 각 함수가 돌려주는 도형</text>
 </svg><figcaption>한 윤곽을 설명하는 네 가지 도형: 외접 사각형, 최소 회전 사각형, 최소 외접원, 볼록 껍질</figcaption></figure>
 <div class="table-wrap"><table><thead><tr><th>함수</th><th>반환</th><th>쓰임</th></tr></thead><tbody><tr><td><code>cv2.boundingRect(c)</code></td><td><code>(x, y, w, h)</code> 축 정렬 사각형</td><td>ROI 자르기, 간단한 박스</td></tr><tr><td><code>cv2.minAreaRect(c)</code></td><td><code>((cx, cy), (w, h), angle)</code></td><td>기울어진 선·블록의 <strong>각도</strong> (라인 트레이싱의 선 중심)</td></tr><tr><td><code>cv2.boxPoints(rect)</code></td><td>회전 사각형의 꼭짓점 4개</td><td><code>drawContours</code>로 그리기 (<code>np.intp</code>로 변환)</td></tr><tr><td><code>cv2.minEnclosingCircle(c)</code></td><td><code>((cx, cy), r)</code></td><td>공·원형 표식의 크기 (색 인식 결과)</td></tr><tr><td><code>cv2.convexHull(c)</code></td><td>볼록 다각형 점들</td><td>오목한 부분 찾기(손가락 사이), solidity = 면적 / 껍질 면적</td></tr><tr><td><code>cv2.fitEllipse(c)</code></td><td>회전 타원</td><td>기울기·장단축 (점 5개 이상 필요)</td></tr></tbody></table></div>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
 import numpy as np
 
 mask = np.zeros((200, 300), np.uint8)
@@ -249,7 +249,7 @@ boundingRect (200, 40, 81, 121) | minAreaRect 120x80 @ -90° | 외접원 r=72.1 
 <div class="table-wrap"><table><thead><tr><th>알고리즘</th><th>검출 / 기술</th><th>기술자</th><th>거리</th><th>특징</th></tr></thead><tbody><tr><td>ORB</td><td>FAST 코너 + 방향 보정 BRIEF</td><td>256비트 이진</td><td>해밍(Hamming, XOR 비트 수)</td><td>빠름, 특허 없음, 라즈베리파이에 적합</td></tr><tr><td>SIFT</td><td>DoG 극값 + 기울기 히스토그램</td><td>128차원 실수</td><td>유클리드 L2</td><td>크기·회전에 강함, 느림 (OpenCV 4.4+ 기본 포함)</td></tr><tr><td>AKAZE</td><td>비선형 스케일 공간</td><td>이진</td><td>해밍</td><td>ORB보다 정확, SIFT보다 빠름</td></tr></tbody></table></div>
 <h3 id="매처와-걸러내기">매처와 걸러내기<a class="anchor" href="#매처와-걸러내기">#</a></h3>
 <ul><li><strong>BFMatcher</strong>(brute-force): 모든 짝을 비교합니다. <code>cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)</code>는 “A의 최선이 B이고 B의 최선도 A”인 짝만 남깁니다.</li><li><strong>FlannBasedMatcher</strong>: 근사 최근접 이웃 탐색(FLANN)으로 큰 데이터에서 빠릅니다. ORB 같은 이진 기술자에는 LSH 인덱스(<code>algorithm=6</code>)를 씁니다.</li><li><strong>비율 검사(Lowe's ratio test)</strong>: <code>knnMatch(k=2)</code>로 가장 가까운 두 후보를 받아 <code>d1 &lt; 0.75 · d2</code>인 경우만 남깁니다. 1등과 2등이 비슷하면 모호한 짝이므로 버리는 것입니다.</li><li><strong>RANSAC 호모그래피</strong>: 남은 짝으로 <code>cv2.findHomography(src, dst, cv2.RANSAC, 5.0)</code>를 구하면, 잘못된 짝(outlier)을 무시하고 두 영상 사이의 원근 변환(R09)을 얻습니다. <code>mask</code>의 1 개수가 인라이어 수입니다.</li></ul>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
 import numpy as np
 
 rng = np.random.default_rng(3)                               # 무늬가 많은 &quot;포스터&quot; 합성
@@ -319,7 +319,7 @@ RANSAC 인라이어 190 / 215, 추정 회전 20.0°, 배율 0.80</code></pre></d
 </svg><figcaption>구조 텐서 고윳값 평면에서 평탄·엣지·코너 영역 (Harris와 Shi-Tomasi 경계)</figcaption></figure>
 <div class="table-wrap"><table><thead><tr><th>방법</th><th>코너 점수</th><th>판정</th></tr></thead><tbody><tr><td>Harris (1988)</td><td><span class="math">R = \det M - k(\operatorname{tr} M)^2 = λ_1λ_2 - k(λ_1+λ_2)^2</span>, <span class="math">k</span> = 0.04~0.06</td><td><span class="math">R</span> 큼 → 코너, <span class="math">R &lt; 0</span> → 엣지, $</td><td>R</td><td>$ 작음 → 평탄</td></tr><tr><td>Shi-Tomasi (1994)</td><td><span class="math">R = \min(λ_1, λ_2)</span></td><td>두 방향 모두 변화가 커야 코너, 추적용으로 더 안정</td></tr></tbody></table></div>
 <p><code>cv2.cornerHarris(gray, blockSize, ksize, k)</code>는 픽셀마다 <span class="math">R</span> 값을 담은 <code>float32</code> 영상을 돌려줍니다. 원본 예제(<code>corners_demo.py</code>)는 이를 0~255로 정규화해 120보다 큰 픽셀에 원을 그립니다. 실전에서는 <strong>개수와 최소 간격을 지정</strong>할 수 있는 <code>cv2.goodFeaturesToTrack</code>(Shi-Tomasi)을 더 많이 씁니다. 광류(optical flow) 추적의 출발점이기도 합니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
 import numpy as np
 
 img = cv2.imread(&quot;shapes.png&quot;)
@@ -415,7 +415,7 @@ if __name__ == &#x27;__main__&#x27;:
 </article>
 
 </main>
-<script src="../assets/js/site.js"></script>
-
+<script src="../assets/js/site.js?v=1ede71c3"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=1ede71c3"></script>
 </body>
 </html>

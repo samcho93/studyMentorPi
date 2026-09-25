@@ -6,12 +6,12 @@
 <title>R03. 토픽: 발행과 구독 · studyMentorPi</title>
 <meta name="description" content="Publisher/Subscriber, 메시지 타입(std_msgs·geometry_msgs), QoS 기초 — /cmd_vel을 발행해 시뮬레이터 로봇을 움직입니다.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css">
-<link rel="stylesheet" href="../assets/css/mentorpi.css">
-<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" href="../assets/css/main.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=1ede71c3">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/theme.js?v=1ede71c3"></script>
 </head>
 <body class="lesson-page track-page-ros">
 <button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
@@ -240,7 +240,7 @@
 <p class="cta-row"><a class="ghost-btn cta" href="../sim/index.html">2D 시뮬레이터 열기</a></p>
 <h3 id="원본-topicdemo-두-노드로-발행-구독">① 원본 topic_demo: 두 노드로 발행·구독<a class="anchor" href="#원본-topicdemo-두-노드로-발행-구독">#</a></h3>
 <p>실물에서는 두 터미널에서 <code>topic_pub</code>, <code>topic_sub</code>를 따로 실행합니다. Playground에서는 한 스크립트에 두 노드를 만들고 <code>spin_once</code>를 번갈아 돌립니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import time
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import time
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String
@@ -291,7 +291,7 @@ rclpy.shutdown()</code></pre></div>
 <p><code>&#x27;topic&#x27;</code>으로 만들었는데 이름이 <code>/topic</code>인 것은 네임스페이스가 없는 노드에서 상대 이름이 루트(<code>/</code>) 기준으로 풀리기 때문입니다.</p>
 <h3 id="cmdvel로-로봇-움직이고-odom-읽기">② /cmd_vel로 로봇 움직이고 /odom 읽기<a class="anchor" href="#cmdvel로-로봇-움직이고-odom-읽기">#</a></h3>
 <p>3초 전진(0.15 m/s) → 3초 제자리 회전(0.5 rad/s) → 정지하는 <strong>시간 기반 상태 기계</strong>입니다. 10 Hz 타이머가 속도를 계속 발행하고, 0.5초마다 오도메트리를 출력합니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
@@ -354,7 +354,7 @@ t=7.5  x=0.437  y=0.004  yaw= 88.8 deg</code></pre></div>
 <p>이론값은 전진 <span class="math">0.15 × 3 = 0.45</span> m, 회전 <span class="math">0.5 × 3 = 1.5</span> rad ≈ 86°입니다. 가상 로봇도 가속·감속 시간이 있어서 전진은 조금 모자라고, 회전은 명령이 바뀐 뒤 관성으로 조금 더 돕니다(명령은 0.1초 주기로만 바뀌므로 경계에서 한 주기 차이도 생깁니다). <code>cmd.linear.x = 0.3</code>으로 바꿔 보면 <code>/cmd_vel</code>의 제한 때문에 0.2 m/s로 잘리는 것도 확인할 수 있습니다.</p>
 <h3 id="scan-구독-앞이-막히면-멈추기">③ /scan 구독: 앞이 막히면 멈추기<a class="anchor" href="#scan-구독-앞이-막히면-멈추기">#</a></h3>
 <p><code>qos_profile_sensor_data</code>로 라이다를 구독하고, 전방 ±15° 안의 최소 거리가 0.4 m보다 작아지면 멈춥니다. 앞 1.2 m에 상자를 놓았습니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
@@ -441,7 +441,7 @@ python3 ~/hiwonder_ws/drive_and_watch.py               # 터미널 2</code></pre
 </article>
 
 </main>
-<script src="../assets/js/site.js"></script>
-
+<script src="../assets/js/site.js?v=1ede71c3"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=1ede71c3"></script>
 </body>
 </html>

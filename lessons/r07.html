@@ -6,12 +6,12 @@
 <title>R07. RViz2·RQT·Gazebo 도구 · studyMentorPi</title>
 <meta name="description" content="RViz2 디스플레이(TF·LaserScan·Map·Path), rqt_graph·rqt_plot·rqt_console, Gazebo 물리 시뮬레이션 개요.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css">
-<link rel="stylesheet" href="../assets/css/mentorpi.css">
-<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" href="../assets/css/main.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=1ede71c3">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/theme.js?v=1ede71c3"></script>
 </head>
 <body class="lesson-page track-page-ros">
 <button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
@@ -242,7 +242,7 @@ ros2 launch ros_gz_sim_demos robot_description_publisher.launch.py   # Gazebo + 
 <ol><li><strong>수동 주행</strong> 모드에서 섀시를 메카넘으로 고르고 키보드로 움직입니다. 로봇 아이콘 = RViz2의 RobotModel, 로봇에 붙은 축 = TF 디스플레이(<code>base_footprint</code>)입니다.</li><li><strong>라이다 표시</strong>를 켭니다. 방사형 빔과 끝점 = LaserScan 디스플레이입니다. 벽에 가까이 가면 빔이 짧아지고, 로봇 뒤쪽 물체가 가려지는 것(그림자)도 확인합니다.</li><li><strong>오도메트리 오차 표시</strong>를 켜고 한동안 돌아다닙니다. 실제 경로와 오도메트리 경로가 벌어지는 모습이 RViz2에서 Fixed Frame을 <code>odom</code>으로 두었을 때 보이는 드리프트이고, <code>map</code>으로 두면 SLAM/AMCL이 이 차이(<code>map→odom</code>)를 보정합니다(R06).</li><li><strong>SLAM</strong> 모드에서 방을 한 바퀴 돌며 점유격자 지도를 만듭니다 = RViz2의 Map 디스플레이(<code>/map</code>).</li><li><strong>내비게이션</strong> 모드에서 목표를 클릭합니다 = RViz2의 <strong>2D Goal Pose</strong> 도구. 화면에 그려지는 경로 = Path 디스플레이(<code>/plan</code>).</li></ol>
 <div class="table-wrap"><table><thead><tr><th>2D 시뮬레이터 요소</th><th>RViz2 디스플레이 / 도구</th><th>토픽</th></tr></thead><tbody><tr><td>로봇 아이콘과 방향</td><td>RobotModel + TF</td><td><code>/robot_description</code>, <code>/tf</code></td></tr><tr><td>라이다 빔·점</td><td>LaserScan</td><td><code>/scan</code></td></tr><tr><td>오도메트리 궤적</td><td>Odometry (Keep 수↑)</td><td><code>/odom</code></td></tr><tr><td>점유격자 지도</td><td>Map</td><td><code>/map</code></td></tr><tr><td>목표 클릭</td><td>2D Goal Pose</td><td><code>/goal_pose</code></td></tr><tr><td>계획 경로</td><td>Path</td><td><code>/plan</code></td></tr></tbody></table></div>
 <p>Playground에서는 <code>mentorpi_sim.plot</code>으로 rqt_plot과 비슷한 그래프를 그릴 수 있습니다. 속도 명령과 오도메트리 속도를 함께 그려 <strong>명령과 응답의 차이</strong>를 봅니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import time
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import time
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
@@ -310,7 +310,7 @@ ros2 run rqt_tf_tree rqt_tf_tree                     # TF 트리 (설치되어 �
 </article>
 
 </main>
-<script src="../assets/js/site.js"></script>
-
+<script src="../assets/js/site.js?v=1ede71c3"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=1ede71c3"></script>
 </body>
 </html>

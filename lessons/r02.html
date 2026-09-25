@@ -6,12 +6,12 @@
 <title>R02. 워크스페이스·패키지·노드 · studyMentorPi</title>
 <meta name="description" content="colcon 워크스페이스, ament_python 패키지 생성, rclpy Node 클래스와 타이머, 실행 진입점(entry_points)을 만듭니다.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css">
-<link rel="stylesheet" href="../assets/css/mentorpi.css">
-<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" href="../assets/css/main.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=1ede71c3">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/theme.js?v=1ede71c3"></script>
 </head>
 <body class="lesson-page track-page-ros">
 <button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
@@ -257,7 +257,7 @@ data_files=[
 <p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
 <h3 id="타이머-두-개와-로그-레벨">① 타이머 두 개와 로그 레벨<a class="anchor" href="#타이머-두-개와-로그-레벨">#</a></h3>
 <p>타이머는 여러 개 만들 수 있고, 주기가 서로 달라도 실행기가 알아서 순서를 맞춥니다. <code>get_clock().now()</code>로 노드 시계를 읽는 법도 함께 봅니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
 from rclpy.node import Node
 import mentorpi_sim as sim                     # 시뮬 전용
 sim.setup(world=&quot;empty&quot;, duration=3.2)        # 시뮬 전용
@@ -304,7 +304,7 @@ finally:
 <p><code>debug</code> 로그는 보이지 않습니다. 실물에서는 <code>ros2 run hello_world_demo hello_world --ros-args --log-level debug</code>로 레벨을 낮추면 나타납니다.</p>
 <h3 id="블로킹-루프-실험-spin이-없으면-콜백도-없다">② 블로킹 루프 실험: spin이 없으면 콜백도 없다<a class="anchor" href="#블로킹-루프-실험-spin이-없으면-콜백도-없다">#</a></h3>
 <p>같은 3초 동안 <code>/odom</code>을 구독하면서, 앞 절반은 <code>time.sleep</code>만 하고 뒤 절반은 <code>spin_once</code>를 돌려 받은 메시지 수를 비교합니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import time
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import time
 import rclpy
 from rclpy.node import Node
 from nav_msgs.msg import Odometry
@@ -341,7 +341,7 @@ rclpy.shutdown()</code></pre></div>
 <p>(나)는 /odom이 50 Hz이므로 약 75~85개입니다(루프 경계에 따라 조금 다름). (가)에서 0이 나오는 것은 버그가 아니라 <strong>rclpy의 설계</strong>입니다. 콜백은 실행기가 호출할 때만 실행됩니다.</p>
 <h3 id="패키지-진입점-모양-그대로-쓰기">③ 패키지 진입점 모양 그대로 쓰기<a class="anchor" href="#패키지-진입점-모양-그대로-쓰기">#</a></h3>
 <p><code>ros2 run</code>이 부르는 것은 <code>setup.py</code>에 등록한 <code>main(args=None)</code> 함수입니다. 실물 패키지에 그대로 넣을 수 있는 모양으로 작성해 봅니다. 노드 이름을 인자로 받게 하면 같은 클래스로 여러 노드를 만들 수 있습니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
 from rclpy.node import Node
 import mentorpi_sim as sim                     # 시뮬 전용
 sim.setup(world=&quot;empty&quot;, duration=2.2)        # 시뮬 전용
@@ -417,7 +417,7 @@ ros2 pkg executables controller</code></pre></div>
 </article>
 
 </main>
-<script src="../assets/js/site.js"></script>
-
+<script src="../assets/js/site.js?v=1ede71c3"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=1ede71c3"></script>
 </body>
 </html>

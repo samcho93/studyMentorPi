@@ -6,12 +6,12 @@
 <title>R06. TF2 좌표계와 URDF 모델링 · studyMentorPi</title>
 <meta name="description" content="map→odom→base_footprint→base_link→laser_frame 트리, 정적/동적 브로드캐스터와 리스너, URDF link·joint로 로봇을 기술합니다.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css">
-<link rel="stylesheet" href="../assets/css/mentorpi.css">
-<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" href="../assets/css/main.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=1ede71c3">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/theme.js?v=1ede71c3"></script>
 </head>
 <body class="lesson-page track-page-ros">
 <button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
@@ -264,7 +264,7 @@ check_urdf mentorpi.urdf                      # 트리 구조 검사 (liburdfdom
 <h2 id="실습-시뮬레이션">실습 (시뮬레이션)<a class="anchor" href="#실습-시뮬레이션">#</a></h2>
 <p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
 <h3 id="원본-tfdemo-정적-변환과-리스너">① 원본 tf_demo: 정적 변환과 리스너<a class="anchor" href="#원본-tfdemo-정적-변환과-리스너">#</a></h3>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import TransformStamped
 import tf_transformations
@@ -321,7 +321,7 @@ home에서 본 world: [-11.17, 0.41, 0.00] yaw=-0.50</code></pre></div>
 <p>역변환의 이동 부분은 <span class="math">−Rᵀ·t</span>라서 부호만 바꾼 (−10, −5)가 아닙니다. home 좌표계가 0.5 rad 돌아가 있으므로 world 원점을 home의 축으로 다시 읽어야 합니다. <span class="math">Rᵀ·t = (10·cos0.5 + 5·sin0.5, −10·sin0.5 + 5·cos0.5) ≈ (11.17, −0.41)</span>이고, 부호를 바꾸면 (−11.17, 0.41)입니다. 거리는 어느 쪽에서 봐도 <span class="math">√(10² + 5²) ≈ 11.18</span> m로 같습니다.</p>
 <h3 id="mentorpi-센서-프레임-라이다-점을-odom으로">② MentorPi 센서 프레임: 라이다 점을 odom으로<a class="anchor" href="#mentorpi-센서-프레임-라이다-점을-odom으로">#</a></h3>
 <p>URDF 값으로 정적 변환 두 개를 발행하고, 가상 로봇을 1 m 전진시킨 다음 제자리에서 90° 돌린 뒤 <code>odom → lidar_frame</code> 변환을 조회합니다. 위 "계산 예"와 같은 결과가 나오는지 봅니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
 import time
 import rclpy
 from rclpy.node import Node
@@ -381,7 +381,7 @@ rclpy.shutdown()</code></pre></div>
 <p>라이다가 몸체 중심보다 12 mm 뒤에 있으므로, +y를 보고 있는 로봇에서는 라이다가 y = −0.012에 있습니다. 손 계산 (1.000, 0.988, 0.1625)과 같습니다. 가감속과 시간 간격 때문에 x가 0.98~1.00, yaw가 89~90°로 조금 다를 수 있습니다.</p>
 <h3 id="동적-변환-따라가기-turtlefollowing의-mentorpi-버전">③ 동적 변환 따라가기: turtle_following의 MentorPi 버전<a class="anchor" href="#동적-변환-따라가기-turtlefollowing의-mentorpi-버전">#</a></h3>
 <p>움직이는 가상의 목표 프레임 <code>target</code>을 <code>odom</code> 아래에 10 Hz로 발행하고(원본의 turtle1 역할), 로봇(turtle2 역할)이 <code>base_footprint</code>에서 본 <code>target</code>의 위치로 원본과 같은 제어 법칙을 적용해 따라갑니다. 실물 안전을 위해 속도는 제한합니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
 import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import TransformStamped, Twist
@@ -485,7 +485,7 @@ ros2 param get /robot_state_publisher robot_description | head -20</code></pre><
 </article>
 
 </main>
-<script src="../assets/js/site.js"></script>
-
+<script src="../assets/js/site.js?v=1ede71c3"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=1ede71c3"></script>
 </body>
 </html>

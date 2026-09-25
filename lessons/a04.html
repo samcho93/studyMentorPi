@@ -6,12 +6,12 @@
 <title>A04. 색 추적 · studyMentorPi</title>
 <meta name="description" content="목표 색의 중심 오차(x)와 크기(면적)를 PID 입력으로 삼아 회전·전후진을 제어하는 추적 노드.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css">
-<link rel="stylesheet" href="../assets/css/mentorpi.css">
-<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" href="../assets/css/main.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=1ede71c3">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/theme.js?v=1ede71c3"></script>
 </head>
 <body class="lesson-page track-page-ai">
 <button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
@@ -193,7 +193,7 @@
 <div class="table-wrap"><table><thead><tr><th>항목</th><th>object_tracking</th><th>color_track</th></tr></thead><tbody><tr><td>움직이는 것</td><td>섀시 (<code>/controller/cmd_vel</code>)</td><td>카메라 팬·틸트 서보 (PWM)</td></tr><tr><td>색 인식</td><td>노드 안에서, 클릭한 색</td><td><code>color_detect</code> 노드, yaml의 <code>red</code></td></tr><tr><td>거리 신호</td><td>화면 높이 <span class="math">v</span></td><td>없음 (틸트로 높이만 맞춤)</td></tr><tr><td>제어 형태</td><td>위치 오차 → 속도 (P)</td><td>위치 오차 → 서보 각도 증분 (누적)</td></tr><tr><td>실행</td><td><code>ros2 launch app object_tracking_node.launch.py</code></td><td><code>ros2 launch example color_track_node.launch.py</code></td></tr></tbody></table></div>
 <h2 id="playground-원본-규칙으로-명령-계산하기">Playground: 원본 규칙으로 명령 계산하기<a class="anchor" href="#playground-원본-규칙으로-명령-계산하기">#</a></h2>
 <p>먼저 정지 영상 한 장에서 <code>object_tracking</code>의 규칙대로 명령을 계산해 봅니다. <code>shapes.png</code>의 빨간 원을 목표로 삼습니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
 import math
 import numpy as np
 
@@ -237,7 +237,7 @@ cv2.imshow(&quot;target&quot;, img)</code></pre></div>
 <p>빨간 원은 기준점보다 왼쪽·위쪽에 있으므로 “왼쪽으로 돌며(+ω) 앞으로(+v)” 가라는 명령이 나옵니다. 애커만은 조향 출력이 ±29° 한계에 걸리고(원본 코드의 부호 규약으로 −29°), <span class="math">ω = -v/R</span>로 바꾸면 역시 왼쪽 회전(+)입니다. 오차가 크면 선속도 0.30 m/s, 각속도 1 rad/s 이상이 곧바로 나옵니다. 실물에서 추적 시작 순간 로봇이 <strong>급출발·급회전</strong>하는 이유이며, 이 사이트의 안전 기준(0.2 m/s, 0.5 rad/s)으로 쓰려면 제한값을 낮춰야 합니다.</p>
 <h2 id="playground-가상-카메라로-움직이는-공-쫓기">Playground: 가상 카메라로 움직이는 공 쫓기<a class="anchor" href="#playground-가상-카메라로-움직이는-공-쫓기">#</a></h2>
 <p>이제 제어 루프를 닫아 봅니다. 아래 노드는 로봇의 자세(시뮬 전용 <code>sim.pose()</code>)로 <strong>가상 카메라 영상</strong>(핀홀 모델, 320×240, 초점거리 260 px)을 그리고, 그 영상에서 빨간 공을 찾아 PID로 <code>/cmd_vel</code>을 발행합니다. 공은 로봇 앞 1 m에서 출발해 0.08 m/s로 멀어지며 좌우로 흔들립니다. 거리 제어에는 <span class="math">\sqrt{면적}</span> 오차를, 회전 제어에는 가로 오차를 씁니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
 import cv2
 import numpy as np
 import rclpy
@@ -356,7 +356,7 @@ sudo systemctl restart wifi.service</code></pre></div>
 </article>
 
 </main>
-<script src="../assets/js/site.js"></script>
-
+<script src="../assets/js/site.js?v=1ede71c3"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=1ede71c3"></script>
 </body>
 </html>

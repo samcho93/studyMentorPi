@@ -6,12 +6,12 @@
 <title>R01. ROS 2 개요·설치·명령행 도구 · studyMentorPi</title>
 <meta name="description" content="ROS 1과 ROS 2의 차이, DDS 기반 구조, Humble 설치, ros2 node/topic/service/param/bag 명령으로 그래프를 관찰합니다.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css">
-<link rel="stylesheet" href="../assets/css/mentorpi.css">
-<link rel="stylesheet" href="../assets/css/ml-theme.css">
+<link rel="stylesheet" href="../assets/css/main.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=1ede71c3">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=1ede71c3">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="../assets/js/theme.js"></script>
+<script src="../assets/js/theme.js?v=1ede71c3"></script>
 </head>
 <body class="lesson-page track-page-ros">
 <button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
@@ -253,7 +253,7 @@ ros2 bag play drive_test --rate 0.5                  # 0.5배속 재생 (그동�
 <p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
 <h3 id="첫-노드-hello-ros-2">① 첫 노드: Hello ROS 2<a class="anchor" href="#첫-노드-hello-ros-2">#</a></h3>
 <p>원본 <code>hello_world_demo</code>는 <code>while rclpy.ok(): ... time.sleep(0.5)</code> 루프로 로그를 찍습니다. ROS 2에서는 같은 일을 <strong>타이머(timer)</strong> 로 하는 것이 정석입니다(이유는 R02). 여기서는 타이머 버전을 먼저 실행해 봅니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
 from rclpy.node import Node
 import mentorpi_sim as sim                     # 시뮬 전용
 sim.setup(world=&quot;empty&quot;, duration=3.2)        # 시뮬 전용: 약 3초만 실행
@@ -291,7 +291,7 @@ finally:
 <p>3초 동안 0.5초 주기이므로 로그가 약 6번 찍힙니다. 실물에서는 <code>mentorpi_sim</code> 두 줄을 지우면 Ctrl+C를 누를 때까지 계속 찍힙니다.</p>
 <h3 id="ros2-topic-echo를-코드로-odom-한-번-읽기">② <code>ros2 topic echo</code>를 코드로: /odom 한 번 읽기<a class="anchor" href="#ros2-topic-echo를-코드로-odom-한-번-읽기">#</a></h3>
 <p><code>ros2 topic echo /odom --once</code>는 "구독자를 하나 만들어 메시지 한 개를 받고 출력"하는 명령입니다. 똑같이 만들어 봅니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import rclpy
 from rclpy.node import Node
 from nav_msgs.msg import Odometry
 import mentorpi_sim as sim                                   # 시뮬 전용
@@ -324,7 +324,7 @@ twist.linear.x : 0.000</code></pre></div>
 <p>로봇이 서 있으므로 위치가 0, 방향 쿼터니언이 단위값 <code>w=1</code>입니다. <code>frame_id</code>와 <code>child_frame_id</code>는 R06의 TF 트리에서 다시 만납니다.</p>
 <h3 id="ros2-topic-hz를-코드로-센서-주기-재기">③ <code>ros2 topic hz</code>를 코드로: 센서 주기 재기<a class="anchor" href="#ros2-topic-hz를-코드로-센서-주기-재기">#</a></h3>
 <p><code>ros2 topic hz</code>는 받은 메시지 수를 시간으로 나눈 값입니다. 가상 MentorPi의 세 센서 토픽을 동시에 재 봅니다.</p>
-<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">시뮬 실행 가능</span><span class="code-actions"><button class="run-btn" type="button" data-playground="../playground">Playground에서 열기</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import time
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import time
 import rclpy
 from rclpy.node import Node
 from nav_msgs.msg import Odometry
@@ -396,7 +396,7 @@ ros2 bag info first_bag</code></pre></div>
 </article>
 
 </main>
-<script src="../assets/js/site.js"></script>
-
+<script src="../assets/js/site.js?v=1ede71c3"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=1ede71c3"></script>
 </body>
 </html>
