@@ -128,6 +128,8 @@ def main(argv: List[str]) -> int:
                 broken.append(f"{rel_page}:{line}: {url}  -> missing file "
                               f"{os.path.relpath(target, ROOT).replace(os.sep, '/')}")
                 continue
+            if frag.startswith("code="):          # Playground hand-off (#code=<base64>), not an anchor
+                continue
             if frag and target.lower().endswith(".html"):
                 if frag not in parse(target).anchors:
                     broken.append(f"{rel_page}:{line}: {url}  -> missing anchor #{frag}")
