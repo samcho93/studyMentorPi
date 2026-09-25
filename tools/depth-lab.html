@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>깊이 카메라 실험실 — studyMentorPi</title>
+<meta name="description" content="MentorPi 깊이 카메라(HP60C)가 만드는 RGB·깊이·IR·포인트 클라우드 영상을 3D 방에서 직접 만들어 보고, 구조광·스테레오·ToF 센서 모델의 오차와 결측을 비교하는 실험실.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css?v=12876a54">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=12876a54">
+<script src="../assets/js/theme.js?v=12876a54"></script>
+<script src="../assets/js/file-guard.js?v=12876a54"></script>
+<link rel="stylesheet" href="../assets/css/sim.css?v=12876a54">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=12876a54">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.0/examples/jsm/"
+  }
+}
+</script>
+<style>
+  .sim-page { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+  .dl-grid { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 8px; padding: 8px; }
+  .dl-view { position: relative; min-height: 0; min-width: 0; display: flex; flex-direction: column; background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+  .dl-view > header { display: flex; align-items: center; gap: 6px; padding: 4px 8px; font-size: 12px; font-weight: 700; color: var(--text-dim); border-bottom: 1px solid var(--border-soft); flex-wrap: wrap; }
+  .dl-view > header small { font: 11px var(--mono); color: var(--text-faint); font-weight: 400; margin-left: auto; }
+  .dl-view > header button { font: inherit; font-size: 11px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg); color: var(--text-dim); cursor: pointer; }
+  .dl-view > header button.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .dl-body { flex: 1; min-height: 0; position: relative; background: #111; }
+  .dl-body canvas { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; }
+  .dl-body canvas.cv3d { object-fit: fill; image-rendering: auto; }
+  .dl-cap { position: absolute; left: 6px; bottom: 6px; font: 11px/1.4 var(--mono); color: #e5e7eb; background: rgba(0,0,0,.55); border-radius: 6px; padding: 3px 7px; pointer-events: none; max-width: calc(100% - 12px); }
+  .dl-body canvas.dl-cbar { inset: auto; right: 6px; top: 6px; bottom: 6px; width: 14px; height: auto; border-radius: 4px; pointer-events: none; object-fit: fill; }
+  .dl-cbar-lbl { position: absolute; right: 24px; font: 10px var(--mono); color: #e5e7eb; text-shadow: 0 0 3px #000; pointer-events: none; }
+  .tab-body select { font: inherit; font-size: 12.5px; padding: 6px 8px; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--bg); color: var(--text); width: 100%; }
+  .model-desc { font-size: 12.5px; color: var(--text-dim); line-height: 1.6; background: var(--bg); border: 1px solid var(--border-soft); border-radius: var(--radius-sm); padding: 8px 10px; margin: 8px 0; }
+  .pick { font: 12px/1.6 var(--mono); background: var(--bg); border: 1px solid var(--border-soft); border-radius: var(--radius-sm); padding: 8px 10px; white-space: pre; overflow-x: auto; }
+  #hist { width: 100%; height: 90px; display: block; background: var(--bg); border: 1px solid var(--border-soft); border-radius: var(--radius-sm); }
+  .keys-hint { font-size: 12px; color: var(--text-faint); }
+  .no-gl { position: absolute; inset: 0; display: grid; place-items: center; padding: 24px; text-align: center; color: var(--text-dim); z-index: 9; background: var(--bg); }
+  .tool-nav { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tool-nav a[aria-current="page"] { color: var(--accent); border-color: var(--accent-dim); }
+  @media (max-width: 900px) {
+    .sim-page { height: auto; overflow: auto; }
+    .sim-layout { grid-template-columns: 1fr; }
+    .sim-stage { height: auto; }
+    .dl-grid { position: static; grid-template-columns: 1fr; grid-template-rows: none; }
+    .dl-view { height: 260px; }
+    .sim-top { flex-wrap: wrap; } .sim-top-actions { margin-left: 0; flex-wrap: wrap; }
+  }
+</style>
+</head>
+<body class="sim-page">
+<header class="sim-top">
+  <a class="sim-back" href="../index.html">&larr; 강의</a>
+  <div class="sim-title"><strong>깊이 카메라 실험실</strong><span id="status">불러오는 중…</span></div>
+  <div class="sim-top-actions">
+    <nav class="tool-nav" aria-label="도구">
+      <a class="sim-back" href="../sim3d/index.html">3D 시뮬레이터</a>
+      <a class="sim-back" href="../sim/index.html">2D 시뮬레이터</a>
+      <a class="sim-back" href="playground.html">Playground</a>
+      <a class="sim-back" href="kinematics-lab.html">기구학 실험실</a>
+      <a class="sim-back" href="color-lab.html">HSV 색 실험실</a>
+      <a class="sim-back" href="depth-lab.html" aria-current="page">깊이 카메라 실험실</a>
+      <a class="sim-back" href="urdf-viewer.html">URDF 뷰어</a>
+    </nav>
+    <button class="theme-btn" type="button" data-theme-toggle aria-label="테마 전환">테마</button>
+  </div>
+</header>
+<main class="sim-layout">
+  <section class="sim-stage">
+    <div class="no-gl" id="noGL" hidden></div>
+    <div class="dl-grid">
+      <div class="dl-view">
+        <header>3D 장면 <small>W/S 전후 · A/D 회전 · 드래그로 시점</small></header>
+        <div class="dl-body"><canvas class="cv3d" id="cvWorld" aria-label="3D 장면"></canvas><div class="dl-cap" id="capWorld"></div></div>
+      </div>
+      <div class="dl-view">
+        <header>RGB 영상 <small id="capRgbHdr">rgb0/image</small></header>
+        <div class="dl-body"><canvas id="cvRgb" aria-label="RGB 영상"></canvas></div>
+      </div>
+      <div class="dl-view">
+        <header>깊이 영상 <small>depth0/image_raw · 클릭 = 측정</small></header>
+        <div class="dl-body"><canvas id="cvDepth" aria-label="깊이 영상" style="cursor:crosshair"></canvas>
+          <canvas class="dl-cbar" id="cbar" width="14" height="200"></canvas>
+          <div class="dl-cbar-lbl" id="cbarMax" style="top:4px"></div><div class="dl-cbar-lbl" id="cbarMin" style="bottom:4px"></div>
+          <div class="dl-cap" id="capDepth"></div></div>
+      </div>
+      <div class="dl-view">
+        <header><button type="button" class="on" data-v4="pc">포인트 클라우드</button><button type="button" data-v4="ir">IR 영상</button><button type="button" data-v4="err">오차 지도</button><small id="cap4hdr"></small></header>
+        <div class="dl-body"><canvas class="cv3d" id="cvPc" aria-label="포인트 클라우드"></canvas><canvas id="cvIr" aria-label="IR 영상" hidden></canvas><div class="dl-cap" id="cap4"></div></div>
+      </div>
+    </div>
+  </section>
+  <aside class="sim-panel">
+    <div class="tab-body active" style="display:block">
+      <div class="sub-title">센서 모델</div>
+      <select id="model">
+        <option value="ideal">이상적 깊이 (참값)</option>
+        <option value="sl" selected>구조광 — HP60C형 (MentorPi)</option>
+        <option value="stereo">스테레오 (패시브)</option>
+        <option value="tof">ToF (Time of Flight)</option>
+      </select>
+      <div class="model-desc" id="modelDesc"></div>
+      <div class="field-grid two">
+        <label>해상도 <select id="res"><option value="160">160×120</option><option value="320" selected>320×240</option><option value="640">640×480 (실물)</option></select></label>
+        <label>기준선 B (m) <output id="oB">0.050</output><input type="range" id="base" min="0.02" max="0.12" step="0.005" value="0.05"></label>
+      </div>
+      <label class="chk block"><input type="checkbox" id="noise" checked> 잡음·결측 모델 적용</label>
+      <div class="sub-title">깊이 표시</div>
+      <div class="field-grid">
+        <label>색상표 <select id="cmap"><option value="turbo">Turbo</option><option value="jet">Jet</option><option value="gray">Gray (가까울수록 밝게)</option></select></label>
+        <label>최소 m <output id="oMin">0.20</output><input type="range" id="dmin" min="0" max="2" step="0.05" value="0.2"></label>
+        <label>최대 m <output id="oMax">4.00</output><input type="range" id="dmax" min="0.5" max="8" step="0.1" value="4"></label>
+      </div>
+      <label>포인트 색 <select id="pcColor"><option value="rgb">RGB 색 (color_pcl)</option><option value="depth">깊이 색</option></select></label>
+      <div class="sub-title">깊이 분포 · 유효 픽셀</div>
+      <canvas id="hist" width="340" height="90"></canvas>
+      <div class="stat-line" id="stats" style="font:12px var(--mono);color:var(--text-dim);margin:6px 0"></div>
+      <div class="sub-title">픽셀 측정 (깊이 영상 클릭)</div>
+      <div class="pick" id="pick">깊이 영상에서 한 점을 클릭하세요.</div>
+      <div class="sub-title">카메라</div>
+      <div class="field-grid two">
+        <label>높이 m <output id="oH">0.121</output><input type="range" id="camH" min="0.1" max="1.2" step="0.01" value="0.121"></label>
+        <label>기울기 ° <output id="oP">0</output><input type="range" id="camP" min="-40" max="10" step="1" value="0"></label>
+      </div>
+      <div class="panel-actions"><button class="s-btn" id="btnReset" type="button">&#8634; 위치·설정 초기화</button></div>
+      <p class="keys-hint">MentorPi 깊이 카메라는 바닥에서 약 0.12 m 높이(depth_cam 조인트)에 수평으로 달려 있습니다. 실물 해상도 640×480, fx ≈ 473.5 px(수평 화각 ≈ 68°). 장면의 검은 상자·유리판·무늬 없는 벽에서 센서별로 무엇이 달라지는지 비교해 보세요.</p>
+    </div>
+  </aside>
+</main>
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    import('./depth-lab.js' + (new URL(document.querySelector('script[src*="theme.js"]').src).search || '')).catch((err) => {
+      const box = document.getElementById('noGL');
+      box.hidden = false;
+      box.innerHTML = location.protocol === 'file:'
+        ? '파일로 직접 열면 동작하지 않습니다. <code>python build.py --serve</code> 후 <b>http://localhost:8000/tools/depth-lab.html</b>로 접속하세요.'
+        : '3D 라이브러리를 불러오지 못했습니다: ' + err.message;
+      console.error(err);
+    });
+  });
+</script>
+</body>
+</html>
