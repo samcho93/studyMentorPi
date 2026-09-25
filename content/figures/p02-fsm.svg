@@ -1,0 +1,56 @@
+<svg viewBox="0 0 720 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="배송 상태 기계: IDLE에서 유효한 QR 요청이면 DELIVER, 도착 확인되면 ARRIVED, 수령 확인이나 대기 시간 초과면 RETURN, 도크 도착이면 IDLE. DELIVER가 실패하면 RECOVER에서 재시도·재계획하고 3회 실패면 RETURN">
+  <defs>
+    <marker id="arr-p02-fsm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+    <marker id="arr-p02-fsm-w" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--warn)"/></marker>
+  </defs>
+  <!-- states -->
+  <rect class="box-hi" x="30" y="70" width="150" height="64" rx="10"/>
+  <text class="lbl mono" x="105" y="96" text-anchor="middle">IDLE</text>
+  <text class="sub" x="105" y="115" text-anchor="middle">도크 대기 · 초록 LED</text>
+
+  <rect class="box-hi" x="285" y="70" width="150" height="64" rx="10"/>
+  <text class="lbl mono" x="360" y="96" text-anchor="middle">DELIVER</text>
+  <text class="sub mono" x="360" y="115" text-anchor="middle">goToPose(목적지)</text>
+
+  <rect class="box-hi" x="540" y="70" width="150" height="64" rx="10"/>
+  <text class="lbl mono" x="615" y="96" text-anchor="middle">ARRIVED</text>
+  <text class="sub" x="615" y="115" text-anchor="middle">파랑 LED · 알림음</text>
+
+  <rect class="box" x="285" y="230" width="150" height="64" rx="10" style="stroke:var(--warn)"/>
+  <text class="lbl mono" x="360" y="256" text-anchor="middle">RECOVER</text>
+  <text class="sub" x="360" y="275" text-anchor="middle">시도 횟수 +1</text>
+
+  <rect class="box-hi" x="540" y="230" width="150" height="64" rx="10"/>
+  <text class="lbl mono" x="615" y="256" text-anchor="middle">RETURN</text>
+  <text class="sub mono" x="615" y="275" text-anchor="middle">goToPose(DOCK)</text>
+
+  <!-- IDLE self loop: reject -->
+  <path class="ln-hi" d="M70 70 C70 22 140 22 140 66" stroke-width="1.6" marker-end="url(#arr-p02-fsm)"/>
+  <text class="tag" x="105" y="18" text-anchor="middle">QR 없음·모르는 목적지 → 거절</text>
+  <!-- IDLE -> DELIVER -->
+  <path class="ln-hi" d="M180 102 L283 102" stroke-width="2" marker-end="url(#arr-p02-fsm)"/>
+  <text class="tag" x="231" y="94" text-anchor="middle">요청 + 유효 QR</text>
+  <!-- DELIVER -> ARRIVED -->
+  <path class="ln-hi" d="M435 102 L538 102" stroke-width="2" marker-end="url(#arr-p02-fsm)"/>
+  <text class="tag" x="487" y="86" text-anchor="middle">SUCCEEDED</text>
+  <text class="tag" x="487" y="98" text-anchor="middle">+ 위치 확인</text>
+  <!-- DELIVER -> RECOVER -->
+  <path d="M340 134 L340 228" style="stroke:var(--warn);fill:none" stroke-width="2" marker-end="url(#arr-p02-fsm-w)"/>
+  <text class="tag" x="332" y="170" text-anchor="end">FAILED · 막힘 2 s</text>
+  <text class="tag" x="332" y="184" text-anchor="end">· 시간 초과</text>
+  <!-- RECOVER -> DELIVER -->
+  <path class="ln-hi" d="M380 228 L380 136" stroke-width="2" marker-end="url(#arr-p02-fsm)"/>
+  <text class="tag" x="390" y="164">2회: 코스트맵 지우고 재시도</text>
+  <text class="tag" x="390" y="178">3회: 대체 경로·접근점</text>
+  <!-- RECOVER -> RETURN -->
+  <path d="M435 262 L538 262" style="stroke:var(--warn);fill:none" stroke-width="2" marker-end="url(#arr-p02-fsm-w)"/>
+  <text class="tag" x="487" y="254" text-anchor="middle">3회 초과</text>
+  <text class="tag" x="487" y="280" text-anchor="middle">ABORT</text>
+  <!-- ARRIVED -> RETURN -->
+  <path class="ln-hi" d="M615 134 L615 228" stroke-width="2" marker-end="url(#arr-p02-fsm)"/>
+  <text class="tag" x="623" y="170">수령 확인</text>
+  <text class="tag" x="623" y="184">또는 대기 초과</text>
+  <!-- RETURN -> IDLE -->
+  <path class="ln-hi" d="M615 294 L615 322 L105 322 L105 136" stroke-width="2" marker-end="url(#arr-p02-fsm)"/>
+  <text class="tag" x="360" y="316" text-anchor="middle">도크 도착 (복귀 실패가 반복되면 SAFE_STOP · 운영자 호출)</text>
+</svg>

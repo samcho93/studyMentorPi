@@ -1,0 +1,42 @@
+<svg viewBox="0 0 720 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="순찰 경비 상태 기계: PATROL에서 침입자가 0.3초 연속 보이면 ALERT로, ALERT에서 2초 동안 안 보이면 RESUME을 거쳐 PATROL로 돌아가며, 어느 상태에서든 비상 조건이면 SAFE_STOP">
+  <defs>
+    <marker id="arr-p01-fsm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+    <marker id="arr-p01-fsm-d" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--danger)"/></marker>
+  </defs>
+  <!-- PATROL -->
+  <rect class="box-hi" x="40" y="80" width="190" height="76" rx="10"/>
+  <text class="lbl mono" x="135" y="104" text-anchor="middle">PATROL</text>
+  <text class="sub mono" x="135" y="124" text-anchor="middle">goToPose(WP[i])</text>
+  <text class="sub" x="135" y="142" text-anchor="middle">경보 OFF · 초록 LED</text>
+  <!-- ALERT -->
+  <rect class="box-hi" x="470" y="80" width="210" height="76" rx="10"/>
+  <text class="lbl mono" x="575" y="104" text-anchor="middle">ALERT</text>
+  <text class="sub" x="575" y="124" text-anchor="middle">cancelTask · 빨강 LED · 부저</text>
+  <text class="sub" x="575" y="142" text-anchor="middle">침입자 쪽으로 제자리 회전</text>
+  <!-- RESUME -->
+  <rect class="box" x="255" y="214" width="210" height="66" rx="10"/>
+  <text class="lbl mono" x="360" y="238" text-anchor="middle">RESUME</text>
+  <text class="sub" x="360" y="258" text-anchor="middle">경보 해제 · 이벤트 기록</text>
+  <text class="sub" x="360" y="272" text-anchor="middle">같은 WP[i]부터 다시</text>
+
+  <!-- PATROL self loop -->
+  <path class="ln-hi" d="M95 80 C95 30 175 30 175 76" stroke-width="1.8" marker-end="url(#arr-p01-fsm)"/>
+  <text class="tag" x="135" y="28" text-anchor="middle">도착 → i = (i+1) mod N</text>
+  <!-- ALERT self loop -->
+  <path class="ln-hi" d="M530 80 C530 30 620 30 620 76" stroke-width="1.8" marker-end="url(#arr-p01-fsm)"/>
+  <text class="tag" x="575" y="28" text-anchor="middle">보이는 동안 추적 · last_seen 갱신</text>
+  <!-- PATROL -> ALERT -->
+  <path class="ln-hi" d="M230 112 L468 112" stroke-width="2" marker-end="url(#arr-p01-fsm)"/>
+  <text class="tag" x="350" y="104" text-anchor="middle">지도에 없는 덩어리 3스캔 연속 (0.3 s)</text>
+  <!-- ALERT -> RESUME -->
+  <path class="ln-hi" d="M540 156 L452 212" stroke-width="2" marker-end="url(#arr-p01-fsm)"/>
+  <text class="tag" x="508" y="196">2 s 동안 미감지</text>
+  <!-- RESUME -> PATROL -->
+  <path class="ln-hi" d="M255 246 L150 158" stroke-width="2" marker-end="url(#arr-p01-fsm)"/>
+  <text class="tag" x="196" y="206" text-anchor="end">바로 전환</text>
+
+  <!-- safe stop -->
+  <rect x="40" y="298" width="640" height="32" rx="6" style="fill:none;stroke:var(--danger)" stroke-dasharray="5 4"/>
+  <text class="lbl mono" x="56" y="319" style="fill:var(--danger)">SAFE_STOP</text>
+  <text class="sub" x="150" y="319">모든 상태에서: Ctrl+C · 같은 WP 3회 실패 · 배터리 경고 → 정지 Twist · 목표 취소 · 보고</text>
+</svg>

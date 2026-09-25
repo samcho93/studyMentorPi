@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P02. QR 지시형 실내 배송 로봇 · studyMentorPi</title>
+<meta name="description" content="출발 스테이션에서 QR 코드로 목적지를 받고, Nav2로 배송·복귀하며 도착 확인과 실패 복구(재계획·재시도)를 갖춘 배송 로봇.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css?v=afc36b61">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=afc36b61">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=afc36b61">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js?v=afc36b61"></script>
+</head>
+<body class="lesson-page track-page-project">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim3d/index.html">3D 시뮬레이터</a><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a><a class="side-tool" href="../tools/urdf-viewer.html">URDF 뷰어</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="project">
+<div class="nav-track-title track-project">프로젝트 (중급 이상)</div>
+<div class="nav-part"><span class="nav-part-no">P-1</span>자율 이동 서비스 로봇</div>
+<ul>
+<li><a href="../lessons/p01.html" data-slug="p01"><span class="nav-no">P01</span>자율 순찰 경비 로봇</a></li>
+<li><a href="../lessons/p02.html" class="active" data-slug="p02"><span class="nav-no">P02</span>QR 지시형 실내 배송 로봇</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">P-2</span>지능형 주행</div>
+<ul>
+<li><a href="../lessons/p03.html" data-slug="p03"><span class="nav-no">P03</span>미니 시티 자율주행 챌린지</a></li>
+<li><a href="../lessons/p04.html" data-slug="p04"><span class="nav-no">P04</span>사람 추종 카트 (비전+라이다 융합)</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="p02" data-track="project">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-project">프로젝트 (중급 이상)</span> P-1 자율 이동 서비스 로봇 &middot; 약 240분 &middot; 중급</div>
+    <h1><span class="lesson-no">P02</span>QR 지시형 실내 배송 로봇</h1>
+    <p class="lede">출발 스테이션에서 QR 코드로 목적지를 받고, Nav2로 배송·복귀하며 도착 확인과 실패 복구(재계획·재시도)를 갖춘 배송 로봇.</p>
+    <div class="requires">선수 챕터: <a href="a02.html">A02</a> <a href="m11.html">M11</a> <a href="m13.html">M13</a> <a href="r04.html">R04</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      <a class="ghost-btn" href="../sim3d/index.html">3D 시뮬레이터</a><a class="ghost-btn" href="../sim/index.html">2D 시뮬레이터</a><a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>배송 로봇의 요구사항을 기능·비기능·안전 한계로 나누어 정의하고, 이를 서비스·액션·토픽 인터페이스와 배송 상태 기계로 설계합니다.</li><li>스테이션 카메라로 QR 지시서를 읽어 <code>DELIVER:&lt;목적지&gt;</code> 형식을 검증하고, 목적지 조회표(이름 → map 자세)로 Nav2 목표를 만듭니다.</li><li>도착을 두 번 확인합니다: 로봇 쪽(Nav2 결과 + TF 위치 오차)과 사람 쪽(버튼·서비스 수령 확인, 대기 시간 초과).</li><li>주행 실패·막힘·시간 초과를 감지해 코스트맵 지우기 → 재시도 → 대체 경로(재계획) → 포기·복귀 순서로 복구합니다.</li><li>Playground에서 상태 기계와 복구 전략을 먼저 검증하고, MentorPi 실물에서 <code>navigation.launch.py</code> + 카메라로 같은 구조를 실행합니다.</li></ul>
+<h2 id="프로젝트-개요와-요구사항">프로젝트 개요와 요구사항<a class="anchor" href="#프로젝트-개요와-요구사항">#</a></h2>
+<p>연구실 입구의 <strong>스테이션(도크)</strong>에 서 있는 로봇에게 사람이 QR 지시서를 보여 주고 "배송 요청"을 누르면, 로봇이 지시서에 적힌 방까지 물건을 싣고 가서 받는 사람의 확인을 기다렸다가 스테이션으로 돌아옵니다. 길이 막히면 스스로 다른 길을 찾고, 끝내 못 가면 포기하고 돌아와 보고합니다.</p>
+<p>QR 인식(A02), Nav2 목표 전송(M11·M13), 서비스·액션(R04)을 하나로 묶는 것이 핵심입니다. 특히 <strong>"실패했을 때 무엇을 하는가"</strong>를 설계하는 것이 이 프로젝트의 절반입니다.</p>
+<h3 id="팀-구성-4명-기준">팀 구성 (4명 기준)<a class="anchor" href="#팀-구성-4명-기준">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>역할</th><th>담당</th><th>산출물</th></tr></thead><tbody><tr><td>인식</td><td>QR 형식 정의, 인쇄물 제작, 인식 노드</td><td>지시서 QR 세트, 인식률 측정표</td></tr><tr><td>내비</td><td>지도, 목적지 조회표(주·대체 접근점), Nav2 설정 확인</td><td><code>DEST</code> 표, 경로 사진</td></tr><tr><td>상태 기계</td><td><code>delivery_bot</code> 노드, 서비스·복구 로직</td><td>상태 기계 코드, 인터페이스 정의</td></tr><tr><td>시험·안전</td><td>고장 주입 시나리오, 적재물 고정, 발표</td><td>시험 결과표, 안전 체크리스트</td></tr></tbody></table></div>
+<h3 id="기능-요구사항">기능 요구사항<a class="anchor" href="#기능-요구사항">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>ID</th><th>요구사항</th><th>확인 방법</th></tr></thead><tbody><tr><td>F1</td><td><code>/delivery/request</code>(서비스) 호출 시 스테이션 카메라의 최신 QR(2 s 이내)을 읽어 접수·거절을 즉시 응답한다</td><td>응답 <code>success</code>, <code>message</code></td></tr><tr><td>F2</td><td>QR은 <code>DELIVER:&lt;이름&gt;</code> 형식만 받고, 조회표에 없는 이름·다른 형식은 거절한다</td><td>잘못된 QR 3종 시험</td></tr><tr><td>F3</td><td>배송 중 새 요청은 거절한다(한 번에 한 건)</td><td>주행 중 요청</td></tr><tr><td>F4</td><td>목적지 도착은 Nav2 <code>SUCCEEDED</code> <strong>그리고</strong> TF 위치 오차 ≤ 0.3 m일 때만 인정한다</td><td>로그의 오차 값</td></tr><tr><td>F5</td><td>도착 후 수령 확인(보드 버튼 또는 <code>/delivery/confirm</code>)을 기다리고, 60 s가 지나면 "미수령"으로 복귀한다</td><td>두 경우 모두 시험</td></tr><tr><td>F6</td><td>실패 시 2회째는 코스트맵을 지우고 재시도, 3회째는 대체 접근점으로 재계획, 그래도 실패하면 포기하고 복귀한다</td><td>통로 막기 시험</td></tr><tr><td>F7</td><td>모든 상태 변화를 <code>/delivery/status</code>로 알리고 LED·부저로 표시한다</td><td><code>ros2 topic echo</code></td></tr></tbody></table></div>
+<h3 id="비기능-요구사항">비기능 요구사항<a class="anchor" href="#비기능-요구사항">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>ID</th><th>항목</th><th>목표값</th></tr></thead><tbody><tr><td>N1</td><td>QR 인식</td><td>30~60 cm 거리, 정면 ±30°에서 10회 중 9회 이상</td></tr><tr><td>N2</td><td>응답성</td><td>요청 서비스 응답 0.5 s 이내 (주행은 비동기)</td></tr><tr><td>N3</td><td>주행 시간 초과</td><td>목표 하나당 90 s (경로 길이 ÷ 0.2 m/s의 2~3배)</td></tr><tr><td>N4</td><td>도착 정확도</td><td>목표와 실제 위치 차 평균 ≤ 0.2 m</td></tr><tr><td>N5</td><td>연속 운용</td><td>배송 10건 연속, 사람 개입 없이 모두 IDLE로 복귀</td></tr></tbody></table></div>
+<h3 id="안전-한계">안전 한계<a class="anchor" href="#안전-한계">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>값</th><th>이유</th></tr></thead><tbody><tr><td>선속도 · 각속도</td><td>≤ 0.2 m/s, ≤ 0.5 rad/s</td><td>Nav2 설정 유지 (CLAUDE.md 안전 원칙)</td></tr><tr><td>적재물</td><td>가볍고 낮은 물건만, 테이프로 고정. <strong>액체·유리 금지</strong></td><td>급정지·회전 시 낙하</td></tr><tr><td>수령 대기</td><td>도착 지점에서 정지, 모터 명령 없음</td><td>사람이 물건을 꺼내는 동안 움직이지 않음</td></tr><tr><td>재시도 상한</td><td>목표당 3회</td><td>무한 재시도로 같은 곳에서 계속 부딪히지 않게</td></tr><tr><td>복귀 실패</td><td>SAFE_STOP + 노랑 LED + 경고음</td><td>운영자 호출</td></tr></tbody></table></div>
+<div class="callout callout-info"><div class="callout-title">수업 시간 배분 (4교시)</div><div class="callout-body"><p>1교시: 요구사항·인터페이스·상태 기계 설계 + Playground 실습 1 / 2교시: M1 목적지 조회표 + M2 QR 접수 / 3교시: M3 배송·복귀 + M4 복구 / 4교시: M5 고장 주입 시험, 평가, 발표.</p></div></div>
+<h2 id="시스템-설계">시스템 설계<a class="anchor" href="#시스템-설계">#</a></h2>
+<h3 id="인터페이스와-노드-그래프">인터페이스와 노드 그래프<a class="anchor" href="#인터페이스와-노드-그래프">#</a></h3>
+<figure class="fig" id="fig-p02-graph"><svg viewBox="0 0 720 350" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="QR 배송 로봇의 ROS 2 그래프: 카메라 영상, 배송 요청·수령 확인 서비스, 버튼 입력이 delivery_bot으로 들어가고, delivery_bot은 Nav2 navigate_to_pose 액션으로 주행하며 상태 토픽과 RGB·부저를 발행">
+  <defs>
+    <marker id="arr-p02-graph" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-p02-graph-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <text class="tag" x="100" y="20" text-anchor="middle">입력</text>
+  <text class="tag" x="391" y="20" text-anchor="middle">이 프로젝트의 노드</text>
+  <text class="tag" x="630" y="20" text-anchor="middle">출력 · 주행</text>
+
+  <!-- inputs -->
+  <rect class="box" x="20" y="34" width="160" height="50" rx="6"/>
+  <text class="lbl" x="100" y="55" text-anchor="middle">깊이 카메라 RGB</text>
+  <text class="sub mono" x="100" y="72" text-anchor="middle">depth_camera.launch.py</text>
+  <rect class="box" x="20" y="130" width="160" height="60" rx="6"/>
+  <text class="lbl" x="100" y="152" text-anchor="middle">접수 데스크 · 앱</text>
+  <text class="sub" x="100" y="170" text-anchor="middle">ros2 service call</text>
+  <text class="sub" x="100" y="183" text-anchor="middle">(확장: Deliver 액션)</text>
+  <rect class="box" x="20" y="240" width="160" height="50" rx="6"/>
+  <text class="lbl mono" x="100" y="261" text-anchor="middle" style="font-size:11.5px">ros_robot_controller</text>
+  <text class="sub" x="100" y="278" text-anchor="middle">보드 버튼 → ~/button</text>
+
+  <!-- node -->
+  <rect class="box-hi" x="306" y="120" width="170" height="92" rx="8"/>
+  <text class="lbl mono" x="391" y="144" text-anchor="middle">delivery_bot</text>
+  <text class="sub" x="391" y="164" text-anchor="middle">QR 해석 → 목적지 조회표</text>
+  <text class="sub" x="391" y="180" text-anchor="middle">배송 상태 기계</text>
+  <text class="sub" x="391" y="196" text-anchor="middle">재시도 · 재계획 · 복귀</text>
+
+  <!-- outputs -->
+  <rect class="box" x="560" y="34" width="145" height="60" rx="6"/>
+  <text class="lbl" x="632" y="56" text-anchor="middle">Nav2</text>
+  <text class="sub mono" x="632" y="73" text-anchor="middle">bt_navigator</text>
+  <text class="sub mono" x="632" y="87" text-anchor="middle">amcl (TF)</text>
+  <rect class="box" x="560" y="146" width="145" height="44" rx="6"/>
+  <text class="lbl mono" x="632" y="165" text-anchor="middle" style="font-size:12px">/delivery/status</text>
+  <text class="sub" x="632" y="181" text-anchor="middle">모니터 · 기록</text>
+  <rect class="box" x="560" y="240" width="145" height="50" rx="6"/>
+  <text class="lbl mono" x="632" y="261" text-anchor="middle">set_rgb</text>
+  <text class="lbl mono" x="632" y="279" text-anchor="middle">set_buzzer</text>
+
+  <!-- input arrows -->
+  <path class="ln" d="M180 64 L330 118" stroke-width="1.4" marker-end="url(#arr-p02-graph)"/>
+  <text class="tag mono" x="196" y="116">…/rgb0/image</text>
+  <path class="ln-hi" d="M180 150 L304 150" stroke-width="2" marker-end="url(#arr-p02-graph-hi)"/>
+  <text class="tag mono" x="186" y="143">/delivery/request</text>
+  <path class="ln-hi" d="M180 176 L304 176" stroke-width="2" marker-end="url(#arr-p02-graph-hi)"/>
+  <text class="tag mono" x="186" y="192">/delivery/confirm</text>
+  <path class="ln" d="M180 262 L316 214" stroke-width="1.4" marker-end="url(#arr-p02-graph)"/>
+  <text class="tag" x="214" y="262">수령 버튼</text>
+
+  <!-- action to nav2 -->
+  <path class="ln-hi" d="M476 136 L558 70" stroke-width="2" marker-end="url(#arr-p02-graph-hi)"/>
+  <path class="ln" d="M560 84 L480 146" stroke-width="1.2" marker-end="url(#arr-p02-graph)" stroke-dasharray="4 3"/>
+  <text class="tag mono" x="524" y="60" text-anchor="end">navigate_to_pose</text>
+  <text class="tag" x="528" y="132">피드백·결과·TF</text>
+  <!-- status, led -->
+  <path class="ln-hi" d="M476 168 L558 168" stroke-width="2" marker-end="url(#arr-p02-graph-hi)"/>
+  <path class="ln-hi" d="M476 200 L558 256" stroke-width="2" marker-end="url(#arr-p02-graph-hi)"/>
+  <text class="tag" x="548" y="282" text-anchor="end">도착 알림 · 오류 경고</text>
+
+  <text class="sub" x="360" y="330" text-anchor="middle">서비스는 즉시 응답(접수/거절)하고, 긴 주행은 상태 기계가 액션으로 이어서 처리합니다</text>
+</svg><figcaption>QR 배송 로봇의 ROS 2 그래프. 요청과 수령 확인은 서비스로, 긴 주행은 Nav2 액션으로 처리합니다.</figcaption></figure>
+<p><strong>"배송 요청"을 무엇으로 만들까?</strong> R04에서 배운 세 가지 통신 방식을 요구사항에 맞춰 고릅니다.</p>
+<div class="table-wrap"><table><thead><tr><th>방식</th><th>장점</th><th>단점</th><th>이 프로젝트에서</th></tr></thead><tbody><tr><td>토픽</td><td>가장 단순</td><td>접수 여부를 돌려받을 수 없음</td><td>상태 방송(<code>/delivery/status</code>)에만 사용</td></tr><tr><td>서비스</td><td>즉시 접수·거절 응답</td><td>긴 작업의 진행 상황·취소가 없음</td><td><code>/delivery/request</code>, <code>/delivery/confirm</code> (<code>std_srvs/Trigger</code>)</td></tr><tr><td>액션</td><td>진행 피드백, 취소, 최종 결과</td><td>인터페이스 패키지를 만들어야 함</td><td>확장: <code>Deliver.action</code></td></tr></tbody></table></div>
+<p>기본 구현은 추가 패키지 없이 돌아가도록 <code>std_srvs/Trigger</code>를 씁니다. 목적지는 요청 메시지가 아니라 <strong>스테이션 카메라가 본 QR</strong>에서 옵니다. 앱에서 목적지를 직접 보내거나 진행률을 받으려면 다음 인터페이스를 정의합니다(M5 심화).</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text"># delivery_interfaces/action/Deliver.action
+string destination            # 비우면 스테이션 QR에서 읽음
+---
+bool success
+string outcome                # delivered | no_receiver | aborted
+uint8 attempts
+float32 duration
+---
+string state                  # DELIVER | ARRIVED | RETURN
+float32 distance_remaining
+uint8 attempt</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>인터페이스</th><th>타입</th><th>방향</th><th>비고</th></tr></thead><tbody><tr><td><code>/ascamera/camera_publisher/rgb0/image</code></td><td><code>sensor_msgs/Image</code></td><td>카메라 → bot</td><td>IDLE일 때만 2 Hz로 QR 해석 (CPU 절약)</td></tr><tr><td><code>/delivery/request</code></td><td><code>std_srvs/Trigger</code></td><td>데스크 → bot</td><td>응답 <code>accepted ROOM_A</code> / <code>rejected (...)</code></td></tr><tr><td><code>/delivery/confirm</code></td><td><code>std_srvs/Trigger</code></td><td>수령자 → bot</td><td>ARRIVED일 때만 <code>success=True</code></td></tr><tr><td><code>/ros_robot_controller/button</code></td><td><code>ros_robot_controller_msgs/ButtonState</code></td><td>보드 → bot</td><td>버튼 1 누름 = 수령 확인</td></tr><tr><td><code>/navigate_to_pose</code></td><td><code>nav2_msgs/action/NavigateToPose</code></td><td>bot → Nav2</td><td><code>BasicNavigator.goToPose()</code></td></tr><tr><td><code>/global_costmap/clear_entirely_global_costmap</code> 등</td><td><code>nav2_msgs/srv/ClearEntireCostmap</code></td><td>bot → Nav2</td><td><code>clearAllCostmaps()</code></td></tr><tr><td><code>/delivery/status</code></td><td><code>std_msgs/String</code></td><td>bot → 모니터</td><td>상태 이름</td></tr><tr><td><code>/ros_robot_controller/set_rgb</code>, <code>set_buzzer</code></td><td><code>RGBStates</code>, <code>BuzzerState</code></td><td>bot → 보드</td><td>초록 IDLE, 파랑 ARRIVED, 노랑 SAFE_STOP</td></tr></tbody></table></div>
+<div class="callout callout-warn"><div class="callout-title">서비스 콜백 안에서 주행을 시작하지 않는다</div><div class="callout-body"><p><code>BasicNavigator.goToPose()</code>는 안에서 노드를 spin하며 목표 접수를 기다립니다. 서비스 콜백 안에서 부르면 이미 돌고 있는 실행기(executor) 안에서 다시 spin하게 되어 멈추거나 예외가 납니다. 콜백은 <strong>상태만 바꾸고 즉시 응답</strong>하고, 실제 <code>goToPose()</code>는 주 루프가 부릅니다.</p></div></div>
+<h3 id="qr-지시서-형식과-목적지-조회표">QR 지시서 형식과 목적지 조회표<a class="anchor" href="#qr-지시서-형식과-목적지-조회표">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>규칙</th><th>예</th><th>이유</th></tr></thead><tbody><tr><td>접두어 <code>DELIVER:</code></td><td><code>DELIVER:ROOM_A</code></td><td>다른 용도의 QR(예: 샘플 <code>MentorPi</code>)을 명령으로 오해하지 않게</td></tr><tr><td>이름만, 좌표 금지</td><td>~~<code>GOTO:1.2,3.4</code>~~</td><td>인쇄물이 로봇을 임의 위치로 보낼 수 없게. 좌표는 로봇 안의 조회표가 결정</td></tr><tr><td>조회표에 주·대체 접근점</td><td><code>ROOM_A: [(2.0, 1.0, 90°), (2.0, 0.6, 90°)]</code></td><td>문 앞이 막혔을 때 재계획할 두 번째 목표</td></tr><tr><td>오류 복원 수준 M 이상, 여백 4모듈</td><td>A02 참고</td><td>구겨짐·반사에 강하게</td></tr></tbody></table></div>
+<p>조회표는 M13처럼 RViz <strong>Publish Point</strong>(<code>/clicked_point</code>)로 좌표를 모으고, 방향(yaw)은 받는 사람이 서 있는 쪽을 보게 정합니다.</p>
+<h3 id="배송-상태-기계">배송 상태 기계<a class="anchor" href="#배송-상태-기계">#</a></h3>
+<figure class="fig" id="fig-p02-fsm"><svg viewBox="0 0 720 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="배송 상태 기계: IDLE에서 유효한 QR 요청이면 DELIVER, 도착 확인되면 ARRIVED, 수령 확인이나 대기 시간 초과면 RETURN, 도크 도착이면 IDLE. DELIVER가 실패하면 RECOVER에서 재시도·재계획하고 3회 실패면 RETURN">
+  <defs>
+    <marker id="arr-p02-fsm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+    <marker id="arr-p02-fsm-w" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--warn)"/></marker>
+  </defs>
+  <!-- states -->
+  <rect class="box-hi" x="30" y="70" width="150" height="64" rx="10"/>
+  <text class="lbl mono" x="105" y="96" text-anchor="middle">IDLE</text>
+  <text class="sub" x="105" y="115" text-anchor="middle">도크 대기 · 초록 LED</text>
+
+  <rect class="box-hi" x="285" y="70" width="150" height="64" rx="10"/>
+  <text class="lbl mono" x="360" y="96" text-anchor="middle">DELIVER</text>
+  <text class="sub mono" x="360" y="115" text-anchor="middle">goToPose(목적지)</text>
+
+  <rect class="box-hi" x="540" y="70" width="150" height="64" rx="10"/>
+  <text class="lbl mono" x="615" y="96" text-anchor="middle">ARRIVED</text>
+  <text class="sub" x="615" y="115" text-anchor="middle">파랑 LED · 알림음</text>
+
+  <rect class="box" x="285" y="230" width="150" height="64" rx="10" style="stroke:var(--warn)"/>
+  <text class="lbl mono" x="360" y="256" text-anchor="middle">RECOVER</text>
+  <text class="sub" x="360" y="275" text-anchor="middle">시도 횟수 +1</text>
+
+  <rect class="box-hi" x="540" y="230" width="150" height="64" rx="10"/>
+  <text class="lbl mono" x="615" y="256" text-anchor="middle">RETURN</text>
+  <text class="sub mono" x="615" y="275" text-anchor="middle">goToPose(DOCK)</text>
+
+  <!-- IDLE self loop: reject -->
+  <path class="ln-hi" d="M70 70 C70 22 140 22 140 66" stroke-width="1.6" marker-end="url(#arr-p02-fsm)"/>
+  <text class="tag" x="105" y="18" text-anchor="middle">QR 없음·모르는 목적지 → 거절</text>
+  <!-- IDLE -> DELIVER -->
+  <path class="ln-hi" d="M180 102 L283 102" stroke-width="2" marker-end="url(#arr-p02-fsm)"/>
+  <text class="tag" x="231" y="94" text-anchor="middle">요청 + 유효 QR</text>
+  <!-- DELIVER -> ARRIVED -->
+  <path class="ln-hi" d="M435 102 L538 102" stroke-width="2" marker-end="url(#arr-p02-fsm)"/>
+  <text class="tag" x="487" y="86" text-anchor="middle">SUCCEEDED</text>
+  <text class="tag" x="487" y="98" text-anchor="middle">+ 위치 확인</text>
+  <!-- DELIVER -> RECOVER -->
+  <path d="M340 134 L340 228" style="stroke:var(--warn);fill:none" stroke-width="2" marker-end="url(#arr-p02-fsm-w)"/>
+  <text class="tag" x="332" y="170" text-anchor="end">FAILED · 막힘 2 s</text>
+  <text class="tag" x="332" y="184" text-anchor="end">· 시간 초과</text>
+  <!-- RECOVER -> DELIVER -->
+  <path class="ln-hi" d="M380 228 L380 136" stroke-width="2" marker-end="url(#arr-p02-fsm)"/>
+  <text class="tag" x="390" y="164">2회: 코스트맵 지우고 재시도</text>
+  <text class="tag" x="390" y="178">3회: 대체 경로·접근점</text>
+  <!-- RECOVER -> RETURN -->
+  <path d="M435 262 L538 262" style="stroke:var(--warn);fill:none" stroke-width="2" marker-end="url(#arr-p02-fsm-w)"/>
+  <text class="tag" x="487" y="254" text-anchor="middle">3회 초과</text>
+  <text class="tag" x="487" y="280" text-anchor="middle">ABORT</text>
+  <!-- ARRIVED -> RETURN -->
+  <path class="ln-hi" d="M615 134 L615 228" stroke-width="2" marker-end="url(#arr-p02-fsm)"/>
+  <text class="tag" x="623" y="170">수령 확인</text>
+  <text class="tag" x="623" y="184">또는 대기 초과</text>
+  <!-- RETURN -> IDLE -->
+  <path class="ln-hi" d="M615 294 L615 322 L105 322 L105 136" stroke-width="2" marker-end="url(#arr-p02-fsm)"/>
+  <text class="tag" x="360" y="316" text-anchor="middle">도크 도착 (복귀 실패가 반복되면 SAFE_STOP · 운영자 호출)</text>
+</svg><figcaption>배송 상태 기계. 주황 화살표가 실패·복구 경로입니다. RECOVER는 순간 상태로, 복구 동작 후 곧바로 DELIVER(또는 RETURN)로 돌아갑니다.</figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th>현재</th><th>조건</th><th>동작</th><th>다음</th></tr></thead><tbody><tr><td>IDLE</td><td>요청 + 유효 QR</td><td>목적지 저장, 응답 "accepted"</td><td>DELIVER (주 루프가 <code>goToPose</code>)</td></tr><tr><td>IDLE</td><td>QR 없음·형식 오류·모르는 이름</td><td>응답 "rejected"</td><td>IDLE</td></tr><tr><td>DELIVER</td><td><code>SUCCEEDED</code> 그리고 위치 오차 ≤ 0.3 m</td><td>파랑 LED, 알림음 2회</td><td>ARRIVED</td></tr><tr><td>DELIVER</td><td><code>FAILED</code>/<code>CANCELED</code>, 시간 초과(90 s)</td><td>시도 +1 → 2회: <code>clearAllCostmaps()</code> 후 같은 목표, 3회: 대체 접근점</td><td>DELIVER</td></tr><tr><td>DELIVER</td><td>3회 초과</td><td>기록 "aborted"</td><td>RETURN</td></tr><tr><td>ARRIVED</td><td>버튼·<code>/delivery/confirm</code></td><td>기록 "delivered"</td><td>RETURN</td></tr><tr><td>ARRIVED</td><td>60 s 경과</td><td>기록 "no receiver"</td><td>RETURN</td></tr><tr><td>RETURN</td><td>도크 도착</td><td>초록 LED</td><td>IDLE</td></tr><tr><td>RETURN</td><td>3회 실패</td><td>노랑 LED, 경고음, 정지</td><td>SAFE_STOP</td></tr></tbody></table></div>
+<p><strong>왜 2회째에 코스트맵을 지우는가?</strong> Nav2가 실패하는 흔한 이유는 "지나간 사람"이 코스트맵에 장애물로 남아 있는 경우입니다(M13의 clearing은 라이다 빔이 그 칸을 다시 지나야 일어납니다). 지우고 다시 시도하면 대부분 해결됩니다. 진짜로 막혀 있으면 두 번째도 실패하고, 그때 다른 접근점으로 <strong>목표 자체를 바꿔</strong> 재계획합니다. 이것은 Nav2 행동 트리의 복구(코스트맵 지우기 → spin → backup) 위에 <strong>임무 수준의 복구</strong>를 한 층 더 얹는 것입니다.</p>
+<h2 id="단계별-구현">단계별 구현<a class="anchor" href="#단계별-구현">#</a></h2>
+<h3 id="m1-지도와-목적지-조회표">M1. 지도와 목적지 조회표<a class="anchor" href="#m1-지도와-목적지-조회표">#</a></h3>
+<div class="callout callout-task"><div class="callout-title">M1 — 목적지 조회표 (30분)</div><div class="callout-body"><ol><li>M09 지도(<code>map_01</code>)를 쓰거나 배송 공간을 새로 매핑합니다.</li><li><code>navigation.launch.py</code>를 켜고 목적지 2~3곳과 도크의 map 좌표를 <strong>Publish Point</strong>로 모읍니다. 목적지마다 대체 접근점을 하나 더 정합니다(문 반대편, 0.3~0.5 m 옆).</li><li>각 좌표로 RViz <strong>Nav2 Goal</strong>을 보내 실제로 도달 가능한지 확인하고 <code>DEST</code> 표를 완성합니다.</li></ol></div></div>
+<div class="callout callout-check"><div class="callout-title">M1 체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> 모든 접근점이 벽·가구에서 0.4 m 이상 떨어져 있고, Nav2 Goal로 도달했다.</label></li><li><label class="check-item"><input type="checkbox"> 도크 위치에서 2D Pose Estimate를 주는 절차를 팀원 모두가 할 수 있다.</label></li></ul></div></div>
+<h3 id="m2-qr-접수">M2. QR 접수<a class="anchor" href="#m2-qr-접수">#</a></h3>
+<div class="callout callout-task"><div class="callout-title">M2 — QR 지시서와 접수 서비스 (40분)</div><div class="callout-body"><ol><li>Playground 실습 1로 형식 검증 함수를 완성하고, <code>DELIVER:ROOM_A</code> 등 지시서를 인쇄합니다(A02의 <code>qrcode_creater.py</code> 또는 <code>cv2.QRCodeEncoder</code>).</li><li>원본 예제 <code>qrcode_detecter.py</code>로 카메라가 지시서를 읽는 거리·각도 범위를 측정합니다(N1).</li><li><code>delivery_bot</code>의 <code>on_image</code>·<code>on_request</code>를 구현하고, <code>ros2 service call</code>로 접수·거절 세 경우를 시험합니다.</li></ol></div></div>
+<div class="callout callout-check"><div class="callout-title">M2 체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> QR 없이 요청 → rejected, <code>MentorPi</code> QR → rejected, <code>DELIVER:ROOM_A</code> → accepted.</label></li><li><label class="check-item"><input type="checkbox"> 주행 중 요청 → <code>rejected (state=DELIVER)</code>.</label></li></ul></div></div>
+<h3 id="m3-배송과-복귀">M3. 배송과 복귀<a class="anchor" href="#m3-배송과-복귀">#</a></h3>
+<div class="callout callout-task"><div class="callout-title">M3 — 정상 흐름 (40분)</div><div class="callout-body"><ol><li>주 루프에서 DELIVER → ARRIVED → RETURN → IDLE을 구현합니다(Playground 실습 2 구조).</li><li>도착 판정에 TF 위치 오차 검사를 넣습니다. <code>xy_goal_tolerance</code>(0.25 m)보다 조금 큰 0.3 m를 씁니다.</li><li>버튼과 <code>/delivery/confirm</code> 두 가지 수령 확인, 60 s 대기 초과를 모두 시험합니다.</li></ol></div></div>
+<div class="callout callout-check"><div class="callout-title">M3 체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> 한 건 배송 전체가 사람 개입 없이 끝나고, <code>/delivery/status</code>에 상태가 순서대로 찍힌다.</label></li><li><label class="check-item"><input type="checkbox"> 도착 위치 오차를 5회 기록해 평균을 구했다(N4).</label></li></ul></div></div>
+<h3 id="m4-실패-복구">M4. 실패 복구<a class="anchor" href="#m4-실패-복구">#</a></h3>
+<div class="callout callout-task"><div class="callout-title">M4 — 재시도·재계획·포기 (40분)</div><div class="callout-body"><ol><li>Playground 실습 3으로 복구 순서를 확인한 뒤 <code>recover()</code>를 구현합니다.</li><li>고장 주입: 목적지 문 앞에 상자를 놓아 막기 / 주행 중 사람이 잠깐 가로막기 / 로봇을 들어 옮기기(위치 상실).</li><li>각 경우 로그에 남은 시도 횟수와 최종 결과를 기록합니다.</li></ol></div></div>
+<div class="callout callout-check"><div class="callout-title">M4 체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> 잠깐 막힘 → 2회째 재시도로 성공, 문 앞 막힘 → 3회째 대체 접근점으로 성공, 완전 차단 → aborted 후 도크 복귀.</label></li><li><label class="check-item"><input type="checkbox"> 어떤 경우에도 같은 곳에서 무한히 재시도하지 않는다.</label></li></ul></div></div>
+<h3 id="m5-통합-시험과-인터페이스-확장">M5. 통합 시험과 인터페이스 확장<a class="anchor" href="#m5-통합-시험과-인터페이스-확장">#</a></h3>
+<div class="callout callout-task"><div class="callout-title">M5 — 연속 운용 (40분)</div><div class="callout-body"><ol><li>배송 10건을 연속 실행하고 건별 소요 시간·시도 횟수·결과를 표로 만듭니다(N5).</li><li>(심화) <code>delivery_interfaces</code> 패키지를 만들어 <code>Deliver.action</code>을 정의하고, 서비스 대신 액션 서버로 바꿔 진행 피드백과 취소를 지원합니다.</li></ol></div></div>
+<h2 id="실습-시뮬레이션">실습 (시뮬레이션)<a class="anchor" href="#실습-시뮬레이션">#</a></h2>
+<p>아래 코드는 이 페이지에서 바로 실행됩니다. ▶ 실행 후 오른쪽 결과 패널의 <strong>출력</strong> 탭에 로그가, <strong>이미지</strong> 탭에 QR 영상이 나오고, 가상 로봇을 쓰는 코드는 <strong>2D 재생</strong>(위에서 본 월드·라이다·궤적)과 <strong>3D 재생</strong>(MentorPi URDF 모델) 탭에서 자동으로 다시 볼 수 있습니다. 월드는 6 × 4 m 거실(<code>room</code>)이고, 도크는 (−0.8, −1.4), ROOM_A는 (−1.0, 0.7)입니다.</p>
+<h3 id="실습-1-qr-지시서-읽기와-검증">실습 1. QR 지시서 읽기와 검증<a class="anchor" href="#실습-1-qr-지시서-읽기와-검증">#</a></h3>
+<p>지시서 QR을 <code>cv2.QRCodeEncoder</code>로 만들고, 샘플 <code>qr.png</code>("MentorPi"), 기울어진 지시서, 빈 화면과 함께 인식·검증합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import cv2
+import numpy as np
+
+DEST = {                                   # 목적지 조회표: 이름 → map 좌표 (x, y, yaw)
+    &quot;ROOM_A&quot;: (-1.0, 0.7, 0.0),
+    &quot;ROOM_B&quot;: (1.2, -0.7, 0.0),
+    &quot;DOCK&quot;:   (-0.8, -1.4, 0.0),
+}
+det = cv2.QRCodeDetector()
+
+def make_qr(text, scale=8):                # 배송 지시서에 붙일 QR (M 수준 15% 복원, 여백 4모듈)
+    p = cv2.QRCodeEncoder_Params()
+    p.correction_level = cv2.QRCodeEncoder_CORRECT_LEVEL_M
+    m = cv2.QRCodeEncoder.create(p).encode(text)
+    m = cv2.resize(m, None, fx=scale, fy=scale, interpolation=cv2.INTER_NEAREST)
+    return cv2.copyMakeBorder(m, 2 * scale, 2 * scale, 2 * scale, 2 * scale, cv2.BORDER_CONSTANT, value=255)
+
+def parse(text):                           # &quot;DELIVER:&lt;목적지&gt;&quot; 형식만 받는다
+    if not text:
+        return None, &quot;QR 없음&quot;
+    kind, _, name = text.partition(&quot;:&quot;)
+    if kind != &quot;DELIVER&quot;:
+        return None, &quot;형식 아님 (%r)&quot; % text
+    if name not in DEST or name == &quot;DOCK&quot;:
+        return None, &quot;모르는 목적지 (%r)&quot; % name
+    return DEST[name], &quot;목적지 %s&quot; % name
+
+frames = {&quot;qr.png (샘플)&quot;: cv2.imread(&quot;qr.png&quot;)}
+for t in [&quot;DELIVER:ROOM_A&quot;, &quot;DELIVER:ROOM_B&quot;, &quot;DELIVER:KITCHEN&quot;]:
+    frames[t] = make_qr(t)
+tilt = make_qr(&quot;DELIVER:ROOM_B&quot;)                                        # 비스듬히 본 지시서
+h, w = tilt.shape[:2]
+M = cv2.getPerspectiveTransform(np.float32([[0, 0], [w, 0], [w, h], [0, h]]),
+                                np.float32([[30, 10], [w - 5, 40], [w - 25, h - 30], [10, h - 5]]))
+frames[&quot;ROOM_B 기울임&quot;] = cv2.warpPerspective(tilt, M, (w, h), borderValue=255)
+frames[&quot;빈 화면&quot;] = np.full((200, 200), 255, np.uint8)
+
+for name, img in frames.items():
+    text, pts, _ = det.detectAndDecode(img)
+    goal, why = parse(text)
+    print(&quot;%-16s → 읽음 %-18r %s&quot; % (name, text, &quot;목표 %s&quot; % (goal,) if goal else &quot;거부: &quot; + why))
+cv2.imshow(&quot;ROOM_B 기울임&quot;, frames[&quot;ROOM_B 기울임&quot;])</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">qr.png (샘플)      → 읽음 &#x27;MentorPi&#x27;         거부: 형식 아님 (&#x27;MentorPi&#x27;)
+DELIVER:ROOM_A   → 읽음 &#x27;DELIVER:ROOM_A&#x27;   목표 (-1.0, 0.7, 0.0)
+DELIVER:ROOM_B   → 읽음 &#x27;DELIVER:ROOM_B&#x27;   목표 (1.2, -0.7, 0.0)
+DELIVER:KITCHEN  → 읽음 &#x27;DELIVER:KITCHEN&#x27;  거부: 모르는 목적지 (&#x27;KITCHEN&#x27;)
+ROOM_B 기울임       → 읽음 &#x27;DELIVER:ROOM_B&#x27;   목표 (1.2, -0.7, 0.0)
+빈 화면             → 읽음 &#x27;&#x27;                 거부: QR 없음</code></pre></div>
+<ul><li><code>qr.png</code>는 잘 읽히지만 <code>DELIVER:</code> 접두어가 없어 <strong>거절</strong>됩니다. 인식 성공과 명령 유효성은 별개입니다.</li><li><code>KITCHEN</code>은 형식은 맞지만 조회표에 없어 거절됩니다. <code>DOCK</code>도 배송 목적지로는 받지 않습니다.</li><li>원근으로 기울어진 지시서도 읽힙니다. 이미지 탭에서 확인하고, 기울기를 더 키워 한계를 찾아보세요.</li></ul>
+<h3 id="실습-2-배송-요청-서비스와-상태-기계">실습 2. 배송 요청 서비스와 상태 기계<a class="anchor" href="#실습-2-배송-요청-서비스와-상태-기계">#</a></h3>
+<p><code>delivery_bot</code>이 <code>/delivery/request</code>·<code>/delivery/confirm</code> 서비스를 제공하고, <code>front_desk</code> 노드가 1 s에 요청, 4 s에 중복 요청, 도착 2 s 뒤 수령 확인을 보냅니다. 메카넘 섀시는 방향을 유지한 채 목표 쪽으로 평행 이동합니다(M13 실습과 같은 방식). 실물에서는 <code>front_desk</code> 대신 <code>ros2 service call</code>을 씁니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math, cv2, rclpy
+from rclpy.node import Node
+from std_msgs.msg import String
+from std_srvs.srv import Trigger
+from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
+import mentorpi_sim as sim                                        # 시뮬 전용
+sim.setup(world=&quot;room&quot;, duration=28.0, start=(-0.8, -1.4, 0.0))  # 시뮬 전용
+
+DOCK = (-0.8, -1.4)                                               # 출발 스테이션 = odom 원점 (yaw 0)
+DEST = {&quot;ROOM_A&quot;: (-1.0, 0.7), &quot;ROOM_B&quot;: (1.2, -0.7)}
+V, TOL, WAIT = 0.2, 0.05, 6.0                                     # 속도 상한, 도착 허용오차, 수령 대기 [s]
+
+def camera():                                                     # 시뮬 전용: 스테이션 카메라에 비친 지시서
+    q = cv2.resize(cv2.QRCodeEncoder.create().encode(&quot;DELIVER:ROOM_A&quot;), None, fx=8, fy=8, interpolation=cv2.INTER_NEAREST)
+    return cv2.copyMakeBorder(q, 32, 32, 32, 32, cv2.BORDER_CONSTANT, value=255)
+
+class DeliveryBot(Node):
+    def __init__(self):
+        super().__init__(&#x27;delivery_bot&#x27;)
+        self.cmd = self.create_publisher(Twist, &#x27;/controller/cmd_vel&#x27;, 10)
+        self.status = self.create_publisher(String, &#x27;/delivery/status&#x27;, 10)   # 상태 방송 (UI·기록용)
+        self.create_subscription(Odometry, &#x27;/odom&#x27;, self.on_odom, 10)
+        self.create_service(Trigger, &#x27;/delivery/request&#x27;, self.on_request)
+        self.create_service(Trigger, &#x27;/delivery/confirm&#x27;, self.on_confirm)
+        self.state, self.goal, self.pos, self.t_state = &#x27;IDLE&#x27;, None, None, 0.0
+        self.create_timer(0.05, self.loop)
+    def now(self): return self.get_clock().now().nanoseconds * 1e-9
+    def go(self, st, goal=None, why=&#x27;&#x27;):
+        self.get_logger().info(&#x27;%-8s -&gt; %-8s %s&#x27; % (self.state, st, why))
+        self.state, self.goal, self.t_state = st, goal, self.now()
+        self.status.publish(String(data=st))
+    def on_odom(self, m):
+        self.pos = (DOCK[0] + m.pose.pose.position.x, DOCK[1] + m.pose.pose.position.y)
+    def on_request(self, req, res):
+        text = cv2.QRCodeDetector().detectAndDecode(camera())[0]  # 실물: 카메라 콜백이 읽어 둔 최신 QR
+        name = text.partition(&#x27;:&#x27;)[2] if text.startswith(&#x27;DELIVER:&#x27;) else &#x27;&#x27;
+        res.success = self.state == &#x27;IDLE&#x27; and name in DEST
+        res.message = (&#x27;accepted &#x27; + name) if res.success else &#x27;rejected (state=%s)&#x27; % self.state
+        if res.success: self.go(&#x27;DELIVER&#x27;, DEST[name], name)
+        return res
+    def on_confirm(self, req, res):
+        res.success = self.state == &#x27;ARRIVED&#x27;
+        if res.success: self.go(&#x27;RETURN&#x27;, DOCK, &#x27;received&#x27;)
+        return res
+    def loop(self):
+        t = Twist()
+        if self.state == &#x27;ARRIVED&#x27; and self.now() - self.t_state &gt; WAIT:
+            self.go(&#x27;RETURN&#x27;, DOCK, &#x27;no receiver (timeout)&#x27;)
+        if self.goal and self.pos and self.state in (&#x27;DELIVER&#x27;, &#x27;RETURN&#x27;):
+            ex, ey = self.goal[0] - self.pos[0], self.goal[1] - self.pos[1]
+            d = math.hypot(ex, ey)
+            if d &lt; TOL:
+                self.go(&#x27;ARRIVED&#x27; if self.state == &#x27;DELIVER&#x27; else &#x27;IDLE&#x27;, None, &#x27;at %.1f s&#x27; % self.now())
+            else:
+                s = min(V, 1.2 * d) / d                           # 메카넘: 방향 유지, 목표 쪽으로 평행 이동
+                t.linear.x, t.linear.y = ex * s, ey * s
+        self.cmd.publish(t)
+
+class Desk(Node):                                                 # 요청자·수령자 역할 (실물: ros2 service call)
+    def __init__(self):
+        super().__init__(&#x27;front_desk&#x27;)
+        self.req = self.create_client(Trigger, &#x27;/delivery/request&#x27;)
+        self.ok = self.create_client(Trigger, &#x27;/delivery/confirm&#x27;)
+        self.create_subscription(String, &#x27;/delivery/status&#x27;, self.on_status, 10)
+        self.plan = {1.0: self.req, 4.0: self.req}                # 1 s 요청, 4 s 중복 요청(거절돼야 함)
+        self.create_timer(0.5, self.tick)
+    def now(self): return self.get_clock().now().nanoseconds * 1e-9
+    def tick(self):
+        for t in [t for t in self.plan if self.now() &gt;= t]:
+            cli = self.plan.pop(t)
+            cli.call_async(Trigger.Request()).add_done_callback(
+                lambda f, c=cli: self.get_logger().info(&#x27;%s -&gt; %s&#x27; % (c.srv_name, f.result().message or f.result().success)))
+    def on_status(self, msg):
+        if msg.data == &#x27;ARRIVED&#x27;:
+            self.plan[self.now() + 2.0] = self.ok                 # 물건을 꺼내는 데 2 s 뒤 수령 확인
+
+rclpy.init()
+bot, desk = DeliveryBot(), Desk()
+try:
+    rclpy.spin(bot)
+except KeyboardInterrupt:
+    pass
+finally:
+    bot.cmd.publish(Twist()); bot.destroy_node(); desk.destroy_node()
+    if rclpy.ok(): rclpy.shutdown()</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[INFO] [1.000] [delivery_bot]: IDLE     -&gt; DELIVER  ROOM_A   (대략)
+[INFO] [1.000] [front_desk]: /delivery/request -&gt; accepted ROOM_A
+[INFO] [4.000] [front_desk]: /delivery/request -&gt; rejected (state=DELIVER)
+[INFO] [11.800] [delivery_bot]: DELIVER  -&gt; ARRIVED  at 11.8 s
+[INFO] [14.000] [delivery_bot]: ARRIVED  -&gt; RETURN   received
+[INFO] [14.000] [front_desk]: /delivery/confirm -&gt; True
+[INFO] [24.560] [delivery_bot]: RETURN   -&gt; IDLE     at 24.6 s
+[sim] 시뮬레이션 시간 28.0 s 종료 (sim.setup(duration=...)으로 변경)</code></pre></div>
+<ul><li>서비스는 <strong>즉시</strong> 응답하고(1.000 s), 주행은 타이머 루프가 이어서 합니다. 4 s의 중복 요청은 상태가 IDLE이 아니라서 거절됩니다(F3).</li><li>도착(11.8 s) → 수령 확인(14.0 s) → 복귀(24.6 s). <strong>2D 재생</strong>에서 로봇이 방향을 바꾸지 않고 옆·뒤로 움직이는 것을 확인하세요.</li><li><code>Desk</code>의 수령 확인 줄(<code>self.plan[...] = self.ok</code>)을 지우면 <code>WAIT</code> 6 s 뒤 <code>no receiver (timeout)</code>으로 복귀합니다.</li></ul>
+<h3 id="실습-3-막힘-감지-재시도-재계획">실습 3. 막힘 감지 · 재시도 · 재계획<a class="anchor" href="#실습-3-막힘-감지-재시도-재계획">#</a></h3>
+<p>같은 배송에서 통로에 카트(상자)가 놓여 있습니다. 진행 방향 ±25° 안에 0.35 m보다 가까운 것이 있으면 멈추고, 2 s 동안 계속 막히면 다음 시도로 넘어갑니다. 1·2회째는 같은 직선 경로(사람이라면 비켜 줄 수도 있으므로), 3회째는 서쪽으로 돌아가는 2순위 경로로 <strong>재계획</strong>합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math, rclpy
+import numpy as np
+from rclpy.node import Node
+from geometry_msgs.msg import Twist
+from sensor_msgs.msg import LaserScan
+from nav_msgs.msg import Odometry
+import mentorpi_sim as sim                                        # 시뮬 전용
+sim.setup(world=&quot;room&quot;, duration=30.0, start=(-0.8, -1.4, 0.0))  # 시뮬 전용
+sim.add_box(-0.8, -0.3, 0.5, 0.2)                                 # 시뮬 전용: 복도를 막은 카트
+
+DOCK = (-0.8, -1.4)
+ROUTES = [[(-1.0, 0.7)],                                          # 1순위: 직선 경로
+          [(-1.5, -0.55), (-1.5, 0.3), (-1.0, 0.7)]]              # 2순위: 서쪽으로 돌아가는 경로
+V, TOL, STOP_D, BLOCK_T, MAX_TRY = 0.2, 0.05, 0.35, 2.0, 3
+
+class RecoveringDelivery(Node):
+    def __init__(self):
+        super().__init__(&#x27;delivery_recovery&#x27;)
+        self.cmd = self.create_publisher(Twist, &#x27;/controller/cmd_vel&#x27;, 10)
+        self.create_subscription(Odometry, &#x27;/odom&#x27;, self.on_odom, 10)
+        self.create_subscription(LaserScan, &#x27;/scan&#x27;, self.on_scan, 10)
+        self.pos, self.scan, self.attempt = None, None, 0
+        self.new_attempt(&#x27;start&#x27;)
+        self.create_timer(0.05, self.loop)
+    def now(self): return self.get_clock().now().nanoseconds * 1e-9
+    def on_odom(self, m): self.pos = (DOCK[0] + m.pose.pose.position.x, DOCK[1] + m.pose.pose.position.y)
+    def on_scan(self, s): self.scan = s
+    def new_attempt(self, why):
+        self.attempt, self.blocked_since = self.attempt + 1, None
+        if self.attempt &gt; MAX_TRY:
+            self.get_logger().error(&#x27;ABORT after %d tries -&gt; RETURN to dock&#x27; % MAX_TRY)
+            self.route, self.i = [DOCK], 0; return
+        k = 0 if self.attempt &lt; 3 else 1                           # 2회까지 같은 경로(비켜 주길 기다림), 3회째 재계획
+        self.route, self.i = ROUTES[k], 0
+        self.get_logger().info(&#x27;attempt %d (%s): route %d %s&#x27; % (self.attempt, why, k + 1, self.route))
+    def front_clear(self, vx, vy):                                # 진행 방향 ±25° 안에 STOP_D보다 가까운 것?
+        r = np.array(self.scan.ranges); a = self.scan.angle_min + np.arange(len(r)) * self.scan.angle_increment
+        diff = np.abs(np.arctan2(np.sin(a - math.atan2(vy, vx)), np.cos(a - math.atan2(vy, vx))))
+        return not np.any((diff &lt; math.radians(25)) &amp; (r &lt; STOP_D))
+    def loop(self):
+        if self.pos is None or self.scan is None: return
+        t = Twist()
+        gx, gy = self.route[self.i]
+        ex, ey = gx - self.pos[0], gy - self.pos[1]; d = math.hypot(ex, ey)
+        if d &lt; TOL:
+            self.i += 1
+            if self.i == len(self.route):
+                self.get_logger().info(&#x27;ARRIVED (%s) at %.1f s, attempts %d&#x27; % (
+                    &#x27;dock&#x27; if self.route == [DOCK] else &#x27;ROOM_A&#x27;, self.now(), self.attempt))
+                self.cmd.publish(t); rclpy.shutdown(); return
+        else:
+            s = min(V, 1.2 * d) / d
+            if self.front_clear(ex, ey):
+                t.linear.x, t.linear.y, self.blocked_since = ex * s, ey * s, None
+            elif self.blocked_since is None:
+                self.blocked_since = self.now()
+                self.get_logger().warn(&#x27;blocked at (%.2f, %.2f) - stop&#x27; % self.pos)
+            elif self.now() - self.blocked_since &gt; BLOCK_T:
+                self.new_attempt(&#x27;blocked %.0f s&#x27; % BLOCK_T)
+        self.cmd.publish(t)
+
+rclpy.init()
+node = RecoveringDelivery()
+try:
+    rclpy.spin(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    if rclpy.ok(): node.cmd.publish(Twist())
+    node.destroy_node()
+    if rclpy.ok(): rclpy.shutdown()</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[INFO] [0.000] [delivery_recovery]: attempt 1 (start): route 1 [(-1.0, 0.7)]   (대략)
+[WARN] [3.660] [delivery_recovery]: blocked at (-0.87, -0.70) - stop
+[INFO] [5.700] [delivery_recovery]: attempt 2 (blocked 2 s): route 1 [(-1.0, 0.7)]
+[WARN] [5.760] [delivery_recovery]: blocked at (-0.87, -0.68) - stop
+[INFO] [7.800] [delivery_recovery]: attempt 3 (blocked 2 s): route 2 [(-1.5, -0.55), (-1.5, 0.3), (-1.0, 0.7)]
+[INFO] [19.500] [delivery_recovery]: ARRIVED (ROOM_A) at 19.5 s, attempts 3</code></pre></div>
+<ul><li>3.7 s에 카트 앞 0.35 m에서 멈추고(충돌 0), 2 s 간격으로 시도 2, 3이 이어집니다. 시도 3에서 경로를 바꿔 19.5 s에 도착합니다.</li><li><code>MAX_TRY</code>를 2로 줄이면 재계획 전에 <code>ABORT after 2 tries -&gt; RETURN to dock</code>이 찍히고 11.7 s에 도크로 돌아옵니다. 반대로 <code>sim.add_box(-1.5, -0.1, 0.4, 0.2)</code>로 2순위 경로까지 막으면, 도크로 <strong>곧장</strong> 돌아가는 복귀 경로가 원기둥에 막혀 멈춥니다 — 복귀도 온 길을 되짚어야 한다는 뜻입니다(과제 1).</li><li>실물에서는 이 "막힘 감지"를 Nav2 컨트롤러와 <code>progress_checker</code>(10 s 동안 0.5 m 미만 이동이면 실패)가 대신하고, 우리는 <strong>결과(FAILED)를 받아</strong> 재시도·재계획만 결정합니다.</li></ul>
+<p class="cta-row"><a class="ghost-btn cta" href="../sim/index.html">2D 시뮬레이터 열기</a></p>
+<p>2D 시뮬레이터의 <strong>내비게이션</strong> 모드에서 room 월드의 같은 두 점(도크 → ROOM_A)을 클릭하고, 주행 중 경로 앞에 장애물을 두어 A* 전역 경로가 다시 계산되는 모습(Nav2의 재계획)과 위 실습 3의 임무 수준 재계획을 비교합니다.</p>
+<p class="cta-row"><a class="ghost-btn cta" href="../sim3d/index.html">3D 시뮬레이터 열기</a></p>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">안전 확인 (실물 실습 전 필수)</div><div class="callout-body"><ul><li>배송 경로 전체를 먼저 걸어 보며 계단·문턱·케이블·유리문을 확인합니다. 첫 배송은 한 사람이 로봇을 따라다닙니다.</li><li>적재물은 가볍고 낮은 것만 싣고 테이프로 고정합니다. <strong>액체·유리·날카로운 물건 금지.</strong> 무거운 물건은 라이다·카메라를 가리지 않게 합니다.</li><li>수령자는 로봇이 <strong>완전히 멈추고 파랑 LED가 켜진 뒤</strong> 물건을 꺼냅니다. 꺼내는 동안 손을 바퀴 근처에 두지 않습니다.</li><li>멈추는 방법: 스크립트 Ctrl+C(<code>cancelTask</code>), <code>ros2 topic pub --once /controller/cmd_vel geometry_msgs/msg/Twist &quot;{}&quot;</code>, 전원 스위치. 속도 상한(0.2 m/s, 0.5 rad/s)은 풀지 않습니다.</li><li>고장 주입 시험에서 로봇을 들어 옮길 때는 먼저 Ctrl+C로 노드를 멈춥니다.</li></ul></div></div>
+<h3 id="1-카메라와-qr-확인-m2">1) 카메라와 QR 확인 (M2)<a class="anchor" href="#1-카메라와-qr-확인-m2">#</a></h3>
+<p>A02와 같은 절차로 원본 예제를 실행해 지시서를 읽는 범위를 잽니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">~/.stop_ros.sh
+ros2 launch peripherals depth_camera.launch.py
+# 새 터미널
+python3 /home/ubuntu/ros2_ws/src/example/example/qrcode/qrcode_detecter.py</code></pre></div>
+<p>지시서 인쇄용 QR은 원본 <code>qrcode_creater.py</code>의 문자열을 <code>DELIVER:ROOM_A</code>처럼 바꿔 만들거나, Playground 실습 1의 <code>make_qr()</code> 결과를 <code>cv2.imwrite()</code>로 저장해 인쇄합니다.</p>
+<h3 id="2-내비게이션과-조회표-m1">2) 내비게이션과 조회표 (M1)<a class="anchor" href="#2-내비게이션과-조회표-m1">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash"># 로봇 (Ctrl+C로 앞의 launch 종료 후) — 카메라도 함께 켜짐(robot.launch.py)
+ros2 launch navigation navigation.launch.py map:=map_01
+
+# 가상머신
+ros2 launch navigation rviz_navigation.launch.py
+ros2 topic echo /clicked_point          # Publish Point로 도크·목적지 좌표 수집</code></pre></div>
+<p>로봇을 도크에 두고 <strong>2D Pose Estimate</strong>로 초기 위치를 지정합니다.</p>
+<h3 id="3-배송-노드">3) 배송 노드<a class="anchor" href="#3-배송-노드">#</a></h3>
+<div class="code-block code-robot"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-robot">실물 전용</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">#!/usr/bin/env python3
+# delivery_bot.py — navigation.launch.py 실행 + 도크에서 초기 위치 지정 후
+import math
+import cv2
+import rclpy
+from rclpy.time import Time
+from cv_bridge import CvBridge
+from sensor_msgs.msg import Image
+from std_msgs.msg import String
+from std_srvs.srv import Trigger
+from geometry_msgs.msg import PoseStamped
+from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
+from tf2_ros import Buffer, TransformListener, TransformException
+from tf_transformations import quaternion_from_euler
+from ros_robot_controller_msgs.msg import RGBState, RGBStates, BuzzerState, ButtonState
+
+DOCK = (0.0, 0.0, 0.0)                                         # map 좌표 (x, y, yaw) — /clicked_point로 측정
+DEST = {&#x27;ROOM_A&#x27;: [(2.0, 1.0, 1.57), (2.0, 0.6, 1.57)],       # 이름 → [주 접근점, 대체 접근점]
+        &#x27;ROOM_B&#x27;: [(3.5, -0.5, 0.0), (3.2, -0.8, 0.0)]}
+NAV_TIMEOUT, WAIT_T, MAX_TRY, ARRIVE_TOL = 90.0, 60.0, 3, 0.30
+GREEN, BLUE, YELLOW = (0, 255, 0), (0, 0, 255), (255, 255, 0)
+
+class DeliveryBot(BasicNavigator):
+    def __init__(self):
+        super().__init__(&#x27;delivery_bot&#x27;)
+        self.bridge, self.det = CvBridge(), cv2.QRCodeDetector()
+        self.qr, self.qr_t, self.frame_t = &#x27;&#x27;, -1e9, -1e9
+        self.create_subscription(Image, &#x27;/ascamera/camera_publisher/rgb0/image&#x27;, self.on_image, 1)
+        self.create_subscription(ButtonState, &#x27;/ros_robot_controller/button&#x27;, self.on_button, 10)
+        self.create_service(Trigger, &#x27;/delivery/request&#x27;, self.on_request)
+        self.create_service(Trigger, &#x27;/delivery/confirm&#x27;, self.on_confirm)
+        self.status = self.create_publisher(String, &#x27;/delivery/status&#x27;, 10)
+        self.rgb = self.create_publisher(RGBStates, &#x27;/ros_robot_controller/set_rgb&#x27;, 1)
+        self.buzzer = self.create_publisher(BuzzerState, &#x27;/ros_robot_controller/set_buzzer&#x27;, 1)
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
+        self.state, self.dest, self.target, self.attempt = &#x27;IDLE&#x27;, None, None, 0
+        self.t_state = self.t_nav = self.now()
+        self.confirmed = False
+    def now(self):
+        return self.get_clock().now().nanoseconds * 1e-9
+    def go(self, state, why=&#x27;&#x27;):                                 # 상태 전이 + 방송 + 표시
+        self.get_logger().info(&#x27;%s -&gt; %s %s&#x27; % (self.state, state, why))
+        self.state, self.t_state = state, self.now()
+        self.status.publish(String(data=state))
+        color, beep = {&#x27;IDLE&#x27;: (GREEN, None), &#x27;ARRIVED&#x27;: (BLUE, (1900, 0.1, 2)),
+                       &#x27;SAFE_STOP&#x27;: (YELLOW, (1000, 0.5, 3))}.get(state, (GREEN, None))
+        self.rgb.publish(RGBStates(states=[RGBState(index=i, red=color[0], green=color[1], blue=color[2]) for i in (1, 2)]))
+        if beep:
+            self.buzzer.publish(BuzzerState(freq=beep[0], on_time=beep[1], off_time=beep[1], repeat=beep[2]))
+    # ---- 콜백: 상태만 바꾸고 바로 돌아온다
+    def on_image(self, msg):
+        if self.state != &#x27;IDLE&#x27; or self.now() - self.frame_t &lt; 0.5:  # 도크에서만, 2 Hz
+            return
+        self.frame_t = self.now()
+        text = self.det.detectAndDecode(self.bridge.imgmsg_to_cv2(msg, &#x27;bgr8&#x27;))[0]
+        if text:
+            self.qr, self.qr_t = text, self.now()
+    def on_request(self, req, res):
+        fresh = self.now() - self.qr_t &lt; 2.0
+        name = self.qr.partition(&#x27;:&#x27;)[2] if fresh and self.qr.startswith(&#x27;DELIVER:&#x27;) else &#x27;&#x27;
+        res.success = self.state == &#x27;IDLE&#x27; and name in DEST
+        res.message = (&#x27;accepted &#x27; + name) if res.success else &#x27;rejected (state=%s, qr=%r)&#x27; % (self.state, self.qr if fresh else &#x27;&#x27;)
+        if res.success:
+            self.dest, self.attempt, self.state = name, 0, &#x27;START&#x27;  # goToPose는 주 루프에서
+        return res
+    def on_confirm(self, req, res):
+        res.success = self.state == &#x27;ARRIVED&#x27;
+        self.confirmed = self.confirmed or res.success
+        return res
+    def on_button(self, msg):
+        if self.state == &#x27;ARRIVED&#x27; and msg.id == 1 and msg.state in (1, 5):   # 누름 또는 클릭
+            self.confirmed = True
+    # ---- 주 루프에서 부르는 함수들
+    def drive(self, pose):
+        p = PoseStamped()
+        p.header.frame_id, p.header.stamp = &#x27;map&#x27;, self.get_clock().now().to_msg()
+        p.pose.position.x, p.pose.position.y = pose[0], pose[1]
+        q = quaternion_from_euler(0.0, 0.0, pose[2])
+        p.pose.orientation.x, p.pose.orientation.y, p.pose.orientation.z, p.pose.orientation.w = q
+        self.target, self.t_nav = pose, self.now()
+        self.goToPose(p)
+    def error_to_target(self):
+        try:
+            t = self.tf_buffer.lookup_transform(&#x27;map&#x27;, &#x27;base_footprint&#x27;, Time()).transform.translation
+        except TransformException:
+            return float(&#x27;inf&#x27;)
+        return math.hypot(self.target[0] - t.x, self.target[1] - t.y)
+    def recover(self, why):
+        self.attempt += 1
+        if self.attempt &gt; MAX_TRY:
+            if self.state == &#x27;RETURN&#x27;:
+                self.go(&#x27;SAFE_STOP&#x27;, &#x27;cannot reach dock&#x27;)
+                return
+            self.attempt = 1
+            self.go(&#x27;RETURN&#x27;, &#x27;aborted: &#x27; + why)
+            self.drive(DOCK)
+            return
+        self.get_logger().warn(&#x27;%s failed (%s) -&gt; try %d&#x27; % (self.state, why, self.attempt))
+        self.clearAllCostmaps()                                  # 지나간 사람의 흔적 지우기
+        if self.state == &#x27;RETURN&#x27;:
+            self.drive(DOCK)
+        else:
+            self.drive(DEST[self.dest][0 if self.attempt &lt; 3 else 1])   # 3회째: 대체 접근점으로 재계획
+    def step(self):
+        if self.state == &#x27;START&#x27;:
+            self.attempt = 1
+            self.go(&#x27;DELIVER&#x27;, self.dest)
+            self.drive(DEST[self.dest][0])
+        elif self.state in (&#x27;DELIVER&#x27;, &#x27;RETURN&#x27;):
+            if not self.isTaskComplete():
+                if self.now() - self.t_nav &gt; NAV_TIMEOUT:
+                    self.cancelTask()                            # 다음 루프에서 CANCELED로 처리
+                return
+            err = self.error_to_target()
+            if self.getResult() != TaskResult.SUCCEEDED or err &gt; ARRIVE_TOL:
+                self.recover(&#x27;result=%s err=%.2f m&#x27; % (self.getResult(), err))
+            elif self.state == &#x27;DELIVER&#x27;:
+                self.confirmed = False
+                self.go(&#x27;ARRIVED&#x27;, &#x27;%s err %.2f m&#x27; % (self.dest, err))
+            else:
+                self.go(&#x27;IDLE&#x27;, &#x27;docked&#x27;)
+        elif self.state == &#x27;ARRIVED&#x27; and (self.confirmed or self.now() - self.t_state &gt; WAIT_T):
+            self.attempt = 1
+            self.go(&#x27;RETURN&#x27;, &#x27;delivered&#x27; if self.confirmed else &#x27;no receiver&#x27;)
+            self.drive(DOCK)
+
+def main():
+    rclpy.init()
+    bot = DeliveryBot()
+    bot.waitUntilNav2Active()
+    bot.go(&#x27;IDLE&#x27;, &#x27;ready&#x27;)
+    try:
+        while rclpy.ok() and bot.state != &#x27;SAFE_STOP&#x27;:
+            rclpy.spin_once(bot, timeout_sec=0.05)
+            bot.step()
+    except KeyboardInterrupt:
+        pass
+    finally:
+        bot.cancelTask()
+        bot.go(&#x27;SAFE_STOP&#x27;, &#x27;shutdown&#x27;)
+        bot.destroy_node()
+        rclpy.shutdown()
+
+if __name__ == &#x27;__main__&#x27;:
+    main()</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">python3 ~/delivery_bot.py
+# 새 터미널: 스테이션 카메라에 DELIVER:ROOM_A 지시서를 보여 준 채로
+ros2 service call /delivery/request std_srvs/srv/Trigger {}
+ros2 topic echo /delivery/status
+# 도착 후 (보드 버튼 대신)
+ros2 service call /delivery/confirm std_srvs/srv/Trigger {}</code></pre></div>
+<ul><li>콜백(<code>on_image</code>, <code>on_request</code>, <code>on_confirm</code>, <code>on_button</code>)은 변수만 바꿉니다. <code>goToPose</code>·<code>cancelTask</code>·<code>clearAllCostmaps</code>처럼 안에서 spin하는 함수는 모두 <code>step()</code>에서 부릅니다.</li><li>도착 판정은 <code>SUCCEEDED</code>만 믿지 않고 TF로 실제 위치를 한 번 더 봅니다. AMCL이 튄 경우(로봇을 들어 옮김 등) 여기서 걸러져 재시도로 갑니다.</li><li><code>ButtonState</code>의 <code>state</code>는 원본 <code>ros_robot_controller_node.py</code> 정의를 따릅니다(1 누름, 5 클릭, 0 짧게 누른 뒤 뗌).</li></ul>
+<h3 id="4-고장-주입-시험-m4">4) 고장 주입 시험 (M4)<a class="anchor" href="#4-고장-주입-시험-m4">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>시험</th><th>방법</th><th>기대 결과</th></tr></thead><tbody><tr><td>T1 잠깐 막힘</td><td>주행 중 사람이 5 s 경로에 섬</td><td>컨트롤러 회피 또는 2회째 재시도로 성공</td></tr><tr><td>T2 문 앞 막힘</td><td>주 접근점에 상자</td><td>3회째 대체 접근점 도착, 로그에 <code>try 3</code></td></tr><tr><td>T3 완전 차단</td><td>목적지로 가는 통로 전체를 막음</td><td><code>aborted</code> 후 도크 복귀, IDLE</td></tr><tr><td>T4 미수령</td><td>도착 후 아무도 확인 안 함</td><td>60 s 뒤 <code>no receiver</code>로 복귀</td></tr><tr><td>T5 잘못된 지시서</td><td><code>MentorPi</code> QR, 모르는 방 이름</td><td><code>rejected</code>, 로봇 움직이지 않음</td></tr></tbody></table></div>
+<p>끝나면 모든 터미널 Ctrl+C 후 호스트에서 <code>sudo systemctl restart start_node.service</code>로 앱 서비스를 되돌립니다.</p>
+<h2 id="평가-기준">평가 기준<a class="anchor" href="#평가-기준">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>영역</th><th>항목</th><th>배점</th><th>만점 기준</th></tr></thead><tbody><tr><td>설계</td><td>요구사항·안전 한계 표</td><td>10</td><td>모든 항목이 측정 가능한 값</td></tr><tr><td>설계</td><td>인터페이스 선택 근거·상태 기계 그림</td><td>10</td><td>토픽/서비스/액션 선택 이유, 전이 조건이 코드와 일치</td></tr><tr><td>구현</td><td>QR 접수 (M2)</td><td>15</td><td>형식 검증, 거절 3종, 인식 범위 측정</td></tr><tr><td>구현</td><td>배송·도착 확인·복귀 (M3)</td><td>20</td><td>이중 도착 확인, 버튼·서비스·시간 초과</td></tr><tr><td>구현</td><td>실패 복구 (M4)</td><td>20</td><td>T1~T3 모두 설계대로, 무한 재시도 없음</td></tr><tr><td>시험</td><td>연속 10건 결과표 (M5)</td><td>15</td><td>건별 시간·시도·결과, 실패 원인 분석</td></tr><tr><td>안전</td><td>적재·정지 절차</td><td>10</td><td>적재물 고정, 정지 수단 시연, 속도 한계 유지</td></tr><tr><td><strong>합계</strong></td><td></td><td><strong>100</strong></td><td></td></tr></tbody></table></div>
+<p>감점: 서비스 콜백 안에서 <code>goToPose</code> 호출(멈춤 위험) −5, 좌표를 QR에 직접 넣는 설계 −5, 속도 상한 완화 −10.</p>
+<h2 id="확장-과제">확장 과제<a class="anchor" href="#확장-과제">#</a></h2>
+<ul><li><strong>액션 서버</strong>: <code>delivery_interfaces</code> 패키지(<code>ament_cmake</code>, <code>rosidl_generate_interfaces</code>)에 <code>Deliver.action</code>을 정의하고 피드백(<code>state</code>, <code>distance_remaining</code>)과 취소를 지원합니다. 취소되면 즉시 RETURN으로 갑니다.</li><li><strong>배송 대기열</strong>: 요청을 거절하는 대신 큐에 넣고, 복귀하면 다음 건을 처리합니다. 지시서마다 <code>DELIVER:ROOM_A#17</code>처럼 건 번호를 붙여 중복 접수를 막습니다.</li><li><strong>수령자 인증</strong>: 도착지에서 수령자가 보여 준 두 번째 QR(<code>RECEIVE:17</code>)을 카메라로 읽어야만 수령 확인으로 인정합니다.</li><li><strong>경로 경유점</strong>: 좁은 복도는 <code>goThroughPoses</code>로 안전한 경유점을 지나게 합니다(M13).</li><li><strong>배터리 인식</strong>: <code>/ros_robot_controller/battery</code>가 기준 아래면 새 요청을 거절하고 도크에 머뭅니다.</li></ul>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td>요청하면 서비스 호출이 끝나지 않음</td><td>서비스 콜백 안에서 <code>goToPose()</code> 호출 → 실행기 중첩</td><td>콜백은 상태만 바꾸고 주 루프에서 주행 시작</td></tr><tr><td>항상 <code>rejected (qr=&#x27;&#x27;)</code></td><td>카메라 토픽 없음, 2 s 넘은 오래된 QR, 너무 멀거나 반사</td><td><code>ros2 topic hz /ascamera/camera_publisher/rgb0/image</code>, 30~60 cm, 무광 인쇄</td></tr><tr><td>QR은 보이는데 <code>detectAndDecode</code>가 빈 문자열</td><td>여백 부족, 모듈이 너무 작음</td><td>여백 4모듈, 한 모듈이 영상에서 3~4픽셀 이상 (A02)</td></tr><tr><td><code>SUCCEEDED</code>인데 ARRIVED가 안 됨</td><td>TF 오차 &gt; 0.3 m (AMCL 튐) 또는 <code>base_footprint</code> TF 없음</td><td>RViz에서 스캔·지도 정렬 확인, <code>ros2 run tf2_ros tf2_echo map base_footprint</code></td></tr><tr><td>같은 문 앞에서 계속 실패</td><td>주·대체 접근점이 모두 팽창 영역 안</td><td>접근점을 벽에서 0.4 m 이상, 코스트맵 확인(M12)</td></tr><tr><td>버튼을 눌러도 확인이 안 됨</td><td>다른 버튼 id, 앱 서비스의 버튼 점유</td><td><code>ros2 topic echo /ros_robot_controller/button</code>으로 id·state 확인</td></tr><tr><td>복귀 후 다음 요청이 거절됨</td><td>상태가 IDLE로 안 돌아옴(도크 도착 판정 실패)</td><td>도크 좌표·방향 재측정, 로그의 err 값 확인</td></tr><tr><td><code>waitUntilNav2Active</code>에서 멈춤</td><td>초기 위치 미지정</td><td>도크에서 2D Pose Estimate 후 실행</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">기본 과제</div><div class="callout-body"><ol><li>Playground 실습 3에서 <code>STOP_D</code>(0.25/0.35/0.5 m)와 <code>BLOCK_T</code>(1/2/4 s)를 바꿔 도착 시간과 충돌 여부를 표로 정리합니다. 이어서 지나온 지점을 기록해 두었다가 ABORT 때 <strong>역순으로 되짚어</strong> 도크로 가도록 고치고, 2순위 경로까지 막힌 경우에도 복귀하는 것을 보입니다.</li><li>실물에서 T1~T5를 수행하고 결과표를 제출합니다.</li></ol></div></div>
+<div class="callout callout-task"><div class="callout-title">심화 과제</div><div class="callout-body"><ol><li>확장 과제의 <strong>액션 서버</strong>를 구현하고, <code>ros2 action send_goal /deliver delivery_interfaces/action/Deliver &quot;{destination: ROOM_A}&quot; --feedback</code>으로 진행 피드백을 받는 것을 시연합니다.</li><li>두 목적지를 한 번에 도는 <strong>다중 배송</strong>(<code>DELIVER:ROOM_A,ROOM_B</code>)을 설계합니다. 한 곳이 실패해도 다른 곳은 배송하고, 결과 보고에 건별 성공·실패를 남깁니다.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>14. ROS+OpenCV Lesson</em> — Lesson 3 Generate &amp; Recognize QR Code, <em>13. Navigation Lesson</em> — Lesson 2 AMCL Adaptive Monte Carlo Positioning, Lesson 4 Point-to-Point and Multi-Point Navigation and Obstacle Avoidance, <em>6. Raspberry Pi 5 &amp; Expansion Board</em> — Lesson 3 Button Control, Lesson 4 Buzzer Control</li><li>원본 소스: <code>src/example/example/qrcode/qrcode_detecter.py</code>, <code>qrcode_creater.py</code>, <code>src/navigation/launch/navigation.launch.py</code>, <code>src/slam/launch/include/robot.launch.py</code>(깊이 카메라 포함), <code>src/navigation/config/nav2_controller_dwb.yaml</code>(<code>progress_checker</code>, <code>general_goal_checker</code>), <code>src/driver/ros_robot_controller/ros_robot_controller/ros_robot_controller_node.py</code>(<code>ButtonState</code> 상태 값)</li><li>Nav2 Simple Commander API (<code>goToPose</code>, <code>cancelTask</code>, <code>clearAllCostmaps</code>): https://docs.nav2.org/commander_api/index.html</li><li>ROS 2 인터페이스 만들기 (srv·action): https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Custom-ROS2-Interfaces.html</li><li>ROS 2 액션 서버 작성 (Python): https://docs.ros.org/en/humble/Tutorials/Intermediate/Writing-an-Action-Server-Client/Py.html</li><li>OpenCV <code>QRCodeDetector</code>: https://docs.opencv.org/4.x/de/dc3/classcv_1_1QRCodeDetector.html</li></ul>
+      <nav class="pager"><a class="pager-prev" href="p01.html"><span>이전 · P01</span>자율 순찰 경비 로봇</a><a class="pager-next" href="p03.html"><span>다음 · P03</span>미니 시티 자율주행 챌린지</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#프로젝트-개요와-요구사항">프로젝트 개요와 요구사항</a><a class="toc-l3" href="#팀-구성-4명-기준">팀 구성 (4명 기준)</a><a class="toc-l3" href="#기능-요구사항">기능 요구사항</a><a class="toc-l3" href="#비기능-요구사항">비기능 요구사항</a><a class="toc-l3" href="#안전-한계">안전 한계</a><a class="toc-l2" href="#시스템-설계">시스템 설계</a><a class="toc-l3" href="#인터페이스와-노드-그래프">인터페이스와 노드 그래프</a><a class="toc-l3" href="#qr-지시서-형식과-목적지-조회표">QR 지시서 형식과 목적지 조회표</a><a class="toc-l3" href="#배송-상태-기계">배송 상태 기계</a><a class="toc-l2" href="#단계별-구현">단계별 구현</a><a class="toc-l3" href="#m1-지도와-목적지-조회표">M1. 지도와 목적지 조회표</a><a class="toc-l3" href="#m2-qr-접수">M2. QR 접수</a><a class="toc-l3" href="#m3-배송과-복귀">M3. 배송과 복귀</a><a class="toc-l3" href="#m4-실패-복구">M4. 실패 복구</a><a class="toc-l3" href="#m5-통합-시험과-인터페이스-확장">M5. 통합 시험과 인터페이스 확장</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l3" href="#실습-1-qr-지시서-읽기와-검증">실습 1. QR 지시서 읽기와 검증</a><a class="toc-l3" href="#실습-2-배송-요청-서비스와-상태-기계">실습 2. 배송 요청 서비스와 상태 기계</a><a class="toc-l3" href="#실습-3-막힘-감지-재시도-재계획">실습 3. 막힘 감지 · 재시도 · 재계획</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l3" href="#1-카메라와-qr-확인-m2">1) 카메라와 QR 확인 (M2)</a><a class="toc-l3" href="#2-내비게이션과-조회표-m1">2) 내비게이션과 조회표 (M1)</a><a class="toc-l3" href="#3-배송-노드">3) 배송 노드</a><a class="toc-l3" href="#4-고장-주입-시험-m4">4) 고장 주입 시험 (M4)</a><a class="toc-l2" href="#평가-기준">평가 기준</a><a class="toc-l2" href="#확장-과제">확장 과제</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js?v=afc36b61"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=afc36b61"></script>
+</body>
+</html>

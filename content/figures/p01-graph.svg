@@ -1,0 +1,76 @@
+<svg viewBox="0 0 720 380" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="순찰 경비 로봇의 ROS 2 그래프: 라이다·맵 서버·AMCL이 intruder_detector에 스캔·지도·TF를 주고, intruder_detector가 /patrol/intruder를 patrol_guard에 보내며, patrol_guard는 Nav2 액션으로 순찰하고 cmd_vel·RGB·부저·이벤트를 발행">
+  <defs>
+    <marker id="arr-p01-graph" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-p01-graph-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <text class="tag" x="95" y="20" text-anchor="middle">원본 launch가 띄우는 노드</text>
+  <text class="tag" x="355" y="20" text-anchor="middle">이 프로젝트에서 만드는 노드</text>
+  <text class="tag" x="620" y="20" text-anchor="middle">출력</text>
+
+  <!-- left column -->
+  <rect class="box" x="20" y="36" width="150" height="44" rx="6"/>
+  <text class="lbl" x="95" y="55" text-anchor="middle">라이다 드라이버</text>
+  <text class="sub mono" x="95" y="71" text-anchor="middle">lidar.launch.py</text>
+  <rect class="box" x="20" y="100" width="150" height="44" rx="6"/>
+  <text class="lbl mono" x="95" y="119" text-anchor="middle">map_server</text>
+  <text class="sub mono" x="95" y="135" text-anchor="middle">map_01.yaml</text>
+  <rect class="box" x="20" y="164" width="150" height="44" rx="6"/>
+  <text class="lbl mono" x="95" y="183" text-anchor="middle">amcl</text>
+  <text class="sub" x="95" y="199" text-anchor="middle">TF map → odom</text>
+  <rect class="box" x="20" y="240" width="150" height="60" rx="6"/>
+  <text class="lbl" x="95" y="262" text-anchor="middle">Nav2</text>
+  <text class="sub mono" x="95" y="279" text-anchor="middle">bt_navigator</text>
+  <text class="sub mono" x="95" y="293" text-anchor="middle">planner · controller</text>
+
+  <!-- middle column -->
+  <rect class="box-hi" x="270" y="70" width="170" height="54" rx="6"/>
+  <text class="lbl mono" x="355" y="93" text-anchor="middle">intruder_detector</text>
+  <text class="sub" x="355" y="111" text-anchor="middle">지도 대조 → 덩어리 검출</text>
+  <rect class="box-hi" x="270" y="214" width="170" height="64" rx="6"/>
+  <text class="lbl mono" x="355" y="238" text-anchor="middle">patrol_guard</text>
+  <text class="sub" x="355" y="256" text-anchor="middle">상태 기계</text>
+  <text class="sub" x="355" y="270" text-anchor="middle">PATROL · ALERT · RESUME</text>
+
+  <!-- right column -->
+  <rect class="box" x="540" y="36" width="160" height="44" rx="6"/>
+  <text class="lbl" x="620" y="55" text-anchor="middle">이벤트 기록</text>
+  <text class="sub mono" x="620" y="71" text-anchor="middle">/patrol/event · CSV</text>
+  <rect class="box" x="540" y="150" width="160" height="54" rx="6"/>
+  <text class="lbl mono" x="620" y="171" text-anchor="middle" style="font-size:11.5px">ros_robot_controller</text>
+  <text class="sub" x="620" y="189" text-anchor="middle">RGB LED · 부저 · 버튼</text>
+  <rect class="box" x="540" y="250" width="160" height="50" rx="6"/>
+  <text class="lbl mono" x="620" y="271" text-anchor="middle">controller</text>
+  <text class="sub" x="620" y="288" text-anchor="middle">모터 · 오도메트리</text>
+
+  <!-- inputs to detector -->
+  <path class="ln" d="M170 58 L268 86" stroke-width="1.4" marker-end="url(#arr-p01-graph)"/>
+  <text class="tag mono" x="206" y="60">/scan_raw</text>
+  <path class="ln" d="M170 122 L268 100" stroke-width="1.4" marker-end="url(#arr-p01-graph)"/>
+  <text class="tag mono" x="190" y="124">/map</text>
+  <path class="ln" d="M170 186 L275 124" stroke-width="1.4" marker-end="url(#arr-p01-graph)" stroke-dasharray="4 3"/>
+  <text class="tag" x="180" y="168">TF</text>
+
+  <!-- detector to guard -->
+  <path class="ln-hi" d="M355 124 L355 212" stroke-width="2" marker-end="url(#arr-p01-graph-hi)"/>
+  <text class="tag mono" x="348" y="164" text-anchor="end">/patrol/intruder</text>
+  <text class="tag" x="348" y="179" text-anchor="end">PointStamped (map)</text>
+
+  <!-- guard to nav2 (action) -->
+  <path class="ln-hi" d="M268 262 L172 262" stroke-width="2" marker-end="url(#arr-p01-graph-hi)"/>
+  <path class="ln" d="M172 282 L268 282" stroke-width="1.2" marker-end="url(#arr-p01-graph)" stroke-dasharray="4 3"/>
+  <text class="tag mono" x="220" y="256" text-anchor="middle">navigate_to_pose</text>
+  <text class="tag" x="220" y="298" text-anchor="middle">피드백 · 결과</text>
+
+  <!-- nav2 to controller -->
+  <path class="ln" d="M95 300 L95 350 L620 350 L620 302" stroke-width="1.4" marker-end="url(#arr-p01-graph)"/>
+  <text class="tag mono" x="330" y="344" text-anchor="middle">/controller/cmd_vel (순찰 주행)</text>
+
+  <!-- guard outputs -->
+  <path class="ln-hi" d="M440 262 L538 272" stroke-width="2" marker-end="url(#arr-p01-graph-hi)"/>
+  <text class="tag" x="452" y="292">추적 회전 ωz</text>
+  <path class="ln-hi" d="M440 230 L538 184" stroke-width="2" marker-end="url(#arr-p01-graph-hi)"/>
+  <text class="tag mono" x="480" y="232">set_rgb</text>
+  <text class="tag mono" x="480" y="245">set_buzzer</text>
+  <path class="ln" d="M430 214 L560 82" stroke-width="1.4" marker-end="url(#arr-p01-graph)"/>
+  <text class="tag" x="498" y="120">경보·해제 기록</text>
+</svg>

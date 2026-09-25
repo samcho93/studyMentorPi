@@ -1,0 +1,49 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="지도 대조 침입 감지: 스캔 끝점을 지도 좌표로 옮겨 거리장에서 가장 가까운 벽까지 거리를 읽고, 0.15미터보다 먼 끝점이 이웃 빔 4개 이상 모이면 침입자로 판정">
+  <defs>
+    <marker id="arr-p01-change" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <!-- room walls -->
+  <rect x="40" y="40" width="340" height="220" style="fill:none;stroke:var(--text)" stroke-width="3"/>
+  <rect x="250" y="40" width="70" height="46" style="fill:var(--text-faint)"/>
+  <!-- tolerance band -->
+  <rect x="52" y="52" width="316" height="196" style="fill:none;stroke:var(--ok)" stroke-width="1.2" stroke-dasharray="4 4"/>
+  <path d="M238 52 L238 98 L332 98 L332 52" style="fill:none;stroke:var(--ok)" stroke-width="1.2" stroke-dasharray="4 4"/>
+  <text class="tag" x="60" y="68" style="fill:var(--ok)">허용 띠 0.15 m</text>
+  <!-- robot -->
+  <circle cx="110" cy="200" r="14" class="hi"/>
+  <path d="M110 200 L130 200" style="stroke:var(--bg)" stroke-width="3"/>
+  <text class="tag" x="110" y="232" text-anchor="middle">로봇 (AMCL 자세)</text>
+  <!-- rays -->
+  <g class="ln" stroke-width="0.8">
+    <path d="M110 200 L380 150"/><path d="M110 200 L300 86"/><path d="M110 200 L160 40"/><path d="M110 200 L40 120"/><path d="M110 200 L236 184"/>
+  </g>
+  <!-- known points (on walls) -->
+  <g style="fill:var(--text-faint)">
+    <circle cx="380" cy="150" r="4"/><circle cx="380" cy="166" r="4"/><circle cx="380" cy="134" r="4"/>
+    <circle cx="300" cy="86" r="4"/><circle cx="280" cy="86" r="4"/><circle cx="160" cy="40" r="4"/><circle cx="180" cy="40" r="4"/>
+    <circle cx="40" cy="120" r="4"/><circle cx="40" cy="140" r="4"/><circle cx="40" cy="160" r="4"/>
+  </g>
+  <!-- intruder -->
+  <circle cx="252" cy="186" r="16" style="fill:none;stroke:var(--danger)" stroke-width="1.5" stroke-dasharray="3 3"/>
+  <g class="dg">
+    <circle cx="237" cy="178" r="4.5"/><circle cx="236" cy="186" r="4.5"/><circle cx="237" cy="194" r="4.5"/><circle cx="241" cy="200" r="4.5"/><circle cx="241" cy="172" r="4.5"/>
+  </g>
+  <text class="tag" x="252" y="222" text-anchor="middle" style="fill:var(--danger)">침입자: 벽에서 먼 끝점 5개</text>
+  <text class="tag" x="210" y="280" text-anchor="middle">회색 = 지도의 벽과 일치 · 빨강 = 지도에 없음</text>
+
+  <!-- pipeline -->
+  <rect class="box" x="440" y="36" width="260" height="50" rx="6"/>
+  <text class="lbl" x="452" y="56">① 지도 → 거리장</text>
+  <text class="sub mono" x="452" y="74">D = distanceTransform(free) · res</text>
+  <rect class="box" x="440" y="110" width="260" height="50" rx="6"/>
+  <text class="lbl" x="452" y="130">② 끝점을 map 좌표로</text>
+  <text class="sub mono" x="452" y="148">x + r·cos(θ+φ), y + r·sin(θ+φ)</text>
+  <rect class="box" x="440" y="184" width="260" height="50" rx="6"/>
+  <text class="lbl" x="452" y="204">③ 변화 판정 · 묶기</text>
+  <text class="sub mono" x="452" y="222">D[p] &gt; 0.15 m, 이웃 빔 ≥ 4개</text>
+  <rect class="box-hi" x="440" y="252" width="260" height="36" rx="6"/>
+  <text class="lbl" x="570" y="275" text-anchor="middle">덩어리 중심 → /patrol/intruder</text>
+  <path class="ln-hi" d="M570 86 L570 108" stroke-width="1.6" marker-end="url(#arr-p01-change)"/>
+  <path class="ln-hi" d="M570 160 L570 182" stroke-width="1.6" marker-end="url(#arr-p01-change)"/>
+  <path class="ln-hi" d="M570 234 L570 250" stroke-width="1.6" marker-end="url(#arr-p01-change)"/>
+</svg>
