@@ -15,7 +15,7 @@ from .core import RT, CHASSIS, SimTimeUp  # noqa: F401
 from .world import load_worlds
 
 __all__ = ["setup", "add_box", "add_cylinder", "add_wall", "add_mover", "plot", "pose",
-           "world_names", "SimTimeUp", "CHASSIS", "add_walker", "movers"]
+           "world_names", "SimTimeUp", "CHASSIS", "add_walker", "movers", "add_object", "objects"]
 
 _real_sleep = _time.sleep
 _real_time = _time.time
@@ -58,6 +58,18 @@ def add_mover(x, y, vx=0.0, vy=0.0, r=0.1):
 def add_walker(points, speed=0.15, r=0.12, loop=True):
     """A person-like mover walking along `points` [(x, y), ...] at `speed` m/s (simulation only)."""
     RT.world.add_walker(points, speed, r, loop)
+
+
+def add_object(label, x, y, r=0.08):
+    """A labelled cylinder (e.g. "red_ball", "chair") — lidar sees it as an obstacle (simulation only)."""
+    RT.world.add_cylinder(x, y, r)
+    RT.world.objects.append((str(label), float(x), float(y), float(r)))
+
+
+def objects():
+    """Ground-truth labelled objects [(label, x, y, r), ...] — stands in for a YOLO + depth
+    detector output in simulation only."""
+    return list(RT.world.objects)
 
 
 def movers():

@@ -29,6 +29,7 @@ class World:
         self.cylinders = [list(c) for c in spec["cylinders"]]
         self.walls = [list(w) for w in spec["walls"]]
         self.movers = []            # [x, y, vx, vy, r]
+        self.objects = []           # (label, x, y, r) — see mentorpi_sim.add_object
         self._rebuild()
 
     # ---------------------------------------------------------------- edit
@@ -139,7 +140,8 @@ class World:
 
     def to_dict(self):
         return {"name": self.name, "title": self.title, "bounds": self.bounds,
-                "walls": self.walls, "boxes": self.boxes, "cylinders": self.cylinders}
+                "walls": self.walls, "boxes": self.boxes, "cylinders": self.cylinders,
+                "objects": [list(o) for o in self.objects]}
 
 
 def wrap(a):

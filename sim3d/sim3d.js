@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { STLLoader } from 'three/addons/loaders/STLLoader.js';
 import URDFLoader from 'urdf-loader';
+import { objColor } from '../assets/js/world2d.js';
 import { World, Robot, makeRng, scan, rayAngle, N_RAYS, APP_LIMIT, PHYS_LIMIT, wrap } from '../sim/physics.js';
 import { LidarApp, LineFollower } from '../sim/behaviors.js';
 import { Grid } from '../sim/grid.js';
@@ -181,7 +182,17 @@ function buildWorldMeshes() {
     const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, 0.25), boxMat);
     m.position.set(cx, cy, 0.125); m.castShadow = m.receiveShadow = true; worldGroup.add(m);
   }
-  for (const [cx, cy, r] of world.cylinders) addCylinder(cx, cy, r, cylMat);
+  const objs = (world.objects || []);
+  for (const [cx, cy, r] of world.cylinders) {
+    const o = objs.find((q) => Math.abs(q[1] - cx) < 1e-6 && Math.abs(q[2] - cy) < 1e-6);
+    if (!o) { addCylinder(cx, cy, r, cylMat); continue; }
+    const col = new THREE.Color(objColor(o[0]));
+    const m = /ball|공/.test(o[0])
+      ? new THREE.Mesh(new THREE.SphereGeometry(r, 24, 16), new THREE.MeshStandardMaterial({ color: col }))
+      : new THREE.Mesh(new THREE.CylinderGeometry(r, r, 0.3, 24), new THREE.MeshStandardMaterial({ color: col }));
+    if (m.geometry.type === 'CylinderGeometry') { m.rotation.x = Math.PI / 2; m.position.set(cx, cy, 0.15); } else m.position.set(cx, cy, r);
+    m.castShadow = true; worldGroup.add(m);
+  }
 }
 function addCylinder(cx, cy, r, mat) {
   const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 0.3, 32), mat || new THREE.MeshStandardMaterial({ color: 0x64748b }));
@@ -476,6 +487,7 @@ async function loadReplay(res) {
   const spec = { title: res.world.title, bounds: res.world.bounds, walls: res.world.walls || [], boxes: res.world.boxes || [],
     cylinders: res.world.cylinders || [], start: res.start };
   world = new World(spec, res.world.name || 'replay');
+  world.objects = res.world.objects || [];
   const wspec = WORLDS && WORLDS[res.world.name];
   if (wspec && wspec.track) { world.track = { width: wspec.track.width, points: trackPoints(wspec.track), closed: true }; }
   rng = makeRng(7);

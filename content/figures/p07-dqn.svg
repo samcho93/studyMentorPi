@@ -1,0 +1,34 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DQN 학습 구조: 환경과 상호작용한 전이를 재현 버퍼에 쌓고, 미니배치로 온라인 네트워크를 학습하며 타깃 네트워크는 C 스텝마다 복사">
+  <defs>
+    <marker id="arr-p07-dqn" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <rect class="box" x="20" y="40" width="160" height="70" rx="6"/>
+  <text class="lbl" x="100" y="68" text-anchor="middle">환경 × 16 (병렬)</text>
+  <text class="tag" x="100" y="88" text-anchor="middle">광선 투사 · 충돌 판정</text>
+  <rect class="box-hi" x="280" y="40" width="170" height="70" rx="6"/>
+  <text class="lbl" x="365" y="64" text-anchor="middle">온라인 Q 네트워크 θ</text>
+  <text class="tag mono" x="365" y="84" text-anchor="middle">12 → 32 ReLU → 3</text>
+  <text class="tag" x="365" y="100" text-anchor="middle">ε-탐욕으로 행동 선택</text>
+  <path class="ln" d="M280 62 L182 62" marker-end="url(#arr-p07-dqn)"/>
+  <text class="tag" x="231" y="55" text-anchor="middle">행동 a</text>
+  <rect class="box" x="20" y="190" width="160" height="70" rx="6"/>
+  <text class="lbl" x="100" y="218" text-anchor="middle">재현 버퍼 D</text>
+  <text class="tag mono" x="100" y="238" text-anchor="middle">(s, a, r, s′, done) × 2만</text>
+  <path class="ln" d="M100 110 L100 188" marker-end="url(#arr-p07-dqn)"/>
+  <text class="tag" x="108" y="154">전이 저장</text>
+  <rect class="box" x="280" y="190" width="170" height="70" rx="6"/>
+  <text class="lbl" x="365" y="214" text-anchor="middle">손실 계산</text>
+  <text class="tag mono" x="365" y="234" text-anchor="middle">y = r + γ·max Q_θ⁻(s′)</text>
+  <text class="tag" x="365" y="250" text-anchor="middle">Huber(Q_θ(s,a) − y)</text>
+  <path class="ln" d="M180 225 L278 225" marker-end="url(#arr-p07-dqn)"/>
+  <text class="tag" x="229" y="218" text-anchor="middle">무작위 64개</text>
+  <path class="ln-hi" d="M365 190 L365 112" marker-end="url(#arr-p07-dqn)"/>
+  <text class="tag" x="373" y="154">Adam 경사 하강</text>
+  <rect class="box" x="540" y="190" width="160" height="70" rx="6"/>
+  <text class="lbl" x="620" y="218" text-anchor="middle">타깃 네트워크 θ⁻</text>
+  <text class="tag" x="620" y="238" text-anchor="middle">C = 100 스텝마다 고정</text>
+  <path class="ln" d="M540 225 L452 225" marker-end="url(#arr-p07-dqn)"/>
+  <path class="ln" d="M450 75 L620 75 L620 188" stroke-dasharray="5 4" marker-end="url(#arr-p07-dqn)"/>
+  <text class="tag" x="535" y="67" text-anchor="middle">θ⁻ ← θ 복사</text>
+  <text class="sub" x="20" y="290">재현 버퍼는 샘플 상관을 끊고, 타깃 네트워크는 목표값을 잠시 고정해 발산을 막습니다.</text>
+</svg>

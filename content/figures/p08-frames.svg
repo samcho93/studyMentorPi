@@ -1,0 +1,44 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="검출 픽셀에서 map 좌표까지: 바운딩 박스 중심과 깊이로 광학 좌표를 역투영하고, TF로 base_footprint와 map으로 옮긴 뒤 같은 이름표의 랜드마크와 게이팅해 누적 평균">
+  <defs>
+    <marker id="arr-p08-frames" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <rect class="box" x="10" y="20" width="160" height="100" rx="6"/>
+  <text class="lbl" x="90" y="42" text-anchor="middle">① 픽셀 + 깊이</text>
+  <rect class="box-hi" x="60" y="52" width="60" height="42" rx="2"/>
+  <circle class="hi" cx="90" cy="73" r="3"/>
+  <text class="tag mono" x="90" y="112" text-anchor="middle">(u, v), Z = 중앙값</text>
+  <rect class="box" x="200" y="20" width="160" height="100" rx="6"/>
+  <text class="lbl" x="280" y="42" text-anchor="middle">② 광학 좌표</text>
+  <text class="tag mono" x="280" y="64" text-anchor="middle">X = (u − cx)·Z / fx</text>
+  <text class="tag mono" x="280" y="82" text-anchor="middle">Y = (v − cy)·Z / fy</text>
+  <text class="tag" x="280" y="104" text-anchor="middle">x 오른쪽 · y 아래 · z 앞</text>
+  <rect class="box" x="390" y="20" width="150" height="100" rx="6"/>
+  <text class="lbl" x="465" y="42" text-anchor="middle">③ TF 변환</text>
+  <text class="tag mono" x="465" y="64" text-anchor="middle">ascamera_color_0</text>
+  <text class="tag mono" x="465" y="80" text-anchor="middle">→ depth_cam</text>
+  <text class="tag mono" x="465" y="96" text-anchor="middle">→ base_footprint</text>
+  <text class="tag mono" x="465" y="112" text-anchor="middle">→ odom → map</text>
+  <rect class="box-hi" x="570" y="20" width="140" height="100" rx="6"/>
+  <text class="lbl" x="640" y="42" text-anchor="middle">④ map 점</text>
+  <text class="tag mono" x="640" y="64" text-anchor="middle">p = T · P</text>
+  <text class="tag" x="640" y="84" text-anchor="middle">높이 z는 버리고</text>
+  <text class="tag" x="640" y="100" text-anchor="middle">(x, y)만 지도에</text>
+  <path class="ln" d="M170 70 L198 70" marker-end="url(#arr-p08-frames)"/>
+  <path class="ln" d="M360 70 L388 70" marker-end="url(#arr-p08-frames)"/>
+  <path class="ln" d="M540 70 L568 70" marker-end="url(#arr-p08-frames)"/>
+  <text class="lbl" x="10" y="160">⑤ 다중 관측 융합 (같은 이름표끼리만)</text>
+  <circle class="ln-hi" cx="120" cy="222" r="45" stroke-dasharray="5 4"/>
+  <circle class="hi" cx="120" cy="222" r="5"/>
+  <circle class="wr" cx="102" cy="207" r="3"/>
+  <circle class="wr" cx="138" cy="233" r="3"/>
+  <circle class="wr" cx="128" cy="203" r="3"/>
+  <circle class="wr" cx="108" cy="237" r="3"/>
+  <circle class="dg" cx="210" cy="196" r="4"/>
+  <text class="tag" x="120" y="284" text-anchor="middle">게이트 반경 0.35 m</text>
+  <text class="tag" x="200" y="216">게이트 밖</text>
+  <text class="tag" x="200" y="230">→ 새 후보</text>
+  <text class="tag mono" x="330" y="190">m_n = m_(n−1) + (z_n − m_(n−1)) / n</text>
+  <text class="tag" x="330" y="212">관측 횟수 n ≥ 3 → 확정 랜드마크</text>
+  <text class="tag" x="330" y="234">보여야 할 때 안 보임 → 미스 +1</text>
+  <text class="tag" x="330" y="256">방 = 다각형 안 판정 (주방·거실)</text>
+</svg>

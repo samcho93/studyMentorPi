@@ -6,12 +6,12 @@
 <title>P04. 사람 추종 카트 (비전+라이다 융합) · studyMentorPi</title>
 <meta name="description" content="MediaPipe로 주인을 인식하고 라이다로 거리·방향을 측정해 안전거리를 유지하며 따라가는 Follow-me 카트. 센서 융합과 장애물 회피를 결합합니다.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css?v=afc36b61">
-<link rel="stylesheet" href="../assets/css/mentorpi.css?v=afc36b61">
-<link rel="stylesheet" href="../assets/css/ml-theme.css?v=afc36b61">
+<link rel="stylesheet" href="../assets/css/main.css?v=75126cd8">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=75126cd8">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=75126cd8">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="../assets/js/theme.js?v=afc36b61"></script>
+<script src="../assets/js/theme.js?v=75126cd8"></script>
 </head>
 <body class="lesson-page track-page-project">
 <button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
@@ -123,7 +123,7 @@
 </ul>
 </div>
 <div class="nav-track" data-track="project">
-<div class="nav-track-title track-project">프로젝트 (중급 이상)</div>
+<div class="nav-track-title track-project">프로젝트 (중급·고급)</div>
 <div class="nav-part"><span class="nav-part-no">P-1</span>자율 이동 서비스 로봇</div>
 <ul>
 <li><a href="../lessons/p01.html" data-slug="p01"><span class="nav-no">P01</span>자율 순찰 경비 로봇</a></li>
@@ -134,6 +134,16 @@
 <li><a href="../lessons/p03.html" data-slug="p03"><span class="nav-no">P03</span>미니 시티 자율주행 챌린지</a></li>
 <li><a href="../lessons/p04.html" class="active" data-slug="p04"><span class="nav-no">P04</span>사람 추종 카트 (비전+라이다 융합)</a></li>
 </ul>
+<div class="nav-part"><span class="nav-part-no">P-3</span>고급: 자율성 알고리즘 직접 구현</div>
+<ul>
+<li><a href="../lessons/p05.html" data-slug="p05"><span class="nav-no">P05</span>프런티어 자율 탐사와 다중 로봇 작업 할당</a></li>
+<li><a href="../lessons/p06.html" data-slug="p06"><span class="nav-no">P06</span>스캔 매칭 오도메트리와 EKF 센서 융합 직접 구현</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">P-4</span>고급: 학습·의미 기반 지능</div>
+<ul>
+<li><a href="../lessons/p07.html" data-slug="p07"><span class="nav-no">P07</span>강화학습으로 배우는 라이다 주행 정책</a></li>
+<li><a href="../lessons/p08.html" data-slug="p08"><span class="nav-no">P08</span>시맨틱 지도와 자연어 명령 내비게이션</a></li>
+</ul>
 </div>
 </nav>
 </aside>
@@ -142,7 +152,7 @@
 
 <article class="lesson" data-slug="p04" data-track="project">
   <div class="lesson-head">
-    <div class="crumbs"><span class="track-pill track-project">프로젝트 (중급 이상)</span> P-2 지능형 주행 &middot; 약 240분 &middot; 고급</div>
+    <div class="crumbs"><span class="track-pill track-project">프로젝트 (중급·고급)</span> P-2 지능형 주행 &middot; 약 240분 &middot; 고급</div>
     <h1><span class="lesson-no">P04</span>사람 추종 카트 (비전+라이다 융합)</h1>
     <p class="lede">MediaPipe로 주인을 인식하고 라이다로 거리·방향을 측정해 안전거리를 유지하며 따라가는 Follow-me 카트. 센서 융합과 장애물 회피를 결합합니다.</p>
     <div class="requires">선수 챕터: <a href="a05.html">A05</a> <a href="a06.html">A06</a> <a href="m06.html">M06</a> <a href="m12.html">M12</a></div>
@@ -776,14 +786,14 @@ if __name__ == &#x27;__main__&#x27;:
 <div class="callout callout-task"><div class="callout-title">과제</div><div class="callout-body"><ol><li><strong>(기본)</strong> 실습 1에서 <code>GATE</code>를 4°, 8°, 15°로 바꿔 네 방법의 RMS를 표로 정리하고, 게이트 폭의 trade-off(너무 좁으면? 너무 넓으면?)를 설명하세요.</li><li><strong>(기본)</strong> 실습 2에서 α를 0.2, 0.5, 0.9로 바꿔 평균·RMS 거리 오차를 비교하세요. α가 1이면 필터가 무엇과 같아지는지 설명합니다.</li><li><strong>(심화)</strong> 실습 3의 거리 게이트 기준을 <code>self.d</code>(저역 통과 거리) 대신 <strong>예측 위치</strong>에서 계산하도록 바꾸고(실습 2처럼 odom 좌표 필터 사용), 가림 전후 동작이 어떻게 달라지는지 리플레이로 비교하세요.</li><li><strong>(심화)</strong> 실물에서 두 사람이 교차하는 장면을 rosbag으로 녹화하고, 색 히스토그램 상관계수의 시간 변화를 그래프로 그려 문턱값을 데이터로 정하세요.</li></ol></div></div>
 <h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
 <ul><li>원본 교재: <em>10. Lidar Lesson</em> — Lesson 4 Lidar Following, <em>15. MediaPipe Human-robot Interaction</em> — Lesson 3 Hand Following, Lesson 4 Posture Control</li><li>원본 소스: <code>src/app/app/lidar_controller.py</code>(running_mode 2), <code>src/app/launch/lidar_node.launch.py</code>, <code>src/example/example/body_control/include/body_control.py</code>, <code>body_track.py</code>, <code>body_track.launch.py</code>, <code>src/example/example/hand_track/hand_detect_node.py</code>, <code>hand_track_node.py</code></li><li>이 강의: A05(MediaPipe), A06(자세 제어), M05(라이다 데이터), M06(라이다 추종), M12(DWA·코스트맵)</li><li>MediaPipe Pose Landmarker: https://ai.google.dev/edge/mediapipe/solutions/vision/pose_landmarker</li><li>Kalata, P. R., <em>The Tracking Index: A Generalized Parameter for α-β and α-β-γ Target Trackers</em>, IEEE TAES (1984)</li><li>Bar-Shalom, Li &amp; Kirubarajan, <em>Estimation with Applications to Tracking and Navigation</em> — 게이팅과 추적 필터</li><li>OpenCV — Histogram Comparison: https://docs.opencv.org/4.x/d8/dc8/tutorial_histogram_comparison.html</li><li>ROS 2 Humble — rosbag2: https://docs.ros.org/en/humble/Tutorials/Beginner-CLI-Tools/Recording-And-Playing-Back-Data/Recording-And-Playing-Back-Data.html</li></ul>
-      <nav class="pager"><a class="pager-prev" href="p03.html"><span>이전 · P03</span>미니 시티 자율주행 챌린지</a><span class="pager-next disabled"></span></nav>
+      <nav class="pager"><a class="pager-prev" href="p03.html"><span>이전 · P03</span>미니 시티 자율주행 챌린지</a><a class="pager-next" href="p05.html"><span>다음 · P05</span>프런티어 자율 탐사와 다중 로봇 작업 할당</a></nav>
     </div>
     <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#프로젝트-개요와-요구사항">프로젝트 개요와 요구사항</a><a class="toc-l3" href="#기능-요구사항">기능 요구사항</a><a class="toc-l3" href="#안전-한계">안전 한계</a><a class="toc-l3" href="#원본-예제의-한계">원본 예제의 한계</a><a class="toc-l2" href="#시스템-설계">시스템 설계</a><a class="toc-l3" href="#센서의-성격과-융합-방식">센서의 성격과 융합 방식</a><a class="toc-l3" href="#1단계-영상-x-방위">1단계: 영상 x → 방위</a><a class="toc-l3" href="#2단계-게이팅">2단계: 게이팅</a><a class="toc-l3" href="#3단계-필터">3단계: α-β 필터</a><a class="toc-l3" href="#4단계-제어-법칙">4단계: 제어 법칙</a><a class="toc-l3" href="#5단계-상태-기계">5단계: 상태 기계</a><a class="toc-l3" href="#신원-누가-주인인가">신원: 누가 주인인가</a><a class="toc-l2" href="#단계별-구현">단계별 구현</a><a class="toc-l3" href="#m1-원본-동작-관찰">M1. 원본 동작 관찰</a><a class="toc-l3" href="#m2-방위-교정">M2. 방위 교정</a><a class="toc-l3" href="#m3-게이팅과-필터">M3. 게이팅과 필터</a><a class="toc-l3" href="#m4-거리-제어와-피드포워드">M4. 거리 제어와 피드포워드</a><a class="toc-l3" href="#m5-상태-기계-탐색-장애물">M5. 상태 기계·탐색·장애물</a><a class="toc-l3" href="#m6-평가-코스-리허설">M6. 평가 코스 리허설</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l3" href="#실습-1-최근접-vs-게이팅-vs-필터">실습 1: 최근접 vs 게이팅 vs 필터</a><a class="toc-l3" href="#실습-2-게이팅-융합-필터-피드포워드-추종">실습 2: 게이팅 융합 + α-β 필터 + 피드포워드 추종</a><a class="toc-l3" href="#실습-3-상태-기계-제스처-가림-탐색-장애물">실습 3: 상태 기계 — 제스처·가림·탐색·장애물</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l3" href="#1-원본-동작-확인m1">1. 원본 동작 확인(M1)</a><a class="toc-l3" href="#2-교정과-팀-노드-실행">2. 교정과 팀 노드 실행</a><a class="toc-l3" href="#3-팀-노드-코드-followme-py">3. 팀 노드 코드 (`follow_me.py`)</a><a class="toc-l2" href="#평가-기준">평가 기준</a><a class="toc-l2" href="#확장-과제">확장 과제</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
   </div>
 </article>
 
 </main>
-<script src="../assets/js/site.js?v=afc36b61"></script>
-<script type="module" src="../assets/js/lesson-runner.js?v=afc36b61"></script>
+<script src="../assets/js/site.js?v=75126cd8"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=75126cd8"></script>
 </body>
 </html>

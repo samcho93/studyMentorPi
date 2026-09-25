@@ -54,5 +54,9 @@
 | P02 | 통합 프로젝트 — 14. ROS+OpenCV L3 QR, 13. Navigation L4, src/example/qrcode |
 | P03 | 통합 프로젝트 — 17. Autonomous Driving L1~L6, src/example/self_driving, yolov5_ros2 |
 | P04 | 통합 프로젝트 — 15. MediaPipe, 10. Lidar(Following), src/example/body_control, hand_track |
+| P05 | 고급 프로젝트 — 12. Mapping(slam_toolbox), 13. Navigation, 18. Group Control, src/multi |
+| P06 | 고급 프로젝트 — 9. Motion Control L3·L4(IMU/odom, EKF), 10. Lidar, src/driver/controller/config(ekf) |
+| P07 | 고급 프로젝트 — 16. Machine Learning, 10. Lidar, src/app/lidar_controller.py |
+| P08 | 고급 프로젝트 — 11. Depth Camera, 16. Machine Learning(YOLOv5), 13. Navigation, src/yolov5_ros2 |
 
 부록(Appendix: RRC Lite 하드웨어/STM32, 시스템 이미지 굽기)은 B03·B08·B09의 참고자료로 인용한다.

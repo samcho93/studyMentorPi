@@ -1,0 +1,41 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="자연어 명령 실행 상태 기계: 파싱, 그라운딩, 주행, 검증을 거쳐 완료되고, 물체가 없거나 검증에 실패하면 탐색 후 다시 그라운딩한다">
+  <defs>
+    <marker id="arr-p08-fsm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <rect class="box" x="10" y="60" width="110" height="52" rx="26"/>
+  <text class="lbl" x="65" y="84" text-anchor="middle">PARSE</text>
+  <text class="tag" x="65" y="100" text-anchor="middle">문장 → 슬롯</text>
+  <rect class="box" x="160" y="60" width="120" height="52" rx="26"/>
+  <text class="lbl" x="220" y="84" text-anchor="middle">GROUND</text>
+  <text class="tag" x="220" y="100" text-anchor="middle">슬롯 → 목표 자세</text>
+  <rect class="box-hi" x="320" y="60" width="120" height="52" rx="26"/>
+  <text class="lbl" x="380" y="84" text-anchor="middle">NAVIGATE</text>
+  <text class="tag" x="380" y="100" text-anchor="middle">Nav2 goToPose</text>
+  <rect class="box" x="480" y="60" width="110" height="52" rx="26"/>
+  <text class="lbl" x="535" y="84" text-anchor="middle">VERIFY</text>
+  <text class="tag" x="535" y="100" text-anchor="middle">다시 보기 1~2 s</text>
+  <rect class="box" x="625" y="60" width="85" height="52" rx="26"/>
+  <text class="lbl" x="667" y="91" text-anchor="middle">DONE</text>
+  <path class="ln" d="M120 86 L158 86" marker-end="url(#arr-p08-fsm)"/>
+  <path class="ln" d="M280 86 L318 86" marker-end="url(#arr-p08-fsm)"/>
+  <path class="ln" d="M440 86 L478 86" marker-end="url(#arr-p08-fsm)"/>
+  <path class="ln" d="M590 86 L623 86" marker-end="url(#arr-p08-fsm)"/>
+  <text class="tag" x="606" y="126" text-anchor="middle">3회 확인</text>
+  <rect class="box" x="300" y="190" width="160" height="56" rx="28"/>
+  <text class="lbl" x="380" y="214" text-anchor="middle">SEARCH</text>
+  <text class="tag" x="380" y="231" text-anchor="middle">제자리 360° → 다음 지점</text>
+  <path class="ln" d="M220 112 L220 218 L298 218" marker-end="url(#arr-p08-fsm)"/>
+  <text class="tag" x="212" y="168" text-anchor="end">지도에 없음</text>
+  <path class="ln" d="M535 112 L535 218 L462 218" marker-end="url(#arr-p08-fsm)"/>
+  <text class="tag" x="543" y="168">안 보임 · 위치 다름</text>
+  <path class="ln-hi" d="M345 190 L262 114" marker-end="url(#arr-p08-fsm)"/>
+  <text class="tag" x="318" y="140">발견 → 지도 갱신</text>
+  <rect class="box" x="560" y="200" width="150" height="46" rx="23"/>
+  <text class="lbl" x="635" y="228" text-anchor="middle">FAIL · 보고</text>
+  <path class="ln" d="M460 236 L558 236" marker-end="url(#arr-p08-fsm)"/>
+  <text class="tag" x="508" y="258" text-anchor="middle">지점 모두 실패</text>
+  <path class="ln" d="M65 112 L65 272 L635 272 L635 248" marker-end="url(#arr-p08-fsm)"/>
+  <text class="tag" x="80" y="290">슬롯 부족 · 모르는 동사 → 되묻기 ("무엇으로 갈까요?")</text>
+  <path class="ln" d="M380 60 L380 30 L716 30 L716 223 L712 223" stroke-dasharray="4 4" marker-end="url(#arr-p08-fsm)"/>
+  <text class="tag" x="548" y="24" text-anchor="middle">Nav2 실패 2회 (재시도 후)</text>
+</svg>

@@ -81,6 +81,17 @@ export function drawWorld(view, world, C, opts = {}) {
     ctx.beginPath(); ctx.arc(p, q, r * view.scale, 0, Math.PI * 2); ctx.fill();
   }
   ctx.globalAlpha = 1;
+  // labelled objects (mentorpi_sim.add_object) — name tags
+  if (world.objects && world.objects.length) {
+    ctx.font = `600 ${11 * (view.dpr || 1)}px sans-serif`;
+    for (const [label, ox, oy, r] of world.objects) {
+      const [p, q] = view.px(ox, oy);
+      ctx.fillStyle = objColor(label);
+      ctx.beginPath(); ctx.arc(p, q, r * view.scale, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = C.text;
+      ctx.fillText(label, p + r * view.scale + 3, q - 3);
+    }
+  }
   ctx.strokeStyle = C.wall; ctx.lineWidth = Math.max(2, 0.04 * view.scale); ctx.lineCap = 'round';
   ctx.beginPath();
   ctx.rect(a, b, c - a, d - b);
@@ -96,6 +107,16 @@ export function drawWorld(view, world, C, opts = {}) {
     ctx.fillRect(sx, sy - 4, view.scale, 2);
     ctx.fillText('1 m', sx + view.scale + 6, sy);
   }
+}
+
+export function objColor(label) {
+  const l = String(label).toLowerCase();
+  if (/red|빨강|빨간/.test(l)) return '#dc2626';
+  if (/blue|파랑|파란/.test(l)) return '#2563eb';
+  if (/green|초록/.test(l)) return '#16a34a';
+  if (/yellow|노랑|노란/.test(l)) return '#ca8a04';
+  if (/chair|의자|table|책상|sofa/.test(l)) return '#8b5e34';
+  return '#0891b2';
 }
 
 export function drawMovers(view, movers, C) {

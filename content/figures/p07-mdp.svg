@@ -1,0 +1,37 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="라이다 9개 빔을 좌·전·우 세 섹터로 묶고 거리 0.35 m, 0.7 m 경계로 3단계로 나눈 상태 설계와 행동·보상 정의">
+  <defs><marker id="arr-p07-mdp" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker></defs>
+  <path d="M175 215 L250.0 85.1 A150 150 0 0 0 100.0 85.1 Z" style="fill:var(--accent);opacity:0.14"/>
+  <path d="M175 215 L52.1 129.0 A150 150 0 0 0 25.6 228.1 Z" style="fill:var(--warn);opacity:0.16"/>
+  <path d="M175 215 L324.4 228.1 A150 150 0 0 0 297.9 129.0 Z" style="fill:var(--warn);opacity:0.16"/>
+  <path class="ln" d="M244.7 221.1 A70 70 0 0 0 105.3 221.1" stroke-dasharray="4 4"/>
+  <path class="ln" d="M314.5 227.2 A140 140 0 0 0 35.5 227.2" stroke-dasharray="4 4"/>
+  <path class="ln-hi" d="M175 215 L333.0 215.0"/>
+  <path class="ln-hi" d="M175 215 L311.8 136.0"/>
+  <path class="ln-hi" d="M175 215 L254.0 78.2"/>
+  <path class="ln-hi" d="M175 215 L215.9 62.4"/>
+  <path class="ln-hi" d="M175 215 L175.0 57.0"/>
+  <path class="ln-hi" d="M175 215 L134.1 62.4"/>
+  <path class="ln-hi" d="M175 215 L96.0 78.2"/>
+  <path class="ln-hi" d="M175 215 L38.2 136.0"/>
+  <path class="ln-hi" d="M175 215 L17.0 215.0"/>
+  <text class="tag" x="105" y="232" text-anchor="middle">0.35 m</text>
+  <text class="tag" x="35" y="232" text-anchor="middle">0.7 m</text>
+  <circle class="box-hi" cx="175" cy="215" r="22"/>
+  <path class="ln" d="M175 215 L175 195" marker-end="url(#arr-p07-mdp)"/>
+  
+  <text class="tag" x="175" y="48" text-anchor="middle">전방 0°</text>
+  <text class="lbl" x="175" y="268" text-anchor="middle">F(파랑): −30°~30° 빔 5개</text>
+  <text class="lbl" x="175" y="290" text-anchor="middle">L: 60°·90° / R: −60°·−90° (주황)</text>
+  <rect class="box" x="370" y="18" width="335" height="58" rx="6"/>
+  <text class="lbl" x="384" y="41">상태 s (81개)</text>
+  <text class="tag mono" x="384" y="62">s = ((L·3 + F)·3 + R)·3 + a_prev</text>
+  <rect class="box" x="370" y="88" width="335" height="58" rx="6"/>
+  <text class="lbl" x="384" y="111">섹터 거리 → 3단계</text>
+  <text class="tag mono" x="384" y="132">d &lt; 0.35 → 0 · d &lt; 0.7 → 1 · 그 외 2</text>
+  <rect class="box" x="370" y="158" width="335" height="58" rx="6"/>
+  <text class="lbl" x="384" y="181">행동 a (5 Hz)</text>
+  <text class="tag mono" x="384" y="202">F 0.18 m/s · L +0.5 rad/s · R −0.5 rad/s</text>
+  <rect class="box-hi" x="370" y="228" width="335" height="58" rx="6"/>
+  <text class="lbl" x="384" y="251">보상 r</text>
+  <text class="tag mono" x="384" y="272">10·Δs − 0.02·회전 − 0.3·근접 − 5·충돌</text>
+</svg>

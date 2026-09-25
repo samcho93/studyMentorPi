@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P08. 시맨틱 지도와 자연어 명령 내비게이션 · studyMentorPi</title>
+<meta name="description" content="YOLOv5 검출과 깊이 카메라·TF로 물체 위치를 지도 좌표에 올린 시맨틱 지도를 만들고, &quot;주방의 빨간 공으로 가&quot; 같은 명령을 해석해 Nav2 목표로 바꾸는 지능형 로봇.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css?v=75126cd8">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=75126cd8">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=75126cd8">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js?v=75126cd8"></script>
+</head>
+<body class="lesson-page track-page-project">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim3d/index.html">3D 시뮬레이터</a><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a><a class="side-tool" href="../tools/urdf-viewer.html">URDF 뷰어</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="project">
+<div class="nav-track-title track-project">프로젝트 (중급·고급)</div>
+<div class="nav-part"><span class="nav-part-no">P-1</span>자율 이동 서비스 로봇</div>
+<ul>
+<li><a href="../lessons/p01.html" data-slug="p01"><span class="nav-no">P01</span>자율 순찰 경비 로봇</a></li>
+<li><a href="../lessons/p02.html" data-slug="p02"><span class="nav-no">P02</span>QR 지시형 실내 배송 로봇</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">P-2</span>지능형 주행</div>
+<ul>
+<li><a href="../lessons/p03.html" data-slug="p03"><span class="nav-no">P03</span>미니 시티 자율주행 챌린지</a></li>
+<li><a href="../lessons/p04.html" data-slug="p04"><span class="nav-no">P04</span>사람 추종 카트 (비전+라이다 융합)</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">P-3</span>고급: 자율성 알고리즘 직접 구현</div>
+<ul>
+<li><a href="../lessons/p05.html" data-slug="p05"><span class="nav-no">P05</span>프런티어 자율 탐사와 다중 로봇 작업 할당</a></li>
+<li><a href="../lessons/p06.html" data-slug="p06"><span class="nav-no">P06</span>스캔 매칭 오도메트리와 EKF 센서 융합 직접 구현</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">P-4</span>고급: 학습·의미 기반 지능</div>
+<ul>
+<li><a href="../lessons/p07.html" data-slug="p07"><span class="nav-no">P07</span>강화학습으로 배우는 라이다 주행 정책</a></li>
+<li><a href="../lessons/p08.html" class="active" data-slug="p08"><span class="nav-no">P08</span>시맨틱 지도와 자연어 명령 내비게이션</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="p08" data-track="project">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-project">프로젝트 (중급·고급)</span> P-4 고급: 학습·의미 기반 지능 &middot; 약 300분 &middot; 고급</div>
+    <h1><span class="lesson-no">P08</span>시맨틱 지도와 자연어 명령 내비게이션</h1>
+    <p class="lede">YOLOv5 검출과 깊이 카메라·TF로 물체 위치를 지도 좌표에 올린 시맨틱 지도를 만들고, &quot;주방의 빨간 공으로 가&quot; 같은 명령을 해석해 Nav2 목표로 바꾸는 지능형 로봇.</p>
+    <div class="requires">선수 챕터: <a href="m07.html">M07</a> <a href="m11.html">M11</a> <a href="a08.html">A08</a> <a href="p02.html">P02</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      <a class="ghost-btn" href="../sim3d/index.html">3D 시뮬레이터</a><a class="ghost-btn" href="../sim/index.html">2D 시뮬레이터</a><a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>YOLOv5 검출 상자와 깊이 영상으로 물체의 3D 위치를 구하고(핀홀 역투영), TF로 <code>map</code> 좌표에 올리는 전 과정을 식과 코드로 구현합니다.</li><li>여러 번의 관측을 <strong>게이팅·누적 평균·관측 횟수</strong>로 융합해 헛검출과 놓침에 강한 <strong>시맨틱 지도</strong>(이름표 붙은 랜드마크 + 방 다각형)를 JSON으로 만듭니다.</li><li>"주방에 있는 빨간 공 앞으로 가 줘" 같은 한국어 명령을 동사·대상·색·장소·관계 <strong>슬롯</strong>으로 해석하는 규칙 기반 파서를 만들고, 선택 사항으로 LLM을 <strong>엄격한 JSON 스키마</strong>와 오프라인 대체 경로 아래에서만 씁니다.</li><li>슬롯을 지도 위 랜드마크에 <strong>그라운딩</strong>해 접근 거리를 둔 목표 자세로 바꾸고, Nav2로 주행한 뒤 <strong>다시 보고 확인</strong>합니다. 물체가 없거나 옮겨졌으면 탐색 패턴으로 찾아 지도를 갱신합니다.</li><li>지도 정확도, 파싱 정확도, 도착 오차, 과제 성공률을 측정해 어느 단계가 전체 실패를 만드는지 분석합니다.</li></ul>
+<h2 id="프로젝트-개요와-요구사항">프로젝트 개요와 요구사항<a class="anchor" href="#프로젝트-개요와-요구사항">#</a></h2>
+<p>지금까지의 내비게이션(M11~M13, P02)은 좌표로 목표를 받았습니다. 사람은 좌표로 말하지 않습니다. "의자 옆으로 와", "주방에 있는 빨간 공 앞으로 가 줘"처럼 <strong>물체와 장소의 이름</strong>으로 말합니다. 이 프로젝트는 그 간극을 메웁니다.</p>
+<ol><li>로봇이 집 안을 돌며 <strong>무엇이 어디에 있는지</strong> 기록합니다(시맨틱 매핑).</li><li>사람의 문장을 <strong>구조화된 명령</strong>으로 바꿉니다(언어 이해).</li><li>명령 속 이름을 지도 위의 <strong>특정 물체와 자세</strong>로 연결합니다(그라운딩).</li><li>가서 <strong>정말 있는지 확인</strong>하고, 없으면 찾습니다(검증과 복구).</li></ol>
+<p>로봇 공학에서 <strong>VLN</strong>(Vision-and-Language Navigation), <strong>객체 목표 내비게이션</strong>(ObjectNav)으로 연구되는 문제의 작은 판입니다. 대형 모델 없이 라즈베리파이 5에서 돌아가는 구조를 만들고, 각 단계의 오류가 최종 성공률에 어떻게 쌓이는지 측정합니다.</p>
+<h3 id="팀-구성과-차시-4명-5-6교시">팀 구성과 차시 (4명, 5~6교시)<a class="anchor" href="#팀-구성과-차시-4명-5-6교시">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>역할</th><th>담당</th><th>산출물</th></tr></thead><tbody><tr><td>인식</td><td>YOLOv5 실행, 깊이 역투영, 색 판별, 검출 성능 측정</td><td>검출률·거리 오차표</td></tr><tr><td>매핑</td><td>TF 변환, 융합, 방 다각형, <code>semantic_map.json</code></td><td>지도 파일, 오차표</td></tr><tr><td>언어</td><td>문법·사전, 시험 문장 세트, (선택) LLM 스키마</td><td>파서, 정확도표</td></tr><tr><td>실행·안전</td><td>그라운딩, Nav2, 검증·탐색 상태 기계, 시험 운영</td><td>실행 노드, 과제 성공률표</td></tr></tbody></table></div>
+<p>1교시 이론·설계, 실습 1 / 2교시 실습 2~4, 파서 시험 문장 30개 작성 / 3교시 실물 YOLO·깊이·TF, 매핑 투어 / 4교시 명령 실행·검증·탐색 / 5교시 평가 시나리오 / 6교시 분석·발표.</p>
+<h3 id="기능-요구사항">기능 요구사항<a class="anchor" href="#기능-요구사항">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>ID</th><th>요구사항</th><th>확인 방법</th></tr></thead><tbody><tr><td>F1</td><td><code>yolov5_ros2</code>의 검출(<code>/yolov5_ros2/object_detect</code>)과 깊이 영상으로 물체의 <code>map</code> 좌표를 구한다</td><td>줄자로 잰 실제 위치와 비교</td></tr><tr><td>F2</td><td>같은 이름표의 관측을 게이트 0.35 m 안에서 누적 평균하고, 3회 이상 관측된 것만 확정 랜드마크로 저장한다</td><td><code>semantic_map.json</code>의 <code>n</code></td></tr><tr><td>F3</td><td>공은 상자 안 HSV 색으로 <code>red_ball</code>처럼 색을 붙인다</td><td>색 공 3종 시험</td></tr><tr><td>F4</td><td>명령은 <code>/nl_command</code>(String)로 받고, 슬롯이 부족하거나 모르는 동사면 움직이지 않고 되묻는다</td><td><code>/nl_status</code></td></tr><tr><td>F5</td><td>목표는 물체에서 접근 거리 D = 0.4 m 떨어진, 물체를 바라보는 자세다</td><td>도착 사진, TF</td></tr><tr><td>F6</td><td>도착 후 1~3 s 안에 같은 물체를 다시 3회 관측해야 성공이다. 실패하면 제자리 360° → 방 중심 순서로 탐색한다</td><td>옮긴 물체 시험</td></tr><tr><td>F7</td><td>LLM을 쓰면 출력은 스키마 검사를 통과한 슬롯만 받고, 3 s 안에 답이 없거나 검사에 실패하면 규칙 파서를 쓴다</td><td>네트워크를 끊고 시험</td></tr></tbody></table></div>
+<h3 id="비기능-요구사항">비기능 요구사항<a class="anchor" href="#비기능-요구사항">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>ID</th><th>항목</th><th>목표값</th></tr></thead><tbody><tr><td>N1</td><td>지도 정확도</td><td>확정 랜드마크 위치 오차 평균 ≤ 0.15 m, 헛 랜드마크 0개</td></tr><tr><td>N2</td><td>파싱</td><td>시험 문장 30개에서 슬롯 완전 일치 ≥ 90 %, 거부해야 할 문장은 모두 거부</td></tr><tr><td>N3</td><td>과제 성공률</td><td>명령 10개 중 8개 이상 성공(검증 통과)</td></tr><tr><td>N4</td><td>응답성</td><td>명령 수신 → 주행 시작 2 s 이내(LLM 사용 시 4 s)</td></tr><tr><td>N5</td><td>오프라인 동작</td><td>인터넷 없이 모든 기능 동작</td></tr></tbody></table></div>
+<h3 id="안전-한계">안전 한계<a class="anchor" href="#안전-한계">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>값</th><th>이유</th></tr></thead><tbody><tr><td>속도</td><td>Nav2 설정 유지(≤ 0.2 m/s, ≤ 0.5 rad/s)</td><td>과정 공통 안전 원칙</td></tr><tr><td>접근 거리</td><td>D ≥ 0.4 m</td><td>로봇 반지름 0.13 + 물체 반지름 + 여유, 그리고 깊이 카메라 최소 거리</td></tr><tr><td>명령의 권한</td><td>이름만 받고 <strong>좌표는 받지 않음</strong>. 지도에 없는 곳으로 가지 않음</td><td>문장(또는 LLM)이 로봇을 임의 위치로 보낼 수 없게</td></tr><tr><td>탐색 범위</td><td>지도에 등록된 방 안, 방 중심 목록만</td><td>모르는 곳(계단·현관)으로 탐험하지 않게</td></tr><tr><td>사람</td><td>사람(COCO <code>person</code>)은 랜드마크로 저장하지 않음</td><td>개인정보, 움직이는 물체</td></tr></tbody></table></div>
+<h2 id="이론">이론<a class="anchor" href="#이론">#</a></h2>
+<h3 id="시맨틱-지도의-구조">시맨틱 지도의 구조<a class="anchor" href="#시맨틱-지도의-구조">#</a></h3>
+<p>점유 격자 지도(M09)는 "어디가 막혔나"만 압니다. 시맨틱 지도는 그 위에 <strong>의미 층</strong>을 얹습니다. 이 프로젝트의 지도는 세 가지로 이루어집니다.</p>
+<div class="table-wrap"><table><thead><tr><th>층</th><th>내용</th><th>예</th></tr></thead><tbody><tr><td>기하</td><td>점유 격자 <code>map_01</code> (Nav2가 사용)</td><td>M09에서 만든 지도</td></tr><tr><td>랜드마크</td><td>이름표, map 좌표, 관측 횟수, 마지막 관측 시각</td><td><code>{&quot;label&quot;: &quot;red_ball&quot;, &quot;x&quot;: 2.2, &quot;y&quot;: -0.2, &quot;n&quot;: 19, &quot;t&quot;: 815.2, &quot;room&quot;: &quot;주방&quot;}</code></td></tr><tr><td>장소</td><td>방 이름과 다각형(map 좌표 꼭짓점)</td><td><code>&quot;주방&quot;: [[0.6, -2], [3, -2], [3, 2], [0.6, 2]]</code></td></tr></tbody></table></div>
+<p>방 다각형은 RViz <strong>Publish Point</strong>(<code>/clicked_point</code>)로 꼭짓점을 찍어 만들고, 랜드마크의 방은 점-다각형 포함 판정(ray casting 교차 수 홀짝)으로 정합니다. 이 구조는 JSON 하나로 저장되고 사람이 읽고 고칠 수 있습니다. 논문에서 쓰는 3D 장면 그래프(scene graph)의 가장 단순한 형태입니다.</p>
+<h3 id="검출-상자에서-map-좌표까지">검출 상자에서 map 좌표까지<a class="anchor" href="#검출-상자에서-map-좌표까지">#</a></h3>
+<figure class="fig" id="fig-p08-frames"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="검출 픽셀에서 map 좌표까지: 바운딩 박스 중심과 깊이로 광학 좌표를 역투영하고, TF로 base_footprint와 map으로 옮긴 뒤 같은 이름표의 랜드마크와 게이팅해 누적 평균">
+  <defs>
+    <marker id="arr-p08-frames" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <rect class="box" x="10" y="20" width="160" height="100" rx="6"/>
+  <text class="lbl" x="90" y="42" text-anchor="middle">① 픽셀 + 깊이</text>
+  <rect class="box-hi" x="60" y="52" width="60" height="42" rx="2"/>
+  <circle class="hi" cx="90" cy="73" r="3"/>
+  <text class="tag mono" x="90" y="112" text-anchor="middle">(u, v), Z = 중앙값</text>
+  <rect class="box" x="200" y="20" width="160" height="100" rx="6"/>
+  <text class="lbl" x="280" y="42" text-anchor="middle">② 광학 좌표</text>
+  <text class="tag mono" x="280" y="64" text-anchor="middle">X = (u − cx)·Z / fx</text>
+  <text class="tag mono" x="280" y="82" text-anchor="middle">Y = (v − cy)·Z / fy</text>
+  <text class="tag" x="280" y="104" text-anchor="middle">x 오른쪽 · y 아래 · z 앞</text>
+  <rect class="box" x="390" y="20" width="150" height="100" rx="6"/>
+  <text class="lbl" x="465" y="42" text-anchor="middle">③ TF 변환</text>
+  <text class="tag mono" x="465" y="64" text-anchor="middle">ascamera_color_0</text>
+  <text class="tag mono" x="465" y="80" text-anchor="middle">→ depth_cam</text>
+  <text class="tag mono" x="465" y="96" text-anchor="middle">→ base_footprint</text>
+  <text class="tag mono" x="465" y="112" text-anchor="middle">→ odom → map</text>
+  <rect class="box-hi" x="570" y="20" width="140" height="100" rx="6"/>
+  <text class="lbl" x="640" y="42" text-anchor="middle">④ map 점</text>
+  <text class="tag mono" x="640" y="64" text-anchor="middle">p = T · P</text>
+  <text class="tag" x="640" y="84" text-anchor="middle">높이 z는 버리고</text>
+  <text class="tag" x="640" y="100" text-anchor="middle">(x, y)만 지도에</text>
+  <path class="ln" d="M170 70 L198 70" marker-end="url(#arr-p08-frames)"/>
+  <path class="ln" d="M360 70 L388 70" marker-end="url(#arr-p08-frames)"/>
+  <path class="ln" d="M540 70 L568 70" marker-end="url(#arr-p08-frames)"/>
+  <text class="lbl" x="10" y="160">⑤ 다중 관측 융합 (같은 이름표끼리만)</text>
+  <circle class="ln-hi" cx="120" cy="222" r="45" stroke-dasharray="5 4"/>
+  <circle class="hi" cx="120" cy="222" r="5"/>
+  <circle class="wr" cx="102" cy="207" r="3"/>
+  <circle class="wr" cx="138" cy="233" r="3"/>
+  <circle class="wr" cx="128" cy="203" r="3"/>
+  <circle class="wr" cx="108" cy="237" r="3"/>
+  <circle class="dg" cx="210" cy="196" r="4"/>
+  <text class="tag" x="120" y="284" text-anchor="middle">게이트 반경 0.35 m</text>
+  <text class="tag" x="200" y="216">게이트 밖</text>
+  <text class="tag" x="200" y="230">→ 새 후보</text>
+  <text class="tag mono" x="330" y="190">m_n = m_(n−1) + (z_n − m_(n−1)) / n</text>
+  <text class="tag" x="330" y="212">관측 횟수 n ≥ 3 → 확정 랜드마크</text>
+  <text class="tag" x="330" y="234">보여야 할 때 안 보임 → 미스 +1</text>
+  <text class="tag" x="330" y="256">방 = 다각형 안 판정 (주방·거실)</text>
+</svg><figcaption>픽셀과 깊이로 광학 좌표를 구하고(역투영), TF로 map까지 옮긴 뒤, 같은 이름표끼리 융합합니다.</figcaption></figure>
+<p><strong>① 픽셀과 깊이.</strong> YOLOv5는 상자 <span class="math">(x_1, y_1, x_2, y_2)</span>를 줍니다. 중심 <span class="math">(u, v)</span>를 쓰고, 깊이는 한 픽셀이 아니라 <strong>상자 가운데 절반 영역의 유효 깊이(0 제외) 중앙값</strong>을 씁니다. 상자 가장자리에는 배경 깊이가 섞이고, 한 픽셀은 구멍(0)이거나 잡음일 수 있기 때문입니다. 깊이 카메라는 물체의 <strong>앞 표면</strong>까지를 재므로, 중심을 원하면 클래스별 대략 반지름(공 0.06 m 등)을 더합니다.</p>
+<p><strong>② 역투영.</strong> M07의 핀홀 모델을 거꾸로 풉니다. 내부 파라미터는 <code>camera_info</code>의 <span class="math">K</span>에서 읽습니다.</p>
+<p><span class="math">X = (u - c_x) Z / f_x</span>,  <span class="math">Y = (v - c_y) Z / f_y</span>,  <span class="math">Z = \text{depth}(u, v)</span></p>
+<p>이 점은 <strong>광학 프레임</strong>(x 오른쪽, y 아래, z 앞)의 좌표입니다. 로봇 프레임(x 앞, y 왼쪽)과 축이 다르다는 점이 가장 흔한 실수입니다. Playground 실습에서는 2D라서 <span class="math">x_{base} = Z + 0.061</span>, <span class="math">y_{base} = -X</span>로 직접 바꿨고, 실물에서는 TF가 이 회전을 대신합니다.</p>
+<p><strong>③ TF.</strong> MentorPi의 TF 사슬은 <code>map → odom → base_footprint → base_link → depth_cam → ascamera_color_0</code>입니다(M07, M08). <code>lookup_transform(&#x27;map&#x27;, &#x27;ascamera_color_0&#x27;, t)</code>가 주는 변환 <span class="math">T</span>(회전 <span class="math">R</span>, 이동 <span class="math">\mathbf{t}</span>)로</p>
+<p><span class="math">\mathbf{p}_{map} = R\,\mathbf{P}_{opt} + \mathbf{t}</span></p>
+<p>를 계산하고 높이 <span class="math">z</span>는 버립니다. <code>map → odom</code>은 AMCL(M11)이 발행하므로, <strong>위치 추정이 틀리면 지도도 틀립니다.</strong> 실습 1에서 오도메트리만 쓰면 멀리 간 주방 쪽 물체의 오차가 커지는 것을 확인합니다.</p>
+<p><strong>시각 동기화.</strong> 원본 <code>yolo_detect.py</code>는 <code>ObjectsInfo</code>에 헤더(시각)를 넣지 않고, <code>yolo_result</code>의 시각도 영상 시각이 아니라 처리 끝난 시각입니다. 라즈베리파이 CPU 추론은 한 프레임에 수백 ms가 걸리므로, 로봇이 도는 중이면 "검출된 순간의 자세"와 "지금 자세"가 달라 방위 오차가 생깁니다. 실용적인 해결은 <strong>멈춰서 보고(stop-and-look), 천천히 도는 것</strong>이고, 근본적인 해결은 검출 노드가 입력 영상의 <code>header.stamp</code>를 결과에 복사하게 고치는 것입니다(확장 과제).</p>
+<h3 id="다중-관측-융합">다중 관측 융합<a class="anchor" href="#다중-관측-융합">#</a></h3>
+<p>한 번의 검출은 틀릴 수 있습니다. 여러 관측을 모아 확률적으로 믿을 만한 것만 남깁니다.</p>
+<div class="table-wrap"><table><thead><tr><th>단계</th><th>규칙</th><th>목적</th></tr></thead><tbody><tr><td>게이팅</td><td>같은 이름표이고 거리 &lt; 0.35 m인 랜드마크에만 연결</td><td>다른 물체와 섞이지 않게</td></tr><tr><td>연결</td><td>게이트 안 후보가 여럿이면 가장 가까운 것(최근접 이웃)</td><td>같은 종류 여러 개(컵 2개)</td></tr><tr><td>갱신</td><td>누적 평균 <span class="math">\bar{x}_n = \bar{x}_{n-1} + (x_n - \bar{x}_{n-1}) / n</span></td><td>잡음을 <span class="math">1/\sqrt{n}</span>로 줄임</td></tr><tr><td>확정</td><td>관측 횟수 <span class="math">n \ge 3</span></td><td>한두 번 나온 헛검출 제거</td></tr><tr><td>소멸</td><td>시야 안에 있어야 하는데 안 보이면 미스 +1, 미스가 많으면 삭제</td><td>옮겨진 물체 정리</td></tr></tbody></table></div>
+<p>누적 평균은 잡음 분산이 같다고 가정한 칼만 필터(정지 물체, 공정 잡음 0)와 같습니다. 관측마다 거리가 다르면(깊이 잡음은 거리의 제곱에 비례해 커짐) 분산 역수로 가중 평균하는 것이 더 좋습니다. 게이트를 유클리드 거리 대신 공분산으로 정규화한 <strong>마할라노비스 거리</strong> <span class="math">d^2 = (\mathbf{z} - \hat{\mathbf{x}})^\top S^{-1} (\mathbf{z} - \hat{\mathbf{x}})</span>로 바꾸는 것이 확장 과제입니다.</p>
+<p><strong>색 속성.</strong> COCO로 학습된 <code>yolov5s</code>는 <code>sports ball</code>, <code>chair</code>, <code>cup</code>을 알지만 <strong>색은 모릅니다.</strong> 상자 안 픽셀을 HSV로 바꾸고, 채도·명도가 충분한 픽셀의 색상(H)을 빨강(0~10, 170~179), 초록(40~80), 파랑(100~130) 구간으로 투표해 과반이면 색을 붙입니다(A01의 색 인식과 같은 원리). 조명에 따라 흔들리므로 색도 관측마다 투표해 다수결로 확정합니다.</p>
+<h3 id="자연어-명령의-구조">자연어 명령의 구조<a class="anchor" href="#자연어-명령의-구조">#</a></h3>
+<p>명령 문장을 다섯 개의 <strong>슬롯</strong>으로 봅니다.</p>
+<div class="table-wrap"><table><thead><tr><th>슬롯</th><th>값</th><th>한국어 단서</th></tr></thead><tbody><tr><td>동사(intent)</td><td><code>go</code>, <code>find</code>, <code>fetch</code></td><td>가·이동·와 / 찾 / 가져</td></tr><tr><td>대상(object)</td><td><code>ball</code>, <code>chair</code>, <code>cup</code></td><td>공, 의자, 컵</td></tr><tr><td>색(color)</td><td><code>red</code>, <code>blue</code>, <code>green</code>, 없음</td><td>빨간·빨강, 파란·파랑, 초록</td></tr><tr><td>장소(place)</td><td><code>거실</code>, <code>주방</code>, 없음</td><td>거실, 주방·부엌 (+에 있는)</td></tr><tr><td>관계(relation)</td><td><code>at</code>, <code>front</code>, <code>side</code>, <code>behind</code></td><td>앞, 옆, 뒤 (없으면 at)</td></tr></tbody></table></div>
+<p>한국어는 조사가 단어에 붙습니다("공<strong>으로</strong>", "주방<strong>에</strong>", "의자<strong>의</strong>"). 형태소 분석기 없이도, 어절이 사전 단어로 <strong>시작하는지</strong>(접두 일치)만 보면 조사를 떼어낸 효과가 납니다. 이 방법의 한계도 분명합니다. "가까운"은 동사 "가"로, "공간"은 "공"으로 잘못 걸립니다. 그래서 사전은 작게 유지하고, <strong>시험 문장 세트</strong>(맞게 해석해야 할 문장 + 거부해야 할 문장)로 회귀 시험을 합니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">parse(문장):
+    어절 ← 한글 덩어리들
+    for 슬롯 in [동사, 대상, 색, 장소, 관계]:
+        for 어절 in 어절들:
+            if 어절이 사전[슬롯]의 단어로 시작하고 슬롯이 비어 있으면: 채움
+    return 슬롯
+실행 가능? 동사 ∈ {go, find} 그리고 대상 ≠ 없음. 아니면 되묻기</code></pre></div>
+<p><strong>LLM은 선택, 그리고 울타리 안에서.</strong> 대형 언어 모델은 "저기 빨간 거 있잖아, 그쪽으로" 같은 문장도 해석할 수 있지만, (1) 네트워크·지연, (2) 형식이 틀린 출력, (3) 없는 물체를 지어내는 문제가 있습니다. 그래서 LLM에는 <strong>슬롯 JSON만</strong> 내게 하고(좌표 금지), 받은 JSON은 규칙 파서와 <strong>똑같은 스키마 검사</strong>를 통과해야만 씁니다. 로컬 LLM 서버가 없거나, 3 s 안에 답이 없거나, 검사에 실패하면 규칙 파서 결과를 씁니다. 지도에 없는 물체는 LLM이 무엇이라 하든 그라운딩 단계에서 걸러집니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-json">{&quot;type&quot;: &quot;object&quot;, &quot;additionalProperties&quot;: false,
+ &quot;required&quot;: [&quot;intent&quot;, &quot;object&quot;, &quot;color&quot;, &quot;place&quot;, &quot;relation&quot;],
+ &quot;properties&quot;: {
+   &quot;intent&quot;:   {&quot;enum&quot;: [&quot;go&quot;, &quot;find&quot;, &quot;fetch&quot;]},
+   &quot;object&quot;:   {&quot;enum&quot;: [&quot;ball&quot;, &quot;chair&quot;, &quot;cup&quot;]},
+   &quot;color&quot;:    {&quot;enum&quot;: [null, &quot;red&quot;, &quot;blue&quot;, &quot;green&quot;]},
+   &quot;place&quot;:    {&quot;enum&quot;: [null, &quot;거실&quot;, &quot;주방&quot;]},
+   &quot;relation&quot;: {&quot;enum&quot;: [&quot;at&quot;, &quot;front&quot;, &quot;side&quot;, &quot;behind&quot;]}}}</code></pre></div>
+<h3 id="그라운딩과-접근-자세">그라운딩과 접근 자세<a class="anchor" href="#그라운딩과-접근-자세">#</a></h3>
+<p>슬롯 → 후보 랜드마크 → 하나 선택 → 목표 자세 순서입니다.</p>
+<ol><li><strong>후보</strong>: 이름표가 맞고(색이 있으면 <code>red_ball</code>처럼 정확히, 없으면 <code>*_ball</code> 전체), 장소가 있으면 그 방 안에 있는 것.</li><li><strong>선택</strong>: 후보가 여럿이면 로봇에서 가장 가까운 것(또는 되묻기: "거실 컵과 주방 컵 중 어느 것인가요?"). 후보가 없으면 탐색.</li><li><strong>목표 자세</strong>: 접근 방향 단위 벡터 <span class="math">\mathbf{u}</span>(로봇 또는 마지막 경유점 → 물체)에 대해</li></ol>
+<div class="table-wrap"><table><thead><tr><th>관계</th><th>목표 위치 <span class="math">\mathbf{g}</span></th><th>의미</th></tr></thead><tbody><tr><td>at, 앞(front)</td><td><span class="math">\mathbf{o} - D\,\mathbf{u}</span></td><td>로봇 쪽에서 D 앞 (보는 사람 기준 "앞")</td></tr><tr><td>옆(side)</td><td><span class="math">\mathbf{o} + D\,\mathbf{u}_\perp</span>, <span class="math">\mathbf{u}_\perp = (-u_y, u_x)</span></td><td>물체의 왼쪽 옆</td></tr><tr><td>뒤(behind)</td><td><span class="math">\mathbf{o} + D\,\mathbf{u}</span></td><td>물체 너머</td></tr></tbody></table></div>
+<p>방향은 항상 물체를 바라보게 <span class="math">\psi = \operatorname{atan2}(o_y - g_y,\, o_x - g_x)</span>입니다. 접근 거리 <span class="math">D</span>는 두 조건을 모두 만족해야 합니다: <span class="math">D \ge r_{robot} + r_{obj} + \text{여유}</span>(부딪히지 않게), 그리고 <span class="math">D - 0.061 \ge</span> 깊이 카메라 최소 측정 거리(도착해서 <strong>다시 볼 수 있게</strong>). 앞의 조건만 생각해 0.3 m로 두면, 도착 후 물체가 카메라 최소 거리 안에 들어와 검증이 항상 실패합니다. 목표가 장애물 팽창 영역 안이면 Nav2가 거부하므로, D를 키우거나 관계를 바꿔 다시 계산합니다.</p>
+<p>"앞"을 <strong>보는 사람 기준</strong>(로봇 쪽)으로 정의한 것도 설계 선택입니다. 의자처럼 고유한 앞면이 있는 물체는 물체 기준 "앞"이 다를 수 있습니다(확장 과제).</p>
+<h3 id="검증과-실패-처리">검증과 실패 처리<a class="anchor" href="#검증과-실패-처리">#</a></h3>
+<figure class="fig" id="fig-p08-fsm"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="자연어 명령 실행 상태 기계: 파싱, 그라운딩, 주행, 검증을 거쳐 완료되고, 물체가 없거나 검증에 실패하면 탐색 후 다시 그라운딩한다">
+  <defs>
+    <marker id="arr-p08-fsm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <rect class="box" x="10" y="60" width="110" height="52" rx="26"/>
+  <text class="lbl" x="65" y="84" text-anchor="middle">PARSE</text>
+  <text class="tag" x="65" y="100" text-anchor="middle">문장 → 슬롯</text>
+  <rect class="box" x="160" y="60" width="120" height="52" rx="26"/>
+  <text class="lbl" x="220" y="84" text-anchor="middle">GROUND</text>
+  <text class="tag" x="220" y="100" text-anchor="middle">슬롯 → 목표 자세</text>
+  <rect class="box-hi" x="320" y="60" width="120" height="52" rx="26"/>
+  <text class="lbl" x="380" y="84" text-anchor="middle">NAVIGATE</text>
+  <text class="tag" x="380" y="100" text-anchor="middle">Nav2 goToPose</text>
+  <rect class="box" x="480" y="60" width="110" height="52" rx="26"/>
+  <text class="lbl" x="535" y="84" text-anchor="middle">VERIFY</text>
+  <text class="tag" x="535" y="100" text-anchor="middle">다시 보기 1~2 s</text>
+  <rect class="box" x="625" y="60" width="85" height="52" rx="26"/>
+  <text class="lbl" x="667" y="91" text-anchor="middle">DONE</text>
+  <path class="ln" d="M120 86 L158 86" marker-end="url(#arr-p08-fsm)"/>
+  <path class="ln" d="M280 86 L318 86" marker-end="url(#arr-p08-fsm)"/>
+  <path class="ln" d="M440 86 L478 86" marker-end="url(#arr-p08-fsm)"/>
+  <path class="ln" d="M590 86 L623 86" marker-end="url(#arr-p08-fsm)"/>
+  <text class="tag" x="606" y="126" text-anchor="middle">3회 확인</text>
+  <rect class="box" x="300" y="190" width="160" height="56" rx="28"/>
+  <text class="lbl" x="380" y="214" text-anchor="middle">SEARCH</text>
+  <text class="tag" x="380" y="231" text-anchor="middle">제자리 360° → 다음 지점</text>
+  <path class="ln" d="M220 112 L220 218 L298 218" marker-end="url(#arr-p08-fsm)"/>
+  <text class="tag" x="212" y="168" text-anchor="end">지도에 없음</text>
+  <path class="ln" d="M535 112 L535 218 L462 218" marker-end="url(#arr-p08-fsm)"/>
+  <text class="tag" x="543" y="168">안 보임 · 위치 다름</text>
+  <path class="ln-hi" d="M345 190 L262 114" marker-end="url(#arr-p08-fsm)"/>
+  <text class="tag" x="318" y="140">발견 → 지도 갱신</text>
+  <rect class="box" x="560" y="200" width="150" height="46" rx="23"/>
+  <text class="lbl" x="635" y="228" text-anchor="middle">FAIL · 보고</text>
+  <path class="ln" d="M460 236 L558 236" marker-end="url(#arr-p08-fsm)"/>
+  <text class="tag" x="508" y="258" text-anchor="middle">지점 모두 실패</text>
+  <path class="ln" d="M65 112 L65 272 L635 272 L635 248" marker-end="url(#arr-p08-fsm)"/>
+  <text class="tag" x="80" y="290">슬롯 부족 · 모르는 동사 → 되묻기 ("무엇으로 갈까요?")</text>
+  <path class="ln" d="M380 60 L380 30 L716 30 L716 223 L712 223" stroke-dasharray="4 4" marker-end="url(#arr-p08-fsm)"/>
+  <text class="tag" x="548" y="24" text-anchor="middle">Nav2 실패 2회 (재시도 후)</text>
+</svg><figcaption>명령 실행 상태 기계. 지도에 없거나 도착해서 안 보이면 탐색으로 가고, 찾으면 지도를 고친 뒤 다시 그라운딩합니다.</figcaption></figure>
+<p>Nav2의 <code>SUCCEEDED</code>는 "목표 자세에 도착했다"는 뜻이지 "물체가 거기 있다"는 뜻이 아닙니다. 물체는 옮겨질 수 있고, 지도는 틀릴 수 있습니다. 그래서 도착 후 1~3 s 동안 카메라로 다시 보고, 같은 이름표가 예상 위치 0.3~0.5 m 안에서 3회 이상 관측되어야 성공으로 칩니다. 실패하면 <strong>탐색 패턴</strong>을 씁니다.</p>
+<ol><li>제자리 360° 회전(시야각 60°라 한 바퀴면 주변을 모두 봄).</li><li>못 찾으면 방 중심들을 가까운 순서로 방문하며 각각 360°.</li><li>발견하면 지도의 랜드마크를 새 위치로 갱신하고 GROUND로 돌아갑니다. 모두 실패하면 FAIL로 보고합니다.</li></ol>
+<h2 id="시스템-설계">시스템 설계<a class="anchor" href="#시스템-설계">#</a></h2>
+<figure class="fig" id="fig-p08-graph"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="시맨틱 내비게이션 ROS 2 그래프: 깊이 카메라와 yolov5_ros2 검출, TF를 semantic_mapper가 받아 시맨틱 지도를 만들고, command_executor가 자연어 명령을 해석해 Nav2에 목표를 보낸다">
+  <defs>
+    <marker id="arr-p08-graph" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <rect class="box" x="10" y="20" width="150" height="62" rx="6"/>
+  <text class="lbl" x="85" y="44" text-anchor="middle">깊이 카메라</text>
+  <text class="tag mono" x="85" y="62" text-anchor="middle">rgb0 · depth0</text>
+  <text class="tag mono" x="85" y="76" text-anchor="middle">camera_info</text>
+  <rect class="box" x="200" y="20" width="150" height="62" rx="6"/>
+  <text class="lbl" x="275" y="44" text-anchor="middle">yolov5_ros2</text>
+  <text class="tag" x="275" y="62" text-anchor="middle">yolov5s (COCO)</text>
+  <text class="tag" x="275" y="76" text-anchor="middle">메시지당 물체 1개</text>
+  <path class="ln" d="M160 40 L198 40" marker-end="url(#arr-p08-graph)"/>
+  <text class="tag mono" x="179" y="33" text-anchor="middle">rgb0</text>
+  <rect class="box-hi" x="400" y="20" width="170" height="80" rx="8"/>
+  <text class="lbl" x="485" y="44" text-anchor="middle">semantic_mapper</text>
+  <text class="tag" x="485" y="62" text-anchor="middle">역투영 → TF → map</text>
+  <text class="tag" x="485" y="78" text-anchor="middle">게이팅 · 누적 평균 · 횟수</text>
+  <text class="tag" x="485" y="94" text-anchor="middle">색: bbox 안 HSV</text>
+  <path class="ln" d="M350 45 L398 45" marker-end="url(#arr-p08-graph)"/>
+  <text class="tag mono" x="374" y="38" text-anchor="middle">object_detect</text>
+  <path class="ln" d="M85 82 L85 118 L380 118 L380 90 L398 90" marker-end="url(#arr-p08-graph)"/>
+  <text class="tag" x="230" y="112" text-anchor="middle">depth0 영상 · K 행렬</text>
+  <rect class="box" x="610" y="20" width="100" height="80" rx="6"/>
+  <text class="lbl" x="660" y="48" text-anchor="middle">지도 JSON</text>
+  <text class="tag mono" x="660" y="66" text-anchor="middle">semantic_</text>
+  <text class="tag mono" x="660" y="80" text-anchor="middle">map.json</text>
+  <path class="ln" d="M570 60 L608 60" marker-end="url(#arr-p08-graph)"/>
+  <rect class="box" x="10" y="150" width="150" height="62" rx="6"/>
+  <text class="lbl" x="85" y="174" text-anchor="middle">TF 트리</text>
+  <text class="tag mono" x="85" y="192" text-anchor="middle">map→odom (AMCL)</text>
+  <text class="tag mono" x="85" y="206" text-anchor="middle">→ ascamera_color_0</text>
+  <path class="ln" d="M160 165 L460 165 L460 102" marker-end="url(#arr-p08-graph)"/>
+  <rect class="box" x="200" y="230" width="150" height="54" rx="6"/>
+  <text class="lbl" x="275" y="253" text-anchor="middle">명령 입력</text>
+  <text class="tag mono" x="275" y="271" text-anchor="middle">/nl_command</text>
+  <rect class="box-hi" x="400" y="190" width="170" height="94" rx="8"/>
+  <text class="lbl" x="485" y="212" text-anchor="middle">command_executor</text>
+  <text class="tag" x="485" y="230" text-anchor="middle">파싱 → 슬롯 (LLM 선택)</text>
+  <text class="tag" x="485" y="246" text-anchor="middle">그라운딩 → 목표 자세</text>
+  <text class="tag" x="485" y="262" text-anchor="middle">검증 · 탐색 상태 기계</text>
+  <text class="tag mono" x="485" y="277" text-anchor="middle">/nl_status</text>
+  <path class="ln" d="M350 257 L398 257" marker-end="url(#arr-p08-graph)"/>
+  <path class="ln" d="M660 100 L660 140 L540 140 L540 188" marker-end="url(#arr-p08-graph)"/>
+  <text class="tag" x="600" y="133" text-anchor="middle">지도 읽기</text>
+  <rect class="box" x="610" y="200" width="100" height="74" rx="6"/>
+  <text class="lbl" x="660" y="226" text-anchor="middle">Nav2</text>
+  <text class="tag mono" x="660" y="244" text-anchor="middle">navigate_</text>
+  <text class="tag mono" x="660" y="258" text-anchor="middle">to_pose</text>
+  <path class="ln-hi" d="M570 225 L608 225" marker-end="url(#arr-p08-graph)"/>
+  <path class="ln" d="M608 255 L572 255" marker-end="url(#arr-p08-graph)"/>
+  <text class="tag" x="590" y="272" text-anchor="middle">결과</text>
+</svg><figcaption>시맨틱 내비게이션의 ROS 2 그래프. 매퍼와 실행기는 JSON 지도 파일(과 <code>/semantic_map</code> 토픽)로만 연결되어 따로 시험할 수 있습니다.</figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th>인터페이스</th><th>타입</th><th>방향</th><th>비고</th></tr></thead><tbody><tr><td><code>/ascamera/camera_publisher/rgb0/image</code></td><td><code>sensor_msgs/Image</code></td><td>카메라 → YOLO, 매퍼</td><td>매퍼는 색 판별에만 사용</td></tr><tr><td><code>/ascamera/camera_publisher/depth0/image_raw</code></td><td><code>sensor_msgs/Image</code> (16UC1, mm)</td><td>카메라 → 매퍼</td><td>최신 프레임만 보관</td></tr><tr><td><code>/ascamera/camera_publisher/rgb0/camera_info</code></td><td><code>sensor_msgs/CameraInfo</code></td><td>카메라 → 매퍼</td><td><span class="math">K</span></td></tr><tr><td><code>/yolov5_ros2/object_detect</code></td><td><code>interfaces/ObjectsInfo</code></td><td>YOLO → 매퍼</td><td><code>class_name</code>, <code>box</code>, <code>score</code>, <code>width</code>, <code>height</code>. <strong>메시지당 물체 1개</strong>(A08)</td></tr><tr><td><code>/tf</code>, <code>/tf_static</code></td><td>TF</td><td>—</td><td><code>map</code>↔<code>ascamera_color_0</code>, <code>map</code>↔<code>base_footprint</code></td></tr><tr><td><code>/semantic_map</code></td><td><code>std_msgs/String</code> (JSON)</td><td>매퍼 → 실행기</td><td>2 s마다, 파일 <code>~/semantic/semantic_map.json</code>에도 저장</td></tr><tr><td><code>/nl_command</code></td><td><code>std_msgs/String</code></td><td>사용자 → 실행기</td><td>한국어 문장</td></tr><tr><td><code>/nl_status</code></td><td><code>std_msgs/String</code></td><td>실행기 → 사용자</td><td>해석 결과, 상태 전이, 되묻기</td></tr><tr><td><code>navigate_to_pose</code>, <code>spin</code></td><td>Nav2 액션</td><td>실행기 → Nav2</td><td><code>BasicNavigator.goToPose()</code>, <code>spin()</code></td></tr></tbody></table></div>
+<p><code>semantic_map.json</code> 형식:</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-json">{&quot;frame&quot;: &quot;map&quot;, &quot;stamp&quot;: 815.2,
+ &quot;rooms&quot;: {&quot;거실&quot;: [[-3, -2], [0.6, -2], [0.6, 2], [-3, 2]], &quot;주방&quot;: [[0.6, -2], [3, -2], [3, 2], [0.6, 2]]},
+ &quot;landmarks&quot;: [{&quot;label&quot;: &quot;red_ball&quot;, &quot;x&quot;: 2.2, &quot;y&quot;: -0.2, &quot;n&quot;: 19, &quot;t&quot;: 815.0, &quot;room&quot;: &quot;주방&quot;}]}</code></pre></div>
+<h2 id="단계별-구현">단계별 구현<a class="anchor" href="#단계별-구현">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>마일스톤</th><th>내용</th><th>시간</th><th>산출물</th></tr></thead><tbody><tr><td>M1 인식</td><td>YOLOv5(yolov5s) 실행, 검출률·거리 오차 측정</td><td>40분</td><td>측정표</td></tr><tr><td>M2 역투영·TF</td><td>깊이 중앙값, 역투영, map 변환, 줄자 검증</td><td>50분</td><td>오차표</td></tr><tr><td>M3 융합·지도</td><td>게이팅·평균·확정, 방 다각형, 색 판별</td><td>50분</td><td><code>semantic_map.json</code></td></tr><tr><td>M4 언어</td><td>사전·파서, 시험 문장 30개, (선택) LLM</td><td>40분</td><td>정확도표</td></tr><tr><td>M5 실행</td><td>그라운딩, Nav2, 검증, 탐색</td><td>60분</td><td>실행 로그</td></tr><tr><td>M6 평가</td><td>시나리오 10개 × 2회</td><td>60분</td><td>성공률표, 실패 분석</td></tr></tbody></table></div>
+<div class="callout callout-task"><div class="callout-title">M1~M3 — 인식에서 지도까지</div><div class="callout-body"><ol><li>Playground 실습 1로 파이프라인 구조를 익힌 뒤, 실물에서 <code>yolo_detect</code>를 <code>yolov5s</code>로 실행해 공·의자·컵을 0.5/1/2 m에서 10회씩 보고 검출률을 잽니다.</li><li>물체를 줄자로 잰 map 위치에 두고, 매퍼가 낸 위치와 비교합니다. 광학 프레임 축을 잘못 쓰면 좌우가 뒤집히거나 높이가 거리로 들어갑니다.</li><li>방 꼭짓점을 RViz Publish Point로 모아 <code>ROOMS</code>를 채우고, 천천히 투어하며 지도를 만듭니다.</li></ol></div></div>
+<div class="callout callout-task"><div class="callout-title">M4~M5 — 명령에서 도착까지</div><div class="callout-body"><ol><li>팀원이 각자 명령 문장을 10개씩 쓰고(거부해야 할 문장 포함), 기대 슬롯을 표로 만든 뒤 실습 2의 파서로 정확도를 잽니다.</li><li>실습 3·4로 그라운딩·검증·탐색 흐름을 확인하고, 실물 실행기를 돌립니다.</li><li>(선택) 로컬 LLM을 붙이고, 네트워크를 끊은 상태에서도 규칙 파서로 동작하는지 확인합니다.</li></ol></div></div>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> 확정 랜드마크 오차 평균이 0.15 m 이하이고, 헛 랜드마크가 없다(N1).</label></li><li><label class="check-item"><input type="checkbox"> 시험 문장 세트에서 슬롯 완전 일치 90 % 이상, 거부 문장은 모두 거부(N2).</label></li><li><label class="check-item"><input type="checkbox"> 물체를 옮긴 뒤 명령했을 때 탐색으로 찾아 지도를 갱신했다(F6).</label></li></ul></div></div>
+<h2 id="실습-시뮬레이션">실습 (시뮬레이션)<a class="anchor" href="#실습-시뮬레이션">#</a></h2>
+<p>아래 코드는 이 페이지에서 바로 실행됩니다. ▶ 실행 후 결과 패널의 <strong>출력</strong> 탭에 로그가 나오고, 로봇을 움직이는 실습 1·3·4는 <strong>2D 재생</strong>(위에서 본 월드·라이다·궤적)과 <strong>3D 재생</strong>(MentorPi URDF 모델) 탭에서 다시 볼 수 있습니다. 월드는 6 × 4 m <code>room</code>이고, x = 0.6 m의 벽(문 두 곳)이 서쪽 <strong>거실</strong>과 동쪽 <strong>주방</strong>을 나눕니다. <code>sim.add_object()</code>로 이름표 붙은 물체를 놓고, YOLO + 깊이 카메라 대신 <code>sim.objects()</code>와 <code>sim.pose()</code>로 <strong>검출기를 흉내</strong> 냅니다(시야 ±30°, 거리 0.25~3 m, 라이다로 가림 판정, 검출률 80 %, 가끔 헛검출). 이 흉내 함수만 실물의 YOLO·깊이 콜백으로 바꾸면 나머지 코드는 같습니다.</p>
+<h3 id="실습-1-시맨틱-매핑-투어">실습 1. 시맨틱 매핑 투어<a class="anchor" href="#실습-1-시맨틱-매핑-투어">#</a></h3>
+<p>로봇이 거실에서 출발해 문을 지나 주방까지 경유점을 따라가며, 진행 방향 ±60°로 고개를 흔들어(메카넘이라 이동과 회전이 독립) 주변을 봅니다. 5 Hz로 검출 → 역투영 → map 좌표 → 게이팅·누적 평균을 하고, 끝나면 3회 이상 관측된 랜드마크만 방 이름과 함께 JSON으로 냅니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math, json, random
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
+from sensor_msgs.msg import LaserScan
+import mentorpi_sim as sim                                        # 시뮬 전용
+START = (-2.3, -1.3, 0.0)                                         # map 좌표의 출발 자세 = odom 원점
+sim.setup(world=&quot;room&quot;, duration=24.0, start=START)               # 시뮬 전용
+for lab, x, y, r in [(&quot;red_ball&quot;, 2.1, -0.3, 0.06), (&quot;blue_ball&quot;, -1.6, 0.5, 0.06), (&quot;chair&quot;, -0.3, -1.3, 0.15),
+                     (&quot;cup&quot;, -2.5, 0.9, 0.04), (&quot;cup&quot;, 2.6, 0.5, 0.04)]:
+    sim.add_object(lab, x, y, r)                                  # 시뮬 전용
+FX, CX, CAM_X = 460.0, 320.0, 0.061                               # 내부 파라미터(M07), base→depth_cam 오프셋(M08)
+ROOMS = {&quot;거실&quot;: [(-3, -2), (0.6, -2), (0.6, 2), (-3, 2)], &quot;주방&quot;: [(0.6, -2), (3, -2), (3, 2), (0.6, 2)]}
+TOUR = [(-1.2, -0.45), (-0.4, -0.3), (0.3, 0.05), (1.4, -0.2)]
+def fake_yolo_depth(scan):                                        # 시뮬 전용: YOLO + 깊이 영상 대용
+    x, y, th = sim.pose(); out = []
+    for lab, ox, oy, r in sim.objects():
+        dx, dy = ox - x, oy - y
+        xc, yc = math.cos(th) * dx + math.sin(th) * dy - CAM_X, -math.sin(th) * dx + math.cos(th) * dy
+        b = math.atan2(yc, xc)
+        i = int(round((b - scan.angle_min) / scan.angle_increment)) % len(scan.ranges)
+        if abs(b) &gt; math.radians(30) or not 0.25 &lt; xc &lt; 3.0 or scan.ranges[i] &lt; math.hypot(xc, yc) - r - 0.1:
+            continue                                              # 시야 밖·거리 밖·가려짐
+        if random.random() &lt; 0.8:                                 # 검출률 80 % (놓침 20 %)
+            out.append((lab, CX - FX * yc / xc + random.gauss(0, 3), xc * random.gauss(1, 0.03)))
+    if random.random() &lt; 0.05:                                    # 가끔 헛검출
+        out.append((&quot;chair&quot;, random.uniform(0, 640), random.uniform(0.5, 2.5)))
+    return out
+def in_poly(p, poly):
+    c = False
+    for (x1, y1), (x2, y2) in zip(poly, poly[1:] + poly[:1]):
+        if (y1 &gt; p[1]) != (y2 &gt; p[1]) and p[0] &lt; x1 + (p[1] - y1) * (x2 - x1) / (y2 - y1): c = not c
+    return c
+
+class SemanticMapper(Node):
+    def __init__(self):
+        super().__init__(&#x27;semantic_mapper&#x27;)
+        self.cmd = self.create_publisher(Twist, &#x27;/controller/cmd_vel&#x27;, 10)
+        self.create_subscription(Odometry, &#x27;/odom&#x27;, self.on_odom, 10)
+        self.create_subscription(LaserScan, &#x27;/scan&#x27;, lambda m: setattr(self, &#x27;scan&#x27;, m), 10)
+        self.pose, self.scan, self.wp, self.marks, self.n_det = None, None, 0, [], 0
+        self.create_timer(0.2, self.detect); self.create_timer(0.05, self.drive)
+    def on_odom(self, m):                                         # map = START ∘ odom (실물: TF map→base_footprint)
+        p, q = m.pose.pose.position, m.pose.pose.orientation
+        c, s = math.cos(START[2]), math.sin(START[2])
+        self.pose = (START[0] + c * p.x - s * p.y, START[1] + s * p.x + c * p.y, START[2] + 2 * math.atan2(q.z, q.w))
+    def detect(self):
+        if self.pose is None or self.scan is None: return
+        x, y, th = self.pose
+        for lab, u, z in fake_yolo_depth(self.scan):
+            xo = (u - CX) * z / FX                                # 역투영: 광학 x(오른쪽)
+            bx, by = CAM_X + z, -xo                               # 광학 → base (x 앞, y 왼쪽)
+            mx, my = x + math.cos(th) * bx - math.sin(th) * by, y + math.sin(th) * bx + math.cos(th) * by
+            self.n_det += 1
+            near = [m for m in self.marks if m[&quot;label&quot;] == lab and math.hypot(m[&quot;x&quot;] - mx, m[&quot;y&quot;] - my) &lt; 0.35]
+            if near:                                              # 게이트 안: 누적 평균
+                m = near[0]; m[&quot;n&quot;] += 1
+                m[&quot;x&quot;] += (mx - m[&quot;x&quot;]) / m[&quot;n&quot;]; m[&quot;y&quot;] += (my - m[&quot;y&quot;]) / m[&quot;n&quot;]
+            else:
+                self.marks.append({&quot;label&quot;: lab, &quot;x&quot;: mx, &quot;y&quot;: my, &quot;n&quot;: 1})
+    def drive(self):
+        t = Twist()
+        if self.pose and self.wp &lt; len(TOUR):
+            x, y, th = self.pose; ex, ey = TOUR[self.wp][0] - x, TOUR[self.wp][1] - y; d = math.hypot(ex, ey)
+            if d &lt; 0.05: self.wp += 1
+            else:                                                 # 메카넘: 진행 방향 ±60°로 고개를 흔들며 평행이동
+                k = min(0.2, 1.2 * d) / d
+                t.linear.x, t.linear.y = k * (math.cos(th) * ex + math.sin(th) * ey), k * (-math.sin(th) * ex + math.cos(th) * ey)
+                look = math.atan2(ey, ex) + math.radians(60) * math.sin(0.8 * self.get_clock().now().nanoseconds * 1e-9)
+                t.angular.z = max(-1.0, min(1.0, 2.0 * math.atan2(math.sin(look - th), math.cos(look - th))))
+        self.cmd.publish(t)
+
+random.seed(1)
+rclpy.init(); node = SemanticMapper()
+try:
+    rclpy.spin(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    node.cmd.publish(Twist())
+    truth = sim.objects()                                         # 시뮬 전용: 오차 평가
+    sem = []
+    for m in sorted(node.marks, key=lambda m: -m[&quot;n&quot;]):
+        err = min(math.hypot(m[&quot;x&quot;] - tx, m[&quot;y&quot;] - ty) for l, tx, ty, r in truth if l == m[&quot;label&quot;]) if m[&quot;label&quot;] in [t[0] for t in truth] else 9
+        if m[&quot;n&quot;] &lt; 3: continue
+        print(&quot;%-9s (%5.2f, %5.2f) 관측 %2d회  오차 %.2f m&quot; % (m[&quot;label&quot;], m[&quot;x&quot;], m[&quot;y&quot;], m[&quot;n&quot;], err))
+        room = next((k for k, p in ROOMS.items() if in_poly((m[&quot;x&quot;], m[&quot;y&quot;]), p)), &quot;?&quot;)
+        sem.append({&quot;label&quot;: m[&quot;label&quot;], &quot;x&quot;: round(m[&quot;x&quot;], 2), &quot;y&quot;: round(m[&quot;y&quot;], 2), &quot;n&quot;: m[&quot;n&quot;], &quot;room&quot;: room})
+    print(&quot;검출 %d건 → 후보 %d개 중 %d개 확정 (관측 3회 이상)&quot; % (node.n_det, len(node.marks), len(sem)))
+    doc = json.dumps({&quot;frame&quot;: &quot;map&quot;, &quot;rooms&quot;: ROOMS, &quot;landmarks&quot;: sem}, ensure_ascii=False)
+    print(&quot;semantic_map.json (%d바이트) 첫 랜드마크:&quot; % len(doc.encode()), json.dumps(sem[0], ensure_ascii=False))
+    node.destroy_node(); rclpy.shutdown()</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[sim] 시뮬레이션 시간 24.0 s 종료 (sim.setup(duration=...)으로 변경)   (대략)
+red_ball  ( 2.20, -0.20) 관측 19회  오차 0.14 m
+cup       ( 2.70,  0.60) 관측 16회  오차 0.14 m
+blue_ball (-1.63,  0.54) 관측 12회  오차 0.05 m
+chair     (-0.28, -1.27) 관측  8회  오차 0.04 m
+cup       (-2.56,  0.86) 관측  7회  오차 0.07 m
+검출 67건 → 후보 10개 중 5개 확정 (관측 3회 이상)
+semantic_map.json (491바이트) 첫 랜드마크: {&quot;label&quot;: &quot;red_ball&quot;, &quot;x&quot;: 2.2, &quot;y&quot;: -0.2, &quot;n&quot;: 19, &quot;room&quot;: &quot;주방&quot;}</code></pre></div>
+<ul><li>물체 5개가 모두 확정되고, 헛검출로 생긴 <code>chair</code> 후보 5개는 1회씩만 관측되어 버려졌습니다(후보 10개 중 5개 확정).</li><li>거실 물체는 오차 0.04~0.07 m, 주방 물체는 0.14 m입니다. 주방은 투어 끝에 보므로 <strong>오도메트리 드리프트</strong>(바퀴 미끄럼)가 쌓인 자세로 계산됐기 때문입니다. <code>/odom</code> 대신 시뮬 전용 <code>/ground_truth</code>(AMCL이 준 map 자세의 대용)를 쓰면 빨간 공 오차가 0.05 m로 줄어듭니다. 실물에서 <code>map</code> 프레임(AMCL)을 써야 하는 이유입니다.</li><li>고개 흔들기를 없애고(<code>t.angular.z = 0.0</code>) 다시 돌려 보세요. 로봇이 계속 동쪽만 보므로 거실의 파란 공과 컵을 놓쳐 3개만 확정됩니다. 탐색 경로만큼 <strong>어디를 보며 가는가</strong>가 중요합니다.</li></ul>
+<h3 id="실습-2-명령-파서-그라운딩-스키마-검사">실습 2. 명령 파서, 그라운딩, 스키마 검사<a class="anchor" href="#실습-2-명령-파서-그라운딩-스키마-검사">#</a></h3>
+<p>로봇 없이 파이썬만으로 돕니다. 실습 1의 지도(일부)를 넣고, 여러 문장을 해석해 목표 자세를 계산합니다. 마지막에는 LLM이 냈다고 가정한 출력 세 개를 스키마로 검사합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import json, math, re
+
+SEM = {&quot;frame&quot;: &quot;map&quot;, &quot;landmarks&quot;: [                               # 실습 1이 만든 시맨틱 지도 (일부)
+    {&quot;label&quot;: &quot;red_ball&quot;, &quot;x&quot;: 2.2, &quot;y&quot;: -0.2, &quot;n&quot;: 19, &quot;room&quot;: &quot;주방&quot;},
+    {&quot;label&quot;: &quot;cup&quot;, &quot;x&quot;: 2.7, &quot;y&quot;: 0.6, &quot;n&quot;: 16, &quot;room&quot;: &quot;주방&quot;},
+    {&quot;label&quot;: &quot;blue_ball&quot;, &quot;x&quot;: -1.63, &quot;y&quot;: 0.54, &quot;n&quot;: 12, &quot;room&quot;: &quot;거실&quot;},
+    {&quot;label&quot;: &quot;chair&quot;, &quot;x&quot;: -0.28, &quot;y&quot;: -1.27, &quot;n&quot;: 8, &quot;room&quot;: &quot;거실&quot;},
+    {&quot;label&quot;: &quot;cup&quot;, &quot;x&quot;: -2.56, &quot;y&quot;: 0.86, &quot;n&quot;: 7, &quot;room&quot;: &quot;거실&quot;}]}
+LEX = {&quot;intent&quot;: {&quot;가져&quot;: &quot;fetch&quot;, &quot;찾&quot;: &quot;find&quot;, &quot;이동&quot;: &quot;go&quot;, &quot;가&quot;: &quot;go&quot;, &quot;와&quot;: &quot;go&quot;},     # 앞쪽이 우선
+       &quot;object&quot;: {&quot;공&quot;: &quot;ball&quot;, &quot;의자&quot;: &quot;chair&quot;, &quot;컵&quot;: &quot;cup&quot;},
+       &quot;color&quot;: {&quot;빨간&quot;: &quot;red&quot;, &quot;빨강&quot;: &quot;red&quot;, &quot;파란&quot;: &quot;blue&quot;, &quot;파랑&quot;: &quot;blue&quot;, &quot;초록&quot;: &quot;green&quot;},
+       &quot;place&quot;: {&quot;주방&quot;: &quot;주방&quot;, &quot;부엌&quot;: &quot;주방&quot;, &quot;거실&quot;: &quot;거실&quot;},
+       &quot;relation&quot;: {&quot;앞&quot;: &quot;front&quot;, &quot;옆&quot;: &quot;side&quot;, &quot;뒤&quot;: &quot;behind&quot;}}
+SCHEMA = {&quot;intent&quot;: [&quot;go&quot;, &quot;find&quot;, &quot;fetch&quot;], &quot;object&quot;: [&quot;ball&quot;, &quot;chair&quot;, &quot;cup&quot;], &quot;color&quot;: [None, &quot;red&quot;, &quot;blue&quot;, &quot;green&quot;],
+          &quot;place&quot;: [None, &quot;거실&quot;, &quot;주방&quot;], &quot;relation&quot;: [&quot;at&quot;, &quot;front&quot;, &quot;side&quot;, &quot;behind&quot;]}
+
+def parse(text):                                                     # 규칙 기반: 사전 + 조사 무시
+    words = re.findall(r&quot;[가-힣]+&quot;, text)
+    slot = {&quot;intent&quot;: None, &quot;object&quot;: None, &quot;color&quot;: None, &quot;place&quot;: None, &quot;relation&quot;: &quot;at&quot;}
+    for key, lex in LEX.items():
+        for w in words:
+            hit = next((v for k, v in lex.items() if w.startswith(k)), None)
+            if hit and (slot[key] in (None, &quot;at&quot;)):
+                slot[key] = hit
+    return slot
+
+def validate(slot):                                                  # 스키마 검사 (LLM 출력도 같은 검사를 통과해야 함)
+    bad = [k for k in SCHEMA if slot.get(k, &quot;없음&quot;) not in SCHEMA[k]] + [k for k in slot if k not in SCHEMA]
+    return (not bad), bad
+
+def ground(slot, robot, D=0.4):                                     # 슬롯 → (목표 자세, 랜드마크, 설명)
+    want = (slot[&quot;color&quot;] + &quot;_&quot; if slot[&quot;color&quot;] else &quot;&quot;) + slot[&quot;object&quot;]
+    cands = [m for m in SEM[&quot;landmarks&quot;] if (m[&quot;label&quot;] == want or not slot[&quot;color&quot;] and m[&quot;label&quot;].endswith(&quot;_&quot; + want))
+             and slot[&quot;place&quot;] in (None, m[&quot;room&quot;])]
+    if not cands:
+        return None, None, &quot;지도에 &#x27;%s&#x27;%s 없음 → 탐색 필요&quot; % (want, &quot; (&quot; + slot[&quot;place&quot;] + &quot;)&quot; if slot[&quot;place&quot;] else &quot;&quot;)
+    m = min(cands, key=lambda m: math.hypot(m[&quot;x&quot;] - robot[0], m[&quot;y&quot;] - robot[1]))   # 여러 개면 가까운 것
+    ux, uy = m[&quot;x&quot;] - robot[0], m[&quot;y&quot;] - robot[1]; L = math.hypot(ux, uy); ux, uy = ux / L, uy / L
+    off = {&quot;at&quot;: (-ux, -uy), &quot;front&quot;: (-ux, -uy), &quot;side&quot;: (-uy, ux), &quot;behind&quot;: (ux, uy)}[slot[&quot;relation&quot;]]
+    gx, gy = m[&quot;x&quot;] + D * off[0], m[&quot;y&quot;] + D * off[1]
+    return (round(gx, 2), round(gy, 2), round(math.atan2(m[&quot;y&quot;] - gy, m[&quot;x&quot;] - gx), 2)), m, \
+        &quot;%s(%.2f, %.2f) 후보 %d개&quot; % (m[&quot;label&quot;], m[&quot;x&quot;], m[&quot;y&quot;], len(cands))
+
+
+robot = (-2.3, -1.3)
+for text in [&quot;빨간 공 앞으로 가 줘&quot;, &quot;의자 옆으로 이동&quot;, &quot;주방에 있는 컵으로 가&quot;, &quot;컵으로 가 줘&quot;, &quot;거실 공 뒤로 가&quot;,
+             &quot;초록색 공 찾아 줘&quot;, &quot;파란 공 가져와&quot;, &quot;창문 열어&quot;]:
+    slot = parse(text)
+    if slot[&quot;intent&quot;] is None or slot[&quot;object&quot;] is None:
+        print(&quot;%-14s → 거부: 동사/대상을 모름&quot; % text); continue
+    if slot[&quot;intent&quot;] == &quot;fetch&quot;:
+        print(&quot;%-14s → 거부: 집기(fetch)는 이 로봇이 못 함 → &#x27;가&#x27;로 바꿔 말해 주세요&quot; % text); continue
+    goal, m, why = ground(slot, robot)
+    print(&quot;%-14s → %s/%s/%s/%s/%s | %s%s&quot; % (text, slot[&quot;intent&quot;], slot[&quot;color&quot;], slot[&quot;object&quot;],
+          slot[&quot;place&quot;], slot[&quot;relation&quot;], why, &quot; → 목표 %s&quot; % (goal,) if goal else &quot;&quot;))
+
+print(&quot;--- LLM 출력(가정) 검증 ---&quot;)
+for raw in [&#x27;{&quot;intent&quot;: &quot;go&quot;, &quot;object&quot;: &quot;ball&quot;, &quot;color&quot;: &quot;red&quot;, &quot;place&quot;: null, &quot;relation&quot;: &quot;front&quot;}&#x27;,
+            &#x27;{&quot;intent&quot;: &quot;go&quot;, &quot;object&quot;: &quot;sofa&quot;, &quot;color&quot;: null, &quot;place&quot;: null, &quot;relation&quot;: &quot;at&quot;}&#x27;,
+            &#x27;Sure! The robot should go to the red ball.&#x27;]:
+    try:
+        slot = json.loads(raw); ok, bad = validate(slot)
+    except ValueError:
+        ok, bad = False, [&quot;JSON 아님&quot;]
+    print(&quot;통과 → %s&quot; % &quot;/&quot;.join(str(v) for v in slot.values()) if ok else &quot;거부 %s → 규칙 파서로 대체&quot; % bad)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">빨간 공 앞으로 가 줘   → go/red/ball/None/front | red_ball(2.20, -0.20) 후보 1개 → 목표 (1.81, -0.29, 0.24)   (대략)
+의자 옆으로 이동      → go/None/chair/None/side | chair(-0.28, -1.27) 후보 1개 → 목표 (-0.29, -0.87, -1.56)
+주방에 있는 컵으로 가   → go/None/cup/주방/at | cup(2.70, 0.60) 후보 1개 → 목표 (2.33, 0.46, 0.36)
+컵으로 가 줘        → go/None/cup/None/at | cup(-2.56, 0.86) 후보 2개 → 목표 (-2.51, 0.46, 1.69)
+거실 공 뒤로 가      → go/None/ball/거실/behind | blue_ball(-1.63, 0.54) 후보 1개 → 목표 (-1.49, 0.92, -1.92)
+초록색 공 찾아 줘     → find/green/ball/None/at | 지도에 &#x27;green_ball&#x27; 없음 → 탐색 필요
+파란 공 가져와       → 거부: 집기(fetch)는 이 로봇이 못 함 → &#x27;가&#x27;로 바꿔 말해 주세요
+창문 열어          → 거부: 동사/대상을 모름
+--- LLM 출력(가정) 검증 ---
+통과 → go/ball/red/None/front
+거부 [&#x27;object&#x27;] → 규칙 파서로 대체
+거부 [&#x27;JSON 아님&#x27;] → 규칙 파서로 대체</code></pre></div>
+<ul><li>"주방에 있는 컵"은 장소 슬롯 덕분에 주방 컵 하나로 좁혀지고, 그냥 "컵"은 후보 2개 중 로봇(−2.3, −1.3)에서 가까운 거실 컵이 골라집니다. 실제 서비스라면 여기서 <strong>되묻는 것</strong>이 더 안전합니다.</li><li>"초록색 공"은 해석은 되지만 지도에 없어 탐색으로 넘어가고, "가져와"는 팔이 없는 로봇이 할 수 없어 거부합니다. "창문 열어"는 동사·대상을 몰라 거부합니다.</li><li>LLM 출력은 JSON이어도 스키마 밖 값(<code>sofa</code>)이면 거부하고, JSON이 아니면 당연히 거부합니다. 어느 경우든 규칙 파서로 대체되므로 <strong>LLM이 없어도 시스템은 멈추지 않습니다.</strong></li></ul>
+<h3 id="실습-3-명령으로-주행하기">실습 3. 명령으로 주행하기<a class="anchor" href="#실습-3-명령으로-주행하기">#</a></h3>
+<p>실습 1의 지도로 두 명령을 차례로 실행합니다. 목표가 다른 방에 있으면 문 경유점(거실 → 주방)을 거치고, 접근 방향은 마지막 경유점 → 물체로 잡습니다. 실물에서는 경유점과 주행을 Nav2가 대신합니다(전역 계획 + 코스트맵).</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math, re
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
+from sensor_msgs.msg import LaserScan
+import mentorpi_sim as sim                                        # 시뮬 전용
+START = (-0.9, -0.6, 0.0)
+sim.setup(world=&quot;room&quot;, duration=30.0, start=START)               # 시뮬 전용
+for lab, x, y, r in [(&quot;red_ball&quot;, 2.1, -0.3, 0.06), (&quot;chair&quot;, -0.3, -1.3, 0.15)]:
+    sim.add_object(lab, x, y, r)                                  # 시뮬 전용
+
+LANDMARKS = [{&quot;label&quot;: &quot;red_ball&quot;, &quot;x&quot;: 2.2, &quot;y&quot;: -0.2, &quot;room&quot;: &quot;주방&quot;},       # 실습 1의 지도
+             {&quot;label&quot;: &quot;chair&quot;, &quot;x&quot;: -0.28, &quot;y&quot;: -1.27, &quot;room&quot;: &quot;거실&quot;}]
+DOOR = [(0.25, 0.1), (1.0, -0.3)]                                 # 거실 → 주방 경유점 (반대 방향은 뒤집기)
+room_of = lambda x: &quot;거실&quot; if x &lt; 0.6 else &quot;주방&quot;
+OBJ, COLOR, REL = {&quot;공&quot;: &quot;ball&quot;, &quot;의자&quot;: &quot;chair&quot;}, {&quot;빨간&quot;: &quot;red_&quot;, &quot;파란&quot;: &quot;blue_&quot;}, {&quot;앞&quot;: &quot;front&quot;, &quot;옆&quot;: &quot;side&quot;, &quot;뒤&quot;: &quot;behind&quot;}
+COMMANDS = [&quot;의자 옆으로 이동&quot;, &quot;주방에 있는 빨간 공 앞으로 가 줘&quot;]
+def plan(cmd, pose, D=0.4):                                      # 파싱 → 그라운딩 → 경유점 + 목표 자세
+    ws = re.findall(r&quot;[가-힣]+&quot;, cmd); pick = lambda lex: next((v for w in ws for k, v in lex.items() if w.startswith(k)), &quot;&quot;)
+    label, rel = pick(COLOR) + pick(OBJ), pick(REL) or &quot;front&quot;
+    m = next(m for m in LANDMARKS if m[&quot;label&quot;] == label)
+    path = [] if room_of(pose[0]) == m[&quot;room&quot;] else (DOOR if m[&quot;room&quot;] == &quot;주방&quot; else DOOR[::-1])
+    px, py = path[-1] if path else pose[:2]                       # 접근 방향 = 마지막 경유점 → 물체
+    L = math.hypot(m[&quot;x&quot;] - px, m[&quot;y&quot;] - py); ux, uy = (m[&quot;x&quot;] - px) / L, (m[&quot;y&quot;] - py) / L
+    ox, oy = {&quot;front&quot;: (-ux, -uy), &quot;side&quot;: (-uy, ux), &quot;behind&quot;: (ux, uy)}[rel]
+    gx, gy = m[&quot;x&quot;] + D * ox, m[&quot;y&quot;] + D * oy
+    return path + [(gx, gy)], math.atan2(m[&quot;y&quot;] - gy, m[&quot;x&quot;] - gx), m
+
+class CommandNavigator(Node):
+    def __init__(self):
+        super().__init__(&#x27;nl_navigator&#x27;)
+        self.cmd = self.create_publisher(Twist, &#x27;/controller/cmd_vel&#x27;, 10)
+        self.create_subscription(Odometry, &#x27;/odom&#x27;, self.on_odom, 10)
+        self.create_subscription(LaserScan, &#x27;/scan&#x27;, lambda m: setattr(self, &#x27;scan&#x27;, m), 10)
+        self.pose, self.scan, self.queue, self.task = None, None, list(COMMANDS), None
+        self.create_timer(0.05, self.loop)
+    def on_odom(self, m):
+        p, q = m.pose.pose.position, m.pose.pose.orientation      # map = START ∘ odom (실물: AMCL TF)
+        self.pose = (START[0] + p.x, START[1] + p.y, START[2] + 2 * math.atan2(q.z, q.w))
+    def blocked(self, vx, vy):                                    # 진행 방향 ±30°에 0.2 m 이내 → 정지
+        r = np.array(self.scan.ranges); a = self.scan.angle_min + np.arange(len(r)) * self.scan.angle_increment
+        d = np.abs(np.arctan2(np.sin(a - math.atan2(vy, vx)), np.cos(a - math.atan2(vy, vx))))
+        return bool(np.any((d &lt; math.radians(30)) &amp; (r &lt; 0.2)))
+    def loop(self):
+        if self.pose is None or self.scan is None: return
+        t, (x, y, th) = Twist(), self.pose
+        if self.task is None and self.queue:
+            text = self.queue.pop(0); path, yaw, m = plan(text, self.pose)
+            self.task = {&quot;text&quot;: text, &quot;path&quot;: path, &quot;yaw&quot;: yaw, &quot;m&quot;: m}
+            self.get_logger().info(&#x27;&quot;%s&quot; → %s, 경유점 %d개, 목표 (%.2f, %.2f, %.0f°)&#x27; % (
+                text, m[&quot;label&quot;], len(path) - 1, path[-1][0], path[-1][1], math.degrees(yaw)))
+        if self.task:
+            gx, gy = self.task[&quot;path&quot;][0]; ex, ey = gx - x, gy - y; d = math.hypot(ex, ey)
+            last = len(self.task[&quot;path&quot;]) == 1
+            eyaw = math.atan2(math.sin(self.task[&quot;yaw&quot;] - th), math.cos(self.task[&quot;yaw&quot;] - th)) if last else 0.0
+            if d &lt; (0.04 if last else 0.12) and abs(eyaw) &lt; 0.08:
+                self.task[&quot;path&quot;].pop(0)
+                if not self.task[&quot;path&quot;]:
+                    tx, ty, tth = sim.pose()                      # 시뮬 전용: 실제 자세로 검증
+                    self.get_logger().info(&#x27;도착: 목표까지 %.3f m, 물체까지 %.2f m (%.1f s)&#x27; % (
+                        math.hypot(tx - gx, ty - gy), math.hypot(tx - self.task[&quot;m&quot;][&quot;x&quot;], ty - self.task[&quot;m&quot;][&quot;y&quot;]),
+                        self.get_clock().now().nanoseconds * 1e-9))
+                    self.task = None
+            else:
+                k = min(0.2, 1.0 * d) / max(d, 1e-6)
+                wx, wy = k * ex, k * ey                            # map 좌표 속도 → base 좌표
+                t.linear.x, t.linear.y = math.cos(th) * wx + math.sin(th) * wy, -math.sin(th) * wx + math.cos(th) * wy
+                t.angular.z = max(-0.5, min(0.5, 1.5 * eyaw))
+                if d &gt; 0.05 and self.blocked(t.linear.x, t.linear.y):
+                    t.linear.x = t.linear.y = 0.0
+        self.cmd.publish(t)
+        if self.task is None and not self.queue: raise KeyboardInterrupt
+
+rclpy.init(); node = CommandNavigator()
+try:
+    rclpy.spin(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    node.cmd.publish(Twist()); node.destroy_node(); rclpy.shutdown()</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[INFO] [0.060] [nl_navigator]: &quot;의자 옆으로 이동&quot; → chair, 경유점 0개, 목표 (0.01, -1.00, -137°)   (대략)
+[INFO] [5.660] [nl_navigator]: 도착: 목표까지 0.094 m, 물체까지 0.40 m (5.7 s)
+[INFO] [5.700] [nl_navigator]: &quot;주방에 있는 빨간 공 앞으로 가 줘&quot; → red_ball, 경유점 2개, 목표 (1.80, -0.23, 5°)
+[INFO] [19.900] [nl_navigator]: 도착: 목표까지 0.235 m, 물체까지 0.61 m (19.9 s)</code></pre></div>
+<ul><li>첫 명령은 5.7 s, 둘째 명령은 문 경유점 두 개를 지나 19.9 s에 끝났습니다. 로봇은 스스로 "도착"했다고 판단했지만, 실제 자세로 재면 목표에서 0.09 m, 0.24 m 떨어져 있습니다.</li><li>원인은 두 가지가 겹친 것입니다. (1) 지도 속 빨간 공 위치가 실제(2.1, −0.3)와 0.14 m 다름(실습 1의 드리프트), (2) 주행 중 오도메트리 드리프트. 물체까지 실제 거리가 0.61 m로 D = 0.4 m보다 멉니다.</li><li>이것이 <strong>도착 후 검증</strong>이 필요한 이유입니다. 실습 4에서 다시 보고 고치는 과정을 붙입니다.</li></ul>
+<h3 id="실습-4-검증과-탐색-옮겨진-물체-찾기">실습 4. 검증과 탐색: 옮겨진 물체 찾기<a class="anchor" href="#실습-4-검증과-탐색-옮겨진-물체-찾기">#</a></h3>
+<p>지도에는 파란 공이 (−1.63, 0.54)에 있다고 적혀 있지만, 누군가 (−2.2, −0.6)으로 옮겼습니다. 로봇은 지도 위치로 가서 1 s 동안 다시 보고(VERIFY), 안 보이면 제자리에서 돌며 찾고(SEARCH), 찾으면 지도를 갱신해 다시 갑니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math, random
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
+from sensor_msgs.msg import LaserScan
+import mentorpi_sim as sim                                        # 시뮬 전용
+START = (-0.8, -0.9, 0.0)
+sim.setup(world=&quot;room&quot;, duration=30.0, start=START)               # 시뮬 전용
+sim.add_object(&quot;blue_ball&quot;, -2.2, -0.6, 0.06)                     # 시뮬 전용: 누군가 공을 옮겨 놓았다
+FX, CX, CAM_X, D = 460.0, 320.0, 0.061, 0.4
+mark = {&quot;label&quot;: &quot;blue_ball&quot;, &quot;x&quot;: -1.63, &quot;y&quot;: 0.54}              # 지도에 적힌 (옛) 위치
+def fake_yolo_depth(scan):                                        # 시뮬 전용: 실습 1과 같은 검출기 흉내
+    x, y, th = sim.pose(); out = []
+    for lab, ox, oy, r in sim.objects():
+        dx, dy = ox - x, oy - y
+        xc, yc = math.cos(th) * dx + math.sin(th) * dy - CAM_X, -math.sin(th) * dx + math.cos(th) * dy
+        b = math.atan2(yc, xc)
+        i = int(round((b - scan.angle_min) / scan.angle_increment)) % len(scan.ranges)
+        if abs(b) &lt; math.radians(30) and 0.25 &lt; xc &lt; 3.0 and scan.ranges[i] &gt; math.hypot(xc, yc) - r - 0.1 \
+                and random.random() &lt; 0.8:
+            out.append((lab, CX - FX * yc / xc + random.gauss(0, 3), xc * random.gauss(1, 0.03)))
+    return out
+
+class FindAndGo(Node):
+    def __init__(self):
+        super().__init__(&#x27;find_and_go&#x27;)
+        self.cmd = self.create_publisher(Twist, &#x27;/controller/cmd_vel&#x27;, 10)
+        self.create_subscription(Odometry, &#x27;/odom&#x27;, self.on_odom, 10)
+        self.create_subscription(LaserScan, &#x27;/scan&#x27;, lambda m: setattr(self, &#x27;scan&#x27;, m), 10)
+        self.pose, self.scan, self.seen, self.turned = None, None, [], 0.0
+        self.state, self.goal, self.t0 = &#x27;IDLE&#x27;, None, 0.0
+        self.create_timer(0.05, self.loop); self.create_timer(0.2, self.detect)
+    def now(self): return self.get_clock().now().nanoseconds * 1e-9
+    def go(self, st, why):
+        self.get_logger().info(&#x27;%-6s → %-6s %s&#x27; % (self.state, st, why)); self.state, self.t0 = st, self.now()
+    def on_odom(self, m):
+        p, q = m.pose.pose.position, m.pose.pose.orientation
+        self.pose = (START[0] + p.x, START[1] + p.y, START[2] + 2 * math.atan2(q.z, q.w))
+    def detect(self):                                             # 검출 → 역투영 → map 좌표 (실습 1과 같은 식)
+        if self.state not in (&#x27;VERIFY&#x27;, &#x27;SEARCH&#x27;) or self.scan is None: return
+        x, y, th = self.pose
+        for lab, u, z in fake_yolo_depth(self.scan):
+            if lab == mark[&quot;label&quot;]:
+                bx, by = CAM_X + z, -(u - CX) * z / FX
+                self.seen.append((x + math.cos(th) * bx - math.sin(th) * by, y + math.sin(th) * bx + math.cos(th) * by))
+    def set_goal(self):                                           # 로봇 쪽에서 D만큼 앞, 물체를 바라봄
+        x, y, _ = self.pose; L = math.hypot(mark[&quot;x&quot;] - x, mark[&quot;y&quot;] - y)
+        gx, gy = mark[&quot;x&quot;] - D * (mark[&quot;x&quot;] - x) / L, mark[&quot;y&quot;] - D * (mark[&quot;y&quot;] - y) / L
+        self.goal = (gx, gy, math.atan2(mark[&quot;y&quot;] - gy, mark[&quot;x&quot;] - gx))
+    def loop(self):
+        if self.pose is None or self.scan is None: return
+        t, (x, y, th) = Twist(), self.pose
+        if self.state == &#x27;IDLE&#x27;:
+            self.set_goal(); self.go(&#x27;GOTO&#x27;, &#x27;지도 위치 (%.2f, %.2f)로&#x27; % (mark[&quot;x&quot;], mark[&quot;y&quot;]))
+        elif self.state == &#x27;GOTO&#x27;:
+            ex, ey = self.goal[0] - x, self.goal[1] - y; d = math.hypot(ex, ey)
+            eyaw = math.atan2(math.sin(self.goal[2] - th), math.cos(self.goal[2] - th))
+            if d &lt; 0.04 and abs(eyaw) &lt; 0.08:
+                self.seen = []; self.go(&#x27;VERIFY&#x27;, &#x27;도착, 1 s 동안 확인&#x27;)
+            else:
+                k = min(0.2, d) / max(d, 1e-6)
+                t.linear.x, t.linear.y = k * (math.cos(th) * ex + math.sin(th) * ey), k * (-math.sin(th) * ex + math.cos(th) * ey)
+                t.angular.z = max(-0.5, min(0.5, 1.5 * eyaw))
+        elif self.state == &#x27;VERIFY&#x27; and self.now() - self.t0 &gt; 1.0:
+            near = [p for p in self.seen if math.hypot(p[0] - mark[&quot;x&quot;], p[1] - mark[&quot;y&quot;]) &lt; 0.3]
+            if len(near) &gt;= 3:
+                sx, sy = sum(p[0] for p in near) / len(near), sum(p[1] for p in near) / len(near)
+                self.go(&#x27;DONE&#x27;, &#x27;확인 %d회, 물체까지 %.2f m (실제 %.2f m)&#x27; % (len(near), math.hypot(sx - x, sy - y),
+                        math.hypot(sim.pose()[0] - (-2.2), sim.pose()[1] - (-0.6))))   # 시뮬 전용: 실제 거리
+            else:
+                self.go(&#x27;SEARCH&#x27;, &#x27;지도 위치 근처 검출 %d회 → 제자리 360° 탐색&#x27; % len(near)); self.seen, self.turned = [], 0.0
+        elif self.state == &#x27;SEARCH&#x27;:
+            if len(self.seen) &gt;= 3:                               # 3회 이상 일관되게 보이면 지도 갱신
+                mark[&quot;x&quot;] = sum(p[0] for p in self.seen[-3:]) / 3; mark[&quot;y&quot;] = sum(p[1] for p in self.seen[-3:]) / 3
+                self.set_goal(); self.go(&#x27;GOTO&#x27;, &#x27;발견! 지도 갱신 (%.2f, %.2f), %.0f° 돌아서&#x27; % (mark[&quot;x&quot;], mark[&quot;y&quot;], math.degrees(self.turned)))
+            elif self.turned &gt; 2 * math.pi:
+                self.go(&#x27;FAIL&#x27;, &#x27;한 바퀴 돌아도 없음 → 다음 탐색 지점 또는 사용자에게 보고&#x27;)
+            else:
+                t.angular.z = 0.5; self.turned += 0.5 * 0.05
+        self.cmd.publish(t)
+        if self.state in (&#x27;DONE&#x27;, &#x27;FAIL&#x27;): raise KeyboardInterrupt
+
+random.seed(3)
+rclpy.init(); node = FindAndGo()
+try:
+    rclpy.spin(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    node.cmd.publish(Twist()); node.destroy_node(); rclpy.shutdown()</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[INFO] [0.060] [find_and_go]: IDLE   → GOTO   지도 위치 (-1.63, 0.54)로   (대략)
+[INFO] [7.060] [find_and_go]: GOTO   → VERIFY 도착, 1 s 동안 확인
+[INFO] [8.100] [find_and_go]: VERIFY → SEARCH 지도 위치 근처 검출 0회 → 제자리 360° 탐색
+[INFO] [11.400] [find_and_go]: SEARCH → GOTO   발견! 지도 갱신 (-2.19, -0.65), 93° 돌아서
+[INFO] [15.760] [find_and_go]: GOTO   → VERIFY 도착, 1 s 동안 확인
+[INFO] [16.800] [find_and_go]: VERIFY → DONE   확인 6회, 물체까지 0.48 m (실제 0.47 m)</code></pre></div>
+<ul><li>지도 위치에 도착(7.1 s)했지만 예상 위치 근처 검출이 0회라 탐색으로 넘어가고, 93° 돌았을 때 공을 3회 관측해 지도를 (−2.19, −0.65)로 고칩니다. 다시 다가가 6회 확인하고 성공합니다(16.8 s).</li><li>마지막 확인에서 물체까지 0.48 m(실제 0.47 m)로, 검출로 측정한 거리와 실제가 거의 같습니다. 도착 오차는 남아 있지만 <strong>"물체가 거기 있다"는 사실</strong>은 카메라로 확인했습니다.</li><li><code>sim.add_object(...)</code> 줄 뒤에 <code>sim.add_box(-1.9, -0.2, 0.1, 0.5)</code>를 더해(시뮬 전용) 공을 가려 보세요. 한 바퀴를 다 돌아도 못 찾고 <code>SEARCH → FAIL</code>로 끝납니다(20.8 s). 실물 실행기는 여기서 다음 방 중심으로 이동해 다시 찾습니다.</li></ul>
+<p class="cta-row"><a class="ghost-btn cta" href="../sim/index.html">2D 시뮬레이터 열기</a></p>
+<p>2D 시뮬레이터의 <strong>내비게이션</strong> 모드에서 room 월드의 거실 → 주방 목표를 클릭해 A* 경로가 문을 지나는 모습을 보고, 실습 3의 문 경유점과 비교하세요.</p>
+<p class="cta-row"><a class="ghost-btn cta" href="../sim3d/index.html">3D 시뮬레이터 열기</a></p>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">안전 확인 (실물 실습 전 필수)</div><div class="callout-body"><ul><li>시험 공간을 먼저 걸어 보며 계단·문턱·케이블·유리를 치우고, 물체(공·의자·컵)는 넘어져도 위험하지 않은 것만 씁니다. <strong>깨지는 컵 금지</strong>, 플라스틱 컵을 씁니다.</li><li>명령은 이름만 받습니다. 실행기에 좌표를 직접 넣는 기능을 만들지 않습니다.</li><li>속도 상한(0.2 m/s, 0.5 rad/s)은 Nav2 설정 그대로 둡니다. 탐색 회전 중에도 Nav2의 충돌 감시가 동작하는지 확인합니다.</li><li>멈추는 방법: 실행기 Ctrl+C(<code>cancelTask</code>), <code>ros2 topic pub --once /controller/cmd_vel geometry_msgs/msg/Twist &quot;{}&quot;</code>, 전원 스위치.</li><li>사람이 로봇 앞을 지나가면 YOLO가 <code>person</code>을 볼 수 있지만, 매퍼는 사람을 지도에 저장하지 않습니다(개인정보).</li></ul></div></div>
+<h3 id="1-내비게이션과-yolov5-실행">1) 내비게이션과 YOLOv5 실행<a class="anchor" href="#1-내비게이션과-yolov5-실행">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash"># 로봇 — 깊이 카메라·라이다·AMCL·Nav2 (robot.launch.py가 깊이 카메라를 포함)
+~/.stop_ros.sh
+ros2 launch navigation navigation.launch.py map:=map_01
+# 가상머신 — 초기 위치(2D Pose Estimate), 방 꼭짓점(Publish Point)
+ros2 launch navigation rviz_navigation.launch.py
+ros2 topic echo /clicked_point
+# 로봇 새 터미널 — COCO 모델(yolov5s: sports ball, chair, cup 포함), CPU
+ros2 run yolov5_ros2 yolo_detect --ros-args -p model:=yolov5s -p device:=cpu -p pub_result_img:=true
+ros2 topic echo /yolov5_ros2/object_detect</code></pre></div>
+<p><code>yolov5_ros2.launch.py</code>는 모델을 <code>traffic_signs_640s_7_0</code>으로 고정해 두었으므로(A08) <code>ros2 run</code>으로 모델을 지정합니다. 라즈베리파이 5 CPU에서 yolov5s는 느리므로(초당 몇 프레임), 매핑 투어는 천천히 하고 볼 곳에서 잠깐 멈춥니다. 깊이와 컬러 영상은 해상도가 같다고 가정하고, 다르면 상자 좌표를 비율로 바꿉니다(아래 코드의 <code>s</code>).</p>
+<h3 id="2-시맨틱-매퍼-노드">2) 시맨틱 매퍼 노드<a class="anchor" href="#2-시맨틱-매퍼-노드">#</a></h3>
+<div class="code-block code-robot"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-robot">실물 전용</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">#!/usr/bin/env python3
+# semantic_mapper.py — YOLOv5 검출 + 깊이 + TF → map 랜드마크 → ~/semantic/semantic_map.json
+import json, math, os
+import cv2
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from rclpy.time import Time
+from cv_bridge import CvBridge
+from sensor_msgs.msg import Image, CameraInfo
+from std_msgs.msg import String
+from interfaces.msg import ObjectsInfo
+from tf2_ros import Buffer, TransformListener, TransformException
+from tf_transformations import quaternion_matrix
+
+CLASSES = {&#x27;sports ball&#x27;: &#x27;ball&#x27;, &#x27;chair&#x27;: &#x27;chair&#x27;, &#x27;cup&#x27;: &#x27;cup&#x27;}     # COCO 이름 → 지도 이름 (person 제외)
+HUE = {&#x27;red&#x27;: [(0, 10), (170, 179)], &#x27;green&#x27;: [(40, 80)], &#x27;blue&#x27;: [(100, 130)]}   # OpenCV H 0~179
+RADIUS = {&#x27;ball&#x27;: 0.06, &#x27;chair&#x27;: 0.2, &#x27;cup&#x27;: 0.04}                   # 앞 표면 → 중심 보정
+ROOMS = {&#x27;거실&#x27;: [(-3, -2), (0.6, -2), (0.6, 2), (-3, 2)],             # /clicked_point로 측정한 값으로 교체
+         &#x27;주방&#x27;: [(0.6, -2), (3, -2), (3, 2), (0.6, 2)]}
+GATE, CONFIRM, OPT = 0.35, 3, &#x27;ascamera_color_0&#x27;
+OUT = os.path.expanduser(&#x27;~/semantic/semantic_map.json&#x27;)
+CAM = &#x27;/ascamera/camera_publisher/&#x27;
+
+def in_poly(x, y, poly):
+    c = False
+    for (x1, y1), (x2, y2) in zip(poly, poly[1:] + poly[:1]):
+        if (y1 &gt; y) != (y2 &gt; y) and x &lt; x1 + (y - y1) * (x2 - x1) / (y2 - y1):
+            c = not c
+    return c
+
+class SemanticMapper(Node):
+    def __init__(self):
+        super().__init__(&#x27;semantic_mapper&#x27;)
+        self.bridge, self.K, self.depth, self.rgb, self.marks = CvBridge(), None, None, None, []
+        self.create_subscription(CameraInfo, CAM + &#x27;rgb0/camera_info&#x27;, self.on_info, 1)
+        self.create_subscription(Image, CAM + &#x27;depth0/image_raw&#x27;, lambda m: setattr(self, &#x27;depth&#x27;, m), 1)
+        self.create_subscription(Image, CAM + &#x27;rgb0/image&#x27;, lambda m: setattr(self, &#x27;rgb&#x27;, m), 1)
+        self.create_subscription(ObjectsInfo, &#x27;/yolov5_ros2/object_detect&#x27;, self.on_det, 10)
+        self.pub = self.create_publisher(String, &#x27;/semantic_map&#x27;, 1)
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
+        self.create_timer(2.0, self.save)
+    def on_info(self, m):
+        self.K = np.array(m.k).reshape(3, 3)
+    def color_of(self, x1, y1, x2, y2):                       # 상자 안 HSV 색상 투표
+        hsv = cv2.cvtColor(self.bridge.imgmsg_to_cv2(self.rgb, &#x27;bgr8&#x27;)[y1:y2, x1:x2], cv2.COLOR_BGR2HSV)
+        h = hsv[..., 0][(hsv[..., 1] &gt; 80) &amp; (hsv[..., 2] &gt; 50)]
+        votes = {c: sum(int(((h &gt;= lo) &amp; (h &lt;= hi)).sum()) for lo, hi in rs) for c, rs in HUE.items()}
+        best = max(votes, key=votes.get)
+        return best if h.size &gt; 30 and votes[best] &gt; 0.4 * h.size else &#x27;unknown&#x27;
+    def on_det(self, msg):
+        if self.K is None or self.depth is None or self.rgb is None:
+            return
+        d = self.bridge.imgmsg_to_cv2(self.depth)                  # 16UC1 [mm]
+        for o in msg.objects:                                      # 원본 노드는 메시지당 1개
+            if o.class_name not in CLASSES or o.score &lt; 0.5:
+                continue
+            x1, y1, x2, y2 = o.box
+            s = d.shape[1] / float(o.width)                         # 컬러 → 깊이 해상도 비율
+            u, v = (x1 + x2) / 2.0, (y1 + y2) / 2.0
+            hw, hh = max(2, int((x2 - x1) * s / 4)), max(2, int((y2 - y1) * s / 4))
+            patch = d[int(v * s) - hh:int(v * s) + hh, int(u * s) - hw:int(u * s) + hw].astype(float)
+            patch = patch[patch &gt; 0]
+            if patch.size &lt; 10:
+                continue
+            label = CLASSES[o.class_name]
+            Z = np.median(patch) / 1000.0 + RADIUS[label]
+            if not 0.25 &lt; Z &lt; 3.0:
+                continue
+            fx, fy, cx, cy = self.K[0, 0], self.K[1, 1], self.K[0, 2], self.K[1, 2]
+            P = np.array([(u - cx) * Z / fx, (v - cy) * Z / fy, Z, 1.0])   # 광학 프레임
+            try:
+                tf = self.tf_buffer.lookup_transform(&#x27;map&#x27;, OPT, Time())
+            except TransformException as e:
+                self.get_logger().warn(str(e), throttle_duration_sec=5.0)
+                return
+            q, t = tf.transform.rotation, tf.transform.translation
+            T = quaternion_matrix([q.x, q.y, q.z, q.w])
+            T[:3, 3] = [t.x, t.y, t.z]
+            mx, my = (T @ P)[:2]
+            if label == &#x27;ball&#x27;:
+                label = self.color_of(x1, y1, x2, y2) + &#x27;_ball&#x27;
+            self.fuse(label, float(mx), float(my))
+    def fuse(self, label, x, y):                                  # 게이팅 + 최근접 + 누적 평균
+        now = self.get_clock().now().nanoseconds * 1e-9
+        near = [m for m in self.marks if m[&#x27;label&#x27;] == label and math.hypot(m[&#x27;x&#x27;] - x, m[&#x27;y&#x27;] - y) &lt; GATE]
+        if near:
+            m = min(near, key=lambda m: math.hypot(m[&#x27;x&#x27;] - x, m[&#x27;y&#x27;] - y))
+            m[&#x27;n&#x27;] += 1
+            m[&#x27;x&#x27;] += (x - m[&#x27;x&#x27;]) / m[&#x27;n&#x27;]
+            m[&#x27;y&#x27;] += (y - m[&#x27;y&#x27;]) / m[&#x27;n&#x27;]
+            m[&#x27;t&#x27;] = now
+        else:
+            self.marks.append({&#x27;label&#x27;: label, &#x27;x&#x27;: x, &#x27;y&#x27;: y, &#x27;n&#x27;: 1, &#x27;t&#x27;: now})
+    def save(self):
+        lms = [dict(m, x=round(m[&#x27;x&#x27;], 2), y=round(m[&#x27;y&#x27;], 2), t=round(m[&#x27;t&#x27;], 1),
+                    room=next((k for k, p in ROOMS.items() if in_poly(m[&#x27;x&#x27;], m[&#x27;y&#x27;], p)), &#x27;?&#x27;))
+               for m in self.marks if m[&#x27;n&#x27;] &gt;= CONFIRM]
+        doc = json.dumps({&#x27;frame&#x27;: &#x27;map&#x27;, &#x27;stamp&#x27;: self.get_clock().now().nanoseconds * 1e-9,
+                          &#x27;rooms&#x27;: ROOMS, &#x27;landmarks&#x27;: lms}, ensure_ascii=False)
+        os.makedirs(os.path.dirname(OUT), exist_ok=True)
+        with open(OUT, &#x27;w&#x27;) as f:
+            f.write(doc)
+        self.pub.publish(String(data=doc))
+
+def main():
+    rclpy.init()
+    node = SemanticMapper()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.save()
+        node.destroy_node()
+        rclpy.shutdown()
+
+if __name__ == &#x27;__main__&#x27;:
+    main()</code></pre></div>
+<ul><li>깊이 영상은 컬러 영상과 정렬(registered)되어 있다고 가정합니다. 정렬되지 않은 카메라라면 깊이 픽셀을 컬러 프레임으로 옮기는 외부 파라미터 변환이 먼저 필요합니다. 검증 방법: 물체 가장자리에서 컬러 상자와 깊이 경계가 일치하는지 겹쳐 봅니다.</li><li>TF를 <code>Time()</code>(최신)으로 조회하므로 로봇이 빨리 돌면 방위 오차가 생깁니다(이론의 시각 동기화). 매핑 투어는 천천히, 볼 곳에서 멈춥니다.</li></ul>
+<h3 id="3-명령-실행기-노드">3) 명령 실행기 노드<a class="anchor" href="#3-명령-실행기-노드">#</a></h3>
+<p><code>LEX</code>, <code>SCHEMA</code>, <code>parse()</code>, <code>validate()</code>, <code>ground()</code>는 Playground 실습 2의 코드를 그대로 붙여 넣습니다(<code>ground()</code>가 읽는 전역 <code>SEM</code>만 파일에서 읽음).</p>
+<div class="code-block code-robot"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-robot">실물 전용</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">#!/usr/bin/env python3
+# nl_executor.py — /nl_command → 슬롯 → 그라운딩 → Nav2 → 검증 · 탐색
+import json, math, os, re
+import rclpy
+from rclpy.time import Time
+from std_msgs.msg import String
+from geometry_msgs.msg import PoseStamped
+from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
+from tf2_ros import Buffer, TransformListener
+from tf_transformations import quaternion_from_euler
+
+MAP = os.path.expanduser(&#x27;~/semantic/semantic_map.json&#x27;)
+SEM = {&#x27;landmarks&#x27;: [], &#x27;rooms&#x27;: {}}
+# ---- 여기에 실습 2의 LEX, SCHEMA, parse(), validate(), ground() 붙여 넣기 ----
+
+class NLExecutor(BasicNavigator):
+    def __init__(self):
+        super().__init__(&#x27;nl_executor&#x27;)
+        self.create_subscription(String, &#x27;/nl_command&#x27;, lambda m: self.queue.append(m.data), 10)  # 콜백은 큐에만
+        self.status = self.create_publisher(String, &#x27;/nl_status&#x27;, 10)
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
+        self.queue = []
+    def say(self, text):
+        self.get_logger().info(text)
+        self.status.publish(String(data=text))
+    def now(self):
+        return self.get_clock().now().nanoseconds * 1e-9
+    def reload(self):
+        global SEM
+        with open(MAP) as f:
+            SEM = json.load(f)
+    def robot_xy(self):
+        t = self.tf_buffer.lookup_transform(&#x27;map&#x27;, &#x27;base_footprint&#x27;, Time()).transform.translation
+        return t.x, t.y
+    def wait(self):                                               # Nav2 작업이 끝날 때까지
+        while not self.isTaskComplete():
+            rclpy.spin_once(self, timeout_sec=0.1)
+        return self.getResult() == TaskResult.SUCCEEDED
+    def drive(self, x, y, yaw):
+        p = PoseStamped()
+        p.header.frame_id, p.header.stamp = &#x27;map&#x27;, self.get_clock().now().to_msg()
+        p.pose.position.x, p.pose.position.y = float(x), float(y)
+        q = quaternion_from_euler(0.0, 0.0, yaw)
+        p.pose.orientation.x, p.pose.orientation.y, p.pose.orientation.z, p.pose.orientation.w = q
+        self.goToPose(p)
+        return self.wait()
+    def verify(self, m, t0, secs=3.0):                            # 도착 뒤 새로 관측됐는가
+        end = self.now() + secs
+        while self.now() &lt; end:
+            rclpy.spin_once(self, timeout_sec=0.1)
+        self.reload()
+        return any(l[&#x27;label&#x27;] == m[&#x27;label&#x27;] and l[&#x27;t&#x27;] &gt; t0 and
+                   math.hypot(l[&#x27;x&#x27;] - m[&#x27;x&#x27;], l[&#x27;y&#x27;] - m[&#x27;y&#x27;]) &lt; 0.5 for l in SEM[&#x27;landmarks&#x27;])
+    def search(self, slot, visited):                              # 제자리 360° → 다음 방 중심
+        self.spin(spin_dist=2 * math.pi, time_allowance=40)
+        self.wait()
+        self.reload()
+        if ground(slot, self.robot_xy())[0]:
+            return True
+        centers = [(k, sum(p[0] for p in v) / len(v), sum(p[1] for p in v) / len(v))
+                   for k, v in SEM[&#x27;rooms&#x27;].items() if k not in visited]
+        if not centers:
+            return False
+        rx, ry = self.robot_xy()
+        k, cx, cy = min(centers, key=lambda c: math.hypot(c[1] - rx, c[2] - ry))
+        visited.add(k)
+        self.say(&#x27;탐색: %s 중심으로&#x27; % k)
+        self.drive(cx, cy, 0.0)
+        return self.search(slot, visited)
+    def execute(self, text):
+        slot = parse(text)
+        self.say(&#x27;해석: %s&#x27; % json.dumps(slot, ensure_ascii=False))
+        if slot[&#x27;intent&#x27;] not in (&#x27;go&#x27;, &#x27;find&#x27;) or slot[&#x27;object&#x27;] is None:
+            self.say(&#x27;되묻기: 어떤 물체로 갈까요? (&quot;%s&quot;)&#x27; % text)
+            return
+        visited = set()
+        for attempt in range(3):
+            self.reload()
+            goal, m, why = ground(slot, self.robot_xy())
+            self.say(&#x27;그라운딩: %s&#x27; % why)
+            if goal and (self.drive(*goal) or self.drive(*goal)):  # Nav2 실패 시 1회 재시도
+                if self.verify(m, self.now()):
+                    self.say(&#x27;성공: %s 앞 (시도 %d)&#x27; % (m[&#x27;label&#x27;], attempt + 1))
+                    return
+                self.say(&#x27;검증 실패: %s가 보이지 않음 → 탐색&#x27; % m[&#x27;label&#x27;])
+            if not self.search(slot, visited):
+                break
+        self.say(&#x27;실패: &quot;%s&quot;를 수행하지 못했습니다&#x27; % text)
+
+def main():
+    rclpy.init()
+    bot = NLExecutor()
+    bot.waitUntilNav2Active()
+    bot.say(&#x27;ready&#x27;)
+    try:
+        while rclpy.ok():
+            rclpy.spin_once(bot, timeout_sec=0.1)
+            if bot.queue:
+                bot.execute(bot.queue.pop(0))
+    except KeyboardInterrupt:
+        pass
+    finally:
+        bot.cancelTask()
+        bot.destroy_node()
+        rclpy.shutdown()
+
+if __name__ == &#x27;__main__&#x27;:
+    main()</code></pre></div>
+<ul><li>매퍼가 2 s마다 파일을 쓰므로 검증은 3 s 동안 기다린 뒤 "도착 이후(<code>t &gt; t0</code>)에 새로 관측됐는지"를 봅니다. 매퍼와 실행기가 파일 하나로만 연결되어 따로 시험하기 쉽습니다.</li><li>콜백은 문장을 큐에 넣기만 하고, <code>goToPose</code>·<code>spin</code>처럼 안에서 기다리는 함수는 주 루프에서 부릅니다(P02와 같은 이유).</li><li><code>spin()</code>은 Nav2 행동 서버의 제자리 회전입니다. 코스트맵 충돌 검사를 하므로 벽 옆에서는 도중에 멈출 수 있습니다.</li></ul>
+<h3 id="4-실행과-명령">4) 실행과 명령<a class="anchor" href="#4-실행과-명령">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">mkdir -p ~/semantic
+python3 ~/semantic/semantic_mapper.py            # 터미널 A: 매핑 (투어하는 동안, 이후에도 계속)
+python3 ~/semantic/nl_executor.py                # 터미널 B: 실행기 (2D Pose Estimate 후)
+ros2 topic echo /nl_status                       # 터미널 C
+ros2 topic pub --once /nl_command std_msgs/msg/String &quot;{data: &#x27;빨간 공 앞으로 가 줘&#x27;}&quot;
+ros2 topic pub --once /nl_command std_msgs/msg/String &quot;{data: &#x27;주방에 있는 컵으로 가&#x27;}&quot;</code></pre></div>
+<p>매핑 투어는 RViz <strong>Nav2 Goal</strong>로 방마다 두세 곳을 찍어 천천히 돌거나, 로봇을 세운 채 <code>ros2 action send_goal /spin nav2_msgs/action/Spin &quot;{target_yaw: 6.28}&quot;</code>로 제자리에서 둘러보게 합니다. 끝나면 모든 터미널을 Ctrl+C로 닫고, 호스트에서 <code>sudo systemctl restart start_node.service</code>로 앱 서비스를 되돌립니다.</p>
+<h2 id="실험과-평가">실험과 평가<a class="anchor" href="#실험과-평가">#</a></h2>
+<h3 id="단계별-지표">단계별 지표<a class="anchor" href="#단계별-지표">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>단계</th><th>지표</th><th>측정 방법</th></tr></thead><tbody><tr><td>검출</td><td>검출률(재현율), 헛검출 수</td><td>거리 0.5/1/2 m × 10회</td></tr><tr><td>지도</td><td>위치 오차 평균·최대, 헛 랜드마크 수, 놓친 랜드마크 수</td><td>줄자로 잰 실제 위치와 비교</td></tr><tr><td>언어</td><td>슬롯 완전 일치율, 거부 정확도</td><td>시험 문장 30개</td></tr><tr><td>그라운딩</td><td>올바른 물체 선택률</td><td>같은 종류 2개 이상 있는 경우 포함</td></tr><tr><td>주행</td><td>Nav2 성공률, 도착 오차(TF)</td><td>명령마다</td></tr><tr><td>전체</td><td>과제 성공률(검증 통과), 소요 시간</td><td>시나리오 10개 × 2회</td></tr></tbody></table></div>
+<p>전체 성공률은 대략 각 단계 성공률의 <strong>곱</strong>입니다. 검출 0.9 × 지도 0.9 × 파싱 0.95 × 주행 0.9 ≈ 0.69입니다. 한 단계만 개선해서는 크게 오르지 않으므로, 실패 로그를 단계별로 분류해 <strong>가장 약한 고리</strong>부터 고칩니다.</p>
+<h3 id="결과-1-시뮬레이션-매핑-실습-1-검출기-난수-시드-1-4">결과 1: 시뮬레이션 매핑 (실습 1, 검출기 난수 시드 1~4)<a class="anchor" href="#결과-1-시뮬레이션-매핑-실습-1-검출기-난수-시드-1-4">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>시드</th><th>확정</th><th>후보(헛 포함)</th><th>헛 랜드마크 (n ≥ 1 / n ≥ 2 / n ≥ 3)</th><th>거실 오차 [m]</th><th>주방 오차 [m]</th></tr></thead><tbody><tr><td>1</td><td>5/5</td><td>10</td><td>5 / 0 / 0</td><td>0.04~0.07</td><td>0.14, 0.14</td></tr><tr><td>2</td><td>5/5</td><td>11</td><td>6 / 0 / 0</td><td>0.05~0.08</td><td>0.15, 0.19</td></tr><tr><td>3</td><td>5/5</td><td>7</td><td>2 / 1 / 0</td><td>0.04~0.09</td><td>0.16, 0.15</td></tr><tr><td>4</td><td>5/5</td><td>10</td><td>5 / 0 / 0</td><td>0.06~0.08</td><td>0.13, 0.19</td></tr></tbody></table></div>
+<ul><li>확정 기준 <span class="math">n \ge 3</span>에서 헛 랜드마크가 모두 사라집니다. <span class="math">n \ge 2</span>에서도 시드 3은 하나가 남습니다. 헛검출률 5 %·초당 5회 검출이면 같은 자리에 우연히 두 번 나올 수 있기 때문입니다.</li><li>주방 오차(0.13~0.19 m)가 N1(0.15 m)을 넘나듭니다. 원인은 검출기가 아니라 <strong>자세 추정</strong>입니다. 실물에서는 AMCL 자세를 쓰고, 투어 경로를 거실 → 주방 → 거실로 돌아오게 해 두 번 보도록 하면 줄어듭니다.</li></ul>
+<h3 id="결과-2-파싱-그라운딩-주행-실습-2-4">결과 2: 파싱·그라운딩·주행 (실습 2~4)<a class="anchor" href="#결과-2-파싱-그라운딩-주행-실습-2-4">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>결과</th><th>비고</th></tr></thead><tbody><tr><td>파싱 (8문장)</td><td>8/8 설계대로</td><td>실행 5, 탐색 1, 거부 2</td></tr><tr><td>LLM 출력 검사 (3개)</td><td>1 통과, 2 거부 → 규칙 파서</td><td>스키마 밖 값, JSON 아님</td></tr><tr><td>의자 옆 (같은 방)</td><td>5.7 s, 목표까지 0.09 m</td><td>오도메트리만 사용</td></tr><tr><td>주방 빨간 공 (문 경유)</td><td>19.9 s, 목표까지 0.24 m</td><td>지도 오차 + 드리프트</td></tr><tr><td>옮겨진 파란 공</td><td>탐색 93°에서 발견, 16.8 s 성공</td><td>가리면 20.8 s에 FAIL</td></tr></tbody></table></div>
+<h3 id="결과-3-실물-시나리오-팀이-채움">결과 3: 실물 시나리오 (팀이 채움)<a class="anchor" href="#결과-3-실물-시나리오-팀이-채움">#</a></h3>
+<p>시나리오 10개(같은 방 3, 다른 방 3, 같은 종류 2개 2, 옮겨진 물체 1, 없는 물체 1)를 2회씩 실행하고, 명령마다 단계별 성공 여부(파싱·그라운딩·주행·검증), 도착 오차, 소요 시간, 실패 단계를 기록합니다. 실패는 반드시 <strong>어느 단계에서</strong> 났는지로 분류합니다.</p>
+<h2 id="평가-기준">평가 기준<a class="anchor" href="#평가-기준">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>영역</th><th>항목</th><th>배점</th><th>만점 기준</th></tr></thead><tbody><tr><td>설계</td><td>요구사항·인터페이스·지도 형식</td><td>10</td><td>측정 가능한 목표값, 좌표를 받지 않는 명령 설계</td></tr><tr><td>인식</td><td>역투영·TF (M1·M2)</td><td>15</td><td>줄자 검증, 광학 프레임 축 설명</td></tr><tr><td>매핑</td><td>융합·방·색 (M3)</td><td>15</td><td>확정 기준 근거(헛 랜드마크 실험), 오차표</td></tr><tr><td>언어</td><td>파서·시험 세트 (M4)</td><td>15</td><td>30문장, 거부 문장 포함, 정확도·실패 사례 분석</td></tr><tr><td>실행</td><td>그라운딩·Nav2·검증·탐색 (M5)</td><td>20</td><td>옮겨진 물체 시나리오 성공, 무한 탐색 없음</td></tr><tr><td>평가</td><td>시나리오 10 × 2 (M6)</td><td>15</td><td>단계별 실패 분류, 가장 약한 고리 개선 전후 비교</td></tr><tr><td>안전</td><td>절차·권한</td><td>10</td><td>정지 수단 시연, 속도 한계 유지, 사람 비저장</td></tr><tr><td><strong>합계</strong></td><td></td><td><strong>100</strong></td><td></td></tr></tbody></table></div>
+<p>감점: LLM이 없으면 동작하지 않는 설계 −10, 명령에 좌표 허용 −10, 검증 없이 Nav2 <code>SUCCEEDED</code>만으로 성공 처리 −5.</p>
+<h2 id="확장-과제">확장 과제<a class="anchor" href="#확장-과제">#</a></h2>
+<ul><li><strong>시각 동기화</strong>: <code>yolo_detect.py</code>가 입력 영상의 <code>header.stamp</code>를 <code>Detection2DArray</code>에 복사하도록 고치고, 매퍼가 그 시각의 TF(<code>lookup_transform(..., stamp)</code>)와 깊이 프레임을 쓰게 합니다. 회전 중 매핑 오차 전후를 비교합니다.</li><li><strong>마할라노비스 게이트·가중 평균</strong>: 거리에 따라 커지는 깊이 잡음 모델을 세우고, 분산 역수 가중 평균과 공분산 게이트로 바꿉니다.</li><li><strong>관계 표현 확장</strong>: "의자와 컵 사이", "주방 문 앞", "가장 가까운 공" 같은 관계와 최상급을 문법에 추가합니다. 고유한 앞면이 있는 물체(의자)는 방향도 추정해 물체 기준 "앞"을 계산합니다.</li><li><strong>오픈 어휘 검출</strong>: 이름표를 COCO 80개로 제한하지 않는 개방형 검출기(예: CLIP 계열)를 PC에서 돌려 비교합니다. 라즈베리파이의 계산 한계와 정확도 사이의 트레이드오프를 측정합니다.</li><li><strong>LLM 계획</strong>: "컵을 확인하고 의자로 가" 같은 여러 단계 명령을 LLM이 슬롯 <strong>목록</strong>으로 분해하게 하고, 각 단계는 같은 스키마 검사를 거칩니다.</li><li><strong>되묻기 대화</strong>: 후보가 둘 이상이면 <code>/nl_status</code>로 질문하고 다음 <code>/nl_command</code>를 답으로 받아 선택합니다.</li></ul>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td>물체가 로봇 좌우 반대쪽에 찍힘</td><td>광학 프레임(x 오른쪽)을 로봇 프레임(y 왼쪽)처럼 씀</td><td>TF로 <code>ascamera_color_0</code>에서 변환, 또는 <span class="math">y_{base} = -X</span></td></tr><tr><td>물체가 모두 바닥 높이 대신 먼 곳에 찍힘</td><td><span class="math">Y</span>(아래)와 <span class="math">Z</span>(앞)를 바꿔 씀</td><td>역투영 식의 축 순서 확인, 높이는 map 변환 후 버림</td></tr><tr><td>깊이가 0 또는 수십 m</td><td>상자 가장자리 배경, 구멍(0), mm↔m 단위</td><td>가운데 절반 영역 중앙값, 0 제외, <code>/1000</code></td></tr><tr><td>같은 물체가 여러 랜드마크로 쪼개짐</td><td>게이트가 너무 작음, 자세 추정 튐</td><td>게이트 0.35~0.5 m, AMCL 수렴 후 매핑</td></tr><tr><td>헛 랜드마크가 남음</td><td>확정 기준 n이 작음</td><td>n ≥ 3, 또는 미스 횟수로 삭제</td></tr><tr><td><code>/yolov5_ros2/object_detect</code>가 안 옴</td><td>모델에 없는 클래스, launch가 다른 모델 고정</td><td><code>ros2 run ... -p model:=yolov5s</code>, 물체가 없으면 메시지도 없음</td></tr><tr><td>공의 색이 <code>unknown</code></td><td>조명, 채도 임계, 반사</td><td>HSV 임계 조정(A01 색 실험실), 관측 다수결</td></tr><tr><td>"가까운 공으로 가"가 이상하게 해석됨</td><td>접두 일치로 "가까운"이 동사 "가"로 걸림</td><td>최상급 사전 추가, 동사는 문장 끝 어절에서 찾기</td></tr><tr><td>도착했는데 검증이 항상 실패</td><td>D가 너무 작아 물체가 카메라 최소 거리 안, 또는 시야 밖</td><td>D ≥ 0.4 m, 목표 방향이 물체를 향하는지 확인</td></tr><tr><td><code>lookup_transform</code> 예외</td><td>AMCL 초기화 전, <code>map</code> 프레임 없음</td><td>2D Pose Estimate 후 실행, <code>ros2 run tf2_ros tf2_echo map ascamera_color_0</code></td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">기본 과제</div><div class="callout-body"><ol><li>명령 문장 30개(실행 20, 거부 10)로 시험 세트를 만들어 실습 2 파서의 슬롯 완전 일치율을 재고, 틀린 문장을 유형별로 분류한 뒤 사전·규칙을 고쳐 다시 잽니다.</li><li>실습 1에서 검출률(0.8 → 0.5)과 헛검출률(0.05 → 0.2)을 바꿔 확정 기준 n = 2, 3, 5별 헛 랜드마크 수와 놓친 랜드마크 수를 표로 만들고, 적절한 n을 제안합니다.</li></ol></div></div>
+<div class="callout callout-task"><div class="callout-title">심화 과제</div><div class="callout-body"><ol><li>실물에서 시나리오 10개 × 2회를 수행하고, 실패를 단계별로 분류한 보고서를 씁니다. 가장 약한 단계를 하나 골라 개선한 뒤 다시 측정해 전후를 비교합니다.</li><li>(선택) 로컬 LLM을 슬롯 추출기로 붙이고, 같은 시험 세트에서 규칙 파서와 정확도·지연·실패 유형을 비교합니다. 네트워크를 끊었을 때도 시스템이 동작함을 보입니다.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>11. Depth Camera Basic Lesson</em> — Lesson 3 Usage of Depth Camera, Lesson 4 Data Type and Point Cloud, <em>16. Machine Learning</em> — Lesson 3 Yolov5 Introduction, Lesson 4 Yolov5 Model Training, <em>13. Navigation Lesson</em> — Lesson 2 AMCL Adaptive Monte Carlo Positioning, Lesson 4 Point-to-Point and Multi-Point Navigation and Obstacle Avoidance</li><li>원본 소스: <code>src/yolov5_ros2/yolov5_ros2/yolo_detect.py</code>(<code>/yolov5_ros2/object_detect</code>, 메시지당 1개 발행), <code>src/interfaces/msg/ObjectInfo.msg</code>, <code>src/peripherals/launch/depth_camera.launch.py</code>, <code>src/peripherals/launch/include/ascamera.launch.py</code>(광학 프레임 정적 TF), <code>src/navigation/launch/navigation.launch.py</code>, <code>src/slam/launch/include/robot.launch.py</code></li><li>Nav2 Simple Commander API (<code>goToPose</code>, <code>spin</code>, <code>cancelTask</code>): https://docs.nav2.org/commander_api/index.html</li><li>tf2 Python 리스너 튜토리얼: https://docs.ros.org/en/humble/Tutorials/Intermediate/Tf2/Writing-A-Tf2-Listener-Py.html</li><li>N. Sünderhauf et al., "Meaningful Maps With Object-Oriented Semantic Mapping," IROS 2017</li><li>P. Anderson et al., "Vision-and-Language Navigation: Interpreting Visually-Grounded Navigation Instructions in Real Environments," CVPR 2018</li><li>D. S. Chaplot et al., "Object Goal Navigation using Goal-Oriented Semantic Exploration," NeurIPS 2020</li><li>C. Huang et al., "Visual Language Maps for Robot Navigation," ICRA 2023</li><li>JSON Schema 명세: https://json-schema.org/</li></ul>
+      <nav class="pager"><a class="pager-prev" href="p07.html"><span>이전 · P07</span>강화학습으로 배우는 라이다 주행 정책</a><span class="pager-next disabled"></span></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#프로젝트-개요와-요구사항">프로젝트 개요와 요구사항</a><a class="toc-l3" href="#팀-구성과-차시-4명-5-6교시">팀 구성과 차시 (4명, 5~6교시)</a><a class="toc-l3" href="#기능-요구사항">기능 요구사항</a><a class="toc-l3" href="#비기능-요구사항">비기능 요구사항</a><a class="toc-l3" href="#안전-한계">안전 한계</a><a class="toc-l2" href="#이론">이론</a><a class="toc-l3" href="#시맨틱-지도의-구조">시맨틱 지도의 구조</a><a class="toc-l3" href="#검출-상자에서-map-좌표까지">검출 상자에서 map 좌표까지</a><a class="toc-l3" href="#다중-관측-융합">다중 관측 융합</a><a class="toc-l3" href="#자연어-명령의-구조">자연어 명령의 구조</a><a class="toc-l3" href="#그라운딩과-접근-자세">그라운딩과 접근 자세</a><a class="toc-l3" href="#검증과-실패-처리">검증과 실패 처리</a><a class="toc-l2" href="#시스템-설계">시스템 설계</a><a class="toc-l2" href="#단계별-구현">단계별 구현</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l3" href="#실습-1-시맨틱-매핑-투어">실습 1. 시맨틱 매핑 투어</a><a class="toc-l3" href="#실습-2-명령-파서-그라운딩-스키마-검사">실습 2. 명령 파서, 그라운딩, 스키마 검사</a><a class="toc-l3" href="#실습-3-명령으로-주행하기">실습 3. 명령으로 주행하기</a><a class="toc-l3" href="#실습-4-검증과-탐색-옮겨진-물체-찾기">실습 4. 검증과 탐색: 옮겨진 물체 찾기</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l3" href="#1-내비게이션과-yolov5-실행">1) 내비게이션과 YOLOv5 실행</a><a class="toc-l3" href="#2-시맨틱-매퍼-노드">2) 시맨틱 매퍼 노드</a><a class="toc-l3" href="#3-명령-실행기-노드">3) 명령 실행기 노드</a><a class="toc-l3" href="#4-실행과-명령">4) 실행과 명령</a><a class="toc-l2" href="#실험과-평가">실험과 평가</a><a class="toc-l3" href="#단계별-지표">단계별 지표</a><a class="toc-l3" href="#결과-1-시뮬레이션-매핑-실습-1-검출기-난수-시드-1-4">결과 1: 시뮬레이션 매핑 (실습 1, 검출기 난수 시드 1~4)</a><a class="toc-l3" href="#결과-2-파싱-그라운딩-주행-실습-2-4">결과 2: 파싱·그라운딩·주행 (실습 2~4)</a><a class="toc-l3" href="#결과-3-실물-시나리오-팀이-채움">결과 3: 실물 시나리오 (팀이 채움)</a><a class="toc-l2" href="#평가-기준">평가 기준</a><a class="toc-l2" href="#확장-과제">확장 과제</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js?v=75126cd8"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=75126cd8"></script>
+</body>
+</html>
