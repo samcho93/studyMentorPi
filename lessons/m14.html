@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M14. 깊이 카메라 실습: 포인트 클라우드·장애물·측정 · studyMentorPi</title>
+<meta name="description" content="MentorPi HP60C 토픽으로 깊이 영상을 받아 역투영·바닥 제거·장애물 감지·물체 거리·크기 측정을 구현하고, 라이다와 비교하며 깊이 기반 정지·회피 노드를 만듭니다.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css?v=386fe569">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=386fe569">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=386fe569">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js?v=386fe569"></script>
+</head>
+<body class="lesson-page track-page-mobile">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim3d/index.html">3D 시뮬레이터</a><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a><a class="side-tool" href="../tools/depth-lab.html">깊이 카메라 실험실</a><a class="side-tool" href="../tools/urdf-viewer.html">URDF 뷰어</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라 원리와 영상</a></li>
+<li><a href="../lessons/m14.html" class="active" data-slug="m14"><span class="nav-no">M14</span>깊이 카메라 실습: 포인트 클라우드·장애물·측정</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="project">
+<div class="nav-track-title track-project">프로젝트 (중급·고급)</div>
+<div class="nav-part"><span class="nav-part-no">P-1</span>자율 이동 서비스 로봇</div>
+<ul>
+<li><a href="../lessons/p01.html" data-slug="p01"><span class="nav-no">P01</span>자율 순찰 경비 로봇</a></li>
+<li><a href="../lessons/p02.html" data-slug="p02"><span class="nav-no">P02</span>QR 지시형 실내 배송 로봇</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">P-2</span>지능형 주행</div>
+<ul>
+<li><a href="../lessons/p03.html" data-slug="p03"><span class="nav-no">P03</span>미니 시티 자율주행 챌린지</a></li>
+<li><a href="../lessons/p04.html" data-slug="p04"><span class="nav-no">P04</span>사람 추종 카트 (비전+라이다 융합)</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">P-3</span>고급: 자율성 알고리즘 직접 구현</div>
+<ul>
+<li><a href="../lessons/p05.html" data-slug="p05"><span class="nav-no">P05</span>프런티어 자율 탐사와 다중 로봇 작업 할당</a></li>
+<li><a href="../lessons/p06.html" data-slug="p06"><span class="nav-no">P06</span>스캔 매칭 오도메트리와 EKF 센서 융합 직접 구현</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">P-4</span>고급: 학습·의미 기반 지능</div>
+<ul>
+<li><a href="../lessons/p07.html" data-slug="p07"><span class="nav-no">P07</span>강화학습으로 배우는 라이다 주행 정책</a></li>
+<li><a href="../lessons/p08.html" data-slug="p08"><span class="nav-no">P08</span>시맨틱 지도와 자연어 명령 내비게이션</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="m14" data-track="mobile">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-mobile">이동로봇 핵심</span> M-2 센서: 라이다·깊이 카메라 &middot; 약 120분 &middot; 중급</div>
+    <h1><span class="lesson-no">M14</span>깊이 카메라 실습: 포인트 클라우드·장애물·측정</h1>
+    <p class="lede">MentorPi HP60C 토픽으로 깊이 영상을 받아 역투영·바닥 제거·장애물 감지·물체 거리·크기 측정을 구현하고, 라이다와 비교하며 깊이 기반 정지·회피 노드를 만듭니다.</p>
+    <div class="requires">선수 챕터: <a href="m07.html">M07</a> <a href="r09.html">R09</a></div>
+    <div class="lesson-actions">
+      <a class="ghost-btn" href="../tools/depth-lab.html">깊이 카메라 실험실</a><a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a><a class="ghost-btn" href="../sim3d/index.html">3D 시뮬레이터</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li><code>cv_bridge</code>로 HP60C의 깊이(16UC1)·RGB·camera_info 토픽을 받아 미터 단위 배열로 바꾸고, 유효 마스크·컬러맵·히스토그램으로 품질을 점검합니다.</li><li>픽셀과 깊이로 물체의 <strong>거리·방향·폭·높이</strong>를 재고, RGB 색 마스크와 깊이를 합쳐 물체의 3D 위치를 <code>base_footprint</code> 좌표로 구합니다.</li><li>높이 임계값과 <strong>RANSAC 평면 맞춤</strong>으로 바닥을 제거하고, 복셀 격자로 점구름을 줄여 <code>PointCloud2</code>로 발행합니다.</li><li>깊이 기반 <strong>비상 정지 노드</strong>(통로·정지 거리·히스테리시스)를 만들어 <code>/controller/cmd_vel</code>로 로봇을 멈추고, 깊이로 만든 <strong>가상 스캔</strong>을 라이다 <code>/scan</code>과 비교합니다.</li><li>같은 코드를 시뮬레이터에서 검증한 뒤 실물 MentorPi에서 RViz로 결과를 확인합니다.</li></ul>
+<h2 id="깊이-영상-처리-파이프라인">깊이 영상 처리 파이프라인<a class="anchor" href="#깊이-영상-처리-파이프라인">#</a></h2>
+<p>M07에서 깊이 카메라가 <strong>무엇을 어떻게 재는지</strong> 배웠습니다. 이 챕터는 그 데이터로 로봇이 쓸 수 있는 정보를 만듭니다. 거의 모든 깊이 응용은 아래 순서를 따릅니다.</p>
+<figure class="fig" id="fig-m14-pipeline"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="깊이 영상 처리 파이프라인: 깊이 영상을 미터로 바꾸고 역투영해 광학 좌표를 로봇 좌표로 옮긴 뒤 바닥을 제거하고, 남은 장애물 점으로 비상 정지·가상 스캔·다운샘플 포인트 클라우드를 만든다. RGB 색 마스크는 역투영 단계에 합류해 물체의 3D 위치를 구한다">
+  <defs>
+    <marker id="arr-m14-pipeline" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <!-- row 1 -->
+  <rect class="box-hi" x="8" y="40" width="132" height="70" rx="8"/>
+  <text class="lbl mono" x="74" y="66" text-anchor="middle">depth0/</text>
+  <text class="lbl mono" x="74" y="84" text-anchor="middle">image_raw</text>
+  <text class="tag" x="74" y="102" text-anchor="middle">mm → m, 0 제외</text>
+
+  <rect class="box" x="152" y="40" width="132" height="70" rx="8"/>
+  <text class="lbl" x="218" y="66" text-anchor="middle">① 역투영</text>
+  <text class="tag mono" x="218" y="86" text-anchor="middle">X=(u−cx)Z/fx</text>
+  <text class="tag mono" x="218" y="102" text-anchor="middle">Y=(v−cy)Z/fy</text>
+
+  <rect class="box" x="296" y="40" width="132" height="70" rx="8"/>
+  <text class="lbl" x="362" y="66" text-anchor="middle">② 좌표 변환</text>
+  <text class="tag" x="362" y="86" text-anchor="middle">광학 → base</text>
+  <text class="tag" x="362" y="102" text-anchor="middle">(TF / 고정 식)</text>
+
+  <rect class="box" x="440" y="40" width="132" height="70" rx="8"/>
+  <text class="lbl" x="506" y="66" text-anchor="middle">③ 바닥 제거</text>
+  <text class="tag" x="506" y="86" text-anchor="middle">높이 &gt; 3 cm</text>
+  <text class="tag" x="506" y="102" text-anchor="middle">또는 RANSAC 평면</text>
+
+  <rect class="box-hi" x="584" y="40" width="128" height="70" rx="8"/>
+  <text class="lbl" x="648" y="70" text-anchor="middle">장애물 점</text>
+  <text class="tag mono" x="648" y="92" text-anchor="middle">N × 3 (x, y, z)</text>
+
+  <path class="ln" d="M140 75 L150 75" stroke-width="1.4" marker-end="url(#arr-m14-pipeline)"/>
+  <path class="ln" d="M284 75 L294 75" stroke-width="1.4" marker-end="url(#arr-m14-pipeline)"/>
+  <path class="ln" d="M428 75 L438 75" stroke-width="1.4" marker-end="url(#arr-m14-pipeline)"/>
+  <path class="ln" d="M572 75 L582 75" stroke-width="1.4" marker-end="url(#arr-m14-pipeline)"/>
+
+  <!-- camera_info into back-projection -->
+  <text class="tag mono" x="218" y="28" text-anchor="middle">camera_info K</text>
+  <path class="ln" d="M218 32 L218 38" stroke-width="1.2" marker-end="url(#arr-m14-pipeline)"/>
+
+  <!-- row 2: RGB branch -->
+  <rect class="box" x="8" y="190" width="200" height="72" rx="8"/>
+  <text class="lbl" x="108" y="214" text-anchor="middle">④ RGB-D 물체 위치</text>
+  <text class="tag" x="108" y="234" text-anchor="middle">rgb0/image → HSV 마스크</text>
+  <text class="tag" x="108" y="252" text-anchor="middle">→ 마스크 안 깊이 중앙값</text>
+  <path class="ln-hi" d="M140 190 L205 112" stroke-width="1.4" marker-end="url(#arr-m14-pipeline)"/>
+
+  <!-- outputs -->
+  <rect class="box" x="250" y="190" width="146" height="72" rx="8"/>
+  <text class="lbl" x="323" y="214" text-anchor="middle">⑤ 비상 정지</text>
+  <text class="tag" x="323" y="234" text-anchor="middle">통로 안 최소 x &lt; 0.35 m</text>
+  <text class="tag mono" x="323" y="252" text-anchor="middle">/controller/cmd_vel</text>
+
+  <rect class="box" x="408" y="190" width="146" height="72" rx="8"/>
+  <text class="lbl" x="481" y="214" text-anchor="middle">⑥ 가상 스캔</text>
+  <text class="tag" x="481" y="234" text-anchor="middle">열마다 최소 거리</text>
+  <text class="tag" x="481" y="252" text-anchor="middle">/scan과 비교</text>
+
+  <rect class="box" x="566" y="190" width="146" height="72" rx="8"/>
+  <text class="lbl" x="639" y="214" text-anchor="middle">⑦ 복셀 격자</text>
+  <text class="tag" x="639" y="234" text-anchor="middle">5 cm 칸 평균</text>
+  <text class="tag mono" x="639" y="252" text-anchor="middle">→ PointCloud2</text>
+
+  <path class="ln-hi" d="M620 110 L335 188" stroke-width="1.4" marker-end="url(#arr-m14-pipeline)"/>
+  <path class="ln-hi" d="M634 110 L490 188" stroke-width="1.4" marker-end="url(#arr-m14-pipeline)"/>
+  <path class="ln-hi" d="M648 110 L645 188" stroke-width="1.4" marker-end="url(#arr-m14-pipeline)"/>
+  <text class="sub" x="8" y="290">번호 ①~⑦은 이 챕터 실습 순서와 같습니다.</text>
+</svg><figcaption>깊이 영상 처리 파이프라인. ①~③은 공통 전처리이고, 목적에 따라 ④~⑦로 갈라집니다.</figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th>단계</th><th>하는 일</th><th>핵심 식·도구</th></tr></thead><tbody><tr><td>전처리</td><td>mm → m, 0(무효) 제외, 필요하면 구멍 메우기</td><td><code>imgmsg_to_cv2(msg, &quot;passthrough&quot;)</code>, <code>z &gt; 0</code></td></tr><tr><td>① 역투영</td><td>픽셀 <span class="math">(u, v, Z)</span> → 광학 좌표 <span class="math">(X, Y, Z)</span></td><td><span class="math">X = (u − c_x)Z/f_x</span>, <span class="math">Y = (v − c_y)Z/f_y</span></td></tr><tr><td>② 좌표 변환</td><td>광학 → <code>base_footprint</code></td><td>TF 또는 고정 식 <span class="math">x = Z + 0.061</span>, <span class="math">y = −X</span>, <span class="math">z = 0.121 − Y</span></td></tr><tr><td>③ 바닥 제거</td><td>바닥 점을 버리고 장애물만 남김</td><td>높이 &gt; 3 cm, 또는 RANSAC 평면</td></tr><tr><td>④ 물체 위치</td><td>색·검출 마스크 안의 깊이 → 3D 위치</td><td>HSV <code>inRange</code>(R09) + 중앙값</td></tr><tr><td>⑤ 비상 정지</td><td>로봇 앞 통로에 가까운 점이 있으면 정지</td><td>정지 거리, 히스테리시스</td></tr><tr><td>⑥ 가상 스캔</td><td>열마다 가장 가까운 점 → LaserScan 꼴</td><td><code>depthimage_to_laserscan</code> 원리</td></tr><tr><td>⑦ 다운샘플</td><td>5 cm 칸마다 한 점 → 가벼운 점구름</td><td>복셀 격자</td></tr></tbody></table></div>
+<p>입력은 M07에서 본 HP60C 토픽(<code>depth0/image_raw</code> 16UC1, <code>depth0/camera_info</code>, <code>rgb0/image</code>, <code>depth0/points</code>)이고, 주행 출력은 <code>/controller/cmd_vel</code>입니다.</p>
+<h2 id="깊이-데이터를-다루는-다섯-가지-규칙">깊이 데이터를 다루는 다섯 가지 규칙<a class="anchor" href="#깊이-데이터를-다루는-다섯-가지-규칙">#</a></h2>
+<ol><li><strong>단위를 먼저 확인합니다.</strong> <code>passthrough</code>로 받은 배열의 <code>dtype</code>이 <code>uint16</code>이면 mm, <code>float32</code>면 m입니다. <code>astype(np.float32) / 1000.0</code>으로 통일합니다.</li><li><strong>0은 "모름"입니다.</strong> 최솟값·평균·중앙값 앞에 반드시 <code>z &gt; 0</code>을 적용합니다. 비상 정지에서 0을 "가장 가까움"으로 읽으면 로봇이 영영 멈추고, 반대로 0이 많은 곳(검은 물체·유리)을 "비었다"고 읽으면 부딪힙니다.</li><li><strong><span class="math">K</span>는 영상과 같은 해상도의 것을 씁니다.</strong> 640×480의 <span class="math">f_x = 473</span>을 320×240 영상에 쓰면 모든 폭이 두 배로 나옵니다. <code>camera_info</code>를 구독해서 받는 것이 가장 안전합니다.</li><li><strong>최솟값 대신 백분위수를 씁니다.</strong> 잡음·flying pixel 한 점이 최솟값을 결정하게 두지 말고, 5 % 백분위나 중앙값을 씁니다.</li><li><strong>RGB와 깊이의 시각이 다릅니다.</strong> 두 토픽은 따로 도착합니다. 실물에서 빠르게 움직이며 색 물체를 잴 때는 <code>message_filters.ApproximateTimeSynchronizer</code>로 짝을 맞추거나, 최소한 두 메시지의 <code>header.stamp</code> 차이를 확인합니다.</li></ol>
+<h2 id="로봇-좌표로-옮기기">로봇 좌표로 옮기기<a class="anchor" href="#로봇-좌표로-옮기기">#</a></h2>
+<figure class="fig" id="fig-m14-geometry"><svg viewBox="0 0 720 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="왼쪽: 옆에서 본 카메라 기하 — 광학 중심은 base_footprint에서 앞 0.061 m, 위 0.121 m이고 점의 높이는 0.121 − Y. 오른쪽: 위에서 본 비상 정지 영역 — 반폭 0.18 m 통로 안에서 0.35 m보다 가까우면 정지, 0.45 m보다 멀어지면 재출발">
+  <defs>
+    <marker id="arr-m14-geometry" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-m14-geometry-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <!-- ===== side view ===== -->
+  <text class="lbl" x="14" y="24">옆에서 본 모습</text>
+  <path d="M20 250 L345 250" style="stroke:var(--text-dim)" stroke-width="2"/>
+  <text class="tag" x="330" y="268" text-anchor="end">바닥</text>
+  <!-- robot -->
+  <rect class="box" x="40" y="222" width="72" height="20" rx="4"/>
+  <circle cx="54" cy="242" r="8" style="fill:var(--text-faint)"/>
+  <circle cx="98" cy="242" r="8" style="fill:var(--text-faint)"/>
+  <circle cx="76" cy="250" r="3.5" class="hi"/>
+  <text class="tag" x="76" y="284" text-anchor="middle">base_footprint</text>
+  <path d="M76 254 L76 272" style="stroke:var(--text-faint)" stroke-width="1"/>
+  <!-- camera at +0.061, 0.121 (scale 250 px/m) -->
+  <rect x="84" y="210" width="16" height="12" rx="2" style="fill:var(--accent)"/>
+  <circle cx="92" cy="220" r="2.5" style="fill:var(--text)"/>
+  <!-- optical axes -->
+  <path class="ln-hi" d="M92 220 L170 220" stroke-width="1.6" marker-end="url(#arr-m14-geometry-hi)"/>
+  <text class="tag mono" x="174" y="226">z (앞)</text>
+  <path class="ln-hi" d="M92 220 L92 176" stroke-width="1.2" stroke-dasharray="3 3"/>
+  <text class="tag mono" x="98" y="176">−y (위)</text>
+  <!-- height dim -->
+  <path class="ln" d="M28 250 L28 220" stroke-width="1" marker-start="url(#arr-m14-geometry)" marker-end="url(#arr-m14-geometry)"/>
+  <text class="tag mono" x="24" y="208">0.121</text>
+  <path d="M28 220 L84 220" style="stroke:var(--text-faint)" stroke-width="0.8" stroke-dasharray="2 3"/>
+  <!-- obstacle -->
+  <rect class="box-hi" x="250" y="188" width="40" height="62" rx="2"/>
+  <text class="tag" x="270" y="180" text-anchor="middle">장애물</text>
+  <circle cx="250" cy="200" r="4" class="hi"/>
+  <path class="ln" d="M92 220 L250 200" stroke-width="1.2"/>
+  <text class="tag mono" x="140" y="206">Z</text>
+  <path d="M250 200 L250 220" style="stroke:var(--accent)" stroke-width="1.2"/>
+  <text class="tag mono" x="296" y="214">Y&lt;0</text>
+  <text class="sub mono" x="20" y="306">높이 h = 0.121 − Y,   앞 x = Z + 0.061,   왼쪽 y = −X</text>
+
+  <!-- ===== top view ===== -->
+  <text class="lbl" x="380" y="24">위에서 본 모습 (정지 영역)</text>
+  <!-- FOV -->
+  <path d="M452 160 L612 52 M452 160 L612 268" style="stroke:var(--text-faint)" stroke-width="1" stroke-dasharray="4 4"/>
+  <text class="tag" x="612" y="46" text-anchor="end">수평 화각 ≈ 68°</text>
+  <!-- corridor -->
+  <rect x="440" y="124" width="262" height="72" style="fill:var(--accent-soft)"/>
+  <path class="ln-hi" d="M440 124 L702 124 M440 196 L702 196" stroke-width="1.2"/>
+  <text class="tag" x="700" y="118" text-anchor="end">통로 반폭 0.18 m</text>
+  <!-- stop / go lines (200 px/m) -->
+  <path d="M510 124 L510 196" style="stroke:var(--danger)" stroke-width="2"/>
+  <path d="M530 124 L530 196" style="stroke:var(--ok)" stroke-width="2" stroke-dasharray="4 3"/>
+  <text class="tag" x="506" y="214" text-anchor="end" style="fill:var(--danger)">정지 0.35</text>
+  <text class="tag" x="534" y="214" style="fill:var(--ok)">재출발 0.45</text>
+  <!-- robot -->
+  <circle cx="440" cy="160" r="26" class="box"/>
+  <path d="M440 160 L470 160" style="stroke:var(--text)" stroke-width="1.6" marker-end="url(#arr-m14-geometry)"/>
+  <text class="tag" x="440" y="206" text-anchor="middle">로봇 r=0.13</text>
+  <text class="tag mono" x="476" y="154">x</text>
+  <!-- walker -->
+  <circle cx="624" cy="150" r="24" style="fill:var(--warn);opacity:0.75"/>
+  <text class="tag" x="624" y="154" text-anchor="middle" style="fill:var(--text)">사람</text>
+  <path class="ln" d="M624 250 L624 184" stroke-width="1.2" marker-end="url(#arr-m14-geometry)"/>
+  <text class="sub" x="380" y="262">정지 거리와 재출발 거리를 다르게 두면</text>
+  <text class="sub" x="380" y="280">(히스테리시스) 경계에서 떨지 않습니다.</text>
+</svg><figcaption>왼쪽: 광학 중심은 base_footprint에서 앞 0.061 m, 위 0.121 m에 있고, 점의 높이는 0.121 − Y입니다. 오른쪽: 비상 정지 노드가 보는 통로(반폭 0.18 m)와 정지·재출발 거리.</figcaption></figure>
+<p>MentorPi URDF에서 카메라 광학 중심은 <code>base_footprint</code>로부터 앞 0.061 m, 위 0.121 m이고 수평으로 앞을 봅니다(M07). 그래서 광학 좌표 <span class="math">(X, Y, Z)</span>의 점은 로봇 좌표로</p>
+<p><span class="math">x = Z + 0.061</span>,   <span class="math">y = −X</span>,   <span class="math">z = 0.121 − Y</span></p>
+<p>입니다. 이 <strong>고정 식</strong>은 빠르고 간단하지만 카메라 설치가 바뀌면(기울이거나 높이를 바꾸면) 코드를 고쳐야 합니다. 일반적인 방법은 <strong>TF</strong>로 <code>base_footprint ← ascamera_camera_link_0</code> 변환을 조회해 회전 행렬 <span class="math">R</span>과 이동 <span class="math">t</span>로 <span class="math">p_base = R·p_cam + t</span>를 계산하는 것입니다. 실습 3에서 두 방법이 같은 답을 내는지 확인합니다.</p>
+<div class="callout callout-tip"><div class="callout-title">카메라가 기울어져 있다면</div><div class="callout-body"><p>카메라를 아래로 <span class="math">θ</span>만큼 숙이면 "바닥 = 높이 0"인 점들이 광학 좌표에서 더 이상 <span class="math">Y</span> = 상수가 아닙니다. TF를 쓰면 코드 수정 없이 해결됩니다. TF를 모르면 아래 RANSAC으로 바닥 평면을 찾아 <strong>카메라 높이와 기울기를 역으로 추정</strong>할 수 있습니다.</p></div></div>
+<h2 id="바닥-제거-높이-임계값과-ransac">바닥 제거: 높이 임계값과 RANSAC<a class="anchor" href="#바닥-제거-높이-임계값과-ransac">#</a></h2>
+<p>깊이 영상에서 가장 많은 픽셀은 대개 <strong>바닥</strong>입니다. 바닥을 지우지 않으면 "0.5 m 안에 수천 픽셀"이 항상 잡혀 모든 것이 장애물이 됩니다.</p>
+<p><strong>방법 1 — 높이 임계값</strong>: 로봇 좌표 높이 <span class="math">z = 0.121 − Y</span>가 3 cm보다 큰 점만 남깁니다. 카메라 자세를 정확히 알고 바닥이 평평할 때 가장 빠릅니다. 임계값이 너무 작으면 바닥 잡음(2 m에서 σ ≈ 1 cm)이 장애물로 올라오고, 너무 크면 문턱·케이블 같은 낮은 장애물을 놓칩니다. 먼 곳일수록 잡음이 크므로 <strong>거리에 따라 임계값을 키우는</strong> 방법(<span class="math">h_min = 0.02 + 3σ(Z)</span>)도 씁니다.</p>
+<p><strong>방법 2 — RANSAC 평면 맞춤</strong>: 자세를 몰라도 되는 방법입니다.</p>
+<ol><li>점 3개를 무작위로 고릅니다.</li><li>세 점을 지나는 평면(법선 <span class="math">n = (b − a) × (c − a)</span>)을 만듭니다.</li><li>모든 점의 평면 거리 <span class="math">|(p − a)·n|</span>가 1 cm 이하인 <strong>인라이어</strong> 수를 셉니다.</li><li>1~3을 N번 반복해 인라이어가 가장 많은 평면을 바닥으로 채택합니다.</li></ol>
+<p>필요한 반복 수는 "인라이어 비율 <span class="math">w</span>일 때 확률 <span class="math">p</span>로 한 번은 세 점 모두 인라이어를 뽑을" 횟수 <span class="math">N = log(1 − p) / log(1 − w³)</span>입니다. 바닥이 점의 80 %면 <span class="math">p</span> = 0.999에서 <span class="math">N ≈ 11</span>, 50 %면 <span class="math">N ≈ 52</span>입니다. 평면이 나오면 법선과 카메라 원점까지 거리로 <strong>카메라 높이</strong>와 <strong>기울기</strong>가 덤으로 나옵니다.</p>
+<div class="table-wrap"><table><thead><tr><th>비교</th><th>높이 임계값</th><th>RANSAC</th></tr></thead><tbody><tr><td>필요한 것</td><td>카메라 높이·자세(TF)</td><td>없음</td></tr><tr><td>계산량</td><td>점 수 N에 비례, 매우 빠름</td><td>반복 수 × N</td></tr><tr><td>경사로·기울어진 로봇</td><td>경사로가 장애물로 보임</td><td>가장 큰 평면만 바닥</td></tr><tr><td>실패</td><td>자세가 틀리면 전부 틀림</td><td>벽이 바닥보다 크게 보이면 벽을 바닥으로 오인 → 법선 방향 검사 필요</td></tr></tbody></table></div>
+<h2 id="물체-측정-거리-방향-크기">물체 측정: 거리·방향·크기<a class="anchor" href="#물체-측정-거리-방향-크기">#</a></h2>
+<p>물체 영역(마스크나 바운딩 박스)이 정해지면:</p>
+<ul><li><strong>거리</strong>: 영역 안 깊이의 <strong>중앙값</strong> <span class="math">Z_m</span>. 가장자리 픽셀·배경·결측이 섞여도 중앙값은 거의 흔들리지 않습니다.</li><li><strong>방향(방위각)</strong>: 영역 중심 열 <span class="math">u_c</span>에서 <span class="math">θ = atan2(−(u_c − c_x), f_x)</span> (왼쪽 +).</li><li><strong>폭·높이 (bbox)</strong>: 정면의 평평한 면이라고 가정하면 <span class="math">W = Δu · Z_m / f_x</span>, <span class="math">H = Δv · Z_m / f_y</span>.</li><li><strong>폭·높이 (3D)</strong>: 영역 점을 모두 역투영한 뒤 <span class="math">X</span>·높이의 최대 − 최소. 비스듬한 면이나 원통에서는 bbox 식보다 정확합니다.</li></ul>
+<p>깊이 카메라는 물체의 <strong>보이는 표면</strong>까지 잽니다. 공이나 원통의 <strong>중심</strong>이 필요하면 표면 점에서 광선 방향으로 반지름 <span class="math">r</span>만큼 더 들어가야 합니다(실습 3). 물체를 집는 로봇팔이나 추종 로봇에서 이 차이는 수 cm입니다.</p>
+<h2 id="장애물-감지와-비상-정지">장애물 감지와 비상 정지<a class="anchor" href="#장애물-감지와-비상-정지">#</a></h2>
+<p>비상 정지 노드는 "로봇이 지나갈 <strong>통로</strong> 안에 가까운 점이 있는가"만 봅니다.</p>
+<ol><li>장애물 점(바닥 제거 후) 중 <span class="math">|y| &lt; </span> 반폭(로봇 반경 0.13 m + 여유 5 cm = 0.18 m), 높이 3~40 cm인 점만 고릅니다.</li><li>그 점들의 <span class="math">x</span> 중 <strong>5 % 백분위</strong>를 "앞 장애물 거리"로 씁니다.</li><li>거리 &lt; <strong>정지 거리</strong> 0.35 m이면 정지, &gt; <strong>재출발 거리</strong> 0.45 m이면 다시 출발합니다. 두 값을 다르게 두는 <strong>히스테리시스</strong>가 없으면 경계에서 정지·출발을 반복하며 떱니다.</li></ol>
+<p>정지 거리는 반응 지연과 감속을 함께 따집니다.</p>
+<p><span class="math">d_stop = r_robot + v · t_지연 + v² / (2a) + 여유</span></p>
+<p><span class="math">v</span> = 0.15 m/s, 지연 0.3 s(5 Hz 영상 + 10 Hz 루프), 감속 <span class="math">a</span> = 1.2 m/s²이면 <span class="math">0.13 + 0.045 + 0.009 ≈ 0.19</span> m이고, 잡음·옆에서 들어오는 물체를 생각해 0.35 m로 둡니다. 실물(15 fps)은 지연이 더 짧습니다.</p>
+<div class="callout callout-warn"><div class="callout-title">깊이 카메라만 믿으면 안 되는 곳</div><div class="callout-body"><p>시야(68°) 옆에서 갑자기 들어오는 물체, 0.24 m보다 가까운 바닥 근처(수평 카메라의 사각), 유리·검은 물체는 깊이 카메라가 늦게 보거나 못 봅니다. 실제 로봇은 라이다(360°)와 깊이 카메라를 <strong>함께</strong> 쓰고, 둘 중 하나라도 위험하면 멈춥니다.</p></div></div>
+<h2 id="깊이로-만드는-가상-레이저-스캔">깊이로 만드는 가상 레이저 스캔<a class="anchor" href="#깊이로-만드는-가상-레이저-스캔">#</a></h2>
+<p><code>depthimage_to_laserscan</code> 패키지는 깊이 영상의 <strong>한 줄(또는 높이 띠)</strong> 을 LaserScan으로 바꿉니다. 원리는 간단합니다.</p>
+<ol><li>높이 2~30 cm 띠 안의 점만 남깁니다.</li><li>영상의 <strong>열마다</strong> 로봇 기준 평면 거리 <span class="math">r = √(x² + y²)</span>가 가장 작은 점을 고릅니다.</li><li>그 점의 각도 <span class="math">θ = atan2(y, x)</span>와 <span class="math">r</span>이 한 빔이 됩니다.</li></ol>
+<p>이렇게 만든 스캔은 기존 2D 도구(코스트맵, 회피 코드)에 그대로 넣을 수 있습니다. 라이다와 비교하면:</p>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>라이다 <code>/scan</code></th><th>깊이 → 가상 스캔</th></tr></thead><tbody><tr><td>시야</td><td>360°</td><td>약 68°</td></tr><tr><td>높이</td><td>라이다 평면 하나(바닥에서 약 0.16 m)</td><td>원하는 높이 띠 전체(예: 2~30 cm)</td></tr><tr><td>낮은 물체(높이 10 cm 블록)</td><td><strong>못 봄</strong> (실물)</td><td>봄</td></tr><tr><td>거리</td><td>12 m</td><td>4 m, 멀수록 잡음</td></tr><tr><td>거리 기준</td><td>광선 거리</td><td>z-깊이를 평면 거리로 바꿔야 함</td></tr></tbody></table></div>
+<h2 id="점구름-다운샘플링과-발행">점구름 다운샘플링과 발행<a class="anchor" href="#점구름-다운샘플링과-발행">#</a></h2>
+<p>640×480 점구름은 30만 점, 초당 70 MB입니다. <strong>복셀 격자(voxel grid)</strong> 는 공간을 5 cm 정육면체 칸으로 나누고 칸마다 점들의 평균 한 점만 남깁니다. 가까운 곳의 촘촘한 점이 크게 줄고 먼 곳의 성긴 점은 거의 그대로여서, 밀도가 고르게 됩니다. numpy로는 <code>np.floor(P / 0.05)</code>로 칸 번호를 만들고 <code>np.unique(..., return_inverse=True)</code>로 칸별 평균을 구합니다.</p>
+<p>만든 점들은 <code>sensor_msgs_py.point_cloud2.create_cloud_xyz32(header, points)</code>로 PointCloud2를 만들어 발행합니다. <code>header.frame_id</code>를 점의 좌표계(광학 프레임이면 <code>ascamera_camera_link_0</code>, 로봇 좌표로 바꿨으면 <code>base_footprint</code>)와 <strong>반드시 맞춰야</strong> RViz에서 올바른 곳에 그려집니다.</p>
+<h2 id="실습-시뮬레이션">실습 (시뮬레이션)<a class="anchor" href="#실습-시뮬레이션">#</a></h2>
+<h3 id="3d-시뮬레이터와-깊이-카메라-실험실로-먼저-보기">3D 시뮬레이터와 깊이 카메라 실험실로 먼저 보기<a class="anchor" href="#3d-시뮬레이터와-깊이-카메라-실험실로-먼저-보기">#</a></h3>
+<p class="cta-row"><a class="ghost-btn cta" href="../sim3d/index.html">3D 시뮬레이터 열기</a></p>
+<p>3D 시뮬레이터는 주행 중에 <strong>카메라</strong>(로봇 카메라 RGB), <strong>깊이</strong>(같은 시점의 깊이 영상, 0.15~4 m), <strong>라이다</strong>(스캔) 보기 창을 함께 보여 줍니다. 세 창은 화면 오른쪽 위 <strong>보기</strong> 막대의 체크박스로 각각 켜고 끌 수 있고, 기본은 모두 켜져 있으며 선택은 기억됩니다. 강의 페이지에서 ▶ 실행한 코드의 결과 패널 <strong>3D 시뮬레이터</strong> 탭에서도 같은 창들이 나옵니다. 로봇을 몰아 상자·원통에 다가가며 깊이 창의 색이 바뀌는 것, 라이다 창에는 보이지만 깊이 창에서는 시야(68°) 밖이라 안 보이는 물체를 찾아보세요.</p>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/depth-lab.html">깊이 카메라 실험실 열기</a></p>
+<div class="callout callout-mission"><div class="callout-title">실험실 미션 — 측정과 장애물</div><div class="callout-body"><ol><li><strong>센서 모델</strong>을 <strong>구조광 — HP60C형 (MentorPi)</strong>, <strong>해상도</strong>를 <strong>640×480 (실물)</strong> 로 둡니다.</li><li><strong>W/S</strong>와 <strong>A/D</strong>로 로봇을 돌려 갈색 상자를 정면에 둡니다. 깊이 영상에서 상자의 왼쪽 끝과 오른쪽 끝을 클릭해 <strong>픽셀 측정</strong> 상자의 X 두 값으로 폭을 재고, 두 <span class="math">u</span>의 차이와 <span class="math">Z</span>로 <span class="math">W = Δu·Z/f_x</span>를 계산해 비교합니다.</li><li>상자 윗모서리와 바닥 근처를 클릭해 두 <span class="math">Y</span>의 차이로 높이를 잽니다. 실험실의 카메라 <strong>높이 m</strong>가 0.121일 때 바닥 점의 <span class="math">Y</span>가 약 +0.121인지 확인합니다(바닥 제거의 근거).</li><li>초록 경사로를 클릭해 올라갈수록 <span class="math">Y</span>가 줄어드는 것을 봅니다. 높이 임계값 3 cm로는 경사로가 어디부터 "장애물"이 되는지 추정합니다.</li><li>사람과 의자를 정면에 두고 네 번째 창을 <strong>포인트 클라우드</strong>로 바꿔 옆에서 봅니다. 의자 다리 사이로 뒤쪽 벽이 보이는 것, 사람이 1 m 밖에서도 선명한 것을 확인합니다.</li><li>검은 상자와 유리판 앞에서 <strong>깊이 분포 · 유효 픽셀</strong>의 유효 %가 얼마나 떨어지는지 기록합니다. 비상 정지 노드가 이 물체들을 볼 수 있을지 판단합니다.</li></ol></div></div>
+<h3 id="playground-코드로-구현하기">Playground 코드로 구현하기<a class="anchor" href="#playground-코드로-구현하기">#</a></h3>
+<p>아래 코드는 모두 이 페이지에서 바로 실행됩니다. ▶ 실행을 누르면 오른쪽 결과 패널이 열리고, 가상 로봇을 쓰는 코드는 <strong>3D 시뮬레이터</strong> 탭이 먼저 보이며(주행 재생), 로그는 <strong>출력</strong>, <code>cv2.imshow</code> 영상은 <strong>이미지</strong>, <code>sim.plot()</code> 곡선은 <strong>그래프</strong> 탭에 나옵니다. 가상 깊이 카메라는 HP60C와 같은 토픽·프레임 이름으로 발행하고(기본 160×120, 5 Hz, <code>sim.setup(camera=(320, 240))</code>로 변경), 잡음 <span class="math">σ = 1 mm + 2.5 mm·Z²</span>, 범위 0.15~4 m, 무작위 결측 1 %입니다. 월드의 벽은 높이 0.30 m, 상자 0.25 m, 원통 0.30 m, 이름 붙은 물체는 지름과 같은 높이, 사람(<code>sim.add_walker</code>)은 1.6 m입니다. 시드가 고정되어 매번 같은 결과가 나옵니다.</p>
+<h4 id="1-구독-컬러맵-유효-마스크-히스토그램">1. 구독·컬러맵·유효 마스크·히스토그램<a class="anchor" href="#1-구독-컬러맵-유효-마스크-히스토그램">#</a></h4>
+<p>경기장(arena) 월드에서 깊이와 camera_info를 구독해 프레임마다 품질을 로그로 찍고, 마지막 프레임의 컬러맵·유효 마스크·깊이 분포를 봅니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><a class="pg-btn" href="../tools/playground.html#code=aW1wb3J0IG51bXB5IGFzIG5wCmltcG9ydCBjdjIKaW1wb3J0IHJjbHB5CmZyb20gcmNscHkubm9kZSBpbXBvcnQgTm9kZQpmcm9tIHNlbnNvcl9tc2dzLm1zZyBpbXBvcnQgSW1hZ2UsIENhbWVyYUluZm8KZnJvbSBjdl9icmlkZ2UgaW1wb3J0IEN2QnJpZGdlCgppbXBvcnQgbWVudG9ycGlfc2ltIGFzIHNpbSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICMg7Iuc666sIOyghOyaqQpzaW0uc2V0dXAod29ybGQ9ImFyZW5hIiwgZHVyYXRpb249MS4wLCBzdGFydD0oLTEuMiwgMC4wLCAwLjApKSAgICAgIyDsi5zrrqwg7KCE7JqpCgpOUyA9ICIvYXNjYW1lcmEvY2FtZXJhX3B1Ymxpc2hlciIKCgpjbGFzcyBEZXB0aE1vbml0b3IoTm9kZSk6CiAgICBkZWYgX19pbml0X18oc2VsZik6CiAgICAgICAgc3VwZXIoKS5fX2luaXRfXygiZGVwdGhfbW9uaXRvciIpCiAgICAgICAgc2VsZi5icmlkZ2UgPSBDdkJyaWRnZSgpCiAgICAgICAgc2VsZi5LID0gTm9uZQogICAgICAgIHNlbGYubiA9IDAKICAgICAgICBzZWxmLmNyZWF0ZV9zdWJzY3JpcHRpb24oQ2FtZXJhSW5mbywgTlMgKyAiL2RlcHRoMC9jYW1lcmFfaW5mbyIsIHNlbGYub25faW5mbywgMSkKICAgICAgICBzZWxmLmNyZWF0ZV9zdWJzY3JpcHRpb24oSW1hZ2UsIE5TICsgIi9kZXB0aDAvaW1hZ2VfcmF3Iiwgc2VsZi5vbl9kZXB0aCwgMSkKCiAgICBkZWYgb25faW5mbyhzZWxmLCBtc2cpOgogICAgICAgIHNlbGYuSyA9IG5wLmFycmF5KG1zZy5rKS5yZXNoYXBlKDMsIDMpCgogICAgZGVmIG9uX2RlcHRoKHNlbGYsIG1zZyk6CiAgICAgICAgbW0gPSBzZWxmLmJyaWRnZS5pbWdtc2dfdG9fY3YyKG1zZywgInBhc3N0aHJvdWdoIikgICAgICAgICAjIHVpbnQxNiwgbW0KICAgICAgICB6ID0gbW0uYXN0eXBlKG5wLmZsb2F0MzIpIC8gMTAwMC4wCiAgICAgICAgdmFsaWQgPSB6ID4gMAogICAgICAgIG5lYXIgPSB2YWxpZCAmICh6IDwgMC41KQogICAgICAgIHNlbGYubiArPSAxCiAgICAgICAgc2VsZi5nZXRfbG9nZ2VyKCkuaW5mbygiZnJhbWUgJWQgICVkeCVkICDsnKDtmqggJS4wZiUlICAwLjUgbSDslYggJWQgcHggIOykkeyVmSAlLjJmIG0iICUgKAogICAgICAgICAgICBzZWxmLm4sIG1zZy53aWR0aCwgbXNnLmhlaWdodCwgMTAwICogdmFsaWQubWVhbigpLCBuZWFyLnN1bSgpLCB6W21zZy5oZWlnaHQgLy8gMiwgbXNnLndpZHRoIC8vIDJdKSkKICAgICAgICBzZWxmLnosIHNlbGYudmFsaWQgPSB6LCB2YWxpZAoKCnJjbHB5LmluaXQoKQpub2RlID0gRGVwdGhNb25pdG9yKCkKcmNscHkuc3Bpbihub2RlKSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAjIOyLnOuurDogMSBzICg1IO2UhOugiOyehCkKCnosIHZhbGlkID0gbm9kZS56LCBub2RlLnZhbGlkCiMgMSkg7Lus65-s66e1OiDtkZzsi5wg67KU7JyE66W8IOygle2VtCAwfjI1NeuhnCwg66y07ZqoIO2UveyFgOydgCDqsoDsoJUKem1pbiwgem1heCA9IDAuMiwgMy4wCm44ID0gKDI1NSAqIG5wLmNsaXAoKHogLSB6bWluKSAvICh6bWF4IC0gem1pbiksIDAsIDEpKS5hc3R5cGUobnAudWludDgpCmNvbG9yID0gY3YyLmFwcGx5Q29sb3JNYXAoMjU1IC0gbjgsIGN2Mi5DT0xPUk1BUF9KRVQpICAgICAgICAgICAgICAjIOqwgOq5jOyauOyImOuhnSDruajqsJUKY29sb3JbfnZhbGlkXSA9IDAKIyAyKSDsnpHsnYAg6rWs66mNIOuplOyasOq4sDogNXg1IOuplOuUlOyWuOycvOuhnCDsnbTsm4Mg6rCS7J2EIOu5jOugpCDsmLQKZmlsbGVkID0gY3YyLm1lZGlhbkJsdXIoKHogKiAxMDAwKS5hc3R5cGUobnAudWludDE2KSwgNSkuYXN0eXBlKG5wLmZsb2F0MzIpIC8gMTAwMC4wCmZpeGVkID0gKH52YWxpZCkgJiAoZmlsbGVkID4gMCkKcHJpbnQoIuq1rOupjSAlZCBweCDspJEgJWQgcHjrpbwg7J207JuDIOuplOuUlOyWuOycvOuhnCDssYTsm4AiICUgKCh-dmFsaWQpLnN1bSgpLCBmaXhlZC5zdW0oKSkpCiMgMykg6rmK7J20IO2eiOyKpO2GoOq3uOueqCAoMC41IG0g6rWs6rCEKQpoaXN0LCBlZGdlcyA9IG5wLmhpc3RvZ3JhbSh6W3ZhbGlkXSwgYmlucz1ucC5hcmFuZ2UoMCwgNC4wMSwgMC41KSkKZm9yIGEsIGMgaW4gemlwKGVkZ2VzWzotMV0sIGhpc3QpOgogICAgcHJpbnQoIiAgJS4xZn4lLjFmIG0gICU1ZCBweCAgJXMiICUgKGEsIGEgKyAwLjUsIGMsICIjIiAqIGludCg0MCAqIGMgLyBoaXN0Lm1heCgpKSkpCmN2Mi5pbXNob3coImRlcHRoIGNvbG9ybWFwIiwgY29sb3IpCmN2Mi5pbXNob3coInZhbGlkIG1hc2siLCAodmFsaWQgKiAyNTUpLmFzdHlwZShucC51aW50OCkpCm5vZGUuZGVzdHJveV9ub2RlKCkKcmNscHkuc2h1dGRvd24oKQ" target="_blank" rel="noopener" title="Playground에서 열기 (새 탭)">Playground ↗</a><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import numpy as np
+import cv2
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import Image, CameraInfo
+from cv_bridge import CvBridge
+
+import mentorpi_sim as sim                                          # 시뮬 전용
+sim.setup(world=&quot;arena&quot;, duration=1.0, start=(-1.2, 0.0, 0.0))     # 시뮬 전용
+
+NS = &quot;/ascamera/camera_publisher&quot;
+
+
+class DepthMonitor(Node):
+    def __init__(self):
+        super().__init__(&quot;depth_monitor&quot;)
+        self.bridge = CvBridge()
+        self.K = None
+        self.n = 0
+        self.create_subscription(CameraInfo, NS + &quot;/depth0/camera_info&quot;, self.on_info, 1)
+        self.create_subscription(Image, NS + &quot;/depth0/image_raw&quot;, self.on_depth, 1)
+
+    def on_info(self, msg):
+        self.K = np.array(msg.k).reshape(3, 3)
+
+    def on_depth(self, msg):
+        mm = self.bridge.imgmsg_to_cv2(msg, &quot;passthrough&quot;)         # uint16, mm
+        z = mm.astype(np.float32) / 1000.0
+        valid = z &gt; 0
+        near = valid &amp; (z &lt; 0.5)
+        self.n += 1
+        self.get_logger().info(&quot;frame %d  %dx%d  유효 %.0f%%  0.5 m 안 %d px  중앙 %.2f m&quot; % (
+            self.n, msg.width, msg.height, 100 * valid.mean(), near.sum(), z[msg.height // 2, msg.width // 2]))
+        self.z, self.valid = z, valid
+
+
+rclpy.init()
+node = DepthMonitor()
+rclpy.spin(node)                                                    # 시뮬: 1 s (5 프레임)
+
+z, valid = node.z, node.valid
+# 1) 컬러맵: 표시 범위를 정해 0~255로, 무효 픽셀은 검정
+zmin, zmax = 0.2, 3.0
+n8 = (255 * np.clip((z - zmin) / (zmax - zmin), 0, 1)).astype(np.uint8)
+color = cv2.applyColorMap(255 - n8, cv2.COLORMAP_JET)              # 가까울수록 빨강
+color[~valid] = 0
+# 2) 작은 구멍 메우기: 5x5 메디언으로 이웃 값을 빌려 옴
+filled = cv2.medianBlur((z * 1000).astype(np.uint16), 5).astype(np.float32) / 1000.0
+fixed = (~valid) &amp; (filled &gt; 0)
+print(&quot;구멍 %d px 중 %d px를 이웃 메디언으로 채움&quot; % ((~valid).sum(), fixed.sum()))
+# 3) 깊이 히스토그램 (0.5 m 구간)
+hist, edges = np.histogram(z[valid], bins=np.arange(0, 4.01, 0.5))
+for a, c in zip(edges[:-1], hist):
+    print(&quot;  %.1f~%.1f m  %5d px  %s&quot; % (a, a + 0.5, c, &quot;#&quot; * int(40 * c / hist.max())))
+cv2.imshow(&quot;depth colormap&quot;, color)
+cv2.imshow(&quot;valid mask&quot;, (valid * 255).astype(np.uint8))
+node.destroy_node()
+rclpy.shutdown()</code></pre></div>
+<p>(대략)</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[INFO] [0.020] [depth_monitor]: frame 1  160x120  유효 56%  0.5 m 안 5053 px  중앙 3.16 m
+[INFO] [0.200] [depth_monitor]: frame 2  160x120  유효 56%  0.5 m 안 5043 px  중앙 3.13 m
+[INFO] [0.400] [depth_monitor]: frame 3  160x120  유효 56%  0.5 m 안 5055 px  중앙 3.13 m
+[INFO] [0.600] [depth_monitor]: frame 4  160x120  유효 56%  0.5 m 안 5045 px  중앙 3.10 m
+[INFO] [0.800] [depth_monitor]: frame 5  160x120  유효 56%  0.5 m 안 5054 px  중앙 3.13 m
+[sim] 시뮬레이션 시간 1.0 s 종료 (sim.setup(duration=...)으로 변경)
+구멍 8431 px 중 98 px를 이웃 메디언으로 채움
+  0.0~0.5 m   5054 px  ########################################
+  0.5~1.0 m   2239 px  #################
+  1.0~1.5 m    796 px  ######
+  1.5~2.0 m   1175 px  #########
+  2.0~2.5 m    399 px  ###
+  2.5~3.0 m    107 px  
+  3.0~3.5 m    999 px  #######
+  3.5~4.0 m      0 px</code></pre></div>
+<ul><li>매 프레임 "0.5 m 안 5000여 px" — 거의 전부 <strong>바닥</strong>입니다. 이 숫자로 비상 정지를 하면 로봇은 출발조차 못 합니다. 바닥 제거(실습 4)가 필요한 이유입니다.</li><li>무효 픽셀 8천여 개 중 메디언으로 채워지는 것은 100개 안팎(무작위 결측 1 %)뿐입니다. 나머지는 벽 위의 빈 공간처럼 <strong>정말로 아무것도 없는</strong> 곳이라 채우면 안 됩니다. 구멍 메우기는 작은 점 결측에만 씁니다.</li><li>히스토그램의 3.0~3.5 m 봉우리는 경기장 반대편 벽, 1.5~2.5 m는 상자·원통입니다.</li></ul>
+<h4 id="2-깊이만으로-물체-찾고-크기-재기">2. 깊이만으로 물체 찾고 크기 재기<a class="anchor" href="#2-깊이만으로-물체-찾고-크기-재기">#</a></h4>
+<p>바닥 위(높이 &gt; 3 cm)이면서 2.8 m 안인 픽셀을 연결 성분(connected components)으로 묶어 물체별로 거리·방향·폭·높이를 잽니다. 320×240으로 해상도를 높였습니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><a class="pg-btn" href="../tools/playground.html#code=aW1wb3J0IG51bXB5IGFzIG5wCmltcG9ydCBjdjIKaW1wb3J0IG1lbnRvcnBpX3NpbSBhcyBzaW0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAjIOyLnOuurCDsoITsmqkKc2ltLnNldHVwKHdvcmxkPSJhcmVuYSIsIGR1cmF0aW9uPTAuMSwgc3RhcnQ9KC0xLjIsIDAuMCwgMC4wKSwgY2FtZXJhPSgzMjAsIDI0MCkpICAgIyDsi5zrrqwg7KCE7JqpCgpiZ3IsIHogPSBzaW0uY2FtZXJhKCkgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICMg7Iuc666sIOyghOyaqSDigJQg7Iuk66y8OiBkZXB0aDAvaW1hZ2VfcmF3CmZ4LCBmeSwgY3gsIGN5ID0gc2ltLmNhbWVyYV9pbnRyaW5zaWNzKCkgICAgICAgICAgICAgICAgICAgICAgICAgICAgIyDsi5zrrqwg7KCE7JqpIOKAlCDsi6TrrLw6IGNhbWVyYV9pbmZvIEsKaCwgdyA9IHouc2hhcGUKSF9DQU0gPSAwLjEyMSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAjIOq0ke2VmSDspJHsi6wg64aS7J20IFttXQoKIyDtlL3shYDrp4jri6Qg64aS7J20ID0gSF9DQU0g4oiSIFkgIChZID0gKHYg4oiSIGN5KcK3WiAvIGZ5LCDslYTrnpggKykKdnYsIHV1ID0gbnAubWdyaWRbMDpoLCAwOnddClkgPSAodnYgKyAwLjUgLSBjeSkgLyBmeSAqIHoKWCA9ICh1dSArIDAuNSAtIGN4KSAvIGZ4ICogegpoZWlnaHQgPSBIX0NBTSAtIFkKb2JqID0gKHogPiAwKSAmICh6IDwgMi44KSAmIChoZWlnaHQgPiAwLjAzKSAgICAgICAgICAgICAgICAgICAgICAgICAjIOuwlOuLpSDsnIQsIDIuOCBtIOyViApuLCBsYWIsIHN0YXRzLCBfID0gY3YyLmNvbm5lY3RlZENvbXBvbmVudHNXaXRoU3RhdHMob2JqLmFzdHlwZShucC51aW50OCksIGNvbm5lY3Rpdml0eT04KQoKcHJpbnQoIuusvOyytCAgYmJveCh1LHYsdyxoKSAgICAgICAgWuykkeyVmVttXSAg67Cp7ZalW8KwXSAg7Y-tKGJib3gpW21dICDtj60oM0QpW21dICDrhpLsnbRbbV0iKQpvdXQgPSBiZ3IuY29weSgpCmZvciBrIGluIHJhbmdlKDEsIG4pOgogICAgeDAsIHkwLCBidywgYmgsIGFyZWEgPSBzdGF0c1trXQogICAgaWYgYXJlYSA8IDE1MDoKICAgICAgICBjb250aW51ZQogICAgbSA9IGxhYiA9PSBrCiAgICBabSA9IG5wLm1lZGlhbih6W21dKQogICAgd2lkdGhfYmJveCA9IGJ3ICogWm0gLyBmeCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICMg7ZS97IWAIO2PrSDihpIg7Iuk7KCcIO2PrSAo7KCV66m0IOqwgOyglSkKICAgIHdpZHRoXzNkID0gWFttXS5tYXgoKSAtIFhbbV0ubWluKCkKICAgIHRvcCA9IGhlaWdodFttXS5tYXgoKQogICAgdWMgPSB4MCArIGJ3IC8gMgogICAgYmVhcmluZyA9IG5wLmRlZ3JlZXMobnAuYXJjdGFuMigtKHVjIC0gY3gpLCBmeCkpICAgICAgICAgICAgICAgICMg7Jm87Kq9ICsKICAgIHByaW50KCIlM2QgICAoJTNkLCUzZCwlM2QsJTNkKSAgICU2LjJmICAgJSs2LjFmICAgICU4LjJmICAgICU4LjJmICAgJTYuMmYiICUgKAogICAgICAgIGssIHgwLCB5MCwgYncsIGJoLCBabSwgYmVhcmluZywgd2lkdGhfYmJveCwgd2lkdGhfM2QsIHRvcCkpCiAgICBjdjIucmVjdGFuZ2xlKG91dCwgKGludCh4MCksIGludCh5MCkpLCAoaW50KHgwICsgYncpLCBpbnQoeTAgKyBiaCkpLCAoMCwgMCwgMjU1KSwgMSkKICAgIGN2Mi5wdXRUZXh0KG91dCwgIiUuMmZtIiAlIFptLCAoaW50KHgwKSwgaW50KHkwKSAtIDMpLCBjdjIuRk9OVF9IRVJTSEVZX1NJTVBMRVgsIDAuNCwgKDAsIDAsIDI1NSksIDEpCmN2Mi5pbXNob3coIm9iamVjdHMgKGRlcHRoIHNlZ21lbnRhdGlvbikiLCBvdXQp" target="_blank" rel="noopener" title="Playground에서 열기 (새 탭)">Playground ↗</a><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import numpy as np
+import cv2
+import mentorpi_sim as sim                                          # 시뮬 전용
+sim.setup(world=&quot;arena&quot;, duration=0.1, start=(-1.2, 0.0, 0.0), camera=(320, 240))   # 시뮬 전용
+
+bgr, z = sim.camera()                                               # 시뮬 전용 — 실물: depth0/image_raw
+fx, fy, cx, cy = sim.camera_intrinsics()                            # 시뮬 전용 — 실물: camera_info K
+h, w = z.shape
+H_CAM = 0.121                                                       # 광학 중심 높이 [m]
+
+# 픽셀마다 높이 = H_CAM − Y  (Y = (v − cy)·Z / fy, 아래 +)
+vv, uu = np.mgrid[0:h, 0:w]
+Y = (vv + 0.5 - cy) / fy * z
+X = (uu + 0.5 - cx) / fx * z
+height = H_CAM - Y
+obj = (z &gt; 0) &amp; (z &lt; 2.8) &amp; (height &gt; 0.03)                         # 바닥 위, 2.8 m 안
+n, lab, stats, _ = cv2.connectedComponentsWithStats(obj.astype(np.uint8), connectivity=8)
+
+print(&quot;물체  bbox(u,v,w,h)        Z중앙[m]  방향[°]  폭(bbox)[m]  폭(3D)[m]  높이[m]&quot;)
+out = bgr.copy()
+for k in range(1, n):
+    x0, y0, bw, bh, area = stats[k]
+    if area &lt; 150:
+        continue
+    m = lab == k
+    Zm = np.median(z[m])
+    width_bbox = bw * Zm / fx                                       # 픽셀 폭 → 실제 폭 (정면 가정)
+    width_3d = X[m].max() - X[m].min()
+    top = height[m].max()
+    uc = x0 + bw / 2
+    bearing = np.degrees(np.arctan2(-(uc - cx), fx))                # 왼쪽 +
+    print(&quot;%3d   (%3d,%3d,%3d,%3d)   %6.2f   %+6.1f    %8.2f    %8.2f   %6.2f&quot; % (
+        k, x0, y0, bw, bh, Zm, bearing, width_bbox, width_3d, top))
+    cv2.rectangle(out, (int(x0), int(y0)), (int(x0 + bw), int(y0 + bh)), (0, 0, 255), 1)
+    cv2.putText(out, &quot;%.2fm&quot; % Zm, (int(x0), int(y0) - 3), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 0, 255), 1)
+cv2.imshow(&quot;objects (depth segmentation)&quot;, out)</code></pre></div>
+<p>(대략)</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">물체  bbox(u,v,w,h)        Z중앙[m]  방향[°]  폭(bbox)[m]  폭(3D)[m]  높이[m]
+  1   (162,101, 19, 28)     2.35     -2.4        0.19        0.19     0.30
+  2   (258,100, 62, 33)     1.60    -28.3        0.42        0.23     0.25
+  3   ( 36,102, 52, 30)     1.79    +22.9        0.39        0.32     0.25</code></pre></div>
+<p>경기장의 실제 물체와 비교해 봅니다.</p>
+<ul><li><strong>1번</strong>(방향 −2.4°, 2.35 m)은 (1.3, −0.1)의 원통(지름 0.20 m, 높이 0.30 m)입니다. 폭 0.19 m, 높이 0.30 m로 잘 맞습니다. 원통은 보이는 현(chord)이 지름보다 약간 짧습니다.</li><li><strong>3번</strong>(+22.9°)은 (0.8, 0.8)의 0.3 m 상자인데 <strong>비스듬히</strong> 보여 두 면이 함께 잡힙니다. bbox 식(0.39 m)은 "정면의 평평한 면"을 가정해 과대 추정하고, 3D 폭(0.32 m)은 카메라 X 방향으로 투영한 폭입니다.</li><li><strong>2번</strong>(−28.3°)은 영상 <strong>오른쪽 끝에 잘린</strong> 상자라 폭이 의미가 없습니다. bbox가 영상 경계(u + w = 320)에 닿으면 크기 측정을 믿지 말아야 합니다.</li><li>높이는 모두 월드 규약(상자 0.25 m, 원통 0.30 m)과 1 cm 안에서 맞습니다.</li></ul>
+<h4 id="3-빨간-공의-3d-위치-rgb-마스크-깊이-tf">3. 빨간 공의 3D 위치 — RGB 마스크 + 깊이 + TF<a class="anchor" href="#3-빨간-공의-3d-위치-rgb-마스크-깊이-tf">#</a></h4>
+<p>R09의 HSV 마스크로 RGB에서 빨간 공을 찾고, 같은 픽셀의 깊이 중앙값으로 광학 좌표를 구한 뒤, <strong>TF</strong>(<code>base_footprint ← ascamera_camera_link_0</code>)로 로봇 좌표로 옮깁니다. 가상 깊이 카메라는 RGB와 깊이가 정렬되어 있어 같은 <span class="math">(u, v)</span>를 그대로 씁니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><a class="pg-btn" href="../tools/playground.html#code=aW1wb3J0IG1hdGgKaW1wb3J0IG51bXB5IGFzIG5wCmltcG9ydCBjdjIKaW1wb3J0IHJjbHB5CmZyb20gcmNscHkubm9kZSBpbXBvcnQgTm9kZQpmcm9tIHJjbHB5LnRpbWUgaW1wb3J0IFRpbWUKZnJvbSBzZW5zb3JfbXNncy5tc2cgaW1wb3J0IEltYWdlLCBDYW1lcmFJbmZvCmZyb20gY3ZfYnJpZGdlIGltcG9ydCBDdkJyaWRnZQpmcm9tIHRmMl9yb3MgaW1wb3J0IEJ1ZmZlciwgVHJhbnNmb3JtTGlzdGVuZXIKCmltcG9ydCBtZW50b3JwaV9zaW0gYXMgc2ltICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIyDsi5zrrqwg7KCE7JqpCnNpbS5zZXR1cCh3b3JsZD0icm9vbSIsIGR1cmF0aW9uPTAuNiwgc3RhcnQ9KC0yLjMsIC0xLjMsIDAuMzUpLCBjYW1lcmE9KDMyMCwgMjQwKSkgICAjIOyLnOuurCDsoITsmqkKc2ltLmFkZF9vYmplY3QoInJlZF9iYWxsIiwgLTEuMzUsIC0wLjg1LCAwLjEpICAgICAgICAgICAgICAgICAgICAgICAjIOyLnOuurCDsoITsmqkKCk5TID0gIi9hc2NhbWVyYS9jYW1lcmFfcHVibGlzaGVyIgoKCmRlZiBxdWF0X3RvX1IocSk6CiAgICB4LCB5LCB6LCB3ID0gcS54LCBxLnksIHEueiwgcS53CiAgICByZXR1cm4gbnAuYXJyYXkoW1sxIC0gMiAqICh5ICogeSArIHogKiB6KSwgMiAqICh4ICogeSAtIHogKiB3KSwgMiAqICh4ICogeiArIHkgKiB3KV0sCiAgICAgICAgICAgICAgICAgICAgIFsyICogKHggKiB5ICsgeiAqIHcpLCAxIC0gMiAqICh4ICogeCArIHogKiB6KSwgMiAqICh5ICogeiAtIHggKiB3KV0sCiAgICAgICAgICAgICAgICAgICAgIFsyICogKHggKiB6IC0geSAqIHcpLCAyICogKHkgKiB6ICsgeCAqIHcpLCAxIC0gMiAqICh4ICogeCArIHkgKiB5KV1dKQoKCmNsYXNzIEJhbGxMb2NhdG9yKE5vZGUpOgogICAgZGVmIF9faW5pdF9fKHNlbGYpOgogICAgICAgIHN1cGVyKCkuX19pbml0X18oImJhbGxfbG9jYXRvciIpCiAgICAgICAgc2VsZi5iciA9IEN2QnJpZGdlKCkKICAgICAgICBzZWxmLnJnYiA9IHNlbGYueiA9IHNlbGYuSyA9IE5vbmUKICAgICAgICBzZWxmLnRmX2J1ZiA9IEJ1ZmZlcigpCiAgICAgICAgc2VsZi50Zl9saXN0ZW5lciA9IFRyYW5zZm9ybUxpc3RlbmVyKHNlbGYudGZfYnVmLCBzZWxmKQogICAgICAgIHNlbGYuY3JlYXRlX3N1YnNjcmlwdGlvbihJbWFnZSwgTlMgKyAiL3JnYjAvaW1hZ2UiLCBsYW1iZGEgbTogc2V0YXR0cihzZWxmLCAicmdiIiwgc2VsZi5ici5pbWdtc2dfdG9fY3YyKG0sICJiZ3I4IikpLCAxKQogICAgICAgIHNlbGYuY3JlYXRlX3N1YnNjcmlwdGlvbihJbWFnZSwgTlMgKyAiL2RlcHRoMC9pbWFnZV9yYXciLCBzZWxmLm9uX2RlcHRoLCAxKQogICAgICAgIHNlbGYuY3JlYXRlX3N1YnNjcmlwdGlvbihDYW1lcmFJbmZvLCBOUyArICIvcmdiMC9jYW1lcmFfaW5mbyIsIGxhbWJkYSBtOiBzZXRhdHRyKHNlbGYsICJLIiwgbnAuYXJyYXkobS5rKS5yZXNoYXBlKDMsIDMpKSwgMSkKCiAgICBkZWYgb25fZGVwdGgoc2VsZiwgbSk6CiAgICAgICAgc2VsZi56ID0gc2VsZi5ici5pbWdtc2dfdG9fY3YyKG0sICJwYXNzdGhyb3VnaCIpLmFzdHlwZShucC5mbG9hdDMyKSAvIDEwMDAuMAogICAgICAgIHNlbGYuZnJhbWUgPSBtLmhlYWRlci5mcmFtZV9pZAoKCnJjbHB5LmluaXQoKQpub2RlID0gQmFsbExvY2F0b3IoKQpyY2xweS5zcGluKG5vZGUpCgojIDEpIFJHQuyXkOyEnCDruajqsITsg4kg66eI7Iqk7YGsIChI6rCAIDAg6re87LKY7JmAIDE4MCDqt7zsspgg65GQIOq1rOqwhCkKaHN2ID0gY3YyLmN2dENvbG9yKG5vZGUucmdiLCBjdjIuQ09MT1JfQkdSMkhTVikKbWFzayA9IGN2Mi5pblJhbmdlKGhzdiwgKDAsIDEyMCwgNzApLCAoMTAsIDI1NSwgMjU1KSkgfCBjdjIuaW5SYW5nZShoc3YsICgxNzAsIDEyMCwgNzApLCAoMTgwLCAyNTUsIDI1NSkpCm1hc2sgPSBjdjIubW9ycGhvbG9neUV4KG1hc2ssIGN2Mi5NT1JQSF9PUEVOLCBucC5vbmVzKCgzLCAzKSwgbnAudWludDgpKQp2LCB1ID0gbnAubm9uemVybyhtYXNrKQpwcmludCgi67mo6rCEIO2UveyFgCAlZOqwnCwg7KSR7IusICh1LCB2KSA9ICglLjFmLCAlLjFmKSIgJSAobGVuKHUpLCB1Lm1lYW4oKSwgdi5tZWFuKCkpKQojIDIpIOuniOyKpO2BrCDslYjsnZgg6rmK7J20IOykkeyVmeqwkiAoMCA9IOustO2aqCDsoJzsmbgpIOKGkiDqsJXqsbTtlZwgWgp6cyA9IG5vZGUuelt2LCB1XQpaID0gZmxvYXQobnAubWVkaWFuKHpzW3pzID4gMF0pKQpmeCwgZnksIGN4LCBjeSA9IG5vZGUuS1swLCAwXSwgbm9kZS5LWzEsIDFdLCBub2RlLktbMCwgMl0sIG5vZGUuS1sxLCAyXQpwX2NhbSA9IG5wLmFycmF5KFsodS5tZWFuKCkgKyAwLjUgLSBjeCkgKiBaIC8gZngsICh2Lm1lYW4oKSArIDAuNSAtIGN5KSAqIFogLyBmeSwgWl0pCnByaW50KCLqtJHtlZkg7KKM7ZGcICglcyk6IFg9JSsuM2YgWT0lKy4zZiBaPSUuM2YgbSIgJSAobm9kZS5mcmFtZSwgKnBfY2FtKSkKIyAzKSBURjogYXNjYW1lcmFfY2FtZXJhX2xpbmtfMCDihpIgYmFzZV9mb290cHJpbnQKdCA9IG5vZGUudGZfYnVmLmxvb2t1cF90cmFuc2Zvcm0oImJhc2VfZm9vdHByaW50Iiwgbm9kZS5mcmFtZSwgVGltZSgpKQp0ciwgcSA9IHQudHJhbnNmb3JtLnRyYW5zbGF0aW9uLCB0LnRyYW5zZm9ybS5yb3RhdGlvbgpwX2Jhc2UgPSBxdWF0X3RvX1IocSkgQCBwX2NhbSArIG5wLmFycmF5KFt0ci54LCB0ci55LCB0ci56XSkKcHJpbnQoIuuhnOu0hyDsooztkZwgKGJhc2VfZm9vdHByaW50KTogeD0lLjNmIHk9JSsuM2Ygej0lLjNmIG0iICUgdHVwbGUocF9iYXNlKSkKcHJpbnQoIiAg4oaSIOyVniAlLjJmIG0sICVzICUuMmYgbSwg67Cp7JyEICUrLjFmwrAiICUgKHBfYmFzZVswXSwgIuyZvOyqvSIgaWYgcF9iYXNlWzFdID4gMCBlbHNlICLsmKTrpbjsqr0iLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGFicyhwX2Jhc2VbMV0pLCBtYXRoLmRlZ3JlZXMobWF0aC5hdGFuMihwX2Jhc2VbMV0sIHBfYmFzZVswXSkpKSkKIyA0KSDsoJXri7Xqs7wg67mE6rWQICjsi5zrrqwg7KCE7JqpKTog6rO1IO2RnOuptCDspJHsi6wg4omIIOqztSDspJHsi6zsl5DshJwg67CY7KeA66aE66eM7YG8IOyVngpyeCwgcnksIHJ5YXcgPSBzaW0ucG9zZSgpICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIyDsi5zrrqwg7KCE7JqpCl8sIGJ4LCBieSwgYnJfID0gc2ltLm9iamVjdHMoKVswXSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIyDsi5zrrqwg7KCE7JqpCmR4LCBkeSA9IGJ4IC0gcngsIGJ5IC0gcnkKZ3QgPSAobWF0aC5jb3MocnlhdykgKiBkeCArIG1hdGguc2luKHJ5YXcpICogZHksIC1tYXRoLnNpbihyeWF3KSAqIGR4ICsgbWF0aC5jb3MocnlhdykgKiBkeSkKcHJpbnQoIuygleuLtSDqs7Ug7KSR7IusICjroZzrtIcg6riw7KSAKTogeD0lLjNmIHk9JSsuM2YgICjtkZzrqbTsnYAgcj0lLjJmIG0g7JWeKSIgJSAoZ3RbMF0sIGd0WzFdLCBicl8pKQpub2RlLmRlc3Ryb3lfbm9kZSgpCnJjbHB5LnNodXRkb3duKCk" target="_blank" rel="noopener" title="Playground에서 열기 (새 탭)">Playground ↗</a><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+import numpy as np
+import cv2
+import rclpy
+from rclpy.node import Node
+from rclpy.time import Time
+from sensor_msgs.msg import Image, CameraInfo
+from cv_bridge import CvBridge
+from tf2_ros import Buffer, TransformListener
+
+import mentorpi_sim as sim                                          # 시뮬 전용
+sim.setup(world=&quot;room&quot;, duration=0.6, start=(-2.3, -1.3, 0.35), camera=(320, 240))   # 시뮬 전용
+sim.add_object(&quot;red_ball&quot;, -1.35, -0.85, 0.1)                       # 시뮬 전용
+
+NS = &quot;/ascamera/camera_publisher&quot;
+
+
+def quat_to_R(q):
+    x, y, z, w = q.x, q.y, q.z, q.w
+    return np.array([[1 - 2 * (y * y + z * z), 2 * (x * y - z * w), 2 * (x * z + y * w)],
+                     [2 * (x * y + z * w), 1 - 2 * (x * x + z * z), 2 * (y * z - x * w)],
+                     [2 * (x * z - y * w), 2 * (y * z + x * w), 1 - 2 * (x * x + y * y)]])
+
+
+class BallLocator(Node):
+    def __init__(self):
+        super().__init__(&quot;ball_locator&quot;)
+        self.br = CvBridge()
+        self.rgb = self.z = self.K = None
+        self.tf_buf = Buffer()
+        self.tf_listener = TransformListener(self.tf_buf, self)
+        self.create_subscription(Image, NS + &quot;/rgb0/image&quot;, lambda m: setattr(self, &quot;rgb&quot;, self.br.imgmsg_to_cv2(m, &quot;bgr8&quot;)), 1)
+        self.create_subscription(Image, NS + &quot;/depth0/image_raw&quot;, self.on_depth, 1)
+        self.create_subscription(CameraInfo, NS + &quot;/rgb0/camera_info&quot;, lambda m: setattr(self, &quot;K&quot;, np.array(m.k).reshape(3, 3)), 1)
+
+    def on_depth(self, m):
+        self.z = self.br.imgmsg_to_cv2(m, &quot;passthrough&quot;).astype(np.float32) / 1000.0
+        self.frame = m.header.frame_id
+
+
+rclpy.init()
+node = BallLocator()
+rclpy.spin(node)
+
+# 1) RGB에서 빨간색 마스크 (H가 0 근처와 180 근처 두 구간)
+hsv = cv2.cvtColor(node.rgb, cv2.COLOR_BGR2HSV)
+mask = cv2.inRange(hsv, (0, 120, 70), (10, 255, 255)) | cv2.inRange(hsv, (170, 120, 70), (180, 255, 255))
+mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8))
+v, u = np.nonzero(mask)
+print(&quot;빨간 픽셀 %d개, 중심 (u, v) = (%.1f, %.1f)&quot; % (len(u), u.mean(), v.mean()))
+# 2) 마스크 안의 깊이 중앙값 (0 = 무효 제외) → 강건한 Z
+zs = node.z[v, u]
+Z = float(np.median(zs[zs &gt; 0]))
+fx, fy, cx, cy = node.K[0, 0], node.K[1, 1], node.K[0, 2], node.K[1, 2]
+p_cam = np.array([(u.mean() + 0.5 - cx) * Z / fx, (v.mean() + 0.5 - cy) * Z / fy, Z])
+print(&quot;광학 좌표 (%s): X=%+.3f Y=%+.3f Z=%.3f m&quot; % (node.frame, *p_cam))
+# 3) TF: ascamera_camera_link_0 → base_footprint
+t = node.tf_buf.lookup_transform(&quot;base_footprint&quot;, node.frame, Time())
+tr, q = t.transform.translation, t.transform.rotation
+p_base = quat_to_R(q) @ p_cam + np.array([tr.x, tr.y, tr.z])
+print(&quot;로봇 좌표 (base_footprint): x=%.3f y=%+.3f z=%.3f m&quot; % tuple(p_base))
+print(&quot;  → 앞 %.2f m, %s %.2f m, 방위 %+.1f°&quot; % (p_base[0], &quot;왼쪽&quot; if p_base[1] &gt; 0 else &quot;오른쪽&quot;,
+                                               abs(p_base[1]), math.degrees(math.atan2(p_base[1], p_base[0]))))
+# 4) 정답과 비교 (시뮬 전용): 공 표면 중심 ≈ 공 중심에서 반지름만큼 앞
+rx, ry, ryaw = sim.pose()                                          # 시뮬 전용
+_, bx, by, br_ = sim.objects()[0]                                   # 시뮬 전용
+dx, dy = bx - rx, by - ry
+gt = (math.cos(ryaw) * dx + math.sin(ryaw) * dy, -math.sin(ryaw) * dx + math.cos(ryaw) * dy)
+print(&quot;정답 공 중심 (로봇 기준): x=%.3f y=%+.3f  (표면은 r=%.2f m 앞)&quot; % (gt[0], gt[1], br_))
+node.destroy_node()
+rclpy.shutdown()</code></pre></div>
+<p>(대략)</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[sim] 시뮬레이션 시간 0.6 s 종료 (sim.setup(duration=...)으로 변경)
+빨간 픽셀 2529개, 중심 (u, v) = (137.4, 124.4)
+광학 좌표 (ascamera_camera_link_0): X=-0.090 Y=+0.021 Z=0.895 m
+로봇 좌표 (base_footprint): x=0.956 y=+0.090 z=0.100 m
+  → 앞 0.96 m, 왼쪽 0.09 m, 방위 +5.4°
+정답 공 중심 (로봇 기준): x=1.046 y=+0.097  (표면은 r=0.10 m 앞)</code></pre></div>
+<ul><li>TF로 옮긴 결과는 고정 식과 같습니다: <span class="math">x = 0.895 + 0.061 = 0.956</span>, <span class="math">y = −X = +0.090</span>, <span class="math">z = 0.121 − 0.021 = 0.100</span>.</li><li>측정은 공의 <strong>표면</strong>(x ≈ 0.956)이고 정답 중심은 1.046 m입니다. 차이 0.09 m ≈ 반지름 0.1 m. 중심이 필요하면 광선 방향으로 <span class="math">r</span>을 더합니다: <span class="math">p_center ≈ p_surface + r · p/|p|</span>.</li><li><span class="math">z</span> = 0.100 m는 공 중심 높이(지름 0.2 m의 절반)입니다. 마스크 전체의 평균 <span class="math">v</span>를 썼기 때문입니다.</li><li>실물에서는 <code>sim</code> 줄을 지우고, RGB와 깊이의 시각 차이(규칙 5)와 드라이버의 정렬 여부(M07)를 확인합니다.</li></ul>
+<h4 id="4-바닥-제거높이-vs-ransac와-복셀-다운샘플-pointcloud2-발행">4. 바닥 제거(높이 vs RANSAC)와 복셀 다운샘플, PointCloud2 발행<a class="anchor" href="#4-바닥-제거높이-vs-ransac와-복셀-다운샘플-pointcloud2-발행">#</a></h4>
+<p>점구름 토픽 <code>depth0/points</code>를 <code>read_points_numpy</code>로 읽어 두 방법으로 바닥을 지우고, 장애물 점을 5 cm 복셀로 줄여 <code>/obstacle_points</code>로 발행합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><a class="pg-btn" href="../tools/playground.html#code=aW1wb3J0IG51bXB5IGFzIG5wCmltcG9ydCByY2xweQpmcm9tIHJjbHB5Lm5vZGUgaW1wb3J0IE5vZGUKZnJvbSBzZW5zb3JfbXNncy5tc2cgaW1wb3J0IFBvaW50Q2xvdWQyCmZyb20gc2Vuc29yX21zZ3NfcHkgaW1wb3J0IHBvaW50X2Nsb3VkMgoKaW1wb3J0IG1lbnRvcnBpX3NpbSBhcyBzaW0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAjIOyLnOuurCDsoITsmqkKc2ltLnNldHVwKHdvcmxkPSJhcmVuYSIsIGR1cmF0aW9uPTAuMywgc3RhcnQ9KC0xLjIsIDAuMCwgMC4wKSwgY2FtZXJhPSgzMjAsIDI0MCkpICAgIyDsi5zrrqwg7KCE7JqpCgpOUyA9ICIvYXNjYW1lcmEvY2FtZXJhX3B1Ymxpc2hlciIKCgpjbGFzcyBHcm91bmRSZW1vdmVyKE5vZGUpOgogICAgZGVmIF9faW5pdF9fKHNlbGYpOgogICAgICAgIHN1cGVyKCkuX19pbml0X18oImdyb3VuZF9yZW1vdmVyIikKICAgICAgICBzZWxmLnB1YiA9IHNlbGYuY3JlYXRlX3B1Ymxpc2hlcihQb2ludENsb3VkMiwgIi9vYnN0YWNsZV9wb2ludHMiLCAxKQogICAgICAgIHNlbGYuY3JlYXRlX3N1YnNjcmlwdGlvbihQb2ludENsb3VkMiwgTlMgKyAiL2RlcHRoMC9wb2ludHMiLCBzZWxmLm9uX2Nsb3VkLCAxKQogICAgICAgIHNlbGYuZG9uZSA9IEZhbHNlCgogICAgZGVmIG9uX2Nsb3VkKHNlbGYsIG1zZyk6CiAgICAgICAgaWYgc2VsZi5kb25lOgogICAgICAgICAgICByZXR1cm4KICAgICAgICBzZWxmLmRvbmUgPSBUcnVlCiAgICAgICAgUCA9IHBvaW50X2Nsb3VkMi5yZWFkX3BvaW50c19udW1weShtc2csICgieCIsICJ5IiwgInoiKSkgICAgIyDqtJHtlZkg7KKM7ZGcIE7DlzMKICAgICAgICBQID0gUFtucC5pc2Zpbml0ZShQKS5hbGwoYXhpcz0xKV0KICAgICAgICBwcmludCgi7J6F66ClICVk7KCQIChmcmFtZSAlcykiICUgKGxlbihQKSwgbXNnLmhlYWRlci5mcmFtZV9pZCkpCgogICAgICAgICMg67Cp67KVIDE6IOuGkuydtCDsnoTqs4TqsJIg4oCUIOy5tOuplOudvCDrhpLsnbTCt-yekOyEuOulvCDslYwg65WMICjqtJHtlZkgeeuKlCDslYTrnpggKykKICAgICAgICBoID0gMC4xMjEgLSBQWzosIDFdCiAgICAgICAgcHJpbnQoIlvrhpLsnbRdIOuwlOuLpSh8aHw8MmNtKSAlZOygkCwg7J6l7JWg66y8KGg-M2NtKSAlZOygkCIgJSAoKG5wLmFicyhoKSA8IDAuMDIpLnN1bSgpLCAoaCA-IDAuMDMpLnN1bSgpKSkKCiAgICAgICAgIyDrsKnrspUgMjogUkFOU0FDIO2PieuptCDigJQg7J6Q7IS466W8IOuqsOudvOuPhCDqsIDsnqUg7YGwIO2PieuptOydhCDssL7ripTri6QKICAgICAgICBybmcgPSBucC5yYW5kb20uZGVmYXVsdF9ybmcoMCkKICAgICAgICBiZXN0LCBiZXN0X24gPSBOb25lLCAwCiAgICAgICAgZm9yIF8gaW4gcmFuZ2UoNjApOgogICAgICAgICAgICBhLCBiLCBjID0gUFtybmcuY2hvaWNlKGxlbihQKSwgMywgcmVwbGFjZT1GYWxzZSldCiAgICAgICAgICAgIG4gPSBucC5jcm9zcyhiIC0gYSwgYyAtIGEpCiAgICAgICAgICAgIGlmIG5wLmxpbmFsZy5ub3JtKG4pIDwgMWUtOToKICAgICAgICAgICAgICAgIGNvbnRpbnVlCiAgICAgICAgICAgIG4gPSBuIC8gbnAubGluYWxnLm5vcm0obikKICAgICAgICAgICAgZGlzdCA9IG5wLmFicygoUCAtIGEpIEAgbikKICAgICAgICAgICAgY250ID0gKGRpc3QgPCAwLjAxKS5zdW0oKQogICAgICAgICAgICBpZiBjbnQgPiBiZXN0X246CiAgICAgICAgICAgICAgICBiZXN0LCBiZXN0X24gPSAobiwgYSksIGNudAogICAgICAgIG4sIGEgPSBiZXN0CiAgICAgICAgaWYgblsxXSA-IDA6ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIyDrspXshKDsnbQg7JyEKOq0ke2VmSDiiJJ5KeulvCDtlqXtlZjqsowKICAgICAgICAgICAgbiA9IC1uCiAgICAgICAgZF9jYW0gPSBhYnMoYSBAIG4pICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIyDsubTrqZTrnbzsl5DshJwg7Y-J66m06rmM7KeAIOqxsOumrCA9IOy5tOuplOudvCDrhpLsnbQKICAgICAgICB0aWx0ID0gbnAuZGVncmVlcyhucC5hcmNjb3MoYWJzKG5bMV0pKSkKICAgICAgICBwcmludCgiW1JBTlNBQ10g7Y-J66m0IOyduOudvOydtOyWtCAlZOygkCwg67KV7ISgICglLjNmLCAlLjNmLCAlLjNmKSwg7Lm066mU6528IOuGkuydtCAlLjNmIG0sIOq4sOyauOq4sCAlLjFmwrAiICUgKAogICAgICAgICAgICBiZXN0X24sICpuLCBkX2NhbSwgdGlsdCkpCiAgICAgICAgYWJvdmUgPSAoUCAtIGEpIEAgbiA-IDAuMDMKICAgICAgICBvYnN0ID0gUFthYm92ZV0KCiAgICAgICAgIyDrs7XshYAg6rKp7J6QIOuLpOyatOyDmO2UjOungTogNSBjbSDsubjrp4jri6Qg7ZWcIOygkCjtj4nqt6ApCiAgICAgICAgdm94ID0gbnAuZmxvb3Iob2JzdCAvIDAuMDUpLmFzdHlwZShucC5pbnQ2NCkKICAgICAgICBfLCBpbnYsIGNudCA9IG5wLnVuaXF1ZSh2b3gsIGF4aXM9MCwgcmV0dXJuX2ludmVyc2U9VHJ1ZSwgcmV0dXJuX2NvdW50cz1UcnVlKQogICAgICAgIGludiA9IGludi5yYXZlbCgpCiAgICAgICAgZG93biA9IG5wLnplcm9zKChsZW4oY250KSwgMykpCiAgICAgICAgbnAuYWRkLmF0KGRvd24sIGludiwgb2JzdCkKICAgICAgICBkb3duIC89IGNudFs6LCBOb25lXQogICAgICAgIHByaW50KCLsnqXslaDrrLwgJWTsoJAg4oaSIOuzteyFgCg1IGNtKSAlZOygkCwg66mU7Iuc7KeAICVkIEIg4oaSICVkIEIiICUgKGxlbihvYnN0KSwgbGVuKGRvd24pLCBsZW4ob2JzdCkgKiAxMiwgbGVuKGRvd24pICogMTIpKQogICAgICAgIG91dCA9IHBvaW50X2Nsb3VkMi5jcmVhdGVfY2xvdWRfeHl6MzIobXNnLmhlYWRlciwgZG93bi5hc3R5cGUobnAuZmxvYXQzMikpCiAgICAgICAgc2VsZi5wdWIucHVibGlzaChvdXQpCiAgICAgICAgcHJpbnQoIuuwnO2WiSAvb2JzdGFjbGVfcG9pbnRzOiAlZOygkCwgZnJhbWUgJXMiICUgKG91dC53aWR0aCAqIG91dC5oZWlnaHQsIG91dC5oZWFkZXIuZnJhbWVfaWQpKQoKCnJjbHB5LmluaXQoKQpub2RlID0gR3JvdW5kUmVtb3ZlcigpCnJjbHB5LnNwaW4obm9kZSkKbm9kZS5kZXN0cm95X25vZGUoKQpyY2xweS5zaHV0ZG93bigp" target="_blank" rel="noopener" title="Playground에서 열기 (새 탭)">Playground ↗</a><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import numpy as np
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import PointCloud2
+from sensor_msgs_py import point_cloud2
+
+import mentorpi_sim as sim                                          # 시뮬 전용
+sim.setup(world=&quot;arena&quot;, duration=0.3, start=(-1.2, 0.0, 0.0), camera=(320, 240))   # 시뮬 전용
+
+NS = &quot;/ascamera/camera_publisher&quot;
+
+
+class GroundRemover(Node):
+    def __init__(self):
+        super().__init__(&quot;ground_remover&quot;)
+        self.pub = self.create_publisher(PointCloud2, &quot;/obstacle_points&quot;, 1)
+        self.create_subscription(PointCloud2, NS + &quot;/depth0/points&quot;, self.on_cloud, 1)
+        self.done = False
+
+    def on_cloud(self, msg):
+        if self.done:
+            return
+        self.done = True
+        P = point_cloud2.read_points_numpy(msg, (&quot;x&quot;, &quot;y&quot;, &quot;z&quot;))    # 광학 좌표 N×3
+        P = P[np.isfinite(P).all(axis=1)]
+        print(&quot;입력 %d점 (frame %s)&quot; % (len(P), msg.header.frame_id))
+
+        # 방법 1: 높이 임계값 — 카메라 높이·자세를 알 때 (광학 y는 아래 +)
+        h = 0.121 - P[:, 1]
+        print(&quot;[높이] 바닥(|h|&lt;2cm) %d점, 장애물(h&gt;3cm) %d점&quot; % ((np.abs(h) &lt; 0.02).sum(), (h &gt; 0.03).sum()))
+
+        # 방법 2: RANSAC 평면 — 자세를 몰라도 가장 큰 평면을 찾는다
+        rng = np.random.default_rng(0)
+        best, best_n = None, 0
+        for _ in range(60):
+            a, b, c = P[rng.choice(len(P), 3, replace=False)]
+            n = np.cross(b - a, c - a)
+            if np.linalg.norm(n) &lt; 1e-9:
+                continue
+            n = n / np.linalg.norm(n)
+            dist = np.abs((P - a) @ n)
+            cnt = (dist &lt; 0.01).sum()
+            if cnt &gt; best_n:
+                best, best_n = (n, a), cnt
+        n, a = best
+        if n[1] &gt; 0:                                                # 법선이 위(광학 −y)를 향하게
+            n = -n
+        d_cam = abs(a @ n)                                          # 카메라에서 평면까지 거리 = 카메라 높이
+        tilt = np.degrees(np.arccos(abs(n[1])))
+        print(&quot;[RANSAC] 평면 인라이어 %d점, 법선 (%.3f, %.3f, %.3f), 카메라 높이 %.3f m, 기울기 %.1f°&quot; % (
+            best_n, *n, d_cam, tilt))
+        above = (P - a) @ n &gt; 0.03
+        obst = P[above]
+
+        # 복셀 격자 다운샘플링: 5 cm 칸마다 한 점(평균)
+        vox = np.floor(obst / 0.05).astype(np.int64)
+        _, inv, cnt = np.unique(vox, axis=0, return_inverse=True, return_counts=True)
+        inv = inv.ravel()
+        down = np.zeros((len(cnt), 3))
+        np.add.at(down, inv, obst)
+        down /= cnt[:, None]
+        print(&quot;장애물 %d점 → 복셀(5 cm) %d점, 메시지 %d B → %d B&quot; % (len(obst), len(down), len(obst) * 12, len(down) * 12))
+        out = point_cloud2.create_cloud_xyz32(msg.header, down.astype(np.float32))
+        self.pub.publish(out)
+        print(&quot;발행 /obstacle_points: %d점, frame %s&quot; % (out.width * out.height, out.header.frame_id))
+
+
+rclpy.init()
+node = GroundRemover()
+rclpy.spin(node)
+node.destroy_node()
+rclpy.shutdown()</code></pre></div>
+<p>(대략)</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">입력 10743점 (frame ascamera_camera_link_0)
+[높이] 바닥(|h|&lt;2cm) 8696점, 장애물(h&gt;3cm) 1919점
+[RANSAC] 평면 인라이어 8669점, 법선 (-0.000, -1.000, -0.001), 카메라 높이 0.121 m, 기울기 0.1°
+장애물 1910점 → 복셀(5 cm) 850점, 메시지 22920 B → 10200 B
+발행 /obstacle_points: 850점, frame ascamera_camera_link_0
+[sim] 시뮬레이션 시간 0.3 s 종료 (sim.setup(duration=...)으로 변경)</code></pre></div>
+<ul><li>가상 점구름은 2픽셀 간격이라 320×240에서 약 1만 점입니다. 그중 80 % 이상이 바닥이라, RANSAC은 60번 반복으로 충분합니다(<span class="math">w</span> = 0.8이면 <span class="math">N ≈ 11</span>).</li><li>RANSAC이 찾은 평면의 법선이 거의 <span class="math">(0, −1, 0)</span>(광학 위쪽)이고, 카메라 높이 0.121 m·기울기 0.1°가 <strong>자세를 모르고도</strong> 나왔습니다. 실물에서 카메라가 숙여져 있으면 이 기울기 값이 그대로 보입니다.</li><li>두 방법의 장애물 점 수(1919 vs 1910)가 거의 같습니다. 평평한 바닥에서는 빠른 높이 임계값으로 충분하고, 경사·기울기가 있으면 RANSAC이 안전합니다.</li><li>복셀 다운샘플로 점이 절반 이하가 됩니다. 실물 640×480(30만 점)에서는 수십 배 줄어듭니다.</li></ul>
+<h4 id="5-깊이-기반-비상-정지-노드">5. 깊이 기반 비상 정지 노드<a class="anchor" href="#5-깊이-기반-비상-정지-노드">#</a></h4>
+<p>로봇이 0.15 m/s로 전진하다가, 천천히 앞을 가로지르는 사람(<code>sim.add_walker</code>)과 앞을 막은 상자 앞에서 멈추는 노드입니다. 통로 반폭 0.18 m, 정지 0.35 m, 재출발 0.45 m(히스테리시스), 거리는 5 % 백분위를 씁니다. 결과 패널의 <strong>3D 시뮬레이터</strong> 탭에서 정지·재출발 장면을 다시 보며, <strong>깊이</strong> 창에 사람이 가까워지는 모습과 <strong>라이다</strong> 창을 비교해 보세요.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><a class="pg-btn" href="../tools/playground.html#code=aW1wb3J0IG51bXB5IGFzIG5wCmltcG9ydCByY2xweQpmcm9tIHJjbHB5Lm5vZGUgaW1wb3J0IE5vZGUKZnJvbSBnZW9tZXRyeV9tc2dzLm1zZyBpbXBvcnQgVHdpc3QKZnJvbSBzZW5zb3JfbXNncy5tc2cgaW1wb3J0IEltYWdlLCBDYW1lcmFJbmZvCmZyb20gY3ZfYnJpZGdlIGltcG9ydCBDdkJyaWRnZQoKaW1wb3J0IG1lbnRvcnBpX3NpbSBhcyBzaW0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICMg7Iuc666sIOyghOyaqQpzaW0uc2V0dXAod29ybGQ9ImFyZW5hIiwgZHVyYXRpb249MTguMCwgc3RhcnQ9KC0xLjYsIDAuMCwgMC4wKSkgICAgICAjIOyLnOuurCDsoITsmqkKc2ltLmFkZF93YWxrZXIoWygtMC41LCAtMC42KSwgKC0wLjUsIDEuNildLCBzcGVlZD0wLjEsIGxvb3A9RmFsc2UpICAjIOyynOyynO2eiCDqsIDroZzsp4DrpbTripQg7IKs656MICAjIOyLnOuurCDsoITsmqkKc2ltLmFkZF9ib3goMC40LCAwLjAsIDAuMiwgMC40KSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICMg7JWe7J2EIOunieuKlCDsg4HsnpAgICMg7Iuc666sIOyghOyaqQoKTlMgPSAiL2FzY2FtZXJhL2NhbWVyYV9wdWJsaXNoZXIiCkNBTV9YLCBDQU1fSCA9IDAuMDYxLCAwLjEyMSAgICAgICAgICAjIGJhc2VfZm9vdHByaW50IOKGkiDsubTrqZTrnbwg6rSR7ZWZIOykkeyLrCBbbV0KSEFMRl9XLCBTVE9QLCBHTyA9IDAuMTgsIDAuMzUsIDAuNDUgICMg7Ya166GcIOuwmO2PrSwg7KCV7KeAIOqxsOumrCwg7J6s7Lac67CcIOqxsOumrCjtnojsiqTthYzrpqzsi5zsiqQpIFttXQoKCmNsYXNzIERlcHRoR3VhcmQoTm9kZSk6CiAgICBkZWYgX19pbml0X18oc2VsZik6CiAgICAgICAgc3VwZXIoKS5fX2luaXRfXygiZGVwdGhfZ3VhcmQiKQogICAgICAgIHNlbGYuYnIgPSBDdkJyaWRnZSgpCiAgICAgICAgc2VsZi5LID0gTm9uZQogICAgICAgIHNlbGYuZnJvbnQgPSBmbG9hdCgiaW5mIikKICAgICAgICBzZWxmLnN0b3BwZWQgPSBGYWxzZQogICAgICAgIHNlbGYucHViID0gc2VsZi5jcmVhdGVfcHVibGlzaGVyKFR3aXN0LCAiL2NvbnRyb2xsZXIvY21kX3ZlbCIsIDEpCiAgICAgICAgc2VsZi5jcmVhdGVfc3Vic2NyaXB0aW9uKENhbWVyYUluZm8sIE5TICsgIi9kZXB0aDAvY2FtZXJhX2luZm8iLCBzZWxmLm9uX2luZm8sIDEpCiAgICAgICAgc2VsZi5jcmVhdGVfc3Vic2NyaXB0aW9uKEltYWdlLCBOUyArICIvZGVwdGgwL2ltYWdlX3JhdyIsIHNlbGYub25fZGVwdGgsIDEpCiAgICAgICAgc2VsZi5jcmVhdGVfdGltZXIoMC4xLCBzZWxmLmxvb3ApCiAgICAgICAgc2VsZi50MCA9IHNlbGYuZ2V0X2Nsb2NrKCkubm93KCkubmFub3NlY29uZHMKCiAgICBkZWYgb25faW5mbyhzZWxmLCBtKToKICAgICAgICBzZWxmLksgPSBucC5hcnJheShtLmspLnJlc2hhcGUoMywgMykKCiAgICBkZWYgb25fZGVwdGgoc2VsZiwgbSk6CiAgICAgICAgaWYgc2VsZi5LIGlzIE5vbmU6CiAgICAgICAgICAgIHJldHVybgogICAgICAgIHogPSBzZWxmLmJyLmltZ21zZ190b19jdjIobSwgInBhc3N0aHJvdWdoIikuYXN0eXBlKG5wLmZsb2F0MzIpIC8gMTAwMC4wCiAgICAgICAgZngsIGZ5LCBjeCwgY3kgPSBzZWxmLktbMCwgMF0sIHNlbGYuS1sxLCAxXSwgc2VsZi5LWzAsIDJdLCBzZWxmLktbMSwgMl0KICAgICAgICB2LCB1ID0gbnAubm9uemVybyh6ID4gMCkKICAgICAgICBaID0gelt2LCB1XQogICAgICAgIHhiID0gWiArIENBTV9YICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAjIOuhnOu0hyDslZ4KICAgICAgICB5YiA9IC0odSArIDAuNSAtIGN4KSAvIGZ4ICogWiAgICAgICAgICAgICAgICAgICAgICMg66Gc67SHIOyZvOyqvQogICAgICAgIGhiID0gQ0FNX0ggLSAodiArIDAuNSAtIGN5KSAvIGZ5ICogWiAgICAgICAgICAgICAgIyDrhpLsnbQKICAgICAgICBzZWwgPSAobnAuYWJzKHliKSA8IEhBTEZfVykgJiAoaGIgPiAwLjAzKSAmIChoYiA8IDAuNDApCiAgICAgICAgc2VsZi5mcm9udCA9IGZsb2F0KG5wLnBlcmNlbnRpbGUoeGJbc2VsXSwgNSkpIGlmIHNlbC5zdW0oKSA-IDIwIGVsc2UgZmxvYXQoImluZiIpCgogICAgZGVmIGxvb3Aoc2VsZik6CiAgICAgICAgdCA9IChzZWxmLmdldF9jbG9jaygpLm5vdygpLm5hbm9zZWNvbmRzIC0gc2VsZi50MCkgLyAxZTkKICAgICAgICB3YXMgPSBzZWxmLnN0b3BwZWQKICAgICAgICBpZiBzZWxmLmZyb250IDwgU1RPUDoKICAgICAgICAgICAgc2VsZi5zdG9wcGVkID0gVHJ1ZQogICAgICAgIGVsaWYgc2VsZi5mcm9udCA-IEdPOgogICAgICAgICAgICBzZWxmLnN0b3BwZWQgPSBGYWxzZQogICAgICAgIGNtZCA9IFR3aXN0KCkKICAgICAgICBjbWQubGluZWFyLnggPSAwLjAgaWYgc2VsZi5zdG9wcGVkIGVsc2UgMC4xNQogICAgICAgIHNlbGYucHViLnB1Ymxpc2goY21kKQogICAgICAgIGlmIHdhcyAhPSBzZWxmLnN0b3BwZWQ6CiAgICAgICAgICAgIHNlbGYuZ2V0X2xvZ2dlcigpLmluZm8oInQ9JTQuMWYgcyAgJXMgICjslZ4g7J6l7JWg66y8ICUuMmYgbSwg66Gc67SHIHg9JS4yZikiICUgKAogICAgICAgICAgICAgICAgdCwgIuygleyngCIgaWYgc2VsZi5zdG9wcGVkIGVsc2UgIuy2nOuwnCIsIHNlbGYuZnJvbnQsIHNpbS5wb3NlKClbMF0pKSAgICMgc2ltLnBvc2UoKSDsi5zrrqwg7KCE7JqpCgoKcmNscHkuaW5pdCgpCm5vZGUgPSBEZXB0aEd1YXJkKCkKdHJ5OgogICAgcmNscHkuc3Bpbihub2RlKQpleGNlcHQgS2V5Ym9hcmRJbnRlcnJ1cHQ6CiAgICBwYXNzCmZpbmFsbHk6CiAgICBub2RlLnB1Yi5wdWJsaXNoKFR3aXN0KCkpCiAgICBwcmludCgi7LWc7KKFIHggPSAlLjJmIG0sIOyVniDsnqXslaDrrLwgJS4yZiBtIiAlIChzaW0ucG9zZSgpWzBdLCBub2RlLmZyb250KSkgICAjIOyLnOuurCDsoITsmqkKICAgIG5vZGUuZGVzdHJveV9ub2RlKCkKICAgIHJjbHB5LnNodXRkb3duKCk" target="_blank" rel="noopener" title="Playground에서 열기 (새 탭)">Playground ↗</a><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import numpy as np
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist
+from sensor_msgs.msg import Image, CameraInfo
+from cv_bridge import CvBridge
+
+import mentorpi_sim as sim                                            # 시뮬 전용
+sim.setup(world=&quot;arena&quot;, duration=18.0, start=(-1.6, 0.0, 0.0))      # 시뮬 전용
+sim.add_walker([(-0.5, -0.6), (-0.5, 1.6)], speed=0.1, loop=False)  # 천천히 가로지르는 사람  # 시뮬 전용
+sim.add_box(0.4, 0.0, 0.2, 0.4)                                       # 앞을 막는 상자  # 시뮬 전용
+
+NS = &quot;/ascamera/camera_publisher&quot;
+CAM_X, CAM_H = 0.061, 0.121          # base_footprint → 카메라 광학 중심 [m]
+HALF_W, STOP, GO = 0.18, 0.35, 0.45  # 통로 반폭, 정지 거리, 재출발 거리(히스테리시스) [m]
+
+
+class DepthGuard(Node):
+    def __init__(self):
+        super().__init__(&quot;depth_guard&quot;)
+        self.br = CvBridge()
+        self.K = None
+        self.front = float(&quot;inf&quot;)
+        self.stopped = False
+        self.pub = self.create_publisher(Twist, &quot;/controller/cmd_vel&quot;, 1)
+        self.create_subscription(CameraInfo, NS + &quot;/depth0/camera_info&quot;, self.on_info, 1)
+        self.create_subscription(Image, NS + &quot;/depth0/image_raw&quot;, self.on_depth, 1)
+        self.create_timer(0.1, self.loop)
+        self.t0 = self.get_clock().now().nanoseconds
+
+    def on_info(self, m):
+        self.K = np.array(m.k).reshape(3, 3)
+
+    def on_depth(self, m):
+        if self.K is None:
+            return
+        z = self.br.imgmsg_to_cv2(m, &quot;passthrough&quot;).astype(np.float32) / 1000.0
+        fx, fy, cx, cy = self.K[0, 0], self.K[1, 1], self.K[0, 2], self.K[1, 2]
+        v, u = np.nonzero(z &gt; 0)
+        Z = z[v, u]
+        xb = Z + CAM_X                                   # 로봇 앞
+        yb = -(u + 0.5 - cx) / fx * Z                     # 로봇 왼쪽
+        hb = CAM_H - (v + 0.5 - cy) / fy * Z              # 높이
+        sel = (np.abs(yb) &lt; HALF_W) &amp; (hb &gt; 0.03) &amp; (hb &lt; 0.40)
+        self.front = float(np.percentile(xb[sel], 5)) if sel.sum() &gt; 20 else float(&quot;inf&quot;)
+
+    def loop(self):
+        t = (self.get_clock().now().nanoseconds - self.t0) / 1e9
+        was = self.stopped
+        if self.front &lt; STOP:
+            self.stopped = True
+        elif self.front &gt; GO:
+            self.stopped = False
+        cmd = Twist()
+        cmd.linear.x = 0.0 if self.stopped else 0.15
+        self.pub.publish(cmd)
+        if was != self.stopped:
+            self.get_logger().info(&quot;t=%4.1f s  %s  (앞 장애물 %.2f m, 로봇 x=%.2f)&quot; % (
+                t, &quot;정지&quot; if self.stopped else &quot;출발&quot;, self.front, sim.pose()[0]))   # sim.pose() 시뮬 전용
+
+
+rclpy.init()
+node = DepthGuard()
+try:
+    rclpy.spin(node)
+except KeyboardInterrupt:
+    pass
+finally:
+    node.pub.publish(Twist())
+    print(&quot;최종 x = %.2f m, 앞 장애물 %.2f m&quot; % (sim.pose()[0], node.front))   # 시뮬 전용
+    node.destroy_node()
+    rclpy.shutdown()</code></pre></div>
+<p>(대략)</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[INFO] [4.700] [depth_guard]: t= 4.7 s  정지  (앞 장애물 0.34 m, 로봇 x=-0.95)
+[INFO] [9.300] [depth_guard]: t= 9.3 s  출발  (앞 장애물 1.24 m, 로봇 x=-0.94)
+[INFO] [15.900] [depth_guard]: t=15.9 s  정지  (앞 장애물 0.32 m, 로봇 x=-0.01)
+[sim] 시뮬레이션 시간 18.0 s 종료 (sim.setup(duration=...)으로 변경)
+최종 x = -0.00 m, 앞 장애물 0.30 m</code></pre></div>
+<ul><li>사람이 통로에 들어와 0.35 m 안이 되자 멈추고, 통로를 벗어나 앞이 0.45 m보다 멀어지자 다시 출발합니다. 사람을 기다린 시간은 약 4.6 s입니다.</li><li>마지막에는 x = 0.3 m에 앞면이 있는 상자 앞 0.30 m(로봇 중심 기준)에 서고, <strong>충돌 0회</strong>입니다.</li><li><code>HALF_W</code>를 로봇 반경(0.13 m)과 같게 줄이거나 <code>STOP</code>을 0.2로 줄여 다시 실행해 보세요. 사람이 옆에서 들어올 때 충돌(결과 헤더의 <code>collisions</code>)이 생기는지 확인합니다.</li><li>이 노드는 **깊이가 안 오면 마지막 <code>front</code> 값을 계속 믿습니다.** 실물 노드(아래)에는 영상이 끊기면 멈추는 감시(watchdog)를 넣습니다.</li></ul>
+<h4 id="6-깊이-가상-스캔-vs-라이다-scan">6. 깊이 → 가상 스캔 vs 라이다 <code>/scan</code><a class="anchor" href="#6-깊이-가상-스캔-vs-라이다-scan">#</a></h4>
+<p>높이 2~30 cm 띠에서 열마다 가장 가까운 점을 골라 가상 스캔을 만들고, 같은 순간의 <code>/scan</code>과 각도별로 비교합니다. 앞에는 높이 10 cm의 작은 블록(<code>toy_block</code>, 반지름 5 cm)을 놓았습니다. <strong>그래프</strong> 탭에서 두 스캔(x = 각도 °, y = 거리 m)을 겹쳐 봅니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><a class="pg-btn" href="../tools/playground.html#code=aW1wb3J0IG1hdGgKaW1wb3J0IG51bXB5IGFzIG5wCmltcG9ydCByY2xweQpmcm9tIHJjbHB5Lm5vZGUgaW1wb3J0IE5vZGUKZnJvbSBzZW5zb3JfbXNncy5tc2cgaW1wb3J0IEltYWdlLCBDYW1lcmFJbmZvLCBMYXNlclNjYW4KZnJvbSBjdl9icmlkZ2UgaW1wb3J0IEN2QnJpZGdlCgppbXBvcnQgbWVudG9ycGlfc2ltIGFzIHNpbSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICMg7Iuc666sIOyghOyaqQpzaW0uc2V0dXAod29ybGQ9ImFyZW5hIiwgZHVyYXRpb249MC41LCBzdGFydD0oLTEuMiwgMC4wLCAwLjApLCBjYW1lcmE9KDMyMCwgMjQwKSkgICAjIOyLnOuurCDsoITsmqkKc2ltLmFkZF9vYmplY3QoInRveV9ibG9jayIsIC0wLjQsIDAuMTUsIDAuMDUpICAgICAgICAgICAgICAgICAgICAgICAjIOuGkuydtCAwLjEwIG0g64Ku7J2AIOusvOyytCAgIyDsi5zrrqwg7KCE7JqpCgpOUyA9ICIvYXNjYW1lcmEvY2FtZXJhX3B1Ymxpc2hlciIKQ0FNX1gsIENBTV9ILCBMSURBUl9YID0gMC4wNjEsIDAuMTIxLCAtMC4wMTIKCgpjbGFzcyBDb21wYXJlKE5vZGUpOgogICAgZGVmIF9faW5pdF9fKHNlbGYpOgogICAgICAgIHN1cGVyKCkuX19pbml0X18oImRlcHRoX3ZzX3NjYW4iKQogICAgICAgIHNlbGYuYnIgPSBDdkJyaWRnZSgpCiAgICAgICAgc2VsZi56ID0gc2VsZi5LID0gc2VsZi5zY2FuID0gTm9uZQogICAgICAgIHNlbGYuY3JlYXRlX3N1YnNjcmlwdGlvbihJbWFnZSwgTlMgKyAiL2RlcHRoMC9pbWFnZV9yYXciLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBsYW1iZGEgbTogc2V0YXR0cihzZWxmLCAieiIsIHNlbGYuYnIuaW1nbXNnX3RvX2N2MihtLCAicGFzc3Rocm91Z2giKSAvIDEwMDAuMCksIDEpCiAgICAgICAgc2VsZi5jcmVhdGVfc3Vic2NyaXB0aW9uKENhbWVyYUluZm8sIE5TICsgIi9kZXB0aDAvY2FtZXJhX2luZm8iLCBsYW1iZGEgbTogc2V0YXR0cihzZWxmLCAiSyIsIG5wLmFycmF5KG0uaykucmVzaGFwZSgzLCAzKSksIDEpCiAgICAgICAgc2VsZi5jcmVhdGVfc3Vic2NyaXB0aW9uKExhc2VyU2NhbiwgIi9zY2FuIiwgbGFtYmRhIG06IHNldGF0dHIoc2VsZiwgInNjYW4iLCBtKSwgMSkKCgpyY2xweS5pbml0KCkKbm9kZSA9IENvbXBhcmUoKQpyY2xweS5zcGluKG5vZGUpCgp6LCBLID0gbm9kZS56LCBub2RlLksKZngsIGZ5LCBjeCwgY3kgPSBLWzAsIDBdLCBLWzEsIDFdLCBLWzAsIDJdLCBLWzEsIDJdCmgsIHcgPSB6LnNoYXBlCnZ2LCB1dSA9IG5wLm1ncmlkWzA6aCwgMDp3XQp4YiA9IHogKyBDQU1fWAp5YiA9IC0odXUgKyAwLjUgLSBjeCkgLyBmeCAqIHoKaGIgPSBDQU1fSCAtICh2diArIDAuNSAtIGN5KSAvIGZ5ICogegpiYW5kID0gKHogPiAwKSAmIChoYiA-IDAuMDIpICYgKGhiIDwgMC4zMCkgICAgICAgICAgICAgICAgICAgICAgICAgICMg64aS7J20IDJ-MzAgY20g652g66eMCnIgPSBucC53aGVyZShiYW5kLCBucC5oeXBvdCh4YiwgeWIpLCBucC5pbmYpCmosIGNvbHMgPSBucC5hcmdtaW4ociwgYXhpcz0wKSwgbnAuYXJhbmdlKHcpICAgICAgICAgICAgICAgICAgICAgICAjIOyXtOuniOuLpCDqsIDsnqUg6rCA6rmM7Jq0IOygkApvayA9IG5wLmlzZmluaXRlKHJbaiwgY29sc10pCnZpcnRfciA9IHJbaiwgY29sc11bb2tdCnZpcnRfYSA9IG5wLmRlZ3JlZXMobnAuYXJjdGFuMih5YltqLCBjb2xzXSwgeGJbaiwgY29sc10pKVtva10KCnMgPSBub2RlLnNjYW4KcHJpbnQoIuqwgOyDgSDsiqTsupQ6ICVkIOu5lCwg7Iuc7JW8ICUuMGbCsH4lLjBmwrAgfCAvc2NhbjogJWQg67mULCAzNjDCsCIgJSAobGVuKHZpcnRfciksIHZpcnRfYS5taW4oKSwgdmlydF9hLm1heCgpLCBsZW4ocy5yYW5nZXMpKSkKcHJpbnQoIiDqsIHrj4RbwrBdICDquYrsnbTihpLsiqTsupRbbV0gIOudvOydtOuLpFttXSIpCmxhLCBsciA9IFtdLCBbXQpmb3IgaSwgcnIgaW4gZW51bWVyYXRlKHMucmFuZ2VzKToKICAgIGEgPSBzLmFuZ2xlX21pbiArIGkgKiBzLmFuZ2xlX2luY3JlbWVudAogICAgaWYgYWJzKG1hdGguZGVncmVlcyhhKSkgPD0gMzQgYW5kIG1hdGguaXNmaW5pdGUocnIpOgogICAgICAgICMg65287J2064ukIOygkOydhCBiYXNlX2Zvb3RwcmludCDquLDspIAg6rGw66as66GcICjrnbzsnbTri6TripQgeCA9IOKIkjAuMDEyIG0pCiAgICAgICAgcHgsIHB5ID0gTElEQVJfWCArIHJyICogbWF0aC5jb3MoYSksIHJyICogbWF0aC5zaW4oYSkKICAgICAgICBsYS5hcHBlbmQobWF0aC5kZWdyZWVzKG1hdGguYXRhbjIocHksIHB4KSkpOyBsci5hcHBlbmQobWF0aC5oeXBvdChweCwgcHkpKQpmb3IgZGVnIGluICgzMCwgMjAsIDExLCA1LCAtMywgLTEwLCAtMjAsIC0zMCk6CiAgICBqID0gbnAuYXJnbWluKG5wLmFicyh2aXJ0X2EgLSBkZWcpKTsgayA9IGludChucC5hcmdtaW4obnAuYWJzKG5wLmFycmF5KGxhKSAtIGRlZykpKQogICAgcHJpbnQoIiAgJSs0ZCAgICAgICU4LjJmICAgICAlOC4yZiIgJSAoZGVnLCB2aXJ0X3Jbal0sIGxyW2tdKSkKc2ltLnBsb3QobGlzdCh2aXJ0X2EpLCBsaXN0KHZpcnRfciksICLquYrsnbQg4oaSIOqwgOyDgSDsiqTsupQgW21dIikKc2ltLnBsb3QobGEsIGxyLCAiL3NjYW4gW21dIikKbm9kZS5kZXN0cm95X25vZGUoKQpyY2xweS5zaHV0ZG93bigp" target="_blank" rel="noopener" title="Playground에서 열기 (새 탭)">Playground ↗</a><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import Image, CameraInfo, LaserScan
+from cv_bridge import CvBridge
+
+import mentorpi_sim as sim                                          # 시뮬 전용
+sim.setup(world=&quot;arena&quot;, duration=0.5, start=(-1.2, 0.0, 0.0), camera=(320, 240))   # 시뮬 전용
+sim.add_object(&quot;toy_block&quot;, -0.4, 0.15, 0.05)                       # 높이 0.10 m 낮은 물체  # 시뮬 전용
+
+NS = &quot;/ascamera/camera_publisher&quot;
+CAM_X, CAM_H, LIDAR_X = 0.061, 0.121, -0.012
+
+
+class Compare(Node):
+    def __init__(self):
+        super().__init__(&quot;depth_vs_scan&quot;)
+        self.br = CvBridge()
+        self.z = self.K = self.scan = None
+        self.create_subscription(Image, NS + &quot;/depth0/image_raw&quot;,
+                                 lambda m: setattr(self, &quot;z&quot;, self.br.imgmsg_to_cv2(m, &quot;passthrough&quot;) / 1000.0), 1)
+        self.create_subscription(CameraInfo, NS + &quot;/depth0/camera_info&quot;, lambda m: setattr(self, &quot;K&quot;, np.array(m.k).reshape(3, 3)), 1)
+        self.create_subscription(LaserScan, &quot;/scan&quot;, lambda m: setattr(self, &quot;scan&quot;, m), 1)
+
+
+rclpy.init()
+node = Compare()
+rclpy.spin(node)
+
+z, K = node.z, node.K
+fx, fy, cx, cy = K[0, 0], K[1, 1], K[0, 2], K[1, 2]
+h, w = z.shape
+vv, uu = np.mgrid[0:h, 0:w]
+xb = z + CAM_X
+yb = -(uu + 0.5 - cx) / fx * z
+hb = CAM_H - (vv + 0.5 - cy) / fy * z
+band = (z &gt; 0) &amp; (hb &gt; 0.02) &amp; (hb &lt; 0.30)                          # 높이 2~30 cm 띠만
+r = np.where(band, np.hypot(xb, yb), np.inf)
+j, cols = np.argmin(r, axis=0), np.arange(w)                       # 열마다 가장 가까운 점
+ok = np.isfinite(r[j, cols])
+virt_r = r[j, cols][ok]
+virt_a = np.degrees(np.arctan2(yb[j, cols], xb[j, cols]))[ok]
+
+s = node.scan
+print(&quot;가상 스캔: %d 빔, 시야 %.0f°~%.0f° | /scan: %d 빔, 360°&quot; % (len(virt_r), virt_a.min(), virt_a.max(), len(s.ranges)))
+print(&quot; 각도[°]  깊이→스캔[m]  라이다[m]&quot;)
+la, lr = [], []
+for i, rr in enumerate(s.ranges):
+    a = s.angle_min + i * s.angle_increment
+    if abs(math.degrees(a)) &lt;= 34 and math.isfinite(rr):
+        # 라이다 점을 base_footprint 기준 거리로 (라이다는 x = −0.012 m)
+        px, py = LIDAR_X + rr * math.cos(a), rr * math.sin(a)
+        la.append(math.degrees(math.atan2(py, px))); lr.append(math.hypot(px, py))
+for deg in (30, 20, 11, 5, -3, -10, -20, -30):
+    j = np.argmin(np.abs(virt_a - deg)); k = int(np.argmin(np.abs(np.array(la) - deg)))
+    print(&quot;  %+4d      %8.2f     %8.2f&quot; % (deg, virt_r[j], lr[k]))
+sim.plot(list(virt_a), list(virt_r), &quot;깊이 → 가상 스캔 [m]&quot;)
+sim.plot(la, lr, &quot;/scan [m]&quot;)
+node.destroy_node()
+rclpy.shutdown()</code></pre></div>
+<p>(대략)</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[sim] 시뮬레이션 시간 0.5 s 종료 (sim.setup(duration=...)으로 변경)
+가상 스캔: 320 빔, 시야 -33°~34° | /scan: 360 빔, 360°
+ 각도[°]  깊이→스캔[m]  라이다[m]
+   +30          3.63         3.68
+   +20          1.95         1.97
+   +11          0.76         0.74
+    +5          3.17         3.21
+    -3          2.37         2.39
+   -10          3.20         3.25
+   -20          3.32         3.40
+   -30          1.88         1.88</code></pre></div>
+<ul><li>+11°의 0.76 m가 작은 블록, −3°의 2.4 m가 원통, 나머지 3 m 이상은 벽입니다. 두 스캔이 몇 cm 안에서 겹칩니다.</li><li>먼 벽(3 m 이상)에서 가상 스캔이 라이다보다 <strong>3~8 cm 짧습니다.</strong> 열마다 <strong>최솟값</strong>을 고르면 잡음(3 m에서 σ ≈ 2.4 cm)의 아래쪽 꼬리를 고르기 때문입니다. <code>r.min(axis=0)</code> 대신 열별 10 % 백분위를 쓰면 줄어듭니다.</li><li>이 시뮬레이터의 라이다는 2D라서 높이 10 cm 블록도 봅니다. <strong>실물 LD19는 바닥에서 약 0.16 m 높이의 평면만 보므로 이 블록을 못 봅니다.</strong> 깊이 가상 스캔은 높이 띠 전체를 보므로 봅니다. 이것이 두 센서를 함께 쓰는 가장 큰 이유입니다.</li><li>가상 스캔은 약 67°만 채웁니다. 코스트맵에 넣을 때 시야 밖을 "비어 있음"이 아니라 "모름"으로 두어야 합니다.</li></ul>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">안전 확인 (실물 실습 전 필수)</div><div class="callout-body"><ul><li>비상 정지 노드는 로봇을 <strong>실제로 움직입니다</strong>. 사방 1.5 m를 비우고, 첫 실행은 바퀴를 받침대에 올려 명령만 확인합니다. 바닥에서 실행할 때는 손을 전원 스위치 가까이에 둡니다.</li><li>속도는 <strong>0.1 m/s</strong>로 시작합니다(원본 앱 제한 0.2 m/s 이하). <code>/controller/cmd_vel</code>에는 속도 제한이 없으므로 코드에서 제한합니다.</li><li>깊이 카메라가 못 보는 유리문·검은 물체·시야 옆 물체를 향해 달리게 하지 않습니다. 사람을 장애물로 시험할 때는 발 대신 상자를 씁니다.</li><li>원본 앱이나 다른 주행 노드와 <strong>동시에 실행하지 않습니다</strong>(같은 <code>/controller/cmd_vel</code>에 서로 다른 명령).</li><li>끝낼 때는 Ctrl+C → 노드가 정지 명령을 보내는지 확인하고, 앱 서비스를 다시 켭니다(<code>sudo systemctl restart start_node.service</code>).</li></ul></div></div>
+<h3 id="1-카메라-섀시-켜기와-토픽-확인">1) 카메라·섀시 켜기와 토픽 확인<a class="anchor" href="#1-카메라-섀시-켜기와-토픽-확인">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">~/.stop_ros.sh
+ros2 launch peripherals depth_camera.launch.py          # 터미널 1: HP60C 드라이버
+ros2 launch controller controller.launch.py             # 터미널 2: 섀시(모터·오도메트리)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 topic list | grep ascamera                         # 실제 토픽 이름 확인 (특히 points)
+ros2 topic hz /ascamera/camera_publisher/depth0/image_raw
+ros2 topic echo --once /ascamera/camera_publisher/depth0/camera_info | grep -A1 &quot;^k:&quot;
+ros2 run rqt_image_view rqt_image_view                  # depth0/image_raw, rgb0/image 선택</code></pre></div>
+<div class="callout callout-warn"><div class="callout-title">점구름 토픽 이름은 반드시 확인</div><div class="callout-body"><p>RTAB-Map launch에서 확인되는 것은 <code>rgb0/image</code>, <code>rgb0/camera_info</code>, <code>depth0/image_raw</code> 세 개뿐입니다. 점구름 토픽은 교재 RViz 경로(<code>ascamera → ascamera_publisher → depth0 → points</code>)로만 알 수 있어 <code>/ascamera/camera_publisher/depth0/points</code>인지 <code>/ascamera/ascamera_publisher/depth0/points</code>인지 <strong>확실하지 않습니다.</strong> <code>ros2 topic list | grep points</code>로 확인하고, 아래 코드의 토픽 이름을 맞춥니다. 이 챕터의 로봇 노드는 점구름이 아니라 <strong>깊이 영상</strong>을 쓰므로 이 문제에 영향을 받지 않습니다.</p></div></div>
+<h3 id="2-rviz로-점구름과-처리-결과-보기">2) RViz로 점구름과 처리 결과 보기<a class="anchor" href="#2-rviz로-점구름과-처리-결과-보기">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">rviz2</code></pre></div>
+<ol><li><strong>Fixed Frame</strong>을 <code>ascamera_color_0</code>(교재 지시)으로 두고, <strong>Add → By topic</strong>에서 <code>depth0/points</code>의 <strong>PointCloud2</strong>를 추가합니다.</li><li>실습 4의 노드(바닥 제거 + 복셀)를 <code>sim</code> 줄만 지우고 실행한 뒤, <code>/obstacle_points</code> PointCloud2를 추가합니다. <strong>Size (m)</strong> 를 0.03, <strong>Color</strong>를 눈에 띄는 색으로 두면 바닥이 빠진 장애물만 보입니다.</li><li><code>robot_state_publisher</code>(URDF)가 떠 있다면 Fixed Frame을 <code>base_footprint</code>로 바꿔도 점들이 같은 자리에 있어야 합니다. 어긋나면 TF 체인을 점검합니다(M08).</li><li>라이다를 켜고(<code>ros2 launch peripherals lidar.launch.py</code>) <strong>LaserScan</strong>을 추가해 점구름과 겹쳐 봅니다. 라이다 토픽이 <code>/scan</code>인지 <code>/scan_raw</code>인지 <code>ros2 topic list</code>로 확인합니다. 라이다 평면보다 낮은 상자가 점구름에만 보이는지 확인합니다.</li></ol>
+<h3 id="3-깊이-기반-비상-정지-노드-실물">3) 깊이 기반 비상 정지 노드 (실물)<a class="anchor" href="#3-깊이-기반-비상-정지-노드-실물">#</a></h3>
+<p>실습 5의 노드에 <strong>속도 제한 0.1 m/s</strong>, <strong>센서 QoS</strong>, <strong>영상 끊김 감시(0.5 s 동안 깊이가 안 오면 정지)</strong> 를 더한 실물용입니다. <code>depth_guard.py</code>로 저장하고 컨테이너 안에서 <code>python3 depth_guard.py</code>로 실행합니다.</p>
+<div class="code-block code-robot"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-robot">실물 전용</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">#!/usr/bin/env python3
+&quot;&quot;&quot;depth_guard.py — HP60C depth image based emergency stop for MentorPi.&quot;&quot;&quot;
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
+from geometry_msgs.msg import Twist
+from sensor_msgs.msg import Image, CameraInfo
+from cv_bridge import CvBridge
+
+NS = &quot;/ascamera/camera_publisher&quot;
+CAM_X, CAM_H = 0.061, 0.121          # base_footprint -&gt; optical centre [m] (URDF)
+HALF_W, STOP, GO = 0.18, 0.35, 0.45  # corridor half width, stop / resume distance [m]
+SPEED = 0.10                         # forward speed [m/s] (&lt;= 0.2 on the real robot)
+TIMEOUT = 0.5                        # stop if no depth image for this long [s]
+
+
+class DepthGuard(Node):
+    def __init__(self):
+        super().__init__(&quot;depth_guard&quot;)
+        self.br = CvBridge()
+        self.K = None
+        self.front = float(&quot;inf&quot;)
+        self.stopped = True
+        self.last = None
+        self.pub = self.create_publisher(Twist, &quot;/controller/cmd_vel&quot;, 1)
+        self.create_subscription(CameraInfo, NS + &quot;/depth0/camera_info&quot;, self.on_info, qos_profile_sensor_data)
+        self.create_subscription(Image, NS + &quot;/depth0/image_raw&quot;, self.on_depth, qos_profile_sensor_data)
+        self.create_timer(0.05, self.loop)                 # 20 Hz
+
+    def on_info(self, m):
+        self.K = np.array(m.k).reshape(3, 3)
+
+    def on_depth(self, m):
+        if self.K is None:
+            return
+        z = self.br.imgmsg_to_cv2(m, &quot;passthrough&quot;).astype(np.float32) / 1000.0
+        z = z[::2, ::2]                                    # 640x480 -&gt; 320x240 (speed)
+        fx, fy, cx, cy = self.K[0, 0] / 2, self.K[1, 1] / 2, self.K[0, 2] / 2, self.K[1, 2] / 2
+        v, u = np.nonzero((z &gt; 0) &amp; (z &lt; 2.0))
+        Z = z[v, u]
+        yb = -(u + 0.5 - cx) / fx * Z
+        hb = CAM_H - (v + 0.5 - cy) / fy * Z
+        sel = (np.abs(yb) &lt; HALF_W) &amp; (hb &gt; 0.03) &amp; (hb &lt; 0.40)
+        self.front = float(np.percentile(Z[sel] + CAM_X, 5)) if sel.sum() &gt; 50 else float(&quot;inf&quot;)
+        self.last = self.get_clock().now()
+
+    def loop(self):
+        now = self.get_clock().now()
+        stale = self.last is None or (now - self.last).nanoseconds &gt; TIMEOUT * 1e9
+        was = self.stopped
+        if stale or self.front &lt; STOP:
+            self.stopped = True
+        elif self.front &gt; GO:
+            self.stopped = False
+        cmd = Twist()
+        cmd.linear.x = 0.0 if self.stopped else SPEED
+        self.pub.publish(cmd)
+        if was != self.stopped:
+            self.get_logger().info(&quot;%s (front %.2f m%s)&quot; % (&quot;STOP&quot; if self.stopped else &quot;GO&quot;,
+                                                            self.front, &quot;, no depth&quot; if stale else &quot;&quot;))
+
+
+def main():
+    rclpy.init()
+    node = DepthGuard()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.pub.publish(Twist())                          # always stop on exit
+        node.destroy_node()
+        rclpy.shutdown()
+
+
+if __name__ == &quot;__main__&quot;:
+    main()</code></pre></div>
+<ol><li>바퀴를 띄운 채 실행하고, 카메라 앞 30 cm에 상자를 두었다 치웠다 하며 <code>STOP</code>/<code>GO</code> 로그와 바퀴 회전을 확인합니다.</li><li>카메라 케이블을 뽑거나 드라이버를 Ctrl+C로 끄면 0.5 s 안에 <code>STOP (..., no depth)</code>가 나오는지 확인합니다.</li><li>바닥에 내려 2 m 앞 상자를 향해 출발시키고, 멈춘 위치에서 로봇 중심~상자 거리를 줄자로 재어 <code>STOP</code> 값과 비교합니다.</li><li>검은 가방·유리병을 장애물로 바꿔 보고(<strong>천천히</strong>, 손을 준비한 채), 멈추지 않는 경우를 기록합니다.</li></ol>
+<div class="callout callout-check"><div class="callout-title">체크포인트</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> 깊이 영상의 dtype·단위·해상도와 camera_info의 <span class="math">K</span>를 확인하고, 해상도를 바꿀 때 <span class="math">K</span>를 어떻게 바꾸는지 설명할 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> RANSAC이 찾은 바닥 평면에서 카메라 높이·기울기를 읽을 수 있다.</label></li><li><label class="check-item"><input type="checkbox"> 비상 정지 노드의 정지 거리를 지연·감속·로봇 반경으로 설명하고, 실물에서 정지 위치를 재어 비교했다.</label></li><li><label class="check-item"><input type="checkbox"> 라이다가 못 보고 깊이 카메라만 보는 물체, 그 반대인 물체를 하나씩 찾았다.</label></li></ul></div></div>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td>로봇이 출발하자마자 멈춤</td><td>바닥 점을 장애물로 셈(높이 필터 없음), 또는 0(무효)을 거리로 셈</td><td>높이 &gt; 3 cm, <code>z &gt; 0</code> 적용</td></tr><tr><td>먼 곳의 바닥이 장애물로 올라옴</td><td>먼 거리 잡음(σ ∝ Z²)이 임계값을 넘음, 카메라가 살짝 숙여짐</td><td>거리별 임계값 <span class="math">0.02 + 3σ(Z)</span>, RANSAC으로 기울기 보정, 최대 거리 2 m 제한</td></tr><tr><td>정지·출발을 빠르게 반복하며 떪</td><td>정지·재출발 거리가 같음</td><td>히스테리시스(0.35 / 0.45 m)</td></tr><tr><td>옆에서 들어온 사람과 부딪힘</td><td>통로 반폭이 로봇 반경보다 작음, 시야 밖</td><td>반폭 ≥ 반경 + 여유, 라이다 병행</td></tr><tr><td>측정한 폭이 두 배·절반</td><td>다른 해상도의 <span class="math">K</span> 사용</td><td><code>camera_info</code>의 width·height와 영상 크기 비교</td></tr><tr><td>색 물체의 거리가 배경 거리로 나옴</td><td>RGB와 깊이가 정렬되지 않았거나 시각이 다름, 마스크 가장자리가 배경을 포함</td><td>정렬 깊이 사용, <code>ApproximateTimeSynchronizer</code>, 마스크 침식(erode) 후 중앙값</td></tr><tr><td>RANSAC이 벽을 바닥으로 고름</td><td>벽 점이 바닥보다 많음</td><td>법선이 위쪽(광학 −y)에 가까운 평면만 허용, 높이 범위로 후보 제한</td></tr><tr><td>RViz에서 <code>/obstacle_points</code>가 엉뚱한 곳에 그려짐</td><td><code>header.frame_id</code>와 실제 점 좌표계 불일치</td><td>광학 좌표면 광학 프레임, 로봇 좌표로 바꿨으면 <code>base_footprint</code></td></tr><tr><td>노드가 깊이를 못 받음 (콜백 안 불림)</td><td>QoS 불일치(드라이버 BEST_EFFORT), 토픽 이름 다름</td><td><code>qos_profile_sensor_data</code>, <code>ros2 topic info -v</code>로 QoS·이름 확인</td></tr><tr><td>처리 속도가 영상보다 느려 지연</td><td>640×480 전체를 매 프레임 역투영</td><td>2픽셀 간격 샘플, 관심 영역(ROI)만, 2 m 밖 버리기</td></tr><tr><td>가상 스캔이 라이다보다 짧음</td><td>열별 최솟값이 잡음 꼬리를 고름</td><td>열별 10 % 백분위, 시간 평균</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">기본 과제</div><div class="callout-body"><ol><li>실습 2를 고쳐 <strong>깊이 카메라 실험실</strong>처럼 bbox의 네 모서리 픽셀을 역투영해 물체의 폭·높이를 구하는 함수 <code>measure(z, bbox, K)</code>를 만들고, bbox 식·3D 식과 결과를 비교합니다.</li><li>실습 3에서 표면 점을 공 <strong>중심</strong>으로 보정하는 식(<span class="math">p + r·p/|p|</span>)을 넣고, 로봇 위치를 세 곳 바꿔 가며 정답과의 오차를 표로 만듭니다.</li><li>실습 5의 <code>STOP</code>을 0.25·0.35·0.5 m로 바꿔 실행하고, 사람을 기다린 시간·최종 정지 위치·충돌 수를 비교합니다.</li></ol></div></div>
+<div class="callout callout-task"><div class="callout-title">심화 과제</div><div class="callout-body"><ol><li>실습 5의 노드를 <strong>회피 노드</strong>로 확장합니다. 통로가 막히면 가상 스캔(실습 6)의 좌·우 섹터 최소 거리를 비교해 더 넓은 쪽으로 회전(0.3 rad/s 이하)하고, 통로가 열리면 다시 전진합니다. <code>world=&quot;arena&quot;</code>에서 60 s 동안 충돌 없이 달리는지 확인합니다.</li><li>실습 6의 가상 스캔을 <code>sensor_msgs/LaserScan</code> 메시지(<code>angle_min</code>, <code>angle_increment</code>, <code>ranges</code>)로 만들어 <code>/depth_scan</code>으로 발행하고, 실물 RViz에서 라이다 스캔과 겹쳐 봅니다. 시야 밖 빔은 <code>inf</code>가 아니라 <code>nan</code>(모름)으로 채워야 하는 이유를 설명합니다.</li><li>바닥 제거 후 장애물 점을 로봇 기준 5 cm 격자의 2D 점유 격자(예: 2 m × 2 m)로 만들어 <code>cv2.imshow</code>로 표시합니다. 로봇을 조금씩 돌리며 여러 프레임을 <code>/odom</code>으로 누적하면 M09의 지도 작성과 무엇이 같고 다른지 설명합니다.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>11. Depth Camera Basic Lesson</em> — Lesson 3 Usage of Depth Camera, Lesson 4 Data Type and Point Cloud</li><li>원본 교재: <em>14. ROS+OpenCV Lesson</em> — Install Depth Camera, Lesson 1 Color Threshold Adjustment, Lesson 2 Color Recognition</li><li>원본 소스: <code>src/peripherals/launch/depth_camera.launch.py</code>, <code>src/peripherals/launch/include/ascamera.launch.py</code>, <code>src/peripherals/launch/lidar.launch.py</code>, <code>src/driver/controller/launch/controller.launch.py</code>, <code>src/navigation/launch/include/rtabmap.launch.py</code>(카메라 토픽 이름)</li><li>cv_bridge (ROS 2): https://github.com/ros-perception/vision_opencv/tree/humble/cv_bridge</li><li>sensor_msgs_py.point_cloud2: https://github.com/ros2/common_interfaces/tree/humble/sensor_msgs_py</li><li>message_filters (ApproximateTimeSynchronizer): https://github.com/ros2/message_filters</li><li>depthimage_to_laserscan: https://github.com/ros-perception/depthimage_to_laserscan</li><li>M. A. Fischler, R. C. Bolles, "Random Sample Consensus", <em>Communications of the ACM</em>, 1981 — RANSAC 원 논문</li><li>Point Cloud Library — VoxelGrid 필터: https://pointclouds.org/documentation/tutorials/voxel_grid.html</li></ul>
+      <nav class="pager"><a class="pager-prev" href="m07.html"><span>이전 · M07</span>깊이 카메라 원리와 영상</a><a class="pager-next" href="m08.html"><span>다음 · M08</span>MentorPi URDF 모델</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#깊이-영상-처리-파이프라인">깊이 영상 처리 파이프라인</a><a class="toc-l2" href="#깊이-데이터를-다루는-다섯-가지-규칙">깊이 데이터를 다루는 다섯 가지 규칙</a><a class="toc-l2" href="#로봇-좌표로-옮기기">로봇 좌표로 옮기기</a><a class="toc-l2" href="#바닥-제거-높이-임계값과-ransac">바닥 제거: 높이 임계값과 RANSAC</a><a class="toc-l2" href="#물체-측정-거리-방향-크기">물체 측정: 거리·방향·크기</a><a class="toc-l2" href="#장애물-감지와-비상-정지">장애물 감지와 비상 정지</a><a class="toc-l2" href="#깊이로-만드는-가상-레이저-스캔">깊이로 만드는 가상 레이저 스캔</a><a class="toc-l2" href="#점구름-다운샘플링과-발행">점구름 다운샘플링과 발행</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l3" href="#3d-시뮬레이터와-깊이-카메라-실험실로-먼저-보기">3D 시뮬레이터와 깊이 카메라 실험실로 먼저 보기</a><a class="toc-l3" href="#playground-코드로-구현하기">Playground 코드로 구현하기</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l3" href="#1-카메라-섀시-켜기와-토픽-확인">1) 카메라·섀시 켜기와 토픽 확인</a><a class="toc-l3" href="#2-rviz로-점구름과-처리-결과-보기">2) RViz로 점구름과 처리 결과 보기</a><a class="toc-l3" href="#3-깊이-기반-비상-정지-노드-실물">3) 깊이 기반 비상 정지 노드 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js?v=386fe569"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=386fe569"></script>
+</body>
+</html>

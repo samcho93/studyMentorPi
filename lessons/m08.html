@@ -6,19 +6,19 @@
 <title>M08. MentorPi URDF 모델 · studyMentorPi</title>
 <meta name="description" content="URDF 문법 복습, mentorpi_description의 xacro 구조(메카넘/애커만), base_footprint·lidar·imu 링크와 RViz 표시.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css?v=ef4e86f9">
-<link rel="stylesheet" href="../assets/css/mentorpi.css?v=ef4e86f9">
-<link rel="stylesheet" href="../assets/css/ml-theme.css?v=ef4e86f9">
+<link rel="stylesheet" href="../assets/css/main.css?v=386fe569">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=386fe569">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=386fe569">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="../assets/js/theme.js?v=ef4e86f9"></script>
+<script src="../assets/js/theme.js?v=386fe569"></script>
 </head>
 <body class="lesson-page track-page-mobile">
 <button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
 <aside class="sidebar" id="sidebar">
 <nav class="sidebar-nav">
 <div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
-<div class="side-tools"><a class="side-tool" href="../sim3d/index.html">3D 시뮬레이터</a><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a><a class="side-tool" href="../tools/urdf-viewer.html">URDF 뷰어</a></div>
+<div class="side-tools"><a class="side-tool" href="../sim3d/index.html">3D 시뮬레이터</a><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a><a class="side-tool" href="../tools/depth-lab.html">깊이 카메라 실험실</a><a class="side-tool" href="../tools/urdf-viewer.html">URDF 뷰어</a></div>
 <div class="nav-track" data-track="base">
 <div class="nav-track-title track-base">기초·하드웨어</div>
 <div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
@@ -80,7 +80,8 @@
 <ul>
 <li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
 <li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
-<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라 원리와 영상</a></li>
+<li><a href="../lessons/m14.html" data-slug="m14"><span class="nav-no">M14</span>깊이 카메라 실습: 포인트 클라우드·장애물·측정</a></li>
 </ul>
 <div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
 <ul>
@@ -355,14 +356,14 @@ ros2 run tf2_tools view_frames                            # frames_*.pdf 로 TF 
 <div class="callout callout-task"><div class="callout-title">심화 과제</div><div class="callout-body"><ol><li>라이다를 20° 기울여 장착했다고 가정하고(<code>lidar_Joint</code>의 rpy = 0 0.349 0), 라이다 1 m 앞의 점이 <code>base_footprint</code>에서 어디에 찍히는지 계산합니다. 이런 오차가 2D SLAM 지도에 어떻게 나타날지 설명합니다.</li><li><code>inertial_matrix.xacro</code>의 <code>box_inertial</code> 매크로로 가로 0.19 m × 세로 0.15 m × 높이 0.05 m, 0.8 kg 상자의 관성 텐서를 계산하고, <code>base_link</code>의 <code>izz</code>와 크기 차이를 비교합니다(원본 값은 차체 셸만의 질량 0.08 kg 기준).</li></ol></div></div>
 <h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
 <ul><li>원본 교재: <em>12. Mapping Lesson</em> — Lesson 1 URDF Model Introduction, Lesson 2 ROS Robot URDF Model Instruction</li><li>원본 소스: <code>src/simulations/mentorpi_description/urdf/</code> (<code>mentorpi.xacro</code>, <code>mecanum.xacro</code>, <code>ack.xacro</code>, <code>imu.urdf.xacro</code>, <code>lidar.urdf.xacro</code>, <code>inertial_matrix.xacro</code>), <code>launch/display.launch.py</code>, <code>launch/robot_description.launch.py</code></li><li>URDF 튜토리얼 (ROS 2 Humble): https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/URDF-Main.html</li><li>xacro 사용법: https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html</li><li>robot_state_publisher: https://github.com/ros/robot_state_publisher</li><li>REP-105 (base_footprint·odom·map 프레임 규약): https://www.ros.org/reps/rep-0105.html</li></ul>
-      <nav class="pager"><a class="pager-prev" href="m07.html"><span>이전 · M07</span>깊이 카메라와 포인트 클라우드</a><a class="pager-next" href="m09.html"><span>다음 · M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></nav>
+      <nav class="pager"><a class="pager-prev" href="m14.html"><span>이전 · M14</span>깊이 카메라 실습: 포인트 클라우드·장애물·측정</a><a class="pager-next" href="m09.html"><span>다음 · M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></nav>
     </div>
     <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#urdf가-하는-일">URDF가 하는 일</a><a class="toc-l2" href="#urdf-문법-복습">URDF 문법 복습</a><a class="toc-l3" href="#link">link</a><a class="toc-l3" href="#joint">joint</a><a class="toc-l3" href="#xacro">xacro</a><a class="toc-l2" href="#mentorpidescription-패키지-구조">mentorpi_description 패키지 구조</a><a class="toc-l2" href="#링크-조인트-표-실제-값">링크·조인트 표 (실제 값)</a><a class="toc-l2" href="#tf로-센서-좌표-바꾸기">TF로 센서 좌표 바꾸기</a><a class="toc-l2" href="#robotstatepublisher와-launch">robot_state_publisher와 launch</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#실습-3d-시뮬레이터-urdf로-움직이는-mentorpi">실습 (3D 시뮬레이터): URDF로 움직이는 MentorPi</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
   </div>
 </article>
 
 </main>
-<script src="../assets/js/site.js?v=ef4e86f9"></script>
-<script type="module" src="../assets/js/lesson-runner.js?v=ef4e86f9"></script>
+<script src="../assets/js/site.js?v=386fe569"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=386fe569"></script>
 </body>
 </html>

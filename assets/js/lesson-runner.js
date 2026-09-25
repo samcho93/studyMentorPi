@@ -313,7 +313,7 @@ document.addEventListener('click', (e) => {
   let label = null;
   if (/sim3d\/(index\.html)?(\?|#|$)/.test(href)) label = '3D 시뮬레이터';
   else if (/(^|\/)sim\/(index\.html)?(\?|#|$)/.test(href)) label = '2D 시뮬레이터';
-  else if (/tools\/(kinematics-lab|color-lab|urdf-viewer)\.html/.test(href)) label = a.textContent.trim().replace(/\s+/g, ' ').slice(0, 20) || '도구';
+  else if (/tools\/(kinematics-lab|color-lab|depth-lab|urdf-viewer)\.html/.test(href)) label = a.textContent.trim().replace(/\s+/g, ' ').slice(0, 20) || '도구';
   if (!label) return;
   e.preventDefault();
   openLive(href, label);

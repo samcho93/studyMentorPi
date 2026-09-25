@@ -1,0 +1,44 @@
+<svg viewBox="0 0 720 340" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="MentorPi 깊이 카메라가 내놓는 데이터: RGB 영상, 16비트 밀리미터 깊이 영상, IR 영상, 내부 파라미터 camera_info, 그리고 이들을 합쳐 만든 포인트 클라우드">
+  <defs>
+    <marker id="arr-m07-images" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <!-- sensor -->
+  <rect class="box-hi" x="14" y="120" width="130" height="100" rx="10"/>
+  <text class="lbl" x="79" y="150" text-anchor="middle">HP60C</text>
+  <text class="sub" x="79" y="170" text-anchor="middle">RGB 센서</text>
+  <text class="sub" x="79" y="186" text-anchor="middle">IR 프로젝터</text>
+  <text class="sub" x="79" y="202" text-anchor="middle">IR 센서</text>
+  <!-- arrows -->
+  <path class="ln" d="M144 150 L206 44" stroke-width="1.2" marker-end="url(#arr-m07-images)"/>
+  <path class="ln" d="M144 162 L206 110" stroke-width="1.2" marker-end="url(#arr-m07-images)"/>
+  <path class="ln" d="M144 176 L206 176" stroke-width="1.2" marker-end="url(#arr-m07-images)"/>
+  <path class="ln" d="M144 190 L206 242" stroke-width="1.2" marker-end="url(#arr-m07-images)"/>
+  <!-- RGB -->
+  <rect class="box" x="210" y="20" width="250" height="52" rx="6"/>
+  <text class="lbl mono" x="222" y="42">rgb0/image</text>
+  <text class="sub" x="222" y="62">rgb8, 640×480, 픽셀 = (R,G,B)</text>
+  <!-- depth -->
+  <rect class="box-hi" x="210" y="84" width="250" height="52" rx="6"/>
+  <text class="lbl mono" x="222" y="106">depth0/image_raw</text>
+  <text class="sub" x="222" y="126">16UC1, 픽셀 = Z [mm], 0 = 무효</text>
+  <!-- IR -->
+  <rect class="box" x="210" y="150" width="250" height="52" rx="6"/>
+  <text class="lbl" x="222" y="172">IR 영상 (드라이버 옵션)</text>
+  <text class="sub" x="222" y="192">mono, 투사된 점무늬가 보임</text>
+  <!-- camera_info -->
+  <rect class="box" x="210" y="216" width="250" height="52" rx="6"/>
+  <text class="lbl mono" x="222" y="238">rgb0/camera_info</text>
+  <text class="sub" x="222" y="258">K = [fx 0 cx; 0 fy cy; 0 0 1], D</text>
+  <!-- to point cloud -->
+  <path class="ln-hi" d="M460 110 L526 160" stroke-width="1.6" marker-end="url(#arr-m07-images)"/>
+  <path class="ln-hi" d="M460 46 L526 150" stroke-width="1.2" stroke-dasharray="4 3" marker-end="url(#arr-m07-images)"/>
+  <path class="ln-hi" d="M460 242 L526 190" stroke-width="1.6" marker-end="url(#arr-m07-images)"/>
+  <rect class="box-hi" x="530" y="130" width="178" height="84" rx="8"/>
+  <text class="lbl mono" x="542" y="154">depth0/points</text>
+  <text class="sub" x="542" y="174">PointCloud2 (x, y, z, rgb)</text>
+  <text class="sub" x="542" y="194">역투영 + 색 입히기</text>
+  <text class="tag" x="542" y="236">color_pcl: True → 색 점구름</text>
+  <!-- bottom note -->
+  <text class="sub" x="14" y="300">정렬(registration): 깊이를 RGB 시점으로 옮겨 같은 (u, v) = 같은 물체</text>
+  <text class="sub" x="14" y="320">토픽 앞에 /ascamera/camera_publisher/ — 실물에서 ros2 topic list로 확인</text>
+</svg>

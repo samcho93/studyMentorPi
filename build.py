@@ -42,6 +42,7 @@ TOOL_LINKS = {
     "playground": ("tools/playground.html", "ROS 2 Playground"),
     "lab": ("tools/kinematics-lab.html", "섀시 기구학 실험실"),
     "color": ("tools/color-lab.html", "HSV 색 실험실"),
+    "depth": ("tools/depth-lab.html", "깊이 카메라 실험실"),
     "urdf": ("tools/urdf-viewer.html", "URDF 뷰어"),
 }
 
@@ -365,8 +366,9 @@ def sidebar_html(cur: dict, current, rel: str) -> str:
                '<a class="side-tool" href="%stools/playground.html">ROS 2 Playground</a>'
                '<a class="side-tool" href="%stools/kinematics-lab.html">기구학 실험실</a>'
                '<a class="side-tool" href="%stools/color-lab.html">HSV 색 실험실</a>'
+               '<a class="side-tool" href="%stools/depth-lab.html">깊이 카메라 실험실</a>'
                '<a class="side-tool" href="%stools/urdf-viewer.html">URDF 뷰어</a>'
-               "</div>" % (rel, rel, rel, rel, rel, rel))
+               "</div>" % (rel, rel, rel, rel, rel, rel, rel))
     for track in cur["tracks"]:
         out.append('<div class="nav-track" data-track="%s">' % track["id"])
         out.append('<div class="nav-track-title track-%s">%s</div>'
@@ -572,6 +574,7 @@ def index_page(cur: dict) -> str:
       <a class="btn" href="tools/playground.html">ROS 2 Playground</a>
       <a class="btn" href="tools/kinematics-lab.html">섀시 기구학 실험실</a>
       <a class="btn" href="tools/color-lab.html">HSV 색 실험실</a>
+      <a class="btn" href="tools/depth-lab.html">깊이 카메라 실험실</a>
     </div>
   </div>
   <div class="hero-art">

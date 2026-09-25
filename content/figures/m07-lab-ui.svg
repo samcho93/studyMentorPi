@@ -1,0 +1,72 @@
+<svg viewBox="0 0 720 390" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="깊이 카메라 실험실 화면 구성: 왼쪽 2×2 창(3D 장면, RGB 영상, 깊이 영상, 포인트 클라우드·IR 영상·오차 지도 탭)과 오른쪽 설정 패널(센서 모델, 해상도, 기준선, 잡음, 색상표, 표시 범위, 포인트 색, 깊이 분포, 픽셀 측정, 카메라 높이·기울기, 초기화)">
+  <!-- ===== left: 2x2 views ===== -->
+  <rect class="box" x="8" y="8" width="226" height="178" rx="6"/>
+  <text class="lbl" x="18" y="28">① 3D 장면</text>
+  <text class="tag" x="18" y="46">W/S 전후 · A/D 회전 · 드래그 = 시점</text>
+  <path class="ln" d="M40 160 L200 160 M60 160 L90 110 L200 110" stroke-width="1"/>
+  <rect x="100" y="120" width="30" height="30" style="fill:var(--text-faint)"/>
+  <circle cx="160" cy="138" r="12" style="fill:var(--danger);opacity:0.7"/>
+  <path d="M60 150 L80 140 L60 130 z" style="fill:var(--accent)"/>
+  <text class="tag" x="18" y="178">카메라 위치·yaw·높이·기울기 캡션</text>
+
+  <rect class="box" x="244" y="8" width="226" height="178" rx="6"/>
+  <text class="lbl" x="254" y="28">② RGB 영상</text>
+  <text class="tag mono" x="254" y="46">rgb0/image</text>
+  <rect x="300" y="100" width="40" height="50" style="fill:var(--text-faint)"/>
+  <circle cx="400" cy="128" r="18" style="fill:var(--danger);opacity:0.7"/>
+  <path d="M254 160 L460 160" class="ln" stroke-width="1"/>
+
+  <rect class="box-hi" x="8" y="196" width="226" height="186" rx="6"/>
+  <text class="lbl" x="18" y="216">③ 깊이 영상</text>
+  <text class="tag" x="18" y="234">depth0/image_raw · 클릭 = 측정</text>
+  <rect x="50" y="270" width="36" height="50" style="fill:var(--accent);opacity:0.55"/>
+  <rect x="44" y="270" width="6" height="50" style="fill:var(--text)"/>
+  <text class="tag" x="18" y="344">검정 = 0 (무효)</text>
+  <path d="M40 336 L46 322" class="ln" stroke-width="1"/>
+  <!-- picker cross -->
+  <path d="M130 282 L150 282 M140 272 L140 292" style="stroke:var(--danger)" stroke-width="2"/>
+  <text class="tag" x="156" y="286">클릭 지점</text>
+  <!-- colour bar -->
+  <rect x="210" y="246" width="12" height="110" rx="2" class="box"/>
+  <rect x="210" y="246" width="12" height="40" rx="2" style="fill:var(--accent);opacity:0.35"/>
+  <text class="tag mono" x="204" y="254" text-anchor="end">최대 m</text>
+  <text class="tag mono" x="204" y="354" text-anchor="end">최소 m</text>
+  <text class="tag" x="18" y="372">16UC1 · 유효 % 캡션</text>
+
+  <rect class="box" x="244" y="196" width="226" height="186" rx="6"/>
+  <text class="lbl" x="254" y="216">④ 탭 3개</text>
+  <rect x="254" y="226" width="78" height="20" rx="10" style="fill:var(--accent)"/>
+  <text class="tag" x="293" y="240" text-anchor="middle" style="fill:var(--bg)">포인트 클라우드</text>
+  <rect x="336" y="226" width="56" height="20" rx="10" class="box"/>
+  <text class="tag" x="364" y="240" text-anchor="middle">IR 영상</text>
+  <rect x="396" y="226" width="64" height="20" rx="10" class="box"/>
+  <text class="tag" x="428" y="240" text-anchor="middle">오차 지도</text>
+  <g style="fill:var(--text-dim)">
+    <circle cx="290" cy="300" r="1.6"/><circle cx="300" cy="296" r="1.6"/><circle cx="310" cy="292" r="1.6"/><circle cx="320" cy="289" r="1.6"/>
+    <circle cx="330" cy="286" r="1.6"/><circle cx="360" cy="310" r="1.6"/><circle cx="366" cy="304" r="1.6"/><circle cx="372" cy="298" r="1.6"/>
+    <circle cx="378" cy="304" r="1.6"/><circle cx="384" cy="310" r="1.6"/><circle cx="410" cy="282" r="1.6"/><circle cx="420" cy="280" r="1.6"/>
+    <circle cx="430" cy="279" r="1.6"/><circle cx="440" cy="278" r="1.6"/>
+  </g>
+  <text class="tag" x="254" y="344">드래그 = 점구름 회전</text>
+  <text class="tag" x="254" y="362">IR = 점무늬 · 오차 지도 = RMS</text>
+
+  <!-- ===== right: control panel ===== -->
+  <rect class="box" x="482" y="8" width="230" height="374" rx="6"/>
+  <text class="lbl" x="494" y="30">⑤ 설정 패널</text>
+  <text class="tag" x="494" y="52">센서 모델 ▾</text>
+  <text class="sub" x="494" y="67">이상적 / 구조광 / 스테레오 / ToF</text>
+  <text class="tag" x="494" y="92">해상도 ▾ · 기준선 B (m)</text>
+  <text class="sub" x="494" y="107">160 / 320 / 640 폭 · B 0.02~0.12</text>
+  <text class="tag" x="494" y="132">☑ 잡음·결측 모델 적용</text>
+  <text class="tag" x="494" y="156">색상표 ▾ · 최소 m · 최대 m</text>
+  <text class="tag" x="494" y="180">포인트 색 ▾ (RGB 색 / 깊이 색)</text>
+  <rect x="494" y="190" width="206" height="38" rx="4" style="fill:var(--accent-soft)"/>
+  <path d="M500 224 L500 216 L520 216 L520 202 L540 202 L540 196 L560 196 L560 210 L600 210 L600 218 L640 218 L640 224" class="ln-hi" stroke-width="1.2"/>
+  <text class="tag" x="494" y="244">깊이 분포 · 유효 픽셀</text>
+  <rect x="494" y="254" width="206" height="42" rx="4" class="box"/>
+  <text class="tag mono" x="500" y="270">(u,v) · depth mm · 오차</text>
+  <text class="tag mono" x="500" y="286">X, Y, Z · 월드 좌표</text>
+  <text class="tag" x="494" y="318">카메라: 높이 m · 기울기 °</text>
+  <rect x="494" y="340" width="206" height="24" rx="12" class="box-hi"/>
+  <text class="tag" x="597" y="356" text-anchor="middle">↺ 위치·설정 초기화</text>
+</svg>

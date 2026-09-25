@@ -1,0 +1,66 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="깊이 영상 처리 파이프라인: 깊이 영상을 미터로 바꾸고 역투영해 광학 좌표를 로봇 좌표로 옮긴 뒤 바닥을 제거하고, 남은 장애물 점으로 비상 정지·가상 스캔·다운샘플 포인트 클라우드를 만든다. RGB 색 마스크는 역투영 단계에 합류해 물체의 3D 위치를 구한다">
+  <defs>
+    <marker id="arr-m14-pipeline" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <!-- row 1 -->
+  <rect class="box-hi" x="8" y="40" width="132" height="70" rx="8"/>
+  <text class="lbl mono" x="74" y="66" text-anchor="middle">depth0/</text>
+  <text class="lbl mono" x="74" y="84" text-anchor="middle">image_raw</text>
+  <text class="tag" x="74" y="102" text-anchor="middle">mm → m, 0 제외</text>
+
+  <rect class="box" x="152" y="40" width="132" height="70" rx="8"/>
+  <text class="lbl" x="218" y="66" text-anchor="middle">① 역투영</text>
+  <text class="tag mono" x="218" y="86" text-anchor="middle">X=(u−cx)Z/fx</text>
+  <text class="tag mono" x="218" y="102" text-anchor="middle">Y=(v−cy)Z/fy</text>
+
+  <rect class="box" x="296" y="40" width="132" height="70" rx="8"/>
+  <text class="lbl" x="362" y="66" text-anchor="middle">② 좌표 변환</text>
+  <text class="tag" x="362" y="86" text-anchor="middle">광학 → base</text>
+  <text class="tag" x="362" y="102" text-anchor="middle">(TF / 고정 식)</text>
+
+  <rect class="box" x="440" y="40" width="132" height="70" rx="8"/>
+  <text class="lbl" x="506" y="66" text-anchor="middle">③ 바닥 제거</text>
+  <text class="tag" x="506" y="86" text-anchor="middle">높이 &gt; 3 cm</text>
+  <text class="tag" x="506" y="102" text-anchor="middle">또는 RANSAC 평면</text>
+
+  <rect class="box-hi" x="584" y="40" width="128" height="70" rx="8"/>
+  <text class="lbl" x="648" y="70" text-anchor="middle">장애물 점</text>
+  <text class="tag mono" x="648" y="92" text-anchor="middle">N × 3 (x, y, z)</text>
+
+  <path class="ln" d="M140 75 L150 75" stroke-width="1.4" marker-end="url(#arr-m14-pipeline)"/>
+  <path class="ln" d="M284 75 L294 75" stroke-width="1.4" marker-end="url(#arr-m14-pipeline)"/>
+  <path class="ln" d="M428 75 L438 75" stroke-width="1.4" marker-end="url(#arr-m14-pipeline)"/>
+  <path class="ln" d="M572 75 L582 75" stroke-width="1.4" marker-end="url(#arr-m14-pipeline)"/>
+
+  <!-- camera_info into back-projection -->
+  <text class="tag mono" x="218" y="28" text-anchor="middle">camera_info K</text>
+  <path class="ln" d="M218 32 L218 38" stroke-width="1.2" marker-end="url(#arr-m14-pipeline)"/>
+
+  <!-- row 2: RGB branch -->
+  <rect class="box" x="8" y="190" width="200" height="72" rx="8"/>
+  <text class="lbl" x="108" y="214" text-anchor="middle">④ RGB-D 물체 위치</text>
+  <text class="tag" x="108" y="234" text-anchor="middle">rgb0/image → HSV 마스크</text>
+  <text class="tag" x="108" y="252" text-anchor="middle">→ 마스크 안 깊이 중앙값</text>
+  <path class="ln-hi" d="M140 190 L205 112" stroke-width="1.4" marker-end="url(#arr-m14-pipeline)"/>
+
+  <!-- outputs -->
+  <rect class="box" x="250" y="190" width="146" height="72" rx="8"/>
+  <text class="lbl" x="323" y="214" text-anchor="middle">⑤ 비상 정지</text>
+  <text class="tag" x="323" y="234" text-anchor="middle">통로 안 최소 x &lt; 0.35 m</text>
+  <text class="tag mono" x="323" y="252" text-anchor="middle">/controller/cmd_vel</text>
+
+  <rect class="box" x="408" y="190" width="146" height="72" rx="8"/>
+  <text class="lbl" x="481" y="214" text-anchor="middle">⑥ 가상 스캔</text>
+  <text class="tag" x="481" y="234" text-anchor="middle">열마다 최소 거리</text>
+  <text class="tag" x="481" y="252" text-anchor="middle">/scan과 비교</text>
+
+  <rect class="box" x="566" y="190" width="146" height="72" rx="8"/>
+  <text class="lbl" x="639" y="214" text-anchor="middle">⑦ 복셀 격자</text>
+  <text class="tag" x="639" y="234" text-anchor="middle">5 cm 칸 평균</text>
+  <text class="tag mono" x="639" y="252" text-anchor="middle">→ PointCloud2</text>
+
+  <path class="ln-hi" d="M620 110 L335 188" stroke-width="1.4" marker-end="url(#arr-m14-pipeline)"/>
+  <path class="ln-hi" d="M634 110 L490 188" stroke-width="1.4" marker-end="url(#arr-m14-pipeline)"/>
+  <path class="ln-hi" d="M648 110 L645 188" stroke-width="1.4" marker-end="url(#arr-m14-pipeline)"/>
+  <text class="sub" x="8" y="290">번호 ①~⑦은 이 챕터 실습 순서와 같습니다.</text>
+</svg>

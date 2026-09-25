@@ -6,19 +6,19 @@
 <title>M06. 라이다 응용: 회피·추종·경비 · studyMentorPi</title>
 <meta name="description" content="섹터 최소거리로 장애물 회피, 가장 가까운 물체 추종(P 제어), 경비 모드(물체를 향해 회전) — 세 가지 반응형 행동.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css?v=ef4e86f9">
-<link rel="stylesheet" href="../assets/css/mentorpi.css?v=ef4e86f9">
-<link rel="stylesheet" href="../assets/css/ml-theme.css?v=ef4e86f9">
+<link rel="stylesheet" href="../assets/css/main.css?v=386fe569">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=386fe569">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=386fe569">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="../assets/js/theme.js?v=ef4e86f9"></script>
+<script src="../assets/js/theme.js?v=386fe569"></script>
 </head>
 <body class="lesson-page track-page-mobile">
 <button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
 <aside class="sidebar" id="sidebar">
 <nav class="sidebar-nav">
 <div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
-<div class="side-tools"><a class="side-tool" href="../sim3d/index.html">3D 시뮬레이터</a><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a><a class="side-tool" href="../tools/urdf-viewer.html">URDF 뷰어</a></div>
+<div class="side-tools"><a class="side-tool" href="../sim3d/index.html">3D 시뮬레이터</a><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a><a class="side-tool" href="../tools/depth-lab.html">깊이 카메라 실험실</a><a class="side-tool" href="../tools/urdf-viewer.html">URDF 뷰어</a></div>
 <div class="nav-track" data-track="base">
 <div class="nav-track-title track-base">기초·하드웨어</div>
 <div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
@@ -80,7 +80,8 @@
 <ul>
 <li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
 <li><a href="../lessons/m06.html" class="active" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
-<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라 원리와 영상</a></li>
+<li><a href="../lessons/m14.html" data-slug="m14"><span class="nav-no">M14</span>깊이 카메라 실습: 포인트 클라우드·장애물·측정</a></li>
 </ul>
 <div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
 <ul>
@@ -541,14 +542,14 @@ sudo systemctl restart start_node.service        # Docker 밖 시스템 터미�
 <div class="callout callout-task"><div class="callout-title">개인 과제</div><div class="callout-body"><ol><li><strong>(기본)</strong> 실습 1의 <code>THRESHOLD</code>를 0.3, 0.45, 0.6, 0.9 m로 바꿔 30초 동안의 충돌 횟수·판단 횟수·이동 거리를 표로 정리하고, 정지 거리 식으로 결과를 설명하세요.</li><li><strong>(기본)</strong> 실습 2의 원통 속도를 0.05, 0.1, 0.15 m/s로 바꿔 정상상태 거리 오차를 측정하고 <span class="math">v_t/K_p</span> 예측과 비교하세요.</li><li><strong>(심화)</strong> 실습 2에 적분항(Ki = 0.5, 적분 한계 ±0.2)을 추가해 정상상태 오차가 사라지는지, 대신 무엇이 나빠지는지(오버슈트) 관찰하세요.</li><li><strong>(심화)</strong> 회피 알고리즘을 개선하세요: 좌·우 두 섹터 대신 5개 섹터의 최소거리를 구해 <strong>가장 트인 방향</strong>으로 도는 방식(간단한 VFH)으로 바꾸고, maze 월드에서 원본 방식과 60초 이동 거리를 비교하세요.</li></ol></div></div>
 <h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
 <ul><li>원본 교재: <em>10. Lidar Lesson — Lesson 3 Lidar Obstacle Avoidance</em>, <em>Lesson 4 Lidar Following</em>, <em>Lesson 5 Lidar Guarding</em></li><li>원본 소스: <code>src/app/app/lidar_controller.py</code>, <code>src/app/launch/lidar_node.launch.py</code>, <code>src/app/app/common.py</code>(Heart), <code>src/driver/sdk/sdk/pid.py</code></li><li>R. Arkin, <em>Behavior-Based Robotics</em>, MIT Press, 1998 (반응형·행동 기반 제어)</li><li>Borenstein &amp; Koren, <em>The Vector Field Histogram — Fast Obstacle Avoidance for Mobile Robots</em>, IEEE T-RA 1991: https://ieeexplore.ieee.org/document/88137</li><li>ROS 2 서비스 호출 (<code>ros2 service call</code>): https://docs.ros.org/en/humble/Tutorials/Beginner-CLI-Tools/Understanding-ROS2-Services/Understanding-ROS2-Services.html</li></ul>
-      <nav class="pager"><a class="pager-prev" href="m05.html"><span>이전 · M05</span>라이다 원리와 LaserScan</a><a class="pager-next" href="m07.html"><span>다음 · M07</span>깊이 카메라와 포인트 클라우드</a></nav>
+      <nav class="pager"><a class="pager-prev" href="m05.html"><span>이전 · M05</span>라이다 원리와 LaserScan</a><a class="pager-next" href="m07.html"><span>다음 · M07</span>깊이 카메라 원리와 영상</a></nav>
     </div>
     <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#반응형-행동이란">반응형 행동이란</a><a class="toc-l2" href="#원본-lidarcontroller-py-구조">원본 lidar_controller.py 구조</a><a class="toc-l3" href="#초기값과-데이터-전처리">초기값과 데이터 전처리</a><a class="toc-l2" href="#행동-1-장애물-회피-mode-1-메카넘">행동 1: 장애물 회피 (mode 1, 메카넘)</a><a class="toc-l3" href="#판단-규칙">판단 규칙</a><a class="toc-l3" href="#타임스탬프-잠금-기다리지-않고-기다리기">타임스탬프 잠금 — 기다리지 않고 기다리기</a><a class="toc-l3" href="#lastact-히스테리시스">last_act 히스테리시스</a><a class="toc-l3" href="#애커만-버전의-회피">애커만 버전의 회피</a><a class="toc-l2" href="#행동-2-추종-mode-2">행동 2: 추종 (mode 2)</a><a class="toc-l2" href="#행동-3-경비-mode-3">행동 3: 경비 (mode 3)</a><a class="toc-l2" href="#파라미터-설계-정지-거리">파라미터 설계: 정지 거리</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l3" href="#1-장애물-회피-재현">1. 장애물 회피 재현</a><a class="toc-l3" href="#2-추종-움직이는-원통-따라가기">2. 추종 — 움직이는 원통 따라가기</a><a class="toc-l3" href="#3-경비-지나가는-물체를-향해-돌기">3. 경비 — 지나가는 물체를 향해 돌기</a><a class="toc-l3" href="#2d-시뮬레이터의-라이다-모드">2D 시뮬레이터의 라이다 모드</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
   </div>
 </article>
 
 </main>
-<script src="../assets/js/site.js?v=ef4e86f9"></script>
-<script type="module" src="../assets/js/lesson-runner.js?v=ef4e86f9"></script>
+<script src="../assets/js/site.js?v=386fe569"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=386fe569"></script>
 </body>
 </html>

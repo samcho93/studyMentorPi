@@ -32,6 +32,7 @@
 | M05 | 10. Lidar Lesson — L1, L2 |
 | M06 | 10. Lidar Lesson — L3 Obstacle Avoidance, L4 Following, L5 Guarding; src/app |
 | M07 | 11. Depth Camera Basic Lesson — L1~L5, Test and Configure ROS2 |
+| M14 | 11. Depth Camera Basic Lesson — L3 Usage, L4 Data Type and Point Cloud, L5 Web Monitoring; 14. ROS+OpenCV Install Depth Camera; peripherals/launch/depth_camera.launch.py |
 | M08 | 12. Mapping Lesson — L1 URDF Model Introduction, L2 ROS Robot URDF Model; src/simulations/mentorpi_description |
 | M09 | 12. Mapping Lesson — L3 SLAM Principle, L4 slam_toolbox; Install WinSCP |
 | M10 | 12. Mapping Lesson — L5 RTAB-VSLAM 3D Mapping |

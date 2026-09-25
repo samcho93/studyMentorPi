@@ -1,0 +1,55 @@
+<svg viewBox="0 0 720 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="깊이 측정 세 방식 비교: 스테레오는 두 카메라의 대응점 시차, 구조광은 투사한 점무늬의 이동, ToF는 되돌아온 빛의 위상차로 거리를 잰다">
+  <defs>
+    <marker id="arr-m07-principles" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <!-- panel frames -->
+  <rect class="box" x="8" y="8" width="228" height="304" rx="8"/>
+  <rect class="box" x="246" y="8" width="228" height="304" rx="8"/>
+  <rect class="box" x="484" y="8" width="228" height="304" rx="8"/>
+
+  <!-- ===== 1. stereo ===== -->
+  <text class="lbl" x="22" y="32">① 스테레오</text>
+  <path d="M40 80 L200 64" style="stroke:var(--text-dim)" stroke-width="4"/>
+  <text class="tag" x="122" y="58" text-anchor="middle">물체 표면</text>
+  <circle cx="120" cy="72" r="5" class="hi"/>
+  <path class="ln-hi" d="M70 186 L120 72 L170 186" stroke-width="1.6"/>
+  <rect x="52" y="186" width="36" height="22" rx="3" style="fill:var(--text-dim)"/>
+  <rect x="152" y="186" width="36" height="22" rx="3" style="fill:var(--text-dim)"/>
+  <text class="tag" x="70" y="224" text-anchor="middle">카메라 L</text>
+  <text class="tag" x="170" y="224" text-anchor="middle">카메라 R</text>
+  <text class="sub" x="22" y="252">좌우 영상에서 같은 점을 찾아</text>
+  <text class="sub" x="22" y="268">시차 d → Z = f·B/d</text>
+  <text class="sub" x="22" y="294" style="fill:var(--danger)">약점: 무늬 없는 면, 가림</text>
+
+  <!-- ===== 2. structured light ===== -->
+  <text class="lbl" x="260" y="32">② 구조광 (HP60C 계열)</text>
+  <path d="M278 80 L438 64" style="stroke:var(--text-dim)" stroke-width="4"/>
+  <circle cx="300" cy="78" r="3" class="hi"/>
+  <circle cx="322" cy="75" r="3" class="hi"/>
+  <circle cx="346" cy="73" r="3" class="hi"/>
+  <circle cx="368" cy="71" r="3" class="hi"/>
+  <circle cx="392" cy="68" r="3" class="hi"/>
+  <circle cx="414" cy="66" r="3" class="hi"/>
+  <path class="ln-hi" d="M308 186 L300 80 M308 186 L346 75 M308 186 L392 70" stroke-width="1.2" stroke-dasharray="3 3"/>
+  <path class="ln" d="M408 186 L346 76" stroke-width="1.6"/>
+  <rect x="290" y="186" width="36" height="22" rx="3" style="fill:var(--accent)"/>
+  <rect x="390" y="186" width="36" height="22" rx="3" style="fill:var(--text-dim)"/>
+  <text class="tag" x="308" y="224" text-anchor="middle">IR 프로젝터</text>
+  <text class="tag" x="408" y="224" text-anchor="middle">IR 카메라</text>
+  <text class="sub" x="260" y="252">알려진 점무늬가 옆으로 밀린 양</text>
+  <text class="sub" x="260" y="268">= 시차 d → Z = f·B/d</text>
+  <text class="sub" x="260" y="294" style="fill:var(--danger)">약점: 햇빛, 그림자, 검은·유리</text>
+
+  <!-- ===== 3. ToF ===== -->
+  <text class="lbl" x="498" y="32">③ ToF</text>
+  <path d="M520 70 L690 70" style="stroke:var(--text-dim)" stroke-width="4"/>
+  <!-- outgoing wave -->
+  <path class="ln-hi" d="M560 186 C570 166 580 166 590 150 C600 134 610 134 615 118 C620 102 628 100 632 84" stroke-width="1.6" marker-end="url(#arr-m07-principles)"/>
+  <!-- returning wave -->
+  <path d="M652 84 C656 100 664 102 668 118 C672 134 680 134 684 150 C690 166 696 166 700 180" style="stroke:var(--text-faint);fill:none" stroke-width="1.6" stroke-dasharray="4 3"/>
+  <rect x="560" y="186" width="120" height="22" rx="3" style="fill:var(--text-dim)"/>
+  <text class="tag" x="620" y="224" text-anchor="middle">변조 광원 + ToF 센서</text>
+  <text class="sub" x="498" y="252">되돌아온 빛의 위상차 φ</text>
+  <text class="sub" x="498" y="268">Z = c·φ / (4π·f_mod)</text>
+  <text class="sub" x="498" y="294" style="fill:var(--danger)">약점: 다중경로, 경계 flying pixel</text>
+</svg>

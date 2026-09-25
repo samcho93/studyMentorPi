@@ -1,0 +1,64 @@
+<svg viewBox="0 0 720 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="왼쪽: 옆에서 본 카메라 기하 — 광학 중심은 base_footprint에서 앞 0.061 m, 위 0.121 m이고 점의 높이는 0.121 − Y. 오른쪽: 위에서 본 비상 정지 영역 — 반폭 0.18 m 통로 안에서 0.35 m보다 가까우면 정지, 0.45 m보다 멀어지면 재출발">
+  <defs>
+    <marker id="arr-m14-geometry" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-m14-geometry-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <!-- ===== side view ===== -->
+  <text class="lbl" x="14" y="24">옆에서 본 모습</text>
+  <path d="M20 250 L345 250" style="stroke:var(--text-dim)" stroke-width="2"/>
+  <text class="tag" x="330" y="268" text-anchor="end">바닥</text>
+  <!-- robot -->
+  <rect class="box" x="40" y="222" width="72" height="20" rx="4"/>
+  <circle cx="54" cy="242" r="8" style="fill:var(--text-faint)"/>
+  <circle cx="98" cy="242" r="8" style="fill:var(--text-faint)"/>
+  <circle cx="76" cy="250" r="3.5" class="hi"/>
+  <text class="tag" x="76" y="284" text-anchor="middle">base_footprint</text>
+  <path d="M76 254 L76 272" style="stroke:var(--text-faint)" stroke-width="1"/>
+  <!-- camera at +0.061, 0.121 (scale 250 px/m) -->
+  <rect x="84" y="210" width="16" height="12" rx="2" style="fill:var(--accent)"/>
+  <circle cx="92" cy="220" r="2.5" style="fill:var(--text)"/>
+  <!-- optical axes -->
+  <path class="ln-hi" d="M92 220 L170 220" stroke-width="1.6" marker-end="url(#arr-m14-geometry-hi)"/>
+  <text class="tag mono" x="174" y="226">z (앞)</text>
+  <path class="ln-hi" d="M92 220 L92 176" stroke-width="1.2" stroke-dasharray="3 3"/>
+  <text class="tag mono" x="98" y="176">−y (위)</text>
+  <!-- height dim -->
+  <path class="ln" d="M28 250 L28 220" stroke-width="1" marker-start="url(#arr-m14-geometry)" marker-end="url(#arr-m14-geometry)"/>
+  <text class="tag mono" x="24" y="208">0.121</text>
+  <path d="M28 220 L84 220" style="stroke:var(--text-faint)" stroke-width="0.8" stroke-dasharray="2 3"/>
+  <!-- obstacle -->
+  <rect class="box-hi" x="250" y="188" width="40" height="62" rx="2"/>
+  <text class="tag" x="270" y="180" text-anchor="middle">장애물</text>
+  <circle cx="250" cy="200" r="4" class="hi"/>
+  <path class="ln" d="M92 220 L250 200" stroke-width="1.2"/>
+  <text class="tag mono" x="140" y="206">Z</text>
+  <path d="M250 200 L250 220" style="stroke:var(--accent)" stroke-width="1.2"/>
+  <text class="tag mono" x="296" y="214">Y&lt;0</text>
+  <text class="sub mono" x="20" y="306">높이 h = 0.121 − Y,   앞 x = Z + 0.061,   왼쪽 y = −X</text>
+
+  <!-- ===== top view ===== -->
+  <text class="lbl" x="380" y="24">위에서 본 모습 (정지 영역)</text>
+  <!-- FOV -->
+  <path d="M452 160 L612 52 M452 160 L612 268" style="stroke:var(--text-faint)" stroke-width="1" stroke-dasharray="4 4"/>
+  <text class="tag" x="612" y="46" text-anchor="end">수평 화각 ≈ 68°</text>
+  <!-- corridor -->
+  <rect x="440" y="124" width="262" height="72" style="fill:var(--accent-soft)"/>
+  <path class="ln-hi" d="M440 124 L702 124 M440 196 L702 196" stroke-width="1.2"/>
+  <text class="tag" x="700" y="118" text-anchor="end">통로 반폭 0.18 m</text>
+  <!-- stop / go lines (200 px/m) -->
+  <path d="M510 124 L510 196" style="stroke:var(--danger)" stroke-width="2"/>
+  <path d="M530 124 L530 196" style="stroke:var(--ok)" stroke-width="2" stroke-dasharray="4 3"/>
+  <text class="tag" x="506" y="214" text-anchor="end" style="fill:var(--danger)">정지 0.35</text>
+  <text class="tag" x="534" y="214" style="fill:var(--ok)">재출발 0.45</text>
+  <!-- robot -->
+  <circle cx="440" cy="160" r="26" class="box"/>
+  <path d="M440 160 L470 160" style="stroke:var(--text)" stroke-width="1.6" marker-end="url(#arr-m14-geometry)"/>
+  <text class="tag" x="440" y="206" text-anchor="middle">로봇 r=0.13</text>
+  <text class="tag mono" x="476" y="154">x</text>
+  <!-- walker -->
+  <circle cx="624" cy="150" r="24" style="fill:var(--warn);opacity:0.75"/>
+  <text class="tag" x="624" y="154" text-anchor="middle" style="fill:var(--text)">사람</text>
+  <path class="ln" d="M624 250 L624 184" stroke-width="1.2" marker-end="url(#arr-m14-geometry)"/>
+  <text class="sub" x="380" y="262">정지 거리와 재출발 거리를 다르게 두면</text>
+  <text class="sub" x="380" y="280">(히스테리시스) 경계에서 떨지 않습니다.</text>
+</svg>

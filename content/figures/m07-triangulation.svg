@@ -1,0 +1,46 @@
+<svg viewBox="0 0 720 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="삼각측량: 기준선 B만큼 떨어진 두 광학 중심에서 본 점 P의 영상 위치 차이(시차 d)로 깊이 Z = f·B/d를 구하는 기하">
+  <defs>
+    <marker id="arr-m07-triangulation" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <text class="tag" x="20" y="22">위에서 본 모습 (평행한 두 카메라, 또는 카메라 + 프로젝터)</text>
+  <!-- point P -->
+  <circle cx="300" cy="60" r="7" class="hi"/>
+  <text class="lbl mono hi" x="314" y="56">P (X, Z)</text>
+  <!-- rays -->
+  <path class="ln-hi" d="M200 260 L300 60" stroke-width="1.8"/>
+  <path class="ln-hi" d="M360 260 L300 60" stroke-width="1.8"/>
+  <!-- optical axes -->
+  <path d="M200 260 L200 90" style="stroke:var(--text-faint)" stroke-width="1" stroke-dasharray="4 4"/>
+  <path d="M360 260 L360 90" style="stroke:var(--text-faint)" stroke-width="1" stroke-dasharray="4 4"/>
+  <!-- image planes (drawn in front of the centres, y = 220) -->
+  <path d="M150 220 L250 220" style="stroke:var(--text-dim)" stroke-width="2.4"/>
+  <path d="M310 220 L410 220" style="stroke:var(--text-dim)" stroke-width="2.4"/>
+  <circle cx="220" cy="220" r="4" class="hi"/>
+  <circle cx="349" cy="220" r="4" class="hi"/>
+  <text class="sub mono" x="222" y="210">xL</text>
+  <text class="sub mono" x="322" y="210">xR</text>
+  <!-- centres -->
+  <circle cx="200" cy="260" r="6" style="fill:var(--text-dim)"/>
+  <circle cx="360" cy="260" r="6" style="fill:var(--text-dim)"/>
+  <text class="tag" x="200" y="282" text-anchor="middle">왼쪽 O_L</text>
+  <text class="tag" x="360" y="282" text-anchor="middle">오른쪽 O_R</text>
+  <!-- f -->
+  <path class="ln" d="M130 260 L130 220" stroke-width="1" marker-start="url(#arr-m07-triangulation)" marker-end="url(#arr-m07-triangulation)"/>
+  <text class="sub mono" x="120" y="245" text-anchor="end">f</text>
+  <!-- B -->
+  <path class="ln" d="M200 305 L360 305" stroke-width="1" marker-start="url(#arr-m07-triangulation)" marker-end="url(#arr-m07-triangulation)"/>
+  <text class="lbl mono" x="280" y="322" text-anchor="middle">B (기준선)</text>
+  <!-- Z -->
+  <path class="ln" d="M440 260 L440 60" stroke-width="1" marker-start="url(#arr-m07-triangulation)" marker-end="url(#arr-m07-triangulation)"/>
+  <text class="lbl mono" x="450" y="164">Z</text>
+  <!-- derivation box -->
+  <rect class="box-hi" x="490" y="48" width="215" height="232" rx="8"/>
+  <text class="lbl" x="506" y="74">닮은 삼각형</text>
+  <text class="lbl mono" x="506" y="102">xL / f = X / Z</text>
+  <text class="lbl mono" x="506" y="126">xR / f = (X − B) / Z</text>
+  <text class="sub" x="506" y="150">빼면 (시차 d = xL − xR)</text>
+  <text class="lbl mono" x="506" y="174">d = f · B / Z</text>
+  <text class="lbl mono hi" x="506" y="204">Z = f · B / d</text>
+  <text class="sub" x="506" y="230">d로 미분하면 오차</text>
+  <text class="lbl mono" x="506" y="256">σZ = Z² / (f·B) · σd</text>
+</svg>
