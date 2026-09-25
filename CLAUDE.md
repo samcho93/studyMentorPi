@@ -31,7 +31,7 @@ GitHub Pages로 배포되는 **정적 강의 사이트**에서
   `motor1 = vx - vy - ωz(a+b)/2` … (원본 mecanum.py, a=wheelbase, b=track_width, 결과에 [-m1,-m2,m3,m4] 부호).
 - 애커만: wheelbase 0.145 m, track_width 0.133 m, 바퀴 지름 0.067 m, 최대 조향 29°,
   δ = atan(L·ω/v), 서보 펄스 = 1500 + 2000·deg(−δ)/180.
-- TF: map → odom → base_footprint → base_link → laser_frame / imu_link / camera_link.
+- TF: map → odom → base_footprint → base_link → lidar_frame / imu_link / camera_link.
 
 ## 3. 디렉터리 구조
 
