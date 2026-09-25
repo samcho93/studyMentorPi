@@ -43,6 +43,26 @@ function initialCode() {
   return saved && saved.trim() ? saved : DEFAULT_CODE;
 }
 
+// ------------------------------------------------------------------ resizable editor | simulator split
+(() => {
+  const KEY = 'studymentorpi.pg.split.v1', split = $('pgSplit'), main = document.querySelector('.pg-main');
+  const set = (px) => { if (px) main.style.setProperty('--pg-left', px + 'px'); else main.style.removeProperty('--pg-left'); };
+  set(Number(lsGet(KEY)) || 0);
+  split.addEventListener('pointerdown', (e) => {
+    e.preventDefault(); split.setPointerCapture(e.pointerId); document.body.classList.add('pg-dragging');
+    const r = main.getBoundingClientRect();
+    const move = (ev) => set(Math.round(Math.max(280, Math.min(r.width - 320, ev.clientX - r.left))));
+    const up = () => {
+      split.removeEventListener('pointermove', move); split.removeEventListener('pointerup', up);
+      document.body.classList.remove('pg-dragging');
+      lsSet(KEY, parseInt(main.style.getPropertyValue('--pg-left'), 10) || '');
+      window.dispatchEvent(new Event('resize'));
+    };
+    split.addEventListener('pointermove', move); split.addEventListener('pointerup', up);
+  });
+  split.addEventListener('dblclick', () => { set(0); lsSet(KEY, ''); window.dispatchEvent(new Event('resize')); });
+})();
+
 // ------------------------------------------------------------------ tabs
 function showPane(id) {
   document.querySelectorAll('.pg-tabs button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.pane === id)));

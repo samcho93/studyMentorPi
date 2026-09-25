@@ -52,6 +52,45 @@ panel.innerHTML = `
 document.body.appendChild(panel);
 const R = (k) => panel.querySelector(`[data-r="${k}"]`);
 
+// ------------------------------------------------------------------ resizable panel
+// drag the left edge (desktop) or the top edge (phones); double-click resets; size is remembered
+const SIZE_KEY = 'studymentorpi.runner.size.v1';
+const handle = document.createElement('div');
+handle.className = 'rn-resize';
+handle.title = '드래그해서 크기 조절 (더블클릭: 기본 크기)';
+handle.setAttribute('role', 'separator');
+panel.appendChild(handle);
+const rootStyle = document.documentElement.style;
+const isSheet = () => window.matchMedia('(max-width: 1000px)').matches;
+function applySize(sz) {
+  if (sz && sz.w) rootStyle.setProperty('--rn-w', sz.w + 'px'); else rootStyle.removeProperty('--rn-w');
+  if (sz && sz.h) rootStyle.setProperty('--rn-h', sz.h + 'px'); else rootStyle.removeProperty('--rn-h');
+  window.dispatchEvent(new Event('resize'));
+}
+let size = {};
+try { size = JSON.parse(localStorage.getItem(SIZE_KEY) || '{}') || {}; } catch (e) { size = {}; }
+applySize(size);
+handle.addEventListener('pointerdown', (e) => {
+  e.preventDefault();
+  handle.setPointerCapture(e.pointerId);
+  panel.classList.add('resizing'); document.body.classList.add('rn-dragging');
+  const move = (ev) => {
+    if (isSheet()) size.h = Math.round(Math.max(160, Math.min(window.innerHeight - 60, window.innerHeight - ev.clientY)));
+    else size.w = Math.round(Math.max(320, Math.min(window.innerWidth - 300, window.innerWidth - ev.clientX)));
+    applySize(size);
+  };
+  const up = () => {
+    handle.removeEventListener('pointermove', move); handle.removeEventListener('pointerup', up); handle.removeEventListener('pointercancel', up);
+    panel.classList.remove('resizing'); document.body.classList.remove('rn-dragging');
+    try { localStorage.setItem(SIZE_KEY, JSON.stringify(size)); } catch (err) { /* ignore */ }
+  };
+  handle.addEventListener('pointermove', move); handle.addEventListener('pointerup', up); handle.addEventListener('pointercancel', up);
+});
+handle.addEventListener('dblclick', () => {
+  size = {}; applySize(size);
+  try { localStorage.removeItem(SIZE_KEY); } catch (err) { /* ignore */ }
+});
+
 function showPane(name) {
   panel.querySelectorAll('.rn-tabs button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.pane === name)));
   panel.querySelectorAll('.rn-pane').forEach((p) => p.classList.toggle('on', p.dataset.p === name));
