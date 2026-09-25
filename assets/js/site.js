@@ -1,25 +1,9 @@
-/* site.js — 공통 UI: 모바일 내비, 코드 복사, 진행률, 목차 하이라이트 */
+/* site.js — 공통 UI: 모바일 내비, 코드 복사, 목차 하이라이트 */
 (function () {
   'use strict';
 
-  var KEY = 'studymentorpi.progress.v1';
-
-  // ---------------------------------------------------------- 진행률 저장소
-  function load() {
-    try {
-      return JSON.parse(localStorage.getItem(KEY) || '{}') || {};
-    } catch (e) {
-      return {};
-    }
-  }
-
-  function save(data) {
-    try {
-      localStorage.setItem(KEY, JSON.stringify(data));
-    } catch (e) { /* 프라이빗 모드 등에서는 조용히 무시 */ }
-  }
-
-  var progress = {};   // 학습 완료 표시 기능 제거 — 완료 표시를 그리지 않음
+  // 오래된 학습 진행률 데이터 정리 (완료 표시·진행률 기능은 제거됨)
+  try { localStorage.removeItem('studymentorpi.progress.v1'); } catch (e) { /* ignore */ }
 
   // ------------------------------------------------------------ 모바일 내비
   var toggle = document.getElementById('navToggle');
@@ -77,60 +61,6 @@
       }
     });
   });
-
-  // ------------------------------------------------- 사이드바 완료 표시
-  function paintSidebar() {
-    document.querySelectorAll('.sidebar-nav a[data-slug]').forEach(function (a) {
-      a.classList.toggle('done', !!progress[a.dataset.slug]);
-    });
-  }
-
-  // ------------------------------------------------------ 레슨 완료 체크박스
-  var article = document.querySelector('.lesson[data-slug]');
-  var check = document.getElementById('doneCheck');
-
-  if (article && check) {
-    var slug = article.dataset.slug;
-    check.checked = !!progress[slug];
-    check.addEventListener('change', function () {
-      if (check.checked) progress[slug] = Date.now();
-      else delete progress[slug];
-      save(progress);
-      paintSidebar();
-    });
-  }
-
-  // ------------------------------------------------------------- 홈 진행률
-  var cards = document.querySelectorAll('.lesson-card[data-slug]');
-  var fill = document.getElementById('progFill');
-  var text = document.getElementById('progText');
-  var reset = document.getElementById('resetProg');
-
-  function paintHome() {
-    if (!cards.length) return;
-    var done = 0;
-    cards.forEach(function (card) {
-      var isDone = !!progress[card.dataset.slug];
-      card.classList.toggle('done', isDone);
-      if (isDone) done++;
-    });
-    var pct = Math.round((done / cards.length) * 100);
-    if (fill) fill.style.width = pct + '%';
-    if (text) text.textContent = done + ' / ' + cards.length + ' 챕터 완료 (' + pct + '%)';
-  }
-
-  if (reset) {
-    reset.addEventListener('click', function () {
-      if (!confirm('학습 진행률을 모두 지울까요?')) return;
-      progress = {};
-      save(progress);
-      paintHome();
-      paintSidebar();
-    });
-  }
-
-  paintHome();
-  paintSidebar();
 
   // -------------------------------------------------------- 목차 하이라이트
   var tocLinks = Array.prototype.slice.call(

@@ -134,20 +134,13 @@ a { color: var(--link); }
   border-radius: 6px; padding: 1px 6px; min-width: 34px; text-align: center; opacity: 1;
 }
 .sidebar-nav li a.active .nav-no { background: var(--bg-elev); }
-.sidebar-nav li a.done .nav-no { color: var(--ok); background: var(--ok-soft); }
 .theme-icon { border-radius: 8px; }
 
 /* ---------------------------------------------------------------- 버튼 */
-.btn, .ghost-btn, .done-toggle {
-  border-radius: 8px; font-weight: 600; font-size: 13.5px; border: 1px solid var(--border);
-  background: var(--bg-elev); color: var(--text); box-shadow: none;
-}
 .btn { padding: 8px 16px; }
 .btn:hover, .ghost-btn:hover { border-color: var(--accent); color: var(--text); }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
 .btn.primary:hover { filter: brightness(1.07); color: #fff; background: var(--accent); }
-.done-toggle:has(input:checked) { background: var(--ok); border-color: var(--ok); color: #fff; }
-.done-toggle:has(input:checked) input { accent-color: #fff; }
 
 /* ---------------------------------------------------------------- 홈 */
 .hero {
@@ -165,9 +158,6 @@ a { color: var(--link); }
 .hero .btn { background: rgba(255, 255, 255, .95); color: #1d2433; border-color: transparent; }
 .hero .btn.primary { background: #fff; color: #4f46e5; }
 .hero .btn:hover { filter: brightness(1.04); color: #1d2433; }
-.hero .progress-bar { background: rgba(255, 255, 255, .22); border-color: rgba(255, 255, 255, .3); }
-.hero .progress-fill { background: linear-gradient(90deg, #fff, #f5b041); }
-.hero .progress-text, .hero .link-btn { color: rgba(255, 255, 255, .85); }
 .hero-flow { background: rgba(255, 255, 255, .12); border-color: rgba(255, 255, 255, .28); }
 .hero-flow .flow-step { background: rgba(255, 255, 255, .94); border-color: transparent; color: #1d2433; }
 .hero-flow .flow-step small { color: #6b7587; }
@@ -175,7 +165,6 @@ a { color: var(--link); }
 .hero-flow .flow-step.hot b { background: #fdeaea; color: #d64541; }
 .hero-flow .flow-arrow { color: rgba(255, 255, 255, .8); }
 .hero-art-cap { color: rgba(255, 255, 255, .85); }
-.progress-fill { background: linear-gradient(90deg, var(--accent), #f5b041); }
 
 .facts { max-width: 1180px; margin: 0 auto 8px; gap: 12px; background: none; border: none; padding: 0 0 4px; }
 .fact { background: var(--bg-elev); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); }
@@ -189,7 +178,6 @@ a { color: var(--link); }
 }
 .lesson-card:hover { transform: translateY(-2px); border-color: var(--accent); }
 .lc-no { font: 700 12px var(--mono); color: var(--accent); background: var(--accent-soft); border-radius: 6px; padding: 2px 7px; height: fit-content; }
-.lesson-card.done .lc-no { color: var(--ok); background: var(--ok-soft); }
 .lc-title { font-weight: 800; }
 .tag { background: var(--bg-elev-2); border: 1px solid var(--border); border-radius: 20px; color: var(--text-faint); }
 .track-h { border-left-width: 5px; }

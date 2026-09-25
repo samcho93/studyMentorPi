@@ -279,9 +279,6 @@ a:hover { text-decoration: underline; }
   border-left-color: var(--accent);
   font-weight: 600;
 }
-.sidebar-nav li a.done .nav-no::after {
-  content: "✓"; margin-left: 2px; color: var(--accent);
-}
 .nav-no {
   flex: none;
   font-family: var(--mono);
@@ -382,23 +379,6 @@ a:hover { text-decoration: underline; }
 }
 .btn.primary:hover { background: var(--accent-dim); border-color: var(--accent-dim); color: var(--on-accent); }
 
-.progress-wrap { max-width: 420px; }
-.progress-bar {
-  height: 7px; border-radius: 4px;
-  background: var(--bg-elev-2);
-  border: 1px solid var(--border-soft);
-  overflow: hidden;
-}
-.progress-fill {
-  height: 100%; width: 0;
-  background: linear-gradient(90deg, var(--accent-dim), var(--accent));
-  transition: width 0.4s ease;
-}
-.progress-text {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-top: 8px;
-  font-size: 12.5px; color: var(--text-faint);
-}
 .link-btn {
   background: none; border: none; padding: 0;
   color: var(--text-faint); font-size: 12.5px;
@@ -534,25 +514,6 @@ a:hover { text-decoration: underline; }
   border: 1px solid var(--border-soft);
   color: var(--text-dim);
 }
-.lc-check {
-  flex: none;
-  width: 19px; height: 19px;
-  border-radius: 50%;
-  border: 1.5px solid var(--border);
-  margin-top: 3px;
-}
-.lesson-card.done .lc-check {
-  background: var(--accent);
-  border-color: var(--accent);
-  position: relative;
-}
-.lesson-card.done .lc-check::after {
-  content: "✓";
-  position: absolute; inset: 0;
-  display: grid; place-items: center;
-  color: var(--on-accent); font-size: 12px; font-weight: 800;
-}
-.lesson-card.done .lc-no { color: var(--accent); }
 
 /* ------------------------------------------------------------- 레슨 페이지 */
 
@@ -587,17 +548,6 @@ a:hover { text-decoration: underline; }
   padding-top: 18px;
   border-top: 1px solid var(--border-soft);
 }
-.done-toggle {
-  display: inline-flex; align-items: center; gap: 8px;
-  font-size: 13.5px; font-weight: 600;
-  padding: 7px 14px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--bg-elev);
-  cursor: pointer;
-}
-.done-toggle input { accent-color: var(--accent); width: 15px; height: 15px; }
-.done-toggle:has(input:checked) { border-color: var(--accent-dim); color: var(--accent); }
 .ghost-btn {
   font-size: 13.5px; font-weight: 600;
   padding: 7px 14px;
