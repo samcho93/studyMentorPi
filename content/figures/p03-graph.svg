@@ -1,0 +1,46 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="미니 시티 챌린지 노드와 토픽 구성: 카메라와 라이다, YOLOv5가 팀 노드 city_fsm으로 들어가고, city_fsm만 속도 명령을 발행한다">
+  <defs>
+    <marker id="arr-p03-graph" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-p03-graph-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <!-- sensors -->
+  <rect class="box" x="10" y="30" width="160" height="54" rx="6"/>
+  <text class="lbl" x="90" y="53" text-anchor="middle">ascamera (RGB)</text>
+  <text class="tag mono" x="90" y="71" text-anchor="middle">depth_camera.launch.py</text>
+  <rect class="box" x="10" y="216" width="160" height="54" rx="6"/>
+  <text class="lbl" x="90" y="239" text-anchor="middle">LD19 라이다</text>
+  <text class="tag mono" x="90" y="257" text-anchor="middle">lidar.launch.py</text>
+  <!-- yolo -->
+  <rect class="box" x="250" y="20" width="170" height="54" rx="6"/>
+  <text class="lbl mono" x="335" y="43" text-anchor="middle">yolov5_ros2</text>
+  <text class="tag mono" x="335" y="61" text-anchor="middle">traffic_signs_640s_7_0</text>
+  <!-- team node -->
+  <rect class="box-hi" x="250" y="128" width="170" height="84" rx="8"/>
+  <text class="lbl mono" x="335" y="150" text-anchor="middle">city_fsm (팀 노드)</text>
+  <text class="tag" x="335" y="168" text-anchor="middle">차선 오차 · 사건 디바운싱</text>
+  <text class="tag" x="335" y="184" text-anchor="middle">FSM · 상태별 속도</text>
+  <text class="tag" x="335" y="200" text-anchor="middle">안전 감시(라이다·타임아웃)</text>
+  <!-- outputs -->
+  <rect class="box" x="560" y="128" width="150" height="54" rx="6"/>
+  <text class="lbl mono" x="635" y="151" text-anchor="middle">controller</text>
+  <text class="tag" x="635" y="169" text-anchor="middle">모터 · 오도메트리</text>
+  <rect class="box" x="560" y="226" width="150" height="54" rx="6"/>
+  <text class="lbl" x="635" y="249" text-anchor="middle">심판 기록</text>
+  <text class="tag" x="635" y="267" text-anchor="middle">ros2 bag · 스톱워치</text>
+  <!-- edges -->
+  <path class="ln" d="M170 50 L248 47" marker-end="url(#arr-p03-graph)"/>
+  <text class="tag mono" x="209" y="40" text-anchor="middle">rgb0/image</text>
+  <path class="ln" d="M150 84 L260 126" marker-end="url(#arr-p03-graph)"/>
+  <text class="tag mono" x="176" y="116" text-anchor="middle">rgb0/image</text>
+  <path class="ln" d="M335 74 L335 126" marker-end="url(#arr-p03-graph)"/>
+  <text class="tag mono" x="342" y="104">/yolov5_ros2/object_detect</text>
+  <path class="ln" d="M170 236 L248 200" marker-end="url(#arr-p03-graph)"/>
+  <text class="tag mono" x="190" y="206" text-anchor="middle">/scan_raw</text>
+  <path class="ln-hi" d="M420 158 L558 158" marker-end="url(#arr-p03-graph-hi)"/>
+  <text class="tag mono" x="489" y="150" text-anchor="middle">/controller/cmd_vel</text>
+  <path class="ln" d="M560 176 L422 188" stroke-dasharray="4 3" marker-end="url(#arr-p03-graph)"/>
+  <text class="tag mono" x="492" y="196" text-anchor="middle">/odom</text>
+  <path class="ln" d="M420 206 L558 250" marker-end="url(#arr-p03-graph)"/>
+  <text class="tag mono" x="470" y="244" text-anchor="middle">~/state</text>
+  <text class="sub" x="360" y="294" text-anchor="middle">속도 명령은 city_fsm 한 곳에서만 발행합니다 (단일 출력 원칙)</text>
+</svg>

@@ -1,0 +1,53 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="미니 시티 챌린지 상태 기계: 차선 유지를 중심으로 서행·정지·회전·접근·주차 상태와, 어느 상태에서든 들어가는 LOST·HOLD 안전 상태">
+  <defs>
+    <marker id="arr-p03-fsm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <!-- LANE -->
+  <rect class="box-hi" x="290" y="112" width="140" height="56" rx="28"/>
+  <text class="lbl" x="360" y="137" text-anchor="middle">LANE</text>
+  <text class="tag" x="360" y="154" text-anchor="middle">차선 유지 0.12 m/s</text>
+  <!-- SLOW / STOP -->
+  <rect class="box" x="50" y="26" width="140" height="50" rx="25"/>
+  <text class="lbl" x="120" y="48" text-anchor="middle">SLOW</text>
+  <text class="tag" x="120" y="64" text-anchor="middle">횡단보도 0.06 m/s</text>
+  <rect class="box" x="50" y="196" width="140" height="50" rx="25"/>
+  <text class="lbl" x="120" y="218" text-anchor="middle">STOP</text>
+  <text class="tag" x="120" y="234" text-anchor="middle">빨간불 · 20 s 제한</text>
+  <!-- TURN -->
+  <rect class="box" x="290" y="10" width="140" height="50" rx="25"/>
+  <text class="lbl" x="360" y="32" text-anchor="middle">TURN_R / TURN_S</text>
+  <text class="tag" x="360" y="48" text-anchor="middle">표지 기억을 소비</text>
+  <!-- APPROACH / PARK -->
+  <rect class="box" x="530" y="112" width="150" height="56" rx="28"/>
+  <text class="lbl" x="605" y="137" text-anchor="middle">APPROACH</text>
+  <text class="tag" x="605" y="154" text-anchor="middle">주차 표지 · 서행</text>
+  <rect class="box" x="530" y="206" width="150" height="50" rx="25"/>
+  <text class="lbl" x="605" y="228" text-anchor="middle">PARK → DONE</text>
+  <text class="tag" x="605" y="244" text-anchor="middle">폐루프 주차 후 정지</text>
+  <!-- safety -->
+  <rect class="box" x="226" y="228" width="268" height="50" rx="10" stroke-dasharray="5 4"/>
+  <text class="lbl" x="360" y="250" text-anchor="middle">LOST · HOLD (어느 상태에서든)</text>
+  <text class="tag" x="360" y="266" text-anchor="middle">해제 → 이전 상태 · 시간 초과 → ABORT</text>
+  <!-- transitions -->
+  <path class="ln" d="M296 124 L180 74" marker-end="url(#arr-p03-fsm)"/>
+  <text class="tag" x="236" y="88" text-anchor="middle">crosswalk</text>
+  <path class="ln" d="M190 58 L290 132" marker-end="url(#arr-p03-fsm)"/>
+  <text class="tag" x="252" y="120" text-anchor="start">passed</text>
+  <path class="ln" d="M100 76 L100 194" marker-end="url(#arr-p03-fsm)"/>
+  <text class="tag" x="94" y="140" text-anchor="end">red</text>
+  <path class="ln" d="M140 194 L140 78" marker-end="url(#arr-p03-fsm)"/>
+  <text class="tag" x="146" y="140">green</text>
+  <path class="ln" d="M345 112 L345 62" marker-end="url(#arr-p03-fsm)"/>
+  <text class="tag" x="339" y="92" text-anchor="end">junction</text>
+  <path class="ln" d="M375 62 L375 110" marker-end="url(#arr-p03-fsm)"/>
+  <text class="tag" x="381" y="92">straight</text>
+  <path class="ln" d="M430 140 L528 140" marker-end="url(#arr-p03-fsm)"/>
+  <text class="tag" x="479" y="132" text-anchor="middle">park_sign</text>
+  <path class="ln" d="M605 168 L605 204" marker-end="url(#arr-p03-fsm)"/>
+  <text class="tag" x="611" y="190">at_spot</text>
+  <path class="ln" d="M345 168 L345 226" marker-end="url(#arr-p03-fsm)"/>
+  <text class="tag" x="339" y="200" text-anchor="end">lane_lost · obstacle</text>
+  <path class="ln" d="M375 226 L375 170" stroke-dasharray="4 3" marker-end="url(#arr-p03-fsm)"/>
+  <text class="tag" x="381" y="200">found · clear</text>
+  <text class="sub" x="360" y="296" text-anchor="middle">표에 없는 (상태, 사건)은 무시 · 안전 사건은 표보다 먼저 검사</text>
+</svg>

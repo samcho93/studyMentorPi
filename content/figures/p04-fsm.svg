@@ -1,0 +1,38 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="사람 추종 카트 상태 기계: 대기, 추종, 회피, 탐색 상태와 제스처·미검출·장애물 사건">
+  <defs>
+    <marker id="arr-p04-fsm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <rect class="box" x="40" y="110" width="140" height="56" rx="28"/>
+  <text class="lbl" x="110" y="135" text-anchor="middle">IDLE</text>
+  <text class="tag" x="110" y="152" text-anchor="middle">정지 · 주인 대기</text>
+  <rect class="box-hi" x="290" y="110" width="140" height="56" rx="28"/>
+  <text class="lbl" x="360" y="135" text-anchor="middle">FOLLOW</text>
+  <text class="tag" x="360" y="152" text-anchor="middle">0.8 m 유지 추종</text>
+  <rect class="box" x="290" y="220" width="140" height="50" rx="25"/>
+  <text class="lbl" x="360" y="242" text-anchor="middle">AVOID</text>
+  <text class="tag" x="360" y="258" text-anchor="middle">전진 멈춤 · 옆 비킴</text>
+  <rect class="box" x="540" y="110" width="140" height="56" rx="28"/>
+  <text class="lbl" x="610" y="135" text-anchor="middle">SEARCH</text>
+  <text class="tag" x="610" y="152" text-anchor="middle">대기 1.5 s → 회전</text>
+  <!-- IDLE <-> FOLLOW -->
+  <path class="ln" d="M180 128 L288 128" marker-end="url(#arr-p04-fsm)"/>
+  <text class="tag" x="234" y="120" text-anchor="middle">오른팔 들기 1 s</text>
+  <path class="ln" d="M288 150 L182 150" marker-end="url(#arr-p04-fsm)"/>
+  <text class="tag" x="234" y="166" text-anchor="middle">양팔 들기</text>
+  <!-- FOLLOW <-> SEARCH -->
+  <path class="ln" d="M430 128 L538 128" marker-end="url(#arr-p04-fsm)"/>
+  <text class="tag" x="484" y="120" text-anchor="middle">1.5 s 미검출</text>
+  <path class="ln" d="M538 150 L432 150" marker-end="url(#arr-p04-fsm)"/>
+  <text class="tag" x="484" y="166" text-anchor="middle">재발견 + 신원 확인</text>
+  <!-- FOLLOW <-> AVOID -->
+  <path class="ln" d="M345 166 L345 218" marker-end="url(#arr-p04-fsm)"/>
+  <text class="tag" x="339" y="196" text-anchor="end">장애물 &lt; 0.35 m</text>
+  <path class="ln" d="M375 218 L375 168" marker-end="url(#arr-p04-fsm)"/>
+  <text class="tag" x="381" y="196">해제</text>
+  <!-- SEARCH -> IDLE -->
+  <path class="ln" d="M610 110 L610 50 L110 50 L110 108" marker-end="url(#arr-p04-fsm)"/>
+  <text class="tag" x="360" y="42" text-anchor="middle">10 s 탐색 실패 → 부저, 정지</text>
+  <!-- e-stop note -->
+  <text class="sub" x="560" y="238">모든 상태: 사람 &lt; 0.4 m</text>
+  <text class="sub" x="560" y="256">또는 E-stop → 즉시 정지</text>
+</svg>

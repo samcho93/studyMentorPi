@@ -1,0 +1,45 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="사람 추종 카트의 데이터 흐름: 카메라의 MediaPipe 방위가 라이다 게이트를 정하고, 알파-베타 필터가 사람 위치를 추정해 상태 기계와 PID가 속도를 낸다">
+  <defs>
+    <marker id="arr-p04-graph" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <!-- row 1: camera -->
+  <rect class="box" x="10" y="26" width="140" height="54" rx="6"/>
+  <text class="lbl" x="80" y="49" text-anchor="middle">카메라 RGB</text>
+  <text class="tag mono" x="80" y="67" text-anchor="middle">rgb0/image</text>
+  <rect class="box" x="180" y="26" width="170" height="54" rx="6"/>
+  <text class="lbl" x="265" y="49" text-anchor="middle">MediaPipe Pose</text>
+  <text class="tag" x="265" y="67" text-anchor="middle">방위 b_cam · 제스처 · 신원</text>
+  <!-- row 2: lidar gate, filter, fsm -->
+  <rect class="box" x="10" y="126" width="140" height="54" rx="6"/>
+  <text class="lbl" x="80" y="149" text-anchor="middle">LD19 라이다</text>
+  <text class="tag mono" x="80" y="167" text-anchor="middle">/scan_raw</text>
+  <rect class="box" x="180" y="126" width="170" height="54" rx="6"/>
+  <text class="lbl" x="265" y="149" text-anchor="middle">게이트 측정</text>
+  <text class="tag" x="265" y="167" text-anchor="middle">b_cam ± 8°, |r − r̂| &lt; 0.3 m</text>
+  <rect class="box" x="380" y="126" width="150" height="54" rx="6"/>
+  <text class="lbl" x="455" y="149" text-anchor="middle">α-β 필터</text>
+  <text class="tag" x="455" y="167" text-anchor="middle">사람 위치·속도 (odom)</text>
+  <rect class="box-hi" x="560" y="116" width="150" height="74" rx="8"/>
+  <text class="lbl" x="635" y="138" text-anchor="middle">FSM + PID</text>
+  <text class="tag" x="635" y="156" text-anchor="middle">거리 0.8 m 유지</text>
+  <text class="tag mono" x="635" y="174" text-anchor="middle">→ /controller/cmd_vel</text>
+  <!-- row 3 -->
+  <rect class="box" x="380" y="222" width="150" height="40" rx="6"/>
+  <text class="lbl mono" x="455" y="247" text-anchor="middle">/odom</text>
+  <rect class="box" x="560" y="222" width="150" height="40" rx="6"/>
+  <text class="lbl" x="635" y="247" text-anchor="middle">전방 안전 섹터</text>
+  <!-- edges -->
+  <path class="ln" d="M150 53 L178 53" marker-end="url(#arr-p04-graph)"/>
+  <path class="ln" d="M150 153 L178 153" marker-end="url(#arr-p04-graph)"/>
+  <path class="ln-hi" d="M265 80 L265 124" marker-end="url(#arr-p04-graph)"/>
+  <text class="tag mono" x="272" y="106">b_cam</text>
+  <path class="ln" d="M350 153 L378 153" marker-end="url(#arr-p04-graph)"/>
+  <text class="tag" x="364" y="118" text-anchor="middle">z</text>
+  <path class="ln" d="M530 153 L558 153" marker-end="url(#arr-p04-graph)"/>
+  <path class="ln" d="M455 222 L455 182" marker-end="url(#arr-p04-graph)"/>
+  <path class="ln" d="M350 53 L635 53 L635 114" marker-end="url(#arr-p04-graph)"/>
+  <text class="tag" x="492" y="45" text-anchor="middle">제스처(시작/정지) · 검출 여부</text>
+  <path class="ln" d="M80 180 L80 284 L635 284 L635 264" marker-end="url(#arr-p04-graph)"/>
+  <text class="tag" x="250" y="278" text-anchor="middle">사람 게이트를 뺀 전방 ±35° 최소 거리</text>
+  <path class="ln" d="M635 222 L635 192" marker-end="url(#arr-p04-graph)"/>
+</svg>

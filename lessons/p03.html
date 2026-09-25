@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P03. 미니 시티 자율주행 챌린지 · studyMentorPi</title>
+<meta name="description" content="차선 유지·신호등·표지판·교차로 회전·주차를 하나의 상태 기계로 통합하고, 채점 규칙에 맞춰 트랙을 완주하는 자율주행 프로젝트.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css?v=afc36b61">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=afc36b61">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=afc36b61">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js?v=afc36b61"></script>
+</head>
+<body class="lesson-page track-page-project">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim3d/index.html">3D 시뮬레이터</a><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a><a class="side-tool" href="../tools/urdf-viewer.html">URDF 뷰어</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라와 포인트 클라우드</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="project">
+<div class="nav-track-title track-project">프로젝트 (중급 이상)</div>
+<div class="nav-part"><span class="nav-part-no">P-1</span>자율 이동 서비스 로봇</div>
+<ul>
+<li><a href="../lessons/p01.html" data-slug="p01"><span class="nav-no">P01</span>자율 순찰 경비 로봇</a></li>
+<li><a href="../lessons/p02.html" data-slug="p02"><span class="nav-no">P02</span>QR 지시형 실내 배송 로봇</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">P-2</span>지능형 주행</div>
+<ul>
+<li><a href="../lessons/p03.html" class="active" data-slug="p03"><span class="nav-no">P03</span>미니 시티 자율주행 챌린지</a></li>
+<li><a href="../lessons/p04.html" data-slug="p04"><span class="nav-no">P04</span>사람 추종 카트 (비전+라이다 융합)</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="p03" data-track="project">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-project">프로젝트 (중급 이상)</span> P-2 지능형 주행 &middot; 약 300분 &middot; 고급</div>
+    <h1><span class="lesson-no">P03</span>미니 시티 자율주행 챌린지</h1>
+    <p class="lede">차선 유지·신호등·표지판·교차로 회전·주차를 하나의 상태 기계로 통합하고, 채점 규칙에 맞춰 트랙을 완주하는 자율주행 프로젝트.</p>
+    <div class="requires">선수 챕터: <a href="a03.html">A03</a> <a href="a09.html">A09</a> <a href="a10.html">A10</a> <a href="a11.html">A11</a></div>
+    <div class="lesson-actions">
+      <label class="done-toggle"><input type="checkbox" id="doneCheck"><span>학습 완료로 표시</span></label>
+      <a class="ghost-btn" href="../sim3d/index.html">3D 시뮬레이터</a><a class="ghost-btn" href="../sim/index.html">2D 시뮬레이터</a><a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>차선 유지·신호등·표지판·교차로 회전·주차를 <strong>하나의 유한 상태 기계(FSM)</strong>로 통합하고, 인식 계층(사건 생성)과 결정 계층(전이표)을 분리해 설계합니다.</li><li>원본 <code>self_driving.py</code>의 알려진 약점(차선 상실 시 마지막 명령 유지, 같은 값인 정상·서행 속도, 쓰이지 않는 우회전 표지, 개루프 주차, 장애물 무시)을 찾아 고치고, 고친 효과를 데이터로 보입니다.</li><li>챌린지 규칙과 채점표를 이해하고, 시간·감점을 고려해 속도·디바운싱·타임아웃 파라미터를 고릅니다.</li><li>브라우저 시뮬레이션으로 FSM·차선 오차·도시 순환 주행을 먼저 검증한 뒤, 실물 MentorPi에서 팀 노드를 실행하고 기록(rosbag)으로 채점을 재현합니다.</li><li>팀 안에서 인식·제어·안전·심판 역할을 나눠 인터페이스(토픽·사건 이름)를 먼저 합의하는 방식으로 협업합니다.</li></ul>
+<h2 id="프로젝트-개요와-요구사항">프로젝트 개요와 요구사항<a class="anchor" href="#프로젝트-개요와-요구사항">#</a></h2>
+<p>A09~A11에서 차선 유지, YOLOv5 표지판·신호등 인식, 회전 판단과 주차를 <strong>따로따로</strong> 익혔습니다. 이 프로젝트는 그것들을 한 대의 로봇 안에서 <strong>동시에, 충돌 없이</strong> 돌게 만드는 통합 과제입니다. 기능 하나하나보다 어려운 것은 "언제 무엇을 우선하는가"입니다. 횡단보도 앞에서 빨간불을 봤는데 차선이 흐려졌다면? 주차 표지를 봤는데 앞에 상자가 놓여 있다면? 이런 질문에 <strong>표 한 장으로 답할 수 있는 설계</strong>가 이 장의 목표입니다.</p>
+<p>진행은 4~5차시(약 300분) 팀 프로젝트를 가정합니다.</p>
+<div class="table-wrap"><table><thead><tr><th>차시</th><th>활동</th><th>산출물</th></tr></thead><tbody><tr><td>1</td><td>원본 통합 주행으로 기준선 측정, 요구사항·역할 합의</td><td>기준선 채점표, 사건 이름 목록</td></tr><tr><td>2</td><td>FSM 전이표 설계, 시뮬 프로토타입(실습 1·2)</td><td>전이표, 사건 정의표</td></tr><tr><td>3</td><td>도시 순환 시뮬(실습 3), 실물 차선·신호 통합</td><td>시뮬 로그, 실물 주행 영상</td></tr><tr><td>4</td><td>교차로·주차·안전 기능, 파라미터 튜닝</td><td>튜닝 기록표</td></tr><tr><td>5</td><td>챌린지 본선 2회 + 발표·회고</td><td>채점표, rosbag, 발표 자료</td></tr></tbody></table></div>
+<p>역할은 네 명 기준으로 나눕니다. 인원이 적으면 한 사람이 두 역할을 맡습니다.</p>
+<div class="table-wrap"><table><thead><tr><th>역할</th><th>책임</th><th>주로 만지는 코드</th></tr></thead><tbody><tr><td>인식</td><td>차선 오차, YOLOv5 검출 → <strong>사건</strong>으로 변환(디바운싱)</td><td><code>on_image</code>, <code>on_objects</code></td></tr><tr><td>결정·제어</td><td>전이표, 상태별 속도·조향, 주차 동작</td><td><code>TABLE</code>, <code>drive()</code></td></tr><tr><td>안전·통합</td><td>라이다 감시, 타임아웃, 워치독, launch·실행 절차</td><td><code>on_scan</code>, <code>watchdog()</code></td></tr><tr><td>심판·기록</td><td>채점 규칙 적용, 스톱워치, rosbag, 튜닝 기록</td><td>채점표, <code>ros2 bag</code></td></tr></tbody></table></div>
+<h3 id="기능-요구사항">기능 요구사항<a class="anchor" href="#기능-요구사항">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>ID</th><th>요구사항</th><th>확인 방법</th></tr></thead><tbody><tr><td>F1</td><td>노란 차선을 따라 코스 1바퀴를 차로 이탈 없이 주행</td><td>영상, 이탈 횟수</td></tr><tr><td>F2</td><td>빨간불이면 정지선 앞에서 정지, 초록불이 되면 3 s 안에 출발</td><td>스톱워치, <code>~/state</code> 로그</td></tr><tr><td>F3</td><td>횡단보도 구간에서 서행(0.07 m/s 이하)</td><td><code>/controller/cmd_vel</code> 기록</td></tr><tr><td>F4</td><td>교차로에서 **표지(<code>right</code>)에 따라** 회전 또는 직진</td><td>표지를 바꿔 2회 시행</td></tr><tr><td>F5</td><td>주차 표지를 보고 주차 칸에 완전히 들어가 정지</td><td>줄자로 중심·각도 측정</td></tr><tr><td>F6</td><td>차선을 3프레임 연속 잃으면 정지하고, 다시 찾으면 재개</td><td>맵 일부를 종이로 가려 시험</td></tr><tr><td>F7</td><td>전방 0.25 m 안에 물체가 있으면 어느 상태에서든 정지</td><td>상자를 앞에 놓아 시험</td></tr><tr><td>F8</td><td>현재 상태를 <code>~/state</code>(String)로 발행하고 전이마다 로그</td><td><code>ros2 topic echo</code></td></tr></tbody></table></div>
+<h3 id="안전-한계">안전 한계<a class="anchor" href="#안전-한계">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>항목</th><th>값</th><th>근거</th></tr></thead><tbody><tr><td>최대 선속도</td><td>0.12 m/s (차선 유지), 서행 0.06 m/s</td><td>원본 0.1 m/s, 강의 권장 한계 0.2 m/s</td></tr><tr><td>최대 각속도</td><td>0.45 rad/s(회전 모드), PID 출력 ±0.3 rad/s</td><td>원본 회전 −0.45, 권장 한계 0.5</td></tr><tr><td>전방 정지 거리</td><td>0.25 m (±20° 섹터)</td><td>0.12 m/s에서 반응 0.15 s + 제동 ≈ 0.03 m, 차체 반경 0.13 m + 여유</td></tr><tr><td>차선 상실</td><td>3프레임(약 0.1 s) 연속 미검출 → 정지</td><td>원본은 명령을 안 보내 마지막 명령 유지</td></tr><tr><td>영상 워치독</td><td>0.5 s 동안 영상이 없으면 정지</td><td>카메라 노드 정지·지연 대비</td></tr><tr><td>상태 타임아웃</td><td>STOP 20 s, LOST 3 s, HOLD 10 s → ABORT(정지)</td><td>영원히 기다리는 상태 방지</td></tr><tr><td>비상 정지</td><td><code>~/set_running false</code>, <code>Ctrl+C</code>, 전원 스위치</td><td>심판이 언제든 호출</td></tr></tbody></table></div>
+<h3 id="원본에서-고칠-약점">원본에서 고칠 약점<a class="anchor" href="#원본에서-고칠-약점">#</a></h3>
+<p>A09~A11에서 확인한 원본 <code>self_driving.py</code>의 문제를 요구사항과 연결해 둡니다. 발표 때 <strong>고치기 전/후 데이터</strong>를 함께 보여야 합니다.</p>
+<div class="table-wrap"><table><thead><tr><th>원본 동작</th><th>문제</th><th>이 프로젝트의 해결</th><th>관련 요구</th></tr></thead><tbody><tr><td><code>lane_x &lt; 0</code>이면 Twist를 발행하지 않음</td><td>모터가 마지막 명령(예: 우회전 −0.45)을 유지하며 맵 밖으로</td><td>LOST 상태: 3프레임 뒤 정지 명령 발행</td><td>F6</td></tr><tr><td><code>normal_speed = slow_down_speed = 0.1</code></td><td>"서행"해도 속도가 같음</td><td>상태별 속도표 LANE 0.12 / SLOW 0.06</td><td>F3</td></tr><tr><td><code>turn_right</code>를 세우지만 주 루프에서 안 읽음</td><td>표지가 회전을 결정하지 않음</td><td>표지는 <strong>기억(memo)</strong>, 교차로 사건에서 소비</td><td>F4</td></tr><tr><td>빨간불 판단이 감속 상태 안에서만, 면적 &lt; 1000</td><td>횡단보도 인식이 늦으면 신호 무시</td><td>SLOW 상태의 전이로 명시, red 1프레임·green 5프레임</td><td>F2</td></tr><tr><td><code>PID(0.4, 0, 0.05)</code> + ±0.1 제한</td><td>사실상 뱅뱅 제어, 조향 떨림</td><td>Kp 0.004, Kd 0.002, ±0.3 (A09 시뮬 결과)</td><td>F1</td></tr><tr><td><code>park_action()</code>이 시간 기반 개루프</td><td>배터리·바닥에 따라 주차 위치가 달라짐</td><td><code>/odom</code>으로 이동 거리를 재는 폐루프</td><td>F5</td></tr><tr><td>라이다를 쓰지 않음</td><td>코스 위 장애물과 충돌</td><td>HOLD 안전 상태</td><td>F7</td></tr></tbody></table></div>
+<h3 id="챌린지-규칙과-채점">챌린지 규칙과 채점<a class="anchor" href="#챌린지-규칙과-채점">#</a></h3>
+<figure class="fig" id="fig-p03-course"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="미니 시티 예시 코스: 출발 게이트, 신호등과 정지선, 횡단보도, 표지가 있는 교차로, 주차 칸의 다섯 채점 구역">
+  <defs>
+    <marker id="arr-p03-course" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <!-- road loop -->
+  <rect x="60" y="40" width="440" height="210" rx="34" style="fill:none;stroke:var(--border);stroke-width:36"/>
+  <rect x="60" y="40" width="440" height="210" rx="34" style="fill:none;stroke:var(--text-faint);stroke-width:1.2" stroke-dasharray="8 7"/>
+  <!-- spur to parking -->
+  <path d="M518 145 L612 145" style="stroke:var(--border);stroke-width:36"/>
+  <path d="M500 145 L612 145" style="stroke:var(--text-faint);stroke-width:1.2" stroke-dasharray="8 7"/>
+  <!-- parking slots -->
+  <rect x="614" y="100" width="44" height="90" rx="3" style="fill:none;stroke:var(--text)" stroke-width="1.4" stroke-dasharray="5 3"/>
+  <rect x="660" y="100" width="44" height="90" rx="3" style="fill:none;stroke:var(--text)" stroke-width="1.4" stroke-dasharray="5 3"/>
+  <text class="lbl" x="636" y="150" text-anchor="middle">P</text>
+  <text class="lbl" x="682" y="150" text-anchor="middle">P</text>
+  <text class="tag" x="659" y="210" text-anchor="middle">⑤ 주차 칸</text>
+  <text class="tag" x="659" y="225" text-anchor="middle">(park 표지)</text>
+  <!-- start gate -->
+  <path class="ln-hi" d="M112 232 L112 268" stroke-width="3"/>
+  <text class="tag" x="112" y="290" text-anchor="middle">① 출발·도착 게이트</text>
+  <!-- stop line + light -->
+  <path d="M226 232 L226 268" style="stroke:var(--text)" stroke-width="3"/>
+  <rect x="219" y="180" width="14" height="30" rx="3" style="fill:var(--text-faint)"/>
+  <circle cx="226" cy="189" r="4.5" style="fill:var(--danger)"/>
+  <circle cx="226" cy="201" r="4.5" style="fill:var(--ok)"/>
+  <text class="tag" x="226" y="172" text-anchor="middle">② 신호등·정지선</text>
+  <!-- crosswalk -->
+  <rect x="244" y="235" width="40" height="4" style="fill:var(--text)"/>
+  <rect x="244" y="243" width="40" height="4" style="fill:var(--text)"/>
+  <rect x="244" y="251" width="40" height="4" style="fill:var(--text)"/>
+  <rect x="244" y="259" width="40" height="4" style="fill:var(--text)"/>
+  <text class="tag" x="264" y="290" text-anchor="middle">③ 횡단보도(서행)</text>
+  <!-- junction -->
+  <circle cx="540" cy="100" r="11" style="fill:none;stroke:var(--accent)" stroke-width="1.6"/>
+  <text class="tag" x="540" y="104" text-anchor="middle">→</text>
+  <text class="tag" x="540" y="80" text-anchor="middle">④ 교차로·표지</text>
+  <!-- go signs -->
+  <text class="tag" x="200" y="16" text-anchor="middle">go 표지</text>
+  <text class="tag" x="380" y="16" text-anchor="middle">go 표지</text>
+  <!-- direction arrows -->
+  <path d="M140 250 L200 250" style="stroke:var(--accent)" stroke-width="1.6" marker-end="url(#arr-p03-course)"/>
+  <path d="M330 250 L420 250" style="stroke:var(--accent)" stroke-width="1.6" marker-end="url(#arr-p03-course)"/>
+  <path d="M500 220 L500 180" style="stroke:var(--accent)" stroke-width="1.6" marker-end="url(#arr-p03-course)"/>
+  <path d="M420 40 L330 40" style="stroke:var(--accent)" stroke-width="1.6" marker-end="url(#arr-p03-course)"/>
+  <path d="M60 80 L60 200" style="stroke:var(--accent)" stroke-width="1.6" marker-end="url(#arr-p03-course)"/>
+  <!-- centre notes -->
+  <text class="lbl" x="330" y="112" text-anchor="middle">예시 코스 (원본 맵에 맞게 배치)</text>
+  <text class="sub" x="330" y="134" text-anchor="middle">1바퀴 → 교차로에서 표지대로 회전 → 주차</text>
+  <text class="sub" x="330" y="154" text-anchor="middle">제한 시간 5분 · 사람 개입 시 감점</text>
+</svg><figcaption>예시 코스와 다섯 채점 구역. 실제 배치는 원본 맵의 표지·신호등 위치에 맞춥니다.</figcaption></figure>
+<p><strong>규칙</strong></p>
+<ol><li>로봇은 출발 게이트(①)에 차로 가운데로 놓고, 심판의 "출발" 신호와 함께 팀원이 노드를 시작합니다. 이후 로봇에 손을 대면 <strong>개입</strong>입니다.</li><li>신호등은 심판이 손으로 바꿉니다. 로봇이 정지선에 다가오는 동안 빨간불로 두고, 정지한 뒤 3~8 s 사이 임의 시점에 초록으로 바꿉니다.</li><li>교차로 표지(④)는 시행 전에 심판이 <code>right</code> 또는 <code>go</code> 중 하나로 정합니다(팀은 모름).</li><li>코스 1바퀴 뒤 주차 칸(⑤)에 정지하면 완주입니다. 제한 시간은 <strong>5분</strong>이며, 넘기면 그 시점까지의 점수만 인정합니다.</li><li>본선은 2회 시행하고 높은 점수를 씁니다. 시행 사이 파라미터 수정은 허용하되 5분 안에 끝냅니다.</li></ol>
+<p><strong>점수표 (100점)</strong></p>
+<div class="table-wrap"><table><thead><tr><th>구역</th><th>항목</th><th>점수</th></tr></thead><tbody><tr><td>M1</td><td>1바퀴 완주(차로 유지)</td><td>20</td></tr><tr><td>M2</td><td>빨간불 정지선 앞 정지 10 + 초록불 3 s 안에 출발 5</td><td>15</td></tr><tr><td>M3</td><td>횡단보도 서행(≤ 0.07 m/s, 로그 확인)</td><td>10</td></tr><tr><td>M4</td><td>교차로에서 표지대로 진행</td><td>10</td></tr><tr><td>M5</td><td>주차 칸 완전 진입 15 + 중심 ±3 cm·각도 ±10° 이내 5</td><td>20</td></tr><tr><td>M6</td><td>안전 시연: 심판이 차로에 상자를 놓으면 정지 → 치우면 재개</td><td>10</td></tr><tr><td>T</td><td>시간 점수 <span class="math">= clamp(15 − (T − 90)/10, 0, 15)</span> (T: 완주 시간 [s])</td><td>15</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>감점</th><th>값</th></tr></thead><tbody><tr><td>차로 이탈(바퀴 두 개 이상이 선 밖)</td><td>−5 / 회</td></tr><tr><td>소품·벽 접촉</td><td>−10 / 회</td></tr><tr><td>사람 개입(손대기·재배치)</td><td>−10 / 회, 3회면 실격</td></tr><tr><td>빨간불에 정지선 통과</td><td>−15, M2 0점</td></tr></tbody></table></div>
+<p>시간 점수는 90 s 이내 완주면 만점이고, 240 s면 0점입니다. 속도를 올리면 T는 줄지만 이탈·접촉 감점 위험이 커지므로, <strong>감점 한 번(−5)이 시간 50 s와 같다</strong>는 점을 기억하고 파라미터를 고르세요.</p>
+<h2 id="시스템-설계">시스템 설계<a class="anchor" href="#시스템-설계">#</a></h2>
+<h3 id="노드와-토픽">노드와 토픽<a class="anchor" href="#노드와-토픽">#</a></h3>
+<figure class="fig" id="fig-p03-graph"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="미니 시티 챌린지 노드와 토픽 구성: 카메라와 라이다, YOLOv5가 팀 노드 city_fsm으로 들어가고, city_fsm만 속도 명령을 발행한다">
+  <defs>
+    <marker id="arr-p03-graph" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-p03-graph-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <!-- sensors -->
+  <rect class="box" x="10" y="30" width="160" height="54" rx="6"/>
+  <text class="lbl" x="90" y="53" text-anchor="middle">ascamera (RGB)</text>
+  <text class="tag mono" x="90" y="71" text-anchor="middle">depth_camera.launch.py</text>
+  <rect class="box" x="10" y="216" width="160" height="54" rx="6"/>
+  <text class="lbl" x="90" y="239" text-anchor="middle">LD19 라이다</text>
+  <text class="tag mono" x="90" y="257" text-anchor="middle">lidar.launch.py</text>
+  <!-- yolo -->
+  <rect class="box" x="250" y="20" width="170" height="54" rx="6"/>
+  <text class="lbl mono" x="335" y="43" text-anchor="middle">yolov5_ros2</text>
+  <text class="tag mono" x="335" y="61" text-anchor="middle">traffic_signs_640s_7_0</text>
+  <!-- team node -->
+  <rect class="box-hi" x="250" y="128" width="170" height="84" rx="8"/>
+  <text class="lbl mono" x="335" y="150" text-anchor="middle">city_fsm (팀 노드)</text>
+  <text class="tag" x="335" y="168" text-anchor="middle">차선 오차 · 사건 디바운싱</text>
+  <text class="tag" x="335" y="184" text-anchor="middle">FSM · 상태별 속도</text>
+  <text class="tag" x="335" y="200" text-anchor="middle">안전 감시(라이다·타임아웃)</text>
+  <!-- outputs -->
+  <rect class="box" x="560" y="128" width="150" height="54" rx="6"/>
+  <text class="lbl mono" x="635" y="151" text-anchor="middle">controller</text>
+  <text class="tag" x="635" y="169" text-anchor="middle">모터 · 오도메트리</text>
+  <rect class="box" x="560" y="226" width="150" height="54" rx="6"/>
+  <text class="lbl" x="635" y="249" text-anchor="middle">심판 기록</text>
+  <text class="tag" x="635" y="267" text-anchor="middle">ros2 bag · 스톱워치</text>
+  <!-- edges -->
+  <path class="ln" d="M170 50 L248 47" marker-end="url(#arr-p03-graph)"/>
+  <text class="tag mono" x="209" y="40" text-anchor="middle">rgb0/image</text>
+  <path class="ln" d="M150 84 L260 126" marker-end="url(#arr-p03-graph)"/>
+  <text class="tag mono" x="176" y="116" text-anchor="middle">rgb0/image</text>
+  <path class="ln" d="M335 74 L335 126" marker-end="url(#arr-p03-graph)"/>
+  <text class="tag mono" x="342" y="104">/yolov5_ros2/object_detect</text>
+  <path class="ln" d="M170 236 L248 200" marker-end="url(#arr-p03-graph)"/>
+  <text class="tag mono" x="190" y="206" text-anchor="middle">/scan_raw</text>
+  <path class="ln-hi" d="M420 158 L558 158" marker-end="url(#arr-p03-graph-hi)"/>
+  <text class="tag mono" x="489" y="150" text-anchor="middle">/controller/cmd_vel</text>
+  <path class="ln" d="M560 176 L422 188" stroke-dasharray="4 3" marker-end="url(#arr-p03-graph)"/>
+  <text class="tag mono" x="492" y="196" text-anchor="middle">/odom</text>
+  <path class="ln" d="M420 206 L558 250" marker-end="url(#arr-p03-graph)"/>
+  <text class="tag mono" x="470" y="244" text-anchor="middle">~/state</text>
+  <text class="sub" x="360" y="294" text-anchor="middle">속도 명령은 city_fsm 한 곳에서만 발행합니다 (단일 출력 원칙)</text>
+</svg><figcaption>팀 노드 <code>city_fsm</code> 하나가 모든 인식 결과를 받아 속도 명령을 단독으로 발행합니다.</figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th>토픽/서비스</th><th>타입</th><th>방향</th><th>용도</th></tr></thead><tbody><tr><td><code>/ascamera/camera_publisher/rgb0/image</code></td><td><code>sensor_msgs/Image</code></td><td>구독</td><td>차선 검출(<code>LaneDetector(&#x27;yellow&#x27;)</code>)</td></tr><tr><td><code>/yolov5_ros2/object_detect</code></td><td><code>interfaces/ObjectsInfo</code></td><td>구독</td><td><code>go</code>, <code>right</code>, <code>park</code>, <code>red</code>, <code>green</code>, <code>crosswalk</code></td></tr><tr><td><code>/scan_raw</code></td><td><code>sensor_msgs/LaserScan</code></td><td>구독 (sensor QoS)</td><td>전방 장애물 감시</td></tr><tr><td><code>/odom</code></td><td><code>nav_msgs/Odometry</code></td><td>구독</td><td>주차 이동 거리(폐루프)</td></tr><tr><td><code>/controller/cmd_vel</code></td><td><code>geometry_msgs/Twist</code></td><td>발행</td><td>유일한 속도 출력</td></tr><tr><td><code>~/state</code></td><td><code>std_msgs/String</code></td><td>발행</td><td>심판·디버깅용 상태 기록</td></tr><tr><td><code>~/set_running</code></td><td><code>std_srvs/SetBool</code></td><td>서비스</td><td>일시정지·재개(원본과 같은 이름)</td></tr></tbody></table></div>
+<p>설계 원칙 네 가지를 먼저 합의합니다.</p>
+<ol><li><strong>단일 출력.</strong> <code>/controller/cmd_vel</code>은 <code>city_fsm</code>만 발행합니다. 원본처럼 주차 스레드와 주 루프가 따로 발행하면, 어느 명령이 마지막인지에 따라 동작이 달라집니다.</li><li><strong>사건 계층.</strong> 인식 코드는 YOLO 박스나 <code>lane_x</code>를 직접 FSM에 넘기지 않고, 디바운싱을 거친 <strong>사건 이름</strong>(<code>crosswalk</code>, <code>red</code>, <code>junction</code> …)만 넘깁니다. 인식 담당과 제어 담당이 사건 이름 목록만 맞추면 따로 개발할 수 있습니다.</li><li><strong>안전 우선.</strong> <code>lane_lost</code>, <code>obstacle</code> 같은 안전 사건은 전이표보다 먼저 검사하고, 어느 상태에서든 LOST·HOLD로 보냅니다. 해제되면 <strong>들어오기 전 상태로</strong> 돌아갑니다.</li><li><strong>모든 대기에 시간 제한.</strong> STOP·LOST·HOLD는 제한 시간을 넘기면 ABORT(정지)로 갑니다.</li></ol>
+<h3 id="상태-기계">상태 기계<a class="anchor" href="#상태-기계">#</a></h3>
+<figure class="fig" id="fig-p03-fsm"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="미니 시티 챌린지 상태 기계: 차선 유지를 중심으로 서행·정지·회전·접근·주차 상태와, 어느 상태에서든 들어가는 LOST·HOLD 안전 상태">
+  <defs>
+    <marker id="arr-p03-fsm" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <!-- LANE -->
+  <rect class="box-hi" x="290" y="112" width="140" height="56" rx="28"/>
+  <text class="lbl" x="360" y="137" text-anchor="middle">LANE</text>
+  <text class="tag" x="360" y="154" text-anchor="middle">차선 유지 0.12 m/s</text>
+  <!-- SLOW / STOP -->
+  <rect class="box" x="50" y="26" width="140" height="50" rx="25"/>
+  <text class="lbl" x="120" y="48" text-anchor="middle">SLOW</text>
+  <text class="tag" x="120" y="64" text-anchor="middle">횡단보도 0.06 m/s</text>
+  <rect class="box" x="50" y="196" width="140" height="50" rx="25"/>
+  <text class="lbl" x="120" y="218" text-anchor="middle">STOP</text>
+  <text class="tag" x="120" y="234" text-anchor="middle">빨간불 · 20 s 제한</text>
+  <!-- TURN -->
+  <rect class="box" x="290" y="10" width="140" height="50" rx="25"/>
+  <text class="lbl" x="360" y="32" text-anchor="middle">TURN_R / TURN_S</text>
+  <text class="tag" x="360" y="48" text-anchor="middle">표지 기억을 소비</text>
+  <!-- APPROACH / PARK -->
+  <rect class="box" x="530" y="112" width="150" height="56" rx="28"/>
+  <text class="lbl" x="605" y="137" text-anchor="middle">APPROACH</text>
+  <text class="tag" x="605" y="154" text-anchor="middle">주차 표지 · 서행</text>
+  <rect class="box" x="530" y="206" width="150" height="50" rx="25"/>
+  <text class="lbl" x="605" y="228" text-anchor="middle">PARK → DONE</text>
+  <text class="tag" x="605" y="244" text-anchor="middle">폐루프 주차 후 정지</text>
+  <!-- safety -->
+  <rect class="box" x="226" y="228" width="268" height="50" rx="10" stroke-dasharray="5 4"/>
+  <text class="lbl" x="360" y="250" text-anchor="middle">LOST · HOLD (어느 상태에서든)</text>
+  <text class="tag" x="360" y="266" text-anchor="middle">해제 → 이전 상태 · 시간 초과 → ABORT</text>
+  <!-- transitions -->
+  <path class="ln" d="M296 124 L180 74" marker-end="url(#arr-p03-fsm)"/>
+  <text class="tag" x="236" y="88" text-anchor="middle">crosswalk</text>
+  <path class="ln" d="M190 58 L290 132" marker-end="url(#arr-p03-fsm)"/>
+  <text class="tag" x="252" y="120" text-anchor="start">passed</text>
+  <path class="ln" d="M100 76 L100 194" marker-end="url(#arr-p03-fsm)"/>
+  <text class="tag" x="94" y="140" text-anchor="end">red</text>
+  <path class="ln" d="M140 194 L140 78" marker-end="url(#arr-p03-fsm)"/>
+  <text class="tag" x="146" y="140">green</text>
+  <path class="ln" d="M345 112 L345 62" marker-end="url(#arr-p03-fsm)"/>
+  <text class="tag" x="339" y="92" text-anchor="end">junction</text>
+  <path class="ln" d="M375 62 L375 110" marker-end="url(#arr-p03-fsm)"/>
+  <text class="tag" x="381" y="92">straight</text>
+  <path class="ln" d="M430 140 L528 140" marker-end="url(#arr-p03-fsm)"/>
+  <text class="tag" x="479" y="132" text-anchor="middle">park_sign</text>
+  <path class="ln" d="M605 168 L605 204" marker-end="url(#arr-p03-fsm)"/>
+  <text class="tag" x="611" y="190">at_spot</text>
+  <path class="ln" d="M345 168 L345 226" marker-end="url(#arr-p03-fsm)"/>
+  <text class="tag" x="339" y="200" text-anchor="end">lane_lost · obstacle</text>
+  <path class="ln" d="M375 226 L375 170" stroke-dasharray="4 3" marker-end="url(#arr-p03-fsm)"/>
+  <text class="tag" x="381" y="200">found · clear</text>
+  <text class="sub" x="360" y="296" text-anchor="middle">표에 없는 (상태, 사건)은 무시 · 안전 사건은 표보다 먼저 검사</text>
+</svg><figcaption>미니 시티 FSM. A11의 FSM에 교차로 분기(TURN_R/TURN_S), 안전 상태(LOST·HOLD), 시간 제한을 더했습니다.</figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th>현재 상태</th><th>사건</th><th>다음 상태</th><th>진입 시 동작</th></tr></thead><tbody><tr><td>LANE</td><td><code>crosswalk</code></td><td>SLOW</td><td>서행 시작 시각 기록</td></tr><tr><td>SLOW</td><td><code>red</code></td><td>STOP</td><td>정지 명령 즉시 발행</td></tr><tr><td>STOP</td><td><code>green</code></td><td>SLOW</td><td></td></tr><tr><td>SLOW</td><td><code>passed</code></td><td>LANE</td><td></td></tr><tr><td>LANE</td><td><code>junction</code></td><td>TURN_R 또는 TURN_S</td><td>표지 기억(<code>memo</code>)을 읽고 <strong>지움</strong></td></tr><tr><td>TURN_R / TURN_S</td><td><code>straight</code></td><td>LANE</td><td>PID 초기화</td></tr><tr><td>LANE</td><td><code>park_sign</code></td><td>APPROACH</td><td></td></tr><tr><td>APPROACH</td><td><code>at_spot</code></td><td>PARK</td><td>주차 시작 위치(<code>/odom</code>) 기록</td></tr><tr><td>PARK</td><td><code>done</code></td><td>DONE</td><td>정지, 완주 시간 로그</td></tr><tr><td>(모든 상태)</td><td><code>lane_lost</code> / <code>obstacle</code></td><td>LOST / HOLD</td><td>이전 상태 저장, 정지</td></tr><tr><td>LOST / HOLD</td><td><code>lane_found</code> / <code>clear</code></td><td>이전 상태</td><td></td></tr><tr><td>STOP·LOST·HOLD</td><td>시간 초과</td><td>ABORT</td><td>정지, 부저·로그</td></tr></tbody></table></div>
+<h3 id="사건-정의">사건 정의<a class="anchor" href="#사건-정의">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>사건</th><th>원천 신호</th><th>확인 조건(디바운싱)</th><th>비고</th></tr></thead><tbody><tr><td><code>crosswalk</code></td><td>YOLO <code>crosswalk</code> 박스 중심 y &gt; 70</td><td>3프레임 연속</td><td>원본과 같은 문턱</td></tr><tr><td><code>red</code></td><td>YOLO <code>red</code></td><td><strong>1프레임</strong></td><td>멈추는 쪽은 빠르게</td></tr><tr><td><code>green</code></td><td>YOLO <code>green</code></td><td><strong>5프레임</strong></td><td>출발하는 쪽은 신중하게</td></tr><tr><td><code>passed</code></td><td>SLOW 진입 후 경과 시간</td><td>0.4 m / 서행 속도</td><td>원본 <code>crosswalk_length</code></td></tr><tr><td><code>sign_right</code></td><td>YOLO <code>right</code></td><td>5프레임</td><td>상태를 바꾸지 않고 기억만</td></tr><tr><td><code>junction</code></td><td><code>lane_x &gt; 150</code></td><td>6프레임 연속</td><td>원본 <code>count_turn &gt; 5</code></td></tr><tr><td><code>straight</code></td><td><code>lane_x ≤ 150</code> 그리고 회전 2 s 경과</td><td>1프레임</td><td>원본 시간 히스테리시스</td></tr><tr><td><code>park_sign</code></td><td><code>park</code> 보임 + 횡단보도 y &gt; 135</td><td>5프레임</td><td></td></tr><tr><td><code>at_spot</code></td><td>횡단보도 y &gt; 180</td><td>5프레임</td><td>원본 15프레임을 서행으로 보완</td></tr><tr><td><code>lane_lost</code></td><td><code>lane_x &lt; 0</code></td><td>3프레임 연속</td><td>원본에 없음</td></tr><tr><td><code>obstacle</code></td><td><code>/scan_raw</code> 전방 ±20° 최소 &lt; 0.25 m</td><td>2스캔</td><td>해제는 &gt; 0.35 m(히스테리시스)</td></tr></tbody></table></div>
+<p>빨간불과 초록불의 확인 프레임 수가 다른 것은 <strong>오류의 비용이 비대칭</strong>이기 때문입니다. 빨간불을 잘못 봐서 잠깐 서는 비용은 작지만, 초록불을 잘못 봐서 출발하는 비용은 큽니다.</p>
+<h2 id="단계별-구현">단계별 구현<a class="anchor" href="#단계별-구현">#</a></h2>
+<h3 id="m1-기준선-측정">M1. 기준선 측정<a class="anchor" href="#m1-기준선-측정">#</a></h3>
+<div class="callout callout-task"><div class="callout-title">M1 — 원본으로 한 바퀴</div><div class="callout-body"><ol><li>원본 통합 주행(<code>self_driving.launch.py</code>)을 코스에서 2회 실행하고 채점표로 점수를 매깁니다.</li><li>실패한 지점마다 "어떤 사건이 늦었나/빠졌나"를 적습니다. 예: "차선 상실 후 우회전 명령 유지로 맵 이탈".</li><li><code>ros2 bag record /controller/cmd_vel /yolov5_ros2/object_detect</code>로 기록해 둡니다. M6에서 개선 전후 비교에 씁니다.</li></ol></div></div>
+<div class="callout callout-check"><div class="callout-title">체크포인트 M1</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> 기준선 점수와 실패 원인 목록이 있다.</label></li><li><label class="check-item"><input type="checkbox"> 팀이 쓸 사건 이름 11개(위 표)를 합의했다.</label></li></ul></div></div>
+<h3 id="m2-fsm-골격과-사건-로그">M2. FSM 골격과 사건 로그<a class="anchor" href="#m2-fsm-골격과-사건-로그">#</a></h3>
+<p>전이표를 코드의 <strong>데이터</strong>(딕셔너리)로 두고, 순수 Python으로 사건 타임라인을 흘려 검증합니다(실습 1). 체크포인트: 팀이 걱정하는 상황(예: 빨간불 정지 중 차선 상실)을 타임라인에 넣어도 기대한 상태가 나오고, 전이표의 빈 칸을 "무시"로 둬도 되는지 한 칸씩 검토했다.</p>
+<h3 id="m3-차선-오차와-상실-처리">M3. 차선 오차와 상실 처리<a class="anchor" href="#m3-차선-오차와-상실-처리">#</a></h3>
+<p>원본의 ±0.1 뱅뱅 제어를 PD로 바꾸고, 차선이 없을 때의 동작을 정합니다(실습 2). 체크포인트: 맵 일부를 A4 용지로 덮으면 3프레임 안에 멈추고 치우면 다시 가며, 직선 20초 동안 조향 부호 반전 횟수를 원본과 비교했다.</p>
+<h3 id="m4-신호등-표지-사건">M4. 신호등·표지 사건<a class="anchor" href="#m4-신호등-표지-사건">#</a></h3>
+<p>YOLOv5 콜백에서 사건을 만들고, FSM은 사건만 봅니다. 표지 <code>right</code>는 <strong>상태를 바꾸지 않고 기억</strong>만 하고, 교차로(<code>junction</code>) 사건이 올 때 읽고 지웁니다. 체크포인트: 바퀴를 띄운 채 신호등을 바꾸면 <code>~/state</code>가 STOP↔SLOW로 바뀌고, 표지를 치우면 교차로에서 TURN_S가 로그에 찍힌다.</p>
+<h3 id="m5-교차로-회전과-폐루프-주차">M5. 교차로 회전과 폐루프 주차<a class="anchor" href="#m5-교차로-회전과-폐루프-주차">#</a></h3>
+<p>회전은 원본처럼 고정 각속도(−0.45 rad/s)로 돌되 <code>straight</code> 사건으로 끝냅니다. 주차는 메카넘 기준 <strong>옆으로 0.38 m</strong>(원본 값)를 시간 대신 <code>/odom</code> 이동 거리로 잽니다. 체크포인트: 실습 3의 시뮬 채점이 75/75이고, 실물 주차 3회 반복 편차가 2 cm 이하(원본 시간 기반과 비교)다.</p>
+<h3 id="m6-통합-리허설">M6. 통합 리허설<a class="anchor" href="#m6-통합-리허설">#</a></h3>
+<div class="callout callout-task"><div class="callout-title">M6 — 본선 전 리허설</div><div class="callout-body"><ol><li>본선 규칙 그대로 2회 시행하고 채점합니다. 심판 역할은 다른 팀이 맡으면 좋습니다.</li><li>안전 시연(M6 구역): 주행 중 상자를 차로에 놓고 HOLD → 치우면 원래 상태로 복귀하는지 봅니다.</li><li>M1의 기록과 같은 형식으로 rosbag을 남겨 <strong>개선 전후 표</strong>를 만듭니다(서행 속도, 조향 반전 횟수, 주차 편차, 차선 상실 후 이동 거리).</li></ol></div></div>
+<h2 id="실습-시뮬레이션">실습 (시뮬레이션)<a class="anchor" href="#실습-시뮬레이션">#</a></h2>
+<p>아래 <code>▶ 실행</code> 블록은 강의 페이지 안에서 바로 돌아가며, 결과 패널에 로그와 함께 <strong>2D·3D 리플레이</strong>가 자동으로 표시됩니다(실습 3). 브라우저 Playground에는 카메라·YOLO가 없으므로, 인식 결과를 <strong>사건 타임라인</strong>(실습 1), <strong>샘플 영상</strong>(실습 2), <strong>실제 자세로 흉내 낸 차선 인식</strong>(실습 3)으로 대신합니다.</p>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
+<h3 id="실습-1-전이표-fsm과-사건-타임라인">실습 1: 전이표 FSM과 사건 타임라인<a class="anchor" href="#실습-1-전이표-fsm과-사건-타임라인">#</a></h3>
+<p>전이표·안전 전이·복귀·시간 제한·표지 기억 소비를 모두 담은 순수 Python FSM입니다. 사건은 인식 계층이 디바운싱을 마친 뒤라고 가정합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python"># 미니 시티 FSM: 상태 × 사건 → 다음 상태 (+ 공통 안전 전이, 시간 제한, 이벤트 소비)
+SPEED = {&quot;LANE&quot;: 0.12, &quot;SLOW&quot;: 0.06, &quot;STOP&quot;: 0.0, &quot;TURN_R&quot;: 0.08, &quot;TURN_S&quot;: 0.10,
+         &quot;APPROACH&quot;: 0.06, &quot;PARK&quot;: 0.0, &quot;LOST&quot;: 0.0, &quot;HOLD&quot;: 0.0, &quot;DONE&quot;: 0.0}
+TABLE = {(&quot;LANE&quot;, &quot;crosswalk&quot;): &quot;SLOW&quot;,    (&quot;SLOW&quot;, &quot;red&quot;): &quot;STOP&quot;,
+         (&quot;STOP&quot;, &quot;green&quot;): &quot;SLOW&quot;,        (&quot;SLOW&quot;, &quot;passed&quot;): &quot;LANE&quot;,
+         (&quot;LANE&quot;, &quot;junction&quot;): &quot;TURN?&quot;,    # 표지 기억에 따라 TURN_R / TURN_S
+         (&quot;TURN_R&quot;, &quot;straight&quot;): &quot;LANE&quot;,   (&quot;TURN_S&quot;, &quot;straight&quot;): &quot;LANE&quot;,
+         (&quot;LANE&quot;, &quot;park_sign&quot;): &quot;APPROACH&quot;, (&quot;APPROACH&quot;, &quot;at_spot&quot;): &quot;PARK&quot;,
+         (&quot;PARK&quot;, &quot;done&quot;): &quot;DONE&quot;}
+SAFETY = {&quot;obstacle&quot;: &quot;HOLD&quot;, &quot;lane_lost&quot;: &quot;LOST&quot;}         # 어느 상태에서든 우선
+RESUME = {&quot;clear&quot;: &quot;HOLD&quot;, &quot;lane_found&quot;: &quot;LOST&quot;}           # 해제 사건 → 이전 상태로 복귀
+TIMEOUT = {&quot;STOP&quot;: 20.0, &quot;LOST&quot;: 3.0, &quot;HOLD&quot;: 10.0}        # 초과하면 ABORT
+
+timeline = [(1.0, &quot;sign_right&quot;), (3.0, &quot;crosswalk&quot;), (3.5, &quot;red&quot;), (9.0, &quot;green&quot;),
+            (11.0, &quot;passed&quot;), (12.0, &quot;lane_lost&quot;), (12.8, &quot;lane_found&quot;),
+            (15.0, &quot;junction&quot;), (18.0, &quot;straight&quot;), (19.0, &quot;obstacle&quot;), (22.0, &quot;clear&quot;),
+            (24.0, &quot;junction&quot;), (27.0, &quot;straight&quot;), (30.0, &quot;park_sign&quot;),
+            (34.0, &quot;at_spot&quot;), (37.0, &quot;done&quot;)]
+
+state, prev, memo, t_in, dist, t_prev = &quot;LANE&quot;, None, None, 0.0, 0.0, 0.0
+for t, ev in timeline:
+    if state in TIMEOUT and t - t_in &gt; TIMEOUT[state]:
+        print(&quot;%5.1fs 시간 초과 → ABORT&quot; % t)
+        break
+    dist += SPEED[state] * (t - t_prev)
+    t_prev = t
+    if ev.startswith(&quot;sign_&quot;):                             # 표지는 상태를 바꾸지 않고 기억만
+        memo = ev[5:]
+        print(&quot;%5.1fs %-10s 표지 기억: %s&quot; % (t, ev, memo))
+        continue
+    if ev in SAFETY and state not in SAFETY.values():
+        nxt, prev = SAFETY[ev], state
+    elif ev in RESUME and state == RESUME[ev]:
+        nxt = prev
+    else:
+        nxt = TABLE.get((state, ev))
+    if nxt == &quot;TURN?&quot;:
+        nxt, memo = (&quot;TURN_R&quot; if memo == &quot;right&quot; else &quot;TURN_S&quot;), None   # 기억을 소비
+    if nxt is None:
+        print(&quot;%5.1fs %-10s 무시 (상태 %s)&quot; % (t, ev, state))
+        continue
+    print(&quot;%5.1fs %-10s %-8s → %-8s v=%.2f  누적 %.2f m&quot; % (t, ev, state, nxt, SPEED[nxt], dist))
+    state, t_in = nxt, t
+print(&quot;최종 상태:&quot;, state)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">  1.0s sign_right 표지 기억: right
+  3.0s crosswalk  LANE     → SLOW     v=0.06  누적 0.36 m
+  3.5s red        SLOW     → STOP     v=0.00  누적 0.39 m
+  9.0s green      STOP     → SLOW     v=0.06  누적 0.39 m
+ 11.0s passed     SLOW     → LANE     v=0.12  누적 0.51 m
+ 12.0s lane_lost  LANE     → LOST     v=0.00  누적 0.63 m
+ 12.8s lane_found LOST     → LANE     v=0.12  누적 0.63 m
+ 15.0s junction   LANE     → TURN_R   v=0.08  누적 0.89 m
+ 18.0s straight   TURN_R   → LANE     v=0.12  누적 1.13 m
+ 19.0s obstacle   LANE     → HOLD     v=0.00  누적 1.25 m
+ 22.0s clear      HOLD     → LANE     v=0.12  누적 1.25 m
+ 24.0s junction   LANE     → TURN_S   v=0.10  누적 1.49 m
+ 27.0s straight   TURN_S   → LANE     v=0.12  누적 1.79 m
+ 30.0s park_sign  LANE     → APPROACH v=0.06  누적 2.15 m
+ 34.0s at_spot    APPROACH → PARK     v=0.00  누적 2.39 m
+ 37.0s done       PARK     → DONE     v=0.00  누적 2.39 m
+최종 상태: DONE</code></pre></div>
+<ul><li>1.0 s의 <code>sign_right</code>는 기억만 되고, 15.0 s 첫 교차로에서 <strong>소비</strong>되어 TURN_R, 24.0 s 두 번째 교차로에서는 기억이 비어 TURN_S가 됩니다. 원본의 <code>turn_right</code> 플래그는 한 번 서면 계속 남습니다.</li><li><code>lane_lost</code>(12.0 s)와 <code>obstacle</code>(19.0 s)은 속도를 0으로 만들고, 해제되면 <strong>들어오기 전 상태</strong>로 돌아갑니다.</li><li>서행 0.06 m/s가 차선 유지 0.12 m/s와 다릅니다(원본은 둘 다 0.1). 9.0 s의 <code>green</code>을 30.0 s로 옮기면 STOP 제한 20 s를 넘겨 ABORT가 나와야 합니다.</li></ul>
+<h3 id="실습-2-차선-중심-오차와-차선-상실-처리">실습 2: 차선 중심 오차와 차선 상실 처리<a class="anchor" href="#실습-2-차선-중심-오차와-차선-상실-처리">#</a></h3>
+<p>샘플 <code>lane.png</code>(왼쪽 흰 선, 오른쪽 노란 선)로 차로 중심 오차를 구하고, 가림·반사광·차선 없음 프레임을 차례로 넣어 <strong>3프레임 규칙</strong>이 어떻게 동작하는지 봅니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import numpy as np
+import cv2
+
+img = cv2.imread(&quot;lane.png&quot;)                           # BGR 640x480, 왼쪽 흰 선·오른쪽 노란 선
+BANDS = ((400, 420, 0.7), (330, 350, 0.2), (270, 290, 0.1))
+V_LANE, V_LOST, MISS_MAX = 0.12, 0.0, 3                # 차선 3프레임 연속 미검출 → 정지
+
+HALF = {400: 139, 330: 93, 270: 54}                    # 띠별 차로 반폭 [px] (정상 영상에서 잰 값)
+
+def line_x(mask):                                      # 선 하나의 x. 없거나 너무 넓으면(반사광) None
+    xs = np.nonzero(mask)[1]
+    return None if len(xs) &lt; 20 or np.ptp(xs) &gt; 60 else xs.mean()
+
+def lane_error(bgr):
+    lab = cv2.cvtColor(bgr, cv2.COLOR_BGR2LAB)
+    yel = cv2.inRange(lab, (135, 100, 160), (255, 150, 255))   # A09에서 이 영상에 맞춘 값
+    wht = cv2.inRange(lab, (200, 118, 118), (255, 138, 138))
+    err = 0.0
+    for y0, y1, w in BANDS:
+        xy, xw = line_x(yel[y0:y1]), line_x(wht[y0:y1])
+        if xy is None and xw is None:
+            return None                                # 두 선 모두 없음 → 미검출
+        if xy is None:
+            cx = xw + HALF[y0]                         # 한 선만 보이면 반폭으로 중심 추정
+        elif xw is None:
+            cx = xy - HALF[y0]
+        else:
+            cx = (xy + xw) / 2
+        err += w * (cx - bgr.shape[1] / 2)
+    return err
+
+def frames():
+    yield &quot;정상&quot;, img
+    yield &quot;오른쪽 30px 이동&quot;, np.roll(img, 30, axis=1)
+    g = img.copy()
+    g[260:430, 400:640] = 0                            # 노란 선 쪽이 가려짐(그림자·소품)
+    yield &quot;노란선 가림&quot;, g
+    g = img.copy()
+    g[260:430, 380:640] = 235                          # 강한 반사광: 흰 덩어리
+    yield &quot;반사광&quot;, g
+    for k in range(3):
+        yield &quot;차선 없음 %d&quot; % (k + 1), np.full_like(img, 90)   # 맵 밖/그림자
+    yield &quot;복귀&quot;, img
+
+miss = 0
+for name, f in frames():
+    e = lane_error(f)
+    miss = 0 if e is not None else miss + 1
+    if e is None:
+        v, w, st = (V_LANE if miss &lt; MISS_MAX else V_LOST), 0.0, &quot;LOST&quot; if miss &gt;= MISS_MAX else &quot;COAST&quot;
+    else:
+        v, w, st = V_LANE, float(np.clip(-0.004 * e, -0.5, 0.5)), &quot;LANE&quot;
+    print(&quot;%-14s 오차 %7s px  miss=%d  %-5s v=%.2f ω=%+.3f&quot;
+          % (name, &quot;없음&quot; if e is None else &quot;%+.1f&quot; % e, miss, st, v, w))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">정상             오차   +10.8 px  miss=0  LANE  v=0.12 ω=-0.043
+오른쪽 30px 이동    오차   +40.8 px  miss=0  LANE  v=0.12 ω=-0.163
+노란선 가림         오차   +10.7 px  miss=0  LANE  v=0.12 ω=-0.043
+반사광            오차      없음 px  miss=1  COAST v=0.12 ω=+0.000
+차선 없음 1        오차      없음 px  miss=2  COAST v=0.12 ω=+0.000
+차선 없음 2        오차      없음 px  miss=3  LOST  v=0.00 ω=+0.000
+차선 없음 3        오차      없음 px  miss=4  LOST  v=0.00 ω=+0.000
+복귀             오차   +10.8 px  miss=0  LANE  v=0.12 ω=-0.043</code></pre></div>
+<ul><li><strong>노란 선이 가려져도</strong> 흰 선 + 차로 반폭으로 중심을 추정해 정상과 거의 같은 오차(+10.7 px)를 냅니다. 반폭은 원근 때문에 띠마다 다릅니다(139/93/54 px).</li><li><strong>반사광</strong>은 흰색 임계값을 통과하는 넓은 덩어리를 만듭니다. 픽셀 분포 폭(<code>np.ptp</code>)이 60 px를 넘으면 선이 아니라고 보고 버려서, 엉뚱한 +280 px 오차로 급조향하는 일을 막습니다(검사를 지우고 실행해 비교해 보세요).</li><li>미검출 1~2프레임은 조향 0으로 <strong>관성 주행(COAST)</strong>하고, 3프레임째부터 정지합니다. 30 fps에서 0.1 s, 0.12 m/s로 1.2 cm만 더 가고 멈춥니다. 원본은 이 상황에서 마지막 명령을 무한히 유지합니다.</li></ul>
+<h3 id="실습-3-도시-순환-주행-신호등-횡단보도-교차로-주차">실습 3: 도시 순환 주행 — 신호등·횡단보도·교차로·주차<a class="anchor" href="#실습-3-도시-순환-주행-신호등-횡단보도-교차로-주차">#</a></h3>
+<p><code>empty</code> 월드에 차로 중심선 네 점으로 된 순환 도로를 두고, <strong>시간으로 바뀌는 가상 신호등</strong>(0~5 s 빨강)과 정지선(x = −0.9 m), 횡단보도(x −0.85 ~ −0.65 m), 상자 세 개로 둘러싼 주차 칸을 만듭니다. 차선 인식은 시뮬 전용 <code>sim.pose()</code>로 차로 중심선에 대한 횡오차·방향 오차를 계산해 대신하고(실물에서는 <code>LaneDetector</code>), 라이다 <code>/scan</code>으로 전방 장애물을 감시합니다. 교차로는 반경 0.3 m 호(0.15 m/s, 0.5 rad/s)로 돌고, 주차는 메카넘 옆걸음(원본 <code>park_action()</code>의 <code>linear.y = −0.2</code>)입니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><button class="pg-btn" type="button" data-playground="../playground" title="Playground에서 편집">Playground</button><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">import math
+import time
+import rclpy
+from rclpy.node import Node
+from geometry_msgs.msg import Twist
+from sensor_msgs.msg import LaserScan
+import mentorpi_sim as sim                                    # 시뮬 전용
+sim.setup(chassis=&quot;mecanum&quot;, world=&quot;empty&quot;, duration=30.0,
+          start=(-1.3, -0.9, 0.0), noise=True)                # 시뮬 전용
+for bx in (-0.12, -0.68):
+    sim.add_box(bx, 0.85, 0.06, 0.4)                           # 시뮬 전용: 주차 칸 옆벽
+sim.add_box(-0.4, 1.1, 0.62, 0.06)                             # 시뮬 전용: 주차 칸 뒷벽
+
+ROUTE = [(-1.3, -0.9), (0.5, -0.9), (0.5, 0.4), (-0.4, 0.4)]  # 순환 도로 차로 중심선
+STOP_X, CROSS, SLOT = -0.9, (-0.85, -0.65), (-0.4, 0.85)       # 정지선, 횡단보도, 주차 칸 중심
+V = {&quot;LANE&quot;: 0.2, &quot;SLOW&quot;: 0.1, &quot;STOP&quot;: 0.0, &quot;TURN&quot;: 0.15, &quot;PARK&quot;: 0.0}
+light = lambda t: &quot;red&quot; if t &lt; 5.0 else &quot;green&quot;                # 가상 신호등 (시간으로 바뀜)
+
+class CityDriver(Node):
+    def __init__(self):
+        super().__init__(&quot;city_driver&quot;)
+        self.pub = self.create_publisher(Twist, &quot;/cmd_vel&quot;, 1)
+        self.create_subscription(LaserScan, &quot;/scan&quot;, self.on_scan, 1)
+        self.state, self.seg, self.front, self.violation, self.slow_v = &quot;LANE&quot;, 0, 9.9, False, 0.0
+        self.t0 = self.t_enter = time.time()
+        self.create_timer(0.05, self.step)
+
+    def on_scan(self, msg):
+        n = len(msg.ranges)
+        self.front = min(msg.ranges[n // 2 - 15: n // 2 + 16])   # 전방 ±15° (인덱스 n/2 = 0°)
+
+    def go(self, s):
+        print(&quot;%5.1fs  %-5s → %s&quot; % (time.time() - self.t0, self.state, s))
+        self.state, self.t_enter = s, time.time()
+
+    def step(self):
+        t, st = time.time() - self.t0, self.state
+        x, y, th = sim.pose()                                  # 시뮬 전용: 차선 인식 대용
+        (ax, ay), (bx, by) = ROUTE[self.seg], ROUTE[self.seg + 1]
+        hd = math.atan2(by - ay, bx - ax)
+        e = -(x - ax) * math.sin(hd) + (y - ay) * math.cos(hd)   # 횡오차(왼쪽 +)
+        psi = math.atan2(math.sin(th - hd), math.cos(th - hd))    # 방향 오차
+        left = (bx - x) * math.cos(hd) + (by - y) * math.sin(hd)  # 구간 끝까지 거리
+        if self.seg == 0 and x &gt; STOP_X and light(t) == &quot;red&quot;:
+            self.violation = True                               # 빨간불에 정지선 통과
+        if st == &quot;LANE&quot; and self.seg == 0 and light(t) == &quot;red&quot; and 0 &lt; STOP_X - x &lt; 0.06:
+            self.go(&quot;STOP&quot;)
+        elif st == &quot;STOP&quot; and light(t) == &quot;green&quot; or st == &quot;LANE&quot; and CROSS[0] &lt; x &lt; CROSS[1] and self.seg == 0:
+            self.go(&quot;SLOW&quot;)
+        elif st == &quot;SLOW&quot; and x &gt;= CROSS[1]:
+            self.go(&quot;LANE&quot;)
+        elif st == &quot;LANE&quot; and self.seg &lt; len(ROUTE) - 2 and left &lt; 0.3:
+            self.go(&quot;TURN&quot;)                                     # 반경 0.3 m 호로 회전
+        elif st == &quot;LANE&quot; and left &lt; 0.02:
+            self.go(&quot;PARK&quot;)
+        cmd, st = Twist(), self.state
+        if st == &quot;TURN&quot;:
+            nx, ny = ROUTE[self.seg + 2]
+            err = math.atan2(ny - by, nx - bx) - th
+            err = math.atan2(math.sin(err), math.cos(err))
+            cmd.linear.x, cmd.angular.z = V[&quot;TURN&quot;], math.copysign(0.5, err)
+            if abs(err) &lt; 0.05:
+                self.seg += 1
+                self.go(&quot;LANE&quot;)
+        elif st == &quot;PARK&quot;:                                     # 메카넘: 오른쪽으로 평행 이동
+            cmd.linear.y = -0.2
+            if time.time() - self.t_enter &gt; 0.45 / 0.2:
+                self.finish(t, x, y, psi)
+        elif st in (&quot;LANE&quot;, &quot;SLOW&quot;):
+            cmd.linear.x = V[st] if self.front &gt; 0.25 else 0.0     # 전방 장애물이면 정지
+            cmd.angular.z = max(-0.5, min(0.5, -3.0 * e - 1.5 * psi))
+            if st == &quot;SLOW&quot;:
+                self.slow_v = max(self.slow_v, cmd.linear.x)
+        self.pub.publish(cmd)
+
+    def finish(self, t, x, y, psi):
+        ex, ey = x - SLOT[0], y - SLOT[1]
+        park = 20 if max(abs(ex), abs(ey)) &lt;= 0.03 and abs(math.degrees(psi)) &lt;= 10 else 15
+        score = 20 + (0 if self.violation else 15) + (10 if self.slow_v &lt;= 0.1 else 0) + 10 + park
+        print(&quot;완주 %.1f s | 주차 오차 x %+.2f y %+.2f m, 자세 %+.1f°&quot; % (t, ex, ey, math.degrees(psi)))
+        print(&quot;신호 위반 %s, 서행 최고 %.2f m/s → 시뮬 채점 %d / 75&quot; % (self.violation, self.slow_v, score))
+        raise SystemExit
+
+rclpy.init()
+node = CityDriver()
+try:
+    rclpy.spin(node)
+except (KeyboardInterrupt, SystemExit):
+    pass
+finally:
+    node.pub.publish(Twist())
+    node.destroy_node()
+    rclpy.shutdown()</code></pre></div>
+<p>(대략)</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">  2.0s  LANE  → STOP
+  5.0s  STOP  → SLOW
+  8.1s  SLOW  → LANE
+ 12.6s  LANE  → TURN
+ 15.8s  TURN  → LANE
+ 19.7s  LANE  → TURN
+ 22.9s  TURN  → LANE
+ 26.1s  LANE  → PARK
+완주 28.4 s | 주차 오차 x -0.00 y -0.02 m, 자세 +0.5°
+신호 위반 False, 서행 최고 0.10 m/s → 시뮬 채점 75 / 75</code></pre></div>
+<p>결과 패널의 2D·3D 리플레이에서 확인할 점:</p>
+<ul><li>2.0 s에 정지선 6 cm 앞에서 STOP, 5.0 s 초록불에 SLOW로 출발합니다. 빨간불 동안 정지선을 넘지 않았으므로 신호 위반이 <code>False</code>입니다.</li><li>서행 구간의 최고 속도가 0.10 m/s로 차선 유지(0.2 m/s, 시뮬 <code>/cmd_vel</code> 상한)와 구분됩니다. 30 s 안에 끝내려고 시뮬에서는 실물보다 빠르게 달립니다.</li><li>두 번의 TURN이 각각 약 3.2 s입니다. 90°를 0.5 rad/s로 돌면 <span class="math">π/2 ÷ 0.5 ≈ 3.1</span> s이므로, 각속도 한계가 곧 코너 시간의 하한입니다.</li><li>주차 오차가 수 cm 이내입니다. 시뮬에서도 시간(0.45/0.2 s) 기반이지만, 실물에서는 바퀴 미끄러짐 때문에 같은 시간이 다른 거리가 되므로 <code>/odom</code> 거리로 바꿉니다(실물 코드 참고).</li><li><code>light()</code>의 5.0을 8.0으로 바꾸면 완주가 30 s를 넘겨 DONE 줄이 안 나옵니다. 시간 점수와 신호 대기의 관계를 체감해 보세요. <code>sim.add_box(0.0, -0.9, 0.1, 0.1)</code>로 차로에 상자를 두면 전방 감시로 멈춥니다(F7).</li></ul>
+<p>2D 시뮬레이터의 <strong>라인 트레이싱</strong> 모드에서는 트랙 월드의 커브마다 "LANE → TURN → LANE" 사건이 일어나는 위치를 관찰하고, 실습 1의 타임라인을 실제 코스 길이에 맞게 고쳐 보세요.</p>
+<p class="cta-row"><a class="ghost-btn cta" href="../sim/index.html">2D 시뮬레이터 열기</a></p>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">실물 챌린지 안전 수칙</div><div class="callout-body"><ul><li>코스 둘레 1 m를 비우고, <strong>심판 1명은 항상 로봇 옆에서 따라가며</strong> 들어 올릴 준비를 합니다. 들어 올리면 개입 감점이지만 안전이 먼저입니다.</li><li>팀 노드의 속도표는 LANE 0.12 / SLOW 0.06 / 회전 0.45 rad/s를 넘기지 않습니다. 시간 점수를 위해 한계를 올리지 않습니다.</li><li>처음 실행은 반드시 <strong>바퀴를 띄운 상태</strong>(받침대)에서 <code>~/state</code> 전이와 명령 부호를 확인한 뒤 바닥에 내립니다.</li><li>비상 정지 순서: <code>ros2 service call /city_fsm/set_running std_srvs/srv/SetBool &quot;{data: false}&quot;</code> → 노드 터미널 <code>Ctrl+C</code> → 전원 스위치.</li><li>주차 칸 벽·소품은 가벼운 종이 상자로 만듭니다. 원본 <code>park_action()</code>의 애커만 각속도(0.573 rad/s)는 권장 한계를 넘으니 애커만 팀은 속도를 낮춰 씁니다.</li></ul></div></div>
+<h3 id="1-기준선-원본-통합-주행">1. 기준선: 원본 통합 주행<a class="anchor" href="#1-기준선-원본-통합-주행">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">~/.stop_ros.sh
+ros2 launch example self_driving.launch.py
+# 다른 터미널: 결과 영상과 기록
+rqt
+ros2 bag record -o baseline /controller/cmd_vel /yolov5_ros2/object_detect</code></pre></div>
+<h3 id="2-팀-노드-실행">2. 팀 노드 실행<a class="anchor" href="#2-팀-노드-실행">#</a></h3>
+<p>원본 launch 대신 구성 요소를 따로 띄우고 팀 노드를 실행합니다. <code>self_driving.launch.py</code>가 켜 두는 카메라·컨트롤러·YOLOv5와 같은 구성에, 안전 감시용 라이다를 더한 것입니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">~/.stop_ros.sh
+ros2 launch peripherals depth_camera.launch.py                                  # 터미널 1
+ros2 launch controller controller.launch.py                                     # 터미널 2
+ros2 launch peripherals lidar.launch.py                                         # 터미널 3
+ros2 launch yolov5_ros2 yolov5_ros2.launch.py model:=&quot;traffic_signs_640s_7_0&quot;   # 터미널 4
+ros2 service call /yolov5/start std_srvs/srv/Trigger {}                         # 원본과 같은 시작 요청
+python3 ~/city_fsm.py                                                           # 터미널 5</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">ros2 topic echo /city_fsm/state                       # 전이 로그
+ros2 bag record -o run1 /city_fsm/state /controller/cmd_vel /yolov5_ros2/object_detect</code></pre></div>
+<h3 id="3-팀-노드-코드-cityfsm-py">3. 팀 노드 코드 (<code>city_fsm.py</code>)<a class="anchor" href="#3-팀-노드-코드-cityfsm-py">#</a></h3>
+<p>원본 <code>LaneDetector</code>와 YOLOv5 메시지를 그대로 쓰고, 위의 전이표·사건 정의·안전 한계를 구현한 골격입니다. 메카넘 섀시 기준이며, 애커만은 <code>drive()</code>의 각속도를 <span class="math">v·tan δ / 0.145</span>로 바꾸고 주차를 A11의 3단계 동작으로 바꿔야 합니다.</p>
+<div class="code-block code-robot"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-robot">실물 전용</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python">#!/usr/bin/env python3
+import math
+import numpy as np
+import rclpy
+from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
+from cv_bridge import CvBridge
+from sensor_msgs.msg import Image, LaserScan
+from geometry_msgs.msg import Twist
+from nav_msgs.msg import Odometry
+from std_msgs.msg import String
+from std_srvs.srv import SetBool
+from interfaces.msg import ObjectsInfo
+from example.self_driving.lane_detect import LaneDetector
+
+SPEED = {&quot;LANE&quot;: 0.12, &quot;SLOW&quot;: 0.06, &quot;STOP&quot;: 0.0, &quot;TURN_R&quot;: 0.08, &quot;TURN_S&quot;: 0.10,
+         &quot;APPROACH&quot;: 0.06, &quot;PARK&quot;: 0.0, &quot;LOST&quot;: 0.0, &quot;HOLD&quot;: 0.0, &quot;DONE&quot;: 0.0, &quot;ABORT&quot;: 0.0}
+TABLE = {(&quot;LANE&quot;, &quot;crosswalk&quot;): &quot;SLOW&quot;, (&quot;SLOW&quot;, &quot;red&quot;): &quot;STOP&quot;, (&quot;STOP&quot;, &quot;green&quot;): &quot;SLOW&quot;,
+         (&quot;SLOW&quot;, &quot;passed&quot;): &quot;LANE&quot;, (&quot;LANE&quot;, &quot;junction&quot;): &quot;TURN?&quot;,
+         (&quot;TURN_R&quot;, &quot;straight&quot;): &quot;LANE&quot;, (&quot;TURN_S&quot;, &quot;straight&quot;): &quot;LANE&quot;,
+         (&quot;LANE&quot;, &quot;park_sign&quot;): &quot;APPROACH&quot;, (&quot;APPROACH&quot;, &quot;at_spot&quot;): &quot;PARK&quot;, (&quot;PARK&quot;, &quot;done&quot;): &quot;DONE&quot;}
+NEED = {&quot;crosswalk&quot;: 3, &quot;red&quot;: 1, &quot;green&quot;: 5, &quot;sign_right&quot;: 5, &quot;junction&quot;: 6,
+        &quot;park_sign&quot;: 5, &quot;at_spot&quot;: 5, &quot;lane_lost&quot;: 3, &quot;obstacle&quot;: 2}
+TIMEOUT = {&quot;STOP&quot;: 20.0, &quot;LOST&quot;: 3.0, &quot;HOLD&quot;: 10.0}
+SETPOINT, KP, KD, W_MAX, PARK_DIST = 130, 0.004, 0.002, 0.3, 0.38
+
+class CityFsm(Node):
+    def __init__(self):
+        super().__init__(&#x27;city_fsm&#x27;)
+        self.state, self.prev, self.memo, self.running = &quot;LANE&quot;, &quot;LANE&quot;, None, True
+        self.hits, self.last_err, self.odom, self.park0 = {}, 0.0, (0.0, 0.0), None
+        self.t_in = self.t_img = self.now()
+        self.lane, self.bridge = LaneDetector(&quot;yellow&quot;), CvBridge()
+        self.pub = self.create_publisher(Twist, &#x27;/controller/cmd_vel&#x27;, 1)
+        self.state_pub = self.create_publisher(String, &#x27;~/state&#x27;, 10)
+        self.create_subscription(Image, &#x27;/ascamera/camera_publisher/rgb0/image&#x27;, self.on_image, 1)
+        self.create_subscription(ObjectsInfo, &#x27;/yolov5_ros2/object_detect&#x27;, self.on_objects, 1)
+        self.create_subscription(LaserScan, &#x27;/scan_raw&#x27;, self.on_scan, qos_profile_sensor_data)
+        self.create_subscription(Odometry, &#x27;/odom&#x27;, self.on_odom, 10)
+        self.create_service(SetBool, &#x27;~/set_running&#x27;, self.on_set_running)
+        self.create_timer(0.1, self.watchdog)
+
+    def now(self):
+        return self.get_clock().now().nanoseconds * 1e-9
+    def seen(self, name, ok):                        # 디바운싱: NEED번 연속이면 사건 발생
+        self.hits[name] = self.hits.get(name, 0) + 1 if ok else 0
+        if self.hits[name] == NEED.get(name, 1):
+            self.event(name)
+    def event(self, ev):
+        if ev == &quot;sign_right&quot;:
+            self.memo = &quot;right&quot;
+            return
+        if ev in (&quot;lane_lost&quot;, &quot;obstacle&quot;) and self.state not in (&quot;LOST&quot;, &quot;HOLD&quot;, &quot;DONE&quot;, &quot;ABORT&quot;):
+            nxt, self.prev = (&quot;LOST&quot; if ev == &quot;lane_lost&quot; else &quot;HOLD&quot;), self.state
+        elif (ev, self.state) in ((&quot;lane_found&quot;, &quot;LOST&quot;), (&quot;clear&quot;, &quot;HOLD&quot;)):
+            nxt = self.prev
+        else:
+            nxt = TABLE.get((self.state, ev))
+        if nxt == &quot;TURN?&quot;:
+            nxt, self.memo = (&quot;TURN_R&quot; if self.memo == &quot;right&quot; else &quot;TURN_S&quot;), None
+        if nxt:
+            self.go(nxt, ev)
+    def go(self, nxt, why):
+        self.get_logger().info(&#x27;%s --%s--&gt; %s&#x27; % (self.state, why, nxt))
+        self.state, self.t_in = nxt, self.now()
+        self.state_pub.publish(String(data=nxt))
+        if nxt == &quot;PARK&quot;:
+            self.park0 = self.odom
+    def on_objects(self, msg):
+        cw = max([(o.box[1] + o.box[3]) / 2 for o in msg.objects if o.class_name == &#x27;crosswalk&#x27;] + [0])
+        names = {o.class_name for o in msg.objects}
+        self.seen(&quot;crosswalk&quot;, cw &gt; 70)
+        self.seen(&quot;red&quot;, &quot;red&quot; in names)
+        self.seen(&quot;green&quot;, &quot;green&quot; in names)
+        self.seen(&quot;sign_right&quot;, &quot;right&quot; in names)            # go 표지는 기억할 필요 없음
+        self.seen(&quot;park_sign&quot;, &quot;park&quot; in names and cw &gt; 135)
+        self.seen(&quot;at_spot&quot;, self.state == &quot;APPROACH&quot; and cw &gt; 180)
+
+    def on_scan(self, msg):
+        near = [r for i, r in enumerate(msg.ranges)
+                if abs(msg.angle_min + i * msg.angle_increment) &lt; math.radians(20) and 0.05 &lt; r &lt; 12.0]
+        d = min(near + [9.9])
+        self.seen(&quot;obstacle&quot;, d &lt; 0.25)
+        if self.state == &quot;HOLD&quot; and d &gt; 0.35:
+            self.event(&quot;clear&quot;)
+    def on_odom(self, msg):
+        self.odom = (msg.pose.pose.position.x, msg.pose.pose.position.y)
+    def on_set_running(self, req, res):
+        self.running = req.data
+        self.pub.publish(Twist())
+        res.success = True
+        return res
+    def on_image(self, msg):
+        self.t_img = self.now()
+        img = np.array(self.bridge.imgmsg_to_cv2(msg, &quot;rgb8&quot;), dtype=np.uint8)
+        _, _, lane_x = self.lane(self.lane.get_binary(img), img.copy())
+        self.seen(&quot;lane_lost&quot;, lane_x &lt; 0)
+        if lane_x &gt;= 0 and self.state == &quot;LOST&quot;:
+            self.event(&quot;lane_found&quot;)
+        self.seen(&quot;junction&quot;, self.state == &quot;LANE&quot; and lane_x &gt; 150)
+        if self.state in (&quot;TURN_R&quot;, &quot;TURN_S&quot;) and 0 &lt;= lane_x &lt;= 150 and self.now() - self.t_in &gt; 2.0:
+            self.event(&quot;straight&quot;)
+        if self.state == &quot;SLOW&quot; and self.now() - self.t_in &gt; 0.4 / SPEED[&quot;SLOW&quot;]:
+            self.event(&quot;passed&quot;)
+        self.drive(lane_x)
+    def drive(self, lane_x):
+        t = Twist()
+        if self.running and self.state == &quot;PARK&quot;:            # 폐루프 주차: 옆으로 0.38 m
+            moved = math.dist(self.odom, self.park0)
+            t.linear.y = -0.15 if moved &lt; PARK_DIST else 0.0
+            if moved &gt;= PARK_DIST:
+                self.event(&quot;done&quot;)
+        elif self.running and SPEED[self.state] &gt; 0 and lane_x &gt;= 0:
+            t.linear.x = SPEED[self.state]
+            if self.state == &quot;TURN_R&quot;:
+                t.angular.z = -0.45                          # 원본 회전 각속도
+            else:
+                err = SETPOINT - lane_x
+                t.angular.z = float(np.clip(KP * err + KD * (err - self.last_err), -W_MAX, W_MAX))
+                self.last_err = err
+        self.pub.publish(t)                                  # 정지도 명시적으로 발행
+    def watchdog(self):
+        if self.now() - self.t_img &gt; 0.5:
+            self.pub.publish(Twist())                        # 영상이 끊기면 정지
+        if self.state in TIMEOUT and self.now() - self.t_in &gt; TIMEOUT[self.state]:
+            self.go(&quot;ABORT&quot;, &quot;timeout&quot;)
+
+def main():
+    rclpy.init()
+    node = CityFsm()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        node.pub.publish(Twist())
+        node.destroy_node()
+        rclpy.shutdown()
+
+if __name__ == &#x27;__main__&#x27;:
+    main()</code></pre></div>
+<p>코드에서 짚을 점:</p>
+<ul><li><code>drive()</code>는 <strong>모든 프레임에서</strong> Twist를 발행합니다. 속도가 0이어야 하는 상태(STOP·LOST·HOLD·ABORT)에서도 0을 명시적으로 보내므로, 원본처럼 마지막 명령이 남지 않습니다.</li><li><code>seen()</code>은 연속 횟수가 <code>NEED</code>와 <strong>같아지는 순간 한 번만</strong> 사건을 냅니다. 빨간불이 계속 보여도 <code>red</code> 사건은 한 번이고, 사라졌다가 다시 보여야 다음 사건이 납니다.</li><li>표지 기억 <code>memo</code>는 <code>junction</code>에서 읽힌 뒤 <code>None</code>이 됩니다. <code>go</code> 표지는 기억할 필요가 없어서 무시합니다(기억이 없으면 직진).</li><li>주차 거리는 <code>/odom</code>(EKF 출력, 옆걸음 포함 — M03)으로 잽니다. 속도를 원본 0.2에서 0.15로 낮췄지만 거리 기반이라 위치는 같습니다.</li></ul>
+<h3 id="4-튜닝-순서">4. 튜닝 순서<a class="anchor" href="#4-튜닝-순서">#</a></h3>
+<p>한 번에 하나만 바꾸고 표로 기록합니다. 권장 순서는 ① <code>SETPOINT</code>(직선에서 차로 가운데) → ② <code>KP</code>/<code>KD</code>(떨림 없이 커브 추종) → ③ <code>NEED[&quot;junction&quot;]</code>(커브와 교차로 구분) → ④ <code>NEED[&quot;green&quot;]</code>(3 s 출발 제한 안에서 최대) → ⑤ <code>PARK_DIST</code> → 마지막에 ⑥ <code>SPEED[&quot;LANE&quot;]</code>입니다. 속도는 다른 파라미터를 모두 흔들므로 맨 나중에 올립니다.</p>
+<div class="callout callout-check"><div class="callout-title">체크포인트 (실물)</div><div class="callout-body"><ul><li><label class="check-item"><input type="checkbox"> 바퀴를 띄운 상태에서 모든 전이를 한 번씩 일으켜 <code>~/state</code> 로그로 확인했다.</label></li><li><label class="check-item"><input type="checkbox"> 차선 가림 시험(F6)과 상자 시험(F7)을 각 3회 통과했다.</label></li><li><label class="check-item"><input type="checkbox"> 본선 2회 채점표와 rosbag이 있다.</label></li></ul></div></div>
+<h2 id="평가-기준">평가 기준<a class="anchor" href="#평가-기준">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>영역</th><th>기준</th><th>배점</th></tr></thead><tbody><tr><td>주행 성능</td><td>본선 최고 점수 × 0.4 (챌린지 100점 → 40점 환산)</td><td>40</td></tr><tr><td>설계</td><td>노드·토픽 그래프, 전이표, 사건 정의표가 코드와 일치</td><td>15</td></tr><tr><td>개선 검증</td><td>원본 약점 3개 이상에 대해 개선 전후 수치(rosbag·측정) 제시</td><td>15</td></tr><tr><td>안전</td><td>비상 정지·차선 상실 정지·장애물 정지 시연, 속도 한계 준수</td><td>15</td></tr><tr><td>코드 품질</td><td>파라미터를 상단 상수/ROS 파라미터로 분리, 단일 출력, 로그</td><td>10</td></tr><tr><td>발표·회고</td><td>실패 사례와 원인 분석, 역할별 기여</td><td>5</td></tr><tr><td><strong>합계</strong></td><td></td><td><strong>100</strong></td></tr></tbody></table></div>
+<h2 id="확장-과제">확장 과제<a class="anchor" href="#확장-과제">#</a></h2>
+<ul><li><strong>애커만 섀시 대응</strong>: <code>drive()</code>의 각속도를 조향각으로 바꾸고, A11의 3단계 주차를 <code>/odom</code> 자세로 폐루프화하세요. 최소 회전 반경 0.262 m가 코스 코너보다 큰지 먼저 확인합니다.</li><li><strong>원근 변환 오차</strong>: A09의 호모그래피로 lane_x 대신 미터 단위 횡오차를 쓰면, 카메라 각도가 바뀌어도 <code>SETPOINT</code>·이득을 다시 맞출 필요가 줄어듭니다.</li><li><strong>신호등 색 교차 검증</strong>: YOLO <code>red</code>/<code>green</code> 박스 안의 HSV 픽셀 수로 한 번 더 확인하는 함수(A10)를 사건 생성에 넣으세요.</li><li><strong>ROS 2 파라미터화</strong>: <code>SPEED</code>, <code>NEED</code>, <code>TIMEOUT</code>을 <code>declare_parameter</code>로 바꾸고, 시행 사이에 <code>ros2 param set</code>으로 조정하세요(재시작 없이 5분 안에 튜닝).</li><li><strong>행동 트리로 재설계</strong>: 같은 기능을 BehaviorTree(예: <code>py_trees</code>)로 짜 보고, 전이표 FSM과 가독성·확장성을 비교하세요.</li></ul>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td>노드 시작 직후 로봇이 멈춰 있고 <code>~/state</code>는 LANE</td><td>영상이 안 와서 워치독이 정지 명령</td><td><code>ros2 topic hz /ascamera/camera_publisher/rgb0/image</code>, 카메라 launch 확인</td></tr><tr><td><code>ModuleNotFoundError: example.self_driving</code></td><td>작업공간 환경이 적용되지 않은 셸</td><td>컨테이너 셸에서 <code>source ~/ros2_ws/install/setup.bash</code> 후 실행</td></tr><tr><td><code>/yolov5_ros2/object_detect</code>가 비어 있음</td><td>모델 로딩 중이거나 조명·거리 문제</td><td>YOLO 터미널 로그 확인, <code>/result_img</code>로 검출 확인</td></tr><tr><td>빨간불 앞에서 서지 않음</td><td><code>crosswalk</code> 사건이 늦어 SLOW에 들어가기 전에 신호를 봄</td><td>횡단보도 y 문턱(70)을 낮추거나, (LANE, red) → STOP 칸 추가 검토</td></tr><tr><td>초록불인데 3 s 넘게 출발 안 함</td><td><code>NEED[&quot;green&quot;]</code>이 크거나 초록 LED 과노출</td><td>5 → 3, 카메라 노출·신호등 각도 조정</td></tr><tr><td>커브마다 TURN_S/TURN_R로 들어감</td><td>일반 커브도 lane_x &gt; 150이 6프레임 지속</td><td>교차로 구간에서만 <code>junction</code>을 허용(표지 본 뒤 N초), 문턱 조정</td></tr><tr><td>회전이 끝나지 않고 계속 돎</td><td><code>straight</code> 조건(2 s 경과 + lane_x ≤ 150)이 안 맞음</td><td>회전 후 선이 보이는 x 범위를 로그로 확인해 조건 수정</td></tr><tr><td>주차 후 칸을 지나침</td><td><code>/odom</code> 대신 <code>/odom_raw</code>를 구독(옆걸음 미반영)</td><td><code>/odom</code>(EKF 출력) 사용, <code>controller.launch.py</code> 실행 확인</td></tr><tr><td>코스 벽을 장애물로 보고 HOLD 반복</td><td>±20° 섹터가 코너에서 벽을 봄</td><td>섹터 각도·거리 축소, 코스 둘레 벽을 낮게</td></tr><tr><td>ABORT로 끝남</td><td>STOP 20 s 초과(심판이 신호를 늦게 바꿈) 등</td><td>로그의 <code>timeout</code> 원인 확인, 규칙상 3~8 s 안에 바꿈</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">과제</div><div class="callout-body"><ol><li><strong>(기본)</strong> 실습 1의 타임라인에 "STOP 중 <code>lane_lost</code>"를 넣고, 초록불이 LOST 중에 오면 어떻게 되는지 확인하세요. 그 동작이 안전한지, 전이표를 어떻게 고쳐야 하는지 제안하세요.</li><li><strong>(기본)</strong> 실습 2에서 <code>MISS_MAX</code>를 1, 3, 10으로 바꿔 보고, 30 fps·0.12 m/s에서 각각 정지 전까지 몇 cm를 가는지 계산해 표로 정리하세요.</li><li><strong>(심화)</strong> 실습 3에 <code>sim.add_box(0.5, -0.3, 0.12, 0.12)</code>로 두 번째 구간에 장애물을 놓고, 장애물이 사라지는 시점을 흉내 내기 위해 HOLD 중 일정 시간이 지나면 우회(메카넘 옆걸음)하는 상태를 추가하세요.</li><li><strong>(심화)</strong> 본선 rosbag에서 <code>/controller/cmd_vel</code>을 읽어 서행 구간 최고 속도, 조향 부호 반전 횟수, 완주 시간을 자동으로 계산하는 <strong>채점 보조 스크립트</strong>를 만드세요.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>17. Autonomous Driving Lesson</em> — Map Laying and Prop Installation, Lesson 1 Lane Keeping, Lesson 2 Road Sign Detection, Lesson 3 Traffic Light Recognition, Lesson 4 Turning Decision Making, Lesson 5 Autonomous Parking, Lesson 6 Integrated Application</li><li>원본 소스: <code>src/example/example/self_driving/self_driving.py</code>, <code>lane_detect.py</code>, <code>self_driving.launch.py</code>, <code>src/yolov5_ros2/yolov5_ros2/yolo_detect.py</code>, <code>src/yolov5_ros2/launch/yolov5_ros2.launch.py</code></li><li>이 강의: A03(라인 추종 PID), A09(차선 유지), A10(표지·신호등), A11(회전·주차·FSM), M06(라이다 반응형 행동)</li><li>ROS 2 Humble — rosbag2 기록·재생: https://docs.ros.org/en/humble/Tutorials/Beginner-CLI-Tools/Recording-And-Playing-Back-Data/Recording-And-Playing-Back-Data.html</li><li>ROS 2 Humble — 파라미터: https://docs.ros.org/en/humble/Tutorials/Beginner-CLI-Tools/Understanding-ROS2-Parameters/Understanding-ROS2-Parameters.html</li><li>Duckietown — 교육용 소형 자율주행 도시 플랫폼: https://www.duckietown.org</li><li>py_trees — Python 행동 트리 라이브러리: https://py-trees.readthedocs.io</li></ul>
+      <nav class="pager"><a class="pager-prev" href="p02.html"><span>이전 · P02</span>QR 지시형 실내 배송 로봇</a><a class="pager-next" href="p04.html"><span>다음 · P04</span>사람 추종 카트 (비전+라이다 융합)</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#프로젝트-개요와-요구사항">프로젝트 개요와 요구사항</a><a class="toc-l3" href="#기능-요구사항">기능 요구사항</a><a class="toc-l3" href="#안전-한계">안전 한계</a><a class="toc-l3" href="#원본에서-고칠-약점">원본에서 고칠 약점</a><a class="toc-l3" href="#챌린지-규칙과-채점">챌린지 규칙과 채점</a><a class="toc-l2" href="#시스템-설계">시스템 설계</a><a class="toc-l3" href="#노드와-토픽">노드와 토픽</a><a class="toc-l3" href="#상태-기계">상태 기계</a><a class="toc-l3" href="#사건-정의">사건 정의</a><a class="toc-l2" href="#단계별-구현">단계별 구현</a><a class="toc-l3" href="#m1-기준선-측정">M1. 기준선 측정</a><a class="toc-l3" href="#m2-fsm-골격과-사건-로그">M2. FSM 골격과 사건 로그</a><a class="toc-l3" href="#m3-차선-오차와-상실-처리">M3. 차선 오차와 상실 처리</a><a class="toc-l3" href="#m4-신호등-표지-사건">M4. 신호등·표지 사건</a><a class="toc-l3" href="#m5-교차로-회전과-폐루프-주차">M5. 교차로 회전과 폐루프 주차</a><a class="toc-l3" href="#m6-통합-리허설">M6. 통합 리허설</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l3" href="#실습-1-전이표-fsm과-사건-타임라인">실습 1: 전이표 FSM과 사건 타임라인</a><a class="toc-l3" href="#실습-2-차선-중심-오차와-차선-상실-처리">실습 2: 차선 중심 오차와 차선 상실 처리</a><a class="toc-l3" href="#실습-3-도시-순환-주행-신호등-횡단보도-교차로-주차">실습 3: 도시 순환 주행 — 신호등·횡단보도·교차로·주차</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l3" href="#1-기준선-원본-통합-주행">1. 기준선: 원본 통합 주행</a><a class="toc-l3" href="#2-팀-노드-실행">2. 팀 노드 실행</a><a class="toc-l3" href="#3-팀-노드-코드-cityfsm-py">3. 팀 노드 코드 (`city_fsm.py`)</a><a class="toc-l3" href="#4-튜닝-순서">4. 튜닝 순서</a><a class="toc-l2" href="#평가-기준">평가 기준</a><a class="toc-l2" href="#확장-과제">확장 과제</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js?v=afc36b61"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=afc36b61"></script>
+</body>
+</html>

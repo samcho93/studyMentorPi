@@ -1,0 +1,50 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="미니 시티 예시 코스: 출발 게이트, 신호등과 정지선, 횡단보도, 표지가 있는 교차로, 주차 칸의 다섯 채점 구역">
+  <defs>
+    <marker id="arr-p03-course" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <!-- road loop -->
+  <rect x="60" y="40" width="440" height="210" rx="34" style="fill:none;stroke:var(--border);stroke-width:36"/>
+  <rect x="60" y="40" width="440" height="210" rx="34" style="fill:none;stroke:var(--text-faint);stroke-width:1.2" stroke-dasharray="8 7"/>
+  <!-- spur to parking -->
+  <path d="M518 145 L612 145" style="stroke:var(--border);stroke-width:36"/>
+  <path d="M500 145 L612 145" style="stroke:var(--text-faint);stroke-width:1.2" stroke-dasharray="8 7"/>
+  <!-- parking slots -->
+  <rect x="614" y="100" width="44" height="90" rx="3" style="fill:none;stroke:var(--text)" stroke-width="1.4" stroke-dasharray="5 3"/>
+  <rect x="660" y="100" width="44" height="90" rx="3" style="fill:none;stroke:var(--text)" stroke-width="1.4" stroke-dasharray="5 3"/>
+  <text class="lbl" x="636" y="150" text-anchor="middle">P</text>
+  <text class="lbl" x="682" y="150" text-anchor="middle">P</text>
+  <text class="tag" x="659" y="210" text-anchor="middle">⑤ 주차 칸</text>
+  <text class="tag" x="659" y="225" text-anchor="middle">(park 표지)</text>
+  <!-- start gate -->
+  <path class="ln-hi" d="M112 232 L112 268" stroke-width="3"/>
+  <text class="tag" x="112" y="290" text-anchor="middle">① 출발·도착 게이트</text>
+  <!-- stop line + light -->
+  <path d="M226 232 L226 268" style="stroke:var(--text)" stroke-width="3"/>
+  <rect x="219" y="180" width="14" height="30" rx="3" style="fill:var(--text-faint)"/>
+  <circle cx="226" cy="189" r="4.5" style="fill:var(--danger)"/>
+  <circle cx="226" cy="201" r="4.5" style="fill:var(--ok)"/>
+  <text class="tag" x="226" y="172" text-anchor="middle">② 신호등·정지선</text>
+  <!-- crosswalk -->
+  <rect x="244" y="235" width="40" height="4" style="fill:var(--text)"/>
+  <rect x="244" y="243" width="40" height="4" style="fill:var(--text)"/>
+  <rect x="244" y="251" width="40" height="4" style="fill:var(--text)"/>
+  <rect x="244" y="259" width="40" height="4" style="fill:var(--text)"/>
+  <text class="tag" x="264" y="290" text-anchor="middle">③ 횡단보도(서행)</text>
+  <!-- junction -->
+  <circle cx="540" cy="100" r="11" style="fill:none;stroke:var(--accent)" stroke-width="1.6"/>
+  <text class="tag" x="540" y="104" text-anchor="middle">→</text>
+  <text class="tag" x="540" y="80" text-anchor="middle">④ 교차로·표지</text>
+  <!-- go signs -->
+  <text class="tag" x="200" y="16" text-anchor="middle">go 표지</text>
+  <text class="tag" x="380" y="16" text-anchor="middle">go 표지</text>
+  <!-- direction arrows -->
+  <path d="M140 250 L200 250" style="stroke:var(--accent)" stroke-width="1.6" marker-end="url(#arr-p03-course)"/>
+  <path d="M330 250 L420 250" style="stroke:var(--accent)" stroke-width="1.6" marker-end="url(#arr-p03-course)"/>
+  <path d="M500 220 L500 180" style="stroke:var(--accent)" stroke-width="1.6" marker-end="url(#arr-p03-course)"/>
+  <path d="M420 40 L330 40" style="stroke:var(--accent)" stroke-width="1.6" marker-end="url(#arr-p03-course)"/>
+  <path d="M60 80 L60 200" style="stroke:var(--accent)" stroke-width="1.6" marker-end="url(#arr-p03-course)"/>
+  <!-- centre notes -->
+  <text class="lbl" x="330" y="112" text-anchor="middle">예시 코스 (원본 맵에 맞게 배치)</text>
+  <text class="sub" x="330" y="134" text-anchor="middle">1바퀴 → 교차로에서 표지대로 회전 → 주차</text>
+  <text class="sub" x="330" y="154" text-anchor="middle">제한 시간 5분 · 사람 개입 시 감점</text>
+</svg>

@@ -543,7 +543,7 @@ def index_page(cur: dict) -> str:
       Hiwonder <b>MentorPi</b>(메카넘 / 애커만 섀시, 라즈베리파이 5, 2D 라이다, 3D 깊이 카메라)로 배우는
       <b>이동로봇 인터랙티브 강의</b>입니다. 리눅스·파이썬·OpenCV·ROS 2 기초에서 출발해
       <b>섀시 기구학 &rarr; 오도메트리 &rarr; 라이다 &rarr; SLAM &rarr; 내비게이션</b>을 차례로 쌓고,
-      색 인식·MediaPipe·YOLOv5·자율주행·군집 제어까지 이어집니다. 모든 핵심 알고리즘은 브라우저의
+      색 인식·MediaPipe·YOLOv5·자율주행·군집 제어까지 이어진 뒤, <b>순찰 경비·QR 배송·미니 시티 자율주행·사람 추종 카트</b> 4개 팀 프로젝트로 통합합니다. 모든 핵심 알고리즘은 브라우저의
       실제 URDF로 움직이는 <b>3D 시뮬레이터</b>, <b>2D 시뮬레이터</b>와 <b>ROS 2 Playground</b>(rclpy 호환 Python)에서 먼저 돌려 보고 실물로 옮깁니다. 총 {total}개 챕터.
     </p>
     <div class="hero-cta">
@@ -568,7 +568,9 @@ def index_page(cur: dict) -> str:
       <div class="flow-arrow">&darr;</div>
       <div class="flow-step"><b>3</b><span>이동로봇 핵심<small>메카넘·애커만 · IMU/Odom · LiDAR · SLAM · Nav2</small></span></div>
       <div class="flow-arrow">&darr;</div>
-      <div class="flow-step hot"><b>4</b><span>비전 AI &middot; 자율주행<small>색 추적 · MediaPipe · YOLOv5 · 차선 · 군집</small></span></div>
+      <div class="flow-step"><b>4</b><span>비전 AI &middot; 자율주행<small>색 추적 · MediaPipe · YOLOv5 · 차선 · 군집</small></span></div>
+      <div class="flow-arrow">&darr;</div>
+      <div class="flow-step hot"><b>5</b><span>팀 프로젝트<small>순찰 경비 · QR 배송 · 미니 시티 · 사람 추종</small></span></div>
     </div>
     <div class="hero-art-cap">같은 rclpy 코드 — 브라우저 시뮬 &rarr; MentorPi 실물</div>
   </div>
@@ -577,7 +579,7 @@ def index_page(cur: dict) -> str:
 <section class="facts">
   <div class="fact"><div class="fact-n">2</div><div class="fact-l">종 섀시 (메카넘 · 애커만)</div></div>
   <div class="fact"><div class="fact-n">360&deg;</div><div class="fact-l">2D 라이다 + 3D 깊이 카메라</div></div>
-  <div class="fact"><div class="fact-n">18</div><div class="fact-l">개 원본 강좌를 4개 트랙으로 재구성</div></div>
+  <div class="fact"><div class="fact-n">18</div><div class="fact-l">개 원본 강좌 → 4개 트랙 + 프로젝트 4개</div></div>
   <div class="fact"><div class="fact-n">0</div><div class="fact-l">설치 없이 시작 (브라우저 시뮬)</div></div>
 </section>
 

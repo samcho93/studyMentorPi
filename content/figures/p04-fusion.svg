@@ -1,0 +1,41 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="카메라 방위 게이트와 거리 게이트: 방위 게이트 안에 의자 다리와 사람이 모두 들어오지만 거리 게이트로 의자를 거부한다">
+  <defs>
+    <marker id="arr-p04-fusion" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <!-- camera FOV ±30° -->
+  <path d="M110 160 L335 30 M110 160 L335 290" style="stroke:var(--text-faint)" stroke-width="1" stroke-dasharray="5 4" fill="none"/>
+  <text class="tag" x="250" y="276" text-anchor="middle">카메라 화각 ±30°</text>
+  <!-- bearing gate (4°..20°) -->
+  <path d="M110 160 L549 129 L523 10 Z" style="fill:var(--accent);opacity:0.12"/>
+  <path d="M110 160 L549 129 M110 160 L523 10" style="stroke:var(--accent)" stroke-width="1" fill="none"/>
+  <!-- bearing ray -->
+  <path d="M110 160 L464 85" style="stroke:var(--accent)" stroke-width="1.8" marker-end="url(#arr-p04-fusion)"/>
+  <text class="tag" x="560" y="68">방위 게이트 b_cam ± 8°</text>
+  <!-- range gate arcs -->
+  <path d="M449.2 136.3 A340 340 0 0 0 429.5 43.7" style="stroke:var(--warn);fill:none" stroke-width="1.6" stroke-dasharray="4 3"/>
+  <path d="M529 130.7 A420 420 0 0 0 504.7 16.4" style="stroke:var(--warn);fill:none" stroke-width="1.6" stroke-dasharray="4 3"/>
+  <text class="tag" x="560" y="150">거리 게이트 r̂ ± 0.3 m</text>
+  <!-- person -->
+  <circle cx="482" cy="81" r="16" style="fill:var(--ok);opacity:0.35"/>
+  <circle cx="467" cy="84" r="2.4" style="fill:var(--text)"/>
+  <circle cx="468" cy="77" r="2.4" style="fill:var(--text)"/>
+  <circle cx="470" cy="91" r="2.4" style="fill:var(--text)"/>
+  <text class="lbl" x="482" y="120" text-anchor="middle">사람</text>
+  <!-- chair leg -->
+  <circle cx="321" cy="99" r="6" style="fill:var(--danger);opacity:0.5"/>
+  <circle cx="316" cy="101" r="2.4" style="fill:var(--text)"/>
+  <text class="tag" x="321" y="84" text-anchor="middle">의자 다리 (거부)</text>
+  <!-- wall points -->
+  <path class="ln" d="M706 20 L706 280"/>
+  <circle cx="706" cy="200" r="2.2" style="fill:var(--text)"/>
+  <circle cx="706" cy="222" r="2.2" style="fill:var(--text)"/>
+  <circle cx="706" cy="244" r="2.2" style="fill:var(--text)"/>
+  <text class="tag" x="698" y="270" text-anchor="end">벽</text>
+  <!-- robot -->
+  <rect x="88" y="142" width="44" height="36" rx="6" class="box-hi"/>
+  <path d="M132 160 L146 160" style="stroke:var(--accent)" stroke-width="2"/>
+  <text class="lbl" x="110" y="200" text-anchor="middle">MentorPi</text>
+  <!-- legend -->
+  <text class="sub" x="480" y="230" text-anchor="middle">① MediaPipe → b_cam  ② 게이트 안 라이다 점만 후보</text>
+  <text class="sub" x="480" y="248" text-anchor="middle">③ 예측 r̂과 맞는 점 = 측정 z → α-β 필터</text>
+</svg>
