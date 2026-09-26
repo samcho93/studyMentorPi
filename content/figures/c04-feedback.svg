@@ -1,0 +1,33 @@
+<svg viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="작업 분해, 단계별 보고, 최종 정리로 이어지는 실행형 에이전트의 흐름">
+  <defs>
+    <marker id="arr-c04-feedback" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <rect class="box" x="15" y="30" width="150" height="120" rx="6"/>
+  <text class="lbl" x="90" y="56" text-anchor="middle">① 작업 분해</text>
+  <text class="tag" x="90" y="80" text-anchor="middle">3~7개 Step</text>
+  <text class="tag" x="90" y="100" text-anchor="middle">목적·예상 산출물·도구</text>
+  <text class="tag" x="90" y="120" text-anchor="middle">위험·확인 사항 먼저</text>
+
+  <rect class="box-hi" x="215" y="30" width="270" height="120" rx="6"/>
+  <text class="lbl" x="350" y="56" text-anchor="middle">② 단계 실행 + 즉시 보고</text>
+  <text class="tag mono" x="235" y="82">Step:   번호·이름</text>
+  <text class="tag mono" x="235" y="100">Status: 완료 / 진행 중 / 실패(이유)</text>
+  <text class="tag mono" x="235" y="118">Output: 경로 · URL · 사진 · 로그</text>
+  <text class="tag mono" x="235" y="136">Next:   다음 행동 / 확인 질문</text>
+
+  <rect class="box" x="535" y="30" width="170" height="120" rx="6"/>
+  <text class="lbl" x="620" y="56" text-anchor="middle">③ 최종 정리</text>
+  <text class="tag" x="620" y="80" text-anchor="middle">요약 3~6줄</text>
+  <text class="tag" x="620" y="98" text-anchor="middle">산출물 목록(능력별)</text>
+  <text class="tag" x="620" y="116" text-anchor="middle">핵심 로그 요약</text>
+  <text class="tag" x="620" y="134" text-anchor="middle">미해결 · 다음 단계</text>
+
+  <path class="ln" d="M165 90 L213 90" marker-end="url(#arr-c04-feedback)"/>
+  <path class="ln" d="M485 90 L533 90" marker-end="url(#arr-c04-feedback)"/>
+  <path class="ln-hi" d="M400 150 C400 190 300 190 300 152" marker-end="url(#arr-c04-feedback)"/>
+  <text class="tag" x="350" y="200" text-anchor="middle">Step마다 반복</text>
+
+  <text class="sub" x="15" y="240">사용된 도구 모듈:</text>
+  <text class="tag" x="130" y="240">파일(read/write/edit/apply_patch) · 카메라(image/nodes) · 브라우저(browser/web_fetch)</text>
+  <text class="tag" x="130" y="260">스크립트(exec/process) — 모두 tools.allow에 있어야 호출 가능</text>
+</svg>

@@ -6,12 +6,12 @@
 <title>P01. 자율 순찰 경비 로봇 · studyMentorPi</title>
 <meta name="description" content="SLAM으로 만든 지도 위를 다중 지점 순찰하며 라이다로 침입자(지도에 없는 물체)를 감지하고 추적·경보·보고하는 경비 로봇을 만듭니다.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
-<link rel="stylesheet" href="../assets/css/main.css?v=386fe569">
-<link rel="stylesheet" href="../assets/css/mentorpi.css?v=386fe569">
-<link rel="stylesheet" href="../assets/css/ml-theme.css?v=386fe569">
+<link rel="stylesheet" href="../assets/css/main.css?v=d46755e0">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=d46755e0">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=d46755e0">
 <link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
-<script src="../assets/js/theme.js?v=386fe569"></script>
+<script src="../assets/js/theme.js?v=d46755e0"></script>
 </head>
 <body class="lesson-page track-page-project">
 <button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
@@ -121,6 +121,29 @@
 <li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
 <li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
 <li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="agent">
+<div class="nav-track-title track-agent">AI 에이전트 (OpenClaw)</div>
+<div class="nav-part"><span class="nav-part-no">C-1</span>OpenClaw 이해와 설치</div>
+<ul>
+<li><a href="../lessons/c01.html" data-slug="c01"><span class="nav-no">C01</span>OpenClaw 개요와 아키텍처</a></li>
+<li><a href="../lessons/c02.html" data-slug="c02"><span class="nav-no">C02</span>핵심 개념: 모델·에이전트·도구·메모리·워크플로·스킬</a></li>
+<li><a href="../lessons/c03.html" data-slug="c03"><span class="nav-no">C03</span>환경 구축과 설치: Node.js·OpenClaw·API 키·Ollama</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">C-2</span>에이전트와 스킬</div>
+<ul>
+<li><a href="../lessons/c04.html" data-slug="c04"><span class="nav-no">C04</span>첫 에이전트 만들기: 워크스페이스 규약과 도구 권한</a></li>
+<li><a href="../lessons/c05.html" data-slug="c05"><span class="nav-no">C05</span>스킬 작성과 도구 디버깅</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">C-3</span>채널과 실전 에이전트</div>
+<ul>
+<li><a href="../lessons/c06.html" data-slug="c06"><span class="nav-no">C06</span>채널 연결: Telegram 봇</a></li>
+<li><a href="../lessons/c07.html" data-slug="c07"><span class="nav-no">C07</span>실전: 스마트 이메일 에이전트</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">C-4</span>로봇 통합</div>
+<ul>
+<li><a href="../lessons/c08.html" data-slug="c08"><span class="nav-no">C08</span>로봇 통합: 대화로 MentorPi 제어하기</a></li>
 </ul>
 </div>
 <div class="nav-track" data-track="project">
@@ -772,14 +795,14 @@ cat ~/patrol_events.csv</code></pre></div>
 <div class="callout callout-task"><div class="callout-title">심화 과제</div><div class="callout-body"><ol><li>확장 과제의 "정지 물체 처리"를 구현하고 S4 시나리오에서 동작을 보입니다.</li><li><code>patrol_guard</code>를 ROS 2 <strong>서비스</strong>로 제어할 수 있게 합니다: <code>/patrol/start</code>, <code>/patrol/stop</code>(<code>std_srvs/Trigger</code>), <code>/patrol/arm</code>(<code>std_srvs/SetBool</code> — 경보 켜기/끄기). 앱이나 다른 노드에서 순찰을 원격 제어하는 것을 시연합니다.</li></ol></div></div>
 <h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
 <ul><li>원본 교재: <em>12. Mapping Lesson</em> — Lesson 4 slam_toolbox Mapping Algorithm, <em>13. Navigation Lesson</em> — Lesson 2 AMCL Adaptive Monte Carlo Positioning, Lesson 4 Point-to-Point and Multi-Point Navigation and Obstacle Avoidance, <em>10. Lidar Lesson</em> — Lesson 5 Lidar Guarding, <em>6. Raspberry Pi 5 &amp; Expansion Board</em> — Lesson 1 RGB Color Control, Lesson 4 Buzzer Control</li><li>원본 소스: <code>src/slam/launch/slam.launch.py</code>, <code>src/navigation/launch/navigation.launch.py</code>, <code>src/slam/launch/include/robot.launch.py</code>, <code>src/navigation/config/nav2_params.yaml</code>, <code>src/app/app/lidar_controller.py</code>(mode 3), <code>src/driver/ros_robot_controller/ros_robot_controller/ros_robot_controller_node.py</code>, <code>src/driver/ros_robot_controller_msgs/msg/RGBStates.msg</code>, <code>BuzzerState.msg</code></li><li>Nav2 Simple Commander API: https://docs.nav2.org/commander_api/index.html</li><li>Nav2 Map Server (OccupancyGrid, trinary 모드): https://docs.nav2.org/configuration/packages/configuring-map-server.html</li><li>OpenCV <code>distanceTransform</code>: https://docs.opencv.org/4.x/d7/d1b/group__imgproc__misc.html</li><li>ROS 2 QoS (durability, reliability): https://docs.ros.org/en/humble/Concepts/Intermediate/About-Quality-of-Service-Settings.html</li><li>tf2 Python 리스너: https://docs.ros.org/en/humble/Tutorials/Intermediate/Tf2/Writing-A-Tf2-Listener-Py.html</li></ul>
-      <nav class="pager"><a class="pager-prev" href="a12.html"><span>이전 · A12</span>군집 제어: 마스터-슬레이브</a><a class="pager-next" href="p02.html"><span>다음 · P02</span>QR 지시형 실내 배송 로봇</a></nav>
+      <nav class="pager"><a class="pager-prev" href="c08.html"><span>이전 · C08</span>로봇 통합: 대화로 MentorPi 제어하기</a><a class="pager-next" href="p02.html"><span>다음 · P02</span>QR 지시형 실내 배송 로봇</a></nav>
     </div>
     <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#프로젝트-개요와-요구사항">프로젝트 개요와 요구사항</a><a class="toc-l3" href="#팀-구성-4명-기준">팀 구성 (4명 기준)</a><a class="toc-l3" href="#기능-요구사항">기능 요구사항</a><a class="toc-l3" href="#비기능-요구사항">비기능 요구사항</a><a class="toc-l3" href="#안전-한계">안전 한계</a><a class="toc-l2" href="#시스템-설계">시스템 설계</a><a class="toc-l3" href="#노드-토픽-그래프">노드·토픽 그래프</a><a class="toc-l3" href="#침입-감지-지도와-대조하기">침입 감지: 지도와 대조하기</a><a class="toc-l3" href="#상태-기계">상태 기계</a><a class="toc-l3" href="#경보-출력">경보 출력</a><a class="toc-l2" href="#단계별-구현">단계별 구현</a><a class="toc-l3" href="#m1-지도와-순찰점">M1. 지도와 순찰점</a><a class="toc-l3" href="#m2-순찰-루프">M2. 순찰 루프</a><a class="toc-l3" href="#m3-침입-감지-노드">M3. 침입 감지 노드</a><a class="toc-l3" href="#m4-상태-기계와-경보">M4. 상태 기계와 경보</a><a class="toc-l3" href="#m5-보고와-통합-시험">M5. 보고와 통합 시험</a><a class="toc-l2" href="#실습-시뮬레이션">실습 (시뮬레이션)</a><a class="toc-l3" href="#실습-1-가장-가까운-점-vs-지도에-없는-덩어리">실습 1. 가장 가까운 점 vs 지도에 없는 덩어리</a><a class="toc-l3" href="#실습-2-순찰-감지-경보-재개">실습 2. 순찰 + 감지 + 경보 + 재개</a><a class="toc-l3" href="#2d-3d-시뮬레이터로-전체-흐름-보기">2D·3D 시뮬레이터로 전체 흐름 보기</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l3" href="#1-지도-만들기-m1">1) 지도 만들기 (M1)</a><a class="toc-l3" href="#2-내비게이션과-순찰점-m1-m2">2) 내비게이션과 순찰점 (M1·M2)</a><a class="toc-l3" href="#3-경보-장치-시험">3) 경보 장치 시험</a><a class="toc-l3" href="#4-침입-감지-노드-m3">4) 침입 감지 노드 (M3)</a><a class="toc-l3" href="#5-순찰-경비-노드-m2-m4-m5">5) 순찰 경비 노드 (M2·M4·M5)</a><a class="toc-l3" href="#6-원본-경비-모드와-비교">6) 원본 경비 모드와 비교</a><a class="toc-l2" href="#평가-기준">평가 기준</a><a class="toc-l2" href="#확장-과제">확장 과제</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
   </div>
 </article>
 
 </main>
-<script src="../assets/js/site.js?v=386fe569"></script>
-<script type="module" src="../assets/js/lesson-runner.js?v=386fe569"></script>
+<script src="../assets/js/site.js?v=d46755e0"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=d46755e0"></script>
 </body>
 </html>

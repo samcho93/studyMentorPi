@@ -1,0 +1,32 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Telegram 봇 페어링 순서: START, 페어링 코드, 서버에서 승인, 대화 시작">
+  <defs>
+    <marker id="arr-c06-pairing" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <text class="lbl" x="110" y="24" text-anchor="middle">사용자 (Telegram)</text>
+  <text class="lbl" x="360" y="24" text-anchor="middle">Gateway (봇)</text>
+  <text class="lbl" x="610" y="24" text-anchor="middle">관리자 (서버 터미널)</text>
+  <line class="ln" x1="110" y1="34" x2="110" y2="290" stroke-dasharray="4 4"/>
+  <line class="ln" x1="360" y1="34" x2="360" y2="290" stroke-dasharray="4 4"/>
+  <line class="ln" x1="610" y1="34" x2="610" y2="290" stroke-dasharray="4 4"/>
+
+  <text class="tag" x="485" y="58" text-anchor="middle">① openclaw gateway 먼저 기동</text>
+  <path class="ln" d="M610 66 L362 66" marker-end="url(#arr-c06-pairing)"/>
+
+  <path class="ln" d="M110 96 L358 96" marker-end="url(#arr-c06-pairing)"/>
+  <text class="tag" x="235" y="90" text-anchor="middle">② START (/start)</text>
+
+  <path class="ln-hi" d="M360 130 L112 130" marker-end="url(#arr-c06-pairing)"/>
+  <text class="tag" x="235" y="124" text-anchor="middle">③ 페어링 코드 (메시지는 에이전트로 안 감)</text>
+
+  <path class="ln" d="M110 166 C300 166 420 166 608 166" marker-end="url(#arr-c06-pairing)"/>
+  <text class="tag" x="360" y="160" text-anchor="middle">④ 코드를 관리자에게 전달 (직접 확인)</text>
+
+  <path class="ln-hi" d="M610 200 L362 200" marker-end="url(#arr-c06-pairing)"/>
+  <text class="tag mono" x="485" y="194" text-anchor="middle">⑤ pairing approve telegram &lt;code&gt;</text>
+  <text class="tag" x="365" y="218">→ 이 사용자를 허용 목록에 추가</text>
+
+  <path class="ln" d="M110 250 L358 250" marker-end="url(#arr-c06-pairing)"/>
+  <text class="tag" x="235" y="244" text-anchor="middle">⑥ "hello"</text>
+  <path class="ln-hi" d="M360 278 L112 278" marker-end="url(#arr-c06-pairing)"/>
+  <text class="tag" x="235" y="272" text-anchor="middle">⑦ 에이전트 답장</text>
+</svg>

@@ -1,0 +1,61 @@
+<svg viewBox="0 0 720 390" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="대화형 로봇 제어 구조: PC에서 Telegram, Gateway, robot 에이전트와 mentorpi-control 스킬이 robot.sh 하나만 실행하고, robot.sh는 SSH 강제 명령으로 라즈베리 파이 호스트의 robot-gate.sh를 부르며, robot-gate.sh가 인자를 검사한 뒤 docker exec로 컨테이너 안의 mentorpi_bridge.py를 실행해 ROS 2 토픽과 Nav2 액션으로 로봇을 움직인다">
+  <defs>
+    <marker id="arr-c08-architecture" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-c08-architecture-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+
+  <!-- zone labels -->
+  <rect class="box" x="8" y="10" width="704" height="112" rx="8" style="fill:none;stroke-dasharray:5 4"/>
+  <text class="tag" x="18" y="28">PC (Ubuntu) — OpenClaw</text>
+  <rect class="box" x="8" y="136" width="704" height="92" rx="8" style="fill:none;stroke-dasharray:5 4"/>
+  <text class="tag" x="18" y="154">MentorPi 호스트 (Raspberry Pi OS, 사용자 pi)</text>
+  <rect class="box" x="8" y="242" width="704" height="138" rx="8" style="fill:none;stroke-dasharray:5 4"/>
+  <text class="tag" x="18" y="260">Docker 컨테이너 mentorpi (ROS 2 Humble)</text>
+
+  <!-- row 1 -->
+  <rect class="box" x="24" y="40" width="112" height="60" rx="7"/>
+  <text class="lbl" x="80" y="64" text-anchor="middle">Telegram</text>
+  <text class="sub" x="80" y="82" text-anchor="middle">허용된 사용자만</text>
+  <rect class="box" x="168" y="40" width="112" height="60" rx="7"/>
+  <text class="lbl" x="224" y="64" text-anchor="middle">Gateway</text>
+  <text class="sub" x="224" y="82" text-anchor="middle">페어링 · 라우팅</text>
+  <rect class="box-hi" x="312" y="40" width="190" height="60" rx="7"/>
+  <text class="lbl" x="407" y="62" text-anchor="middle">robot 에이전트</text>
+  <text class="sub mono" x="407" y="80" text-anchor="middle">skill: mentorpi-control</text>
+  <text class="sub" x="407" y="94" text-anchor="middle">tools.allow = read, exec</text>
+  <rect class="box" x="534" y="40" width="162" height="60" rx="7"/>
+  <text class="lbl mono" x="615" y="64" text-anchor="middle">robot.sh</text>
+  <text class="sub" x="615" y="82" text-anchor="middle">유일하게 exec 하는 파일</text>
+  <path class="ln-hi" d="M136 70 L166 70" stroke-width="2" marker-end="url(#arr-c08-architecture-hi)"/>
+  <path class="ln-hi" d="M280 70 L310 70" stroke-width="2" marker-end="url(#arr-c08-architecture-hi)"/>
+  <path class="ln-hi" d="M502 70 L532 70" stroke-width="2" marker-end="url(#arr-c08-architecture-hi)"/>
+
+  <!-- row 2 -->
+  <path class="ln-hi" d="M615 100 L615 164" stroke-width="2" marker-end="url(#arr-c08-architecture-hi)"/>
+  <text class="tag mono" x="622" y="132">ssh (전용 키)</text>
+  <rect class="box" x="360" y="166" width="336" height="52" rx="7"/>
+  <text class="lbl mono" x="376" y="187">robot-gate.sh</text>
+  <text class="sub" x="490" y="187">authorized_keys command=</text>
+  <text class="sub" x="376" y="206">명령·인자 정규식 검사 · 분당 횟수 제한 · 감사 로그</text>
+  <rect class="box" x="24" y="166" width="300" height="52" rx="7"/>
+  <text class="lbl" x="40" y="187">물리 비상 정지</text>
+  <text class="sub" x="40" y="206">전원 스위치 · 들어 올리기 · 앱/게임패드</text>
+
+  <!-- row 3 -->
+  <path class="ln-hi" d="M528 218 L528 270" stroke-width="2" marker-end="url(#arr-c08-architecture-hi)"/>
+  <text class="tag mono" x="536" y="250">docker exec -u ubuntu</text>
+  <rect class="box-hi" x="360" y="272" width="336" height="96" rx="7"/>
+  <text class="lbl mono" x="376" y="294">mentorpi_bridge.py (rclpy CLI)</text>
+  <text class="sub" x="376" y="314">|v| ≤ 0.2 m/s · |ω| ≤ 0.5 rad/s · 거리 ≤ 1 m</text>
+  <text class="sub" x="376" y="332">전방 라이다 검사 · odom 감시 · 시간 초과</text>
+  <text class="sub" x="376" y="350">끝나면 항상 정지 Twist · 결과는 JSON 한 줄</text>
+
+  <rect class="box" x="24" y="272" width="300" height="96" rx="7"/>
+  <text class="sub mono" x="36" y="292">/cmd_vel  (앱 채널, 0.2/0.5 클램프)</text>
+  <text class="sub mono" x="36" y="309">/odom  /scan_raw</text>
+  <text class="sub mono" x="36" y="326">/ascamera/camera_publisher/rgb0/image</text>
+  <text class="sub mono" x="36" y="343">/ros_robot_controller/battery</text>
+  <text class="sub mono" x="36" y="360">navigate_to_pose (Nav2 액션)</text>
+  <path class="ln" d="M358 320 L326 320" stroke-width="1.4" marker-end="url(#arr-c08-architecture)"/>
+  <path class="ln" d="M326 336 L358 336" stroke-width="1.4" marker-end="url(#arr-c08-architecture)"/>
+</svg>

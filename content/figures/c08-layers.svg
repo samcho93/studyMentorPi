@@ -1,0 +1,38 @@
+<svg viewBox="0 0 720 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="다층 방어: 위에서 아래로 Telegram 허용 목록, SKILL 규칙과 확인 질문, 도구 권한 최소화, SSH 강제 명령 게이트, 브리지의 하드 한계, 펌웨어 쪽 속도 클램프, 물리 비상 정지. 아래층일수록 LLM이 속아도 우회할 수 없는 결정론적 장치다">
+  <defs>
+    <marker id="arr-c08-layers" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <text class="tag" x="20" y="22">명령이 통과하는 층 (위 → 아래)</text>
+  <text class="tag" x="560" y="22">누가 강제하나</text>
+
+  <rect class="box" x="20" y="32" width="520" height="34" rx="6"/>
+  <text class="lbl" x="34" y="54">① Telegram 허용 목록 · 페어링 (dmPolicy, allowFrom)</text>
+  <text class="sub" x="560" y="54">Gateway 설정</text>
+
+  <rect class="box" x="20" y="72" width="520" height="34" rx="6"/>
+  <text class="lbl" x="34" y="94">② SKILL.md 규칙 · 동작 전 확인 질문 · 날조 금지</text>
+  <text class="sub" x="560" y="94" style="fill:var(--warn)">LLM (속을 수 있음)</text>
+
+  <rect class="box" x="20" y="112" width="520" height="34" rx="6"/>
+  <text class="lbl" x="34" y="134">③ tools.allow 최소화 — exec 외 쓰기·웹·브라우저 금지</text>
+  <text class="sub" x="560" y="134">OpenClaw 설정</text>
+
+  <rect class="box-hi" x="20" y="152" width="520" height="34" rx="6"/>
+  <text class="lbl" x="34" y="174">④ SSH 강제 명령 게이트 — 명령 목록 · 인자 정규식 · 횟수 제한 · 로그</text>
+  <text class="sub" x="560" y="174">로봇 호스트 셸</text>
+
+  <rect class="box-hi" x="20" y="192" width="520" height="34" rx="6"/>
+  <text class="lbl" x="34" y="214">⑤ 브리지 하드 한계 — 속도·거리·시간·전방 거리·odom 감시</text>
+  <text class="sub" x="560" y="214">rclpy 코드</text>
+
+  <rect class="box-hi" x="20" y="232" width="520" height="34" rx="6"/>
+  <text class="lbl" x="34" y="254">⑥ /cmd_vel 클램프 (app_cmd_vel_callback: 0.2 m/s, 0.5 rad/s)</text>
+  <text class="sub" x="560" y="254">MentorPi 드라이버</text>
+
+  <rect class="box" x="20" y="272" width="520" height="34" rx="6"/>
+  <text class="lbl" x="34" y="294">⑦ 사람 — 감독 · 전원 스위치 · 들어 올리기</text>
+  <text class="sub" x="560" y="294">현장</text>
+
+  <path class="ln" d="M700 40 L700 300" stroke-width="1.4" marker-end="url(#arr-c08-layers)"/>
+  <text class="tag" x="690" y="170" text-anchor="middle" transform="rotate(-90 690 170)">결정론적 · 우회 불가</text>
+</svg>

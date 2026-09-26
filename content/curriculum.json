@@ -172,6 +172,46 @@
       ]
     },
     {
+      "id": "agent",
+      "code": "C",
+      "title": "AI 에이전트 (OpenClaw)",
+      "desc": "자체 호스팅 AI 에이전트 게이트웨이 OpenClaw로 모델·에이전트·도구·스킬·메모리·워크플로를 묶고, Telegram 채널과 이메일 에이전트를 거쳐 MentorPi를 대화로 제어하는 로봇 통합까지 다룹니다. 에이전트 루프·도구 권한·스킬 트리거·워크플로는 브라우저에서 모의 모델로 직접 실행해 봅니다.",
+      "parts": [
+        {
+          "no": "C-1",
+          "title": "OpenClaw 이해와 설치",
+          "chapters": [
+            "c01",
+            "c02",
+            "c03"
+          ]
+        },
+        {
+          "no": "C-2",
+          "title": "에이전트와 스킬",
+          "chapters": [
+            "c04",
+            "c05"
+          ]
+        },
+        {
+          "no": "C-3",
+          "title": "채널과 실전 에이전트",
+          "chapters": [
+            "c06",
+            "c07"
+          ]
+        },
+        {
+          "no": "C-4",
+          "title": "로봇 통합",
+          "chapters": [
+            "c08"
+          ]
+        }
+      ]
+    },
+    {
       "id": "project",
       "code": "P",
       "title": "프로젝트 (중급·고급)",
@@ -772,6 +812,107 @@
       "requires": [
         "m07",
         "r09"
+      ]
+    },
+    "c01": {
+      "title": "OpenClaw 개요와 아키텍처",
+      "summary": "OpenClaw가 무엇인지(모델·역할·도구·채널을 잇는 자체 호스팅 에이전트 게이트웨이), 대표 활용 사례, LangChain·네이티브 SDK와의 차이, Gateway→Agent→Tools/Skills→채널 응답의 전체 구조를 이해합니다.",
+      "duration": 60,
+      "level": "입문",
+      "tools": [
+        "playground"
+      ],
+      "requires": []
+    },
+    "c02": {
+      "title": "핵심 개념: 모델·에이전트·도구·메모리·워크플로·스킬",
+      "summary": "Model(두뇌)·Agent(작업 관리자)·Tool(손)·Memory(맥락)·Workflow(실행 계획)·Skill(재사용 모듈)이 한 요청 안에서 어떻게 맞물리는지, 도구 호출 루프를 파이썬 모의 모델로 직접 돌려 봅니다.",
+      "duration": 90,
+      "level": "입문",
+      "tools": [
+        "playground"
+      ],
+      "requires": [
+        "c01"
+      ]
+    },
+    "c03": {
+      "title": "환경 구축과 설치: Node.js·OpenClaw·API 키·Ollama",
+      "summary": "Ubuntu(Windows는 WSL2)에서 nvm으로 Node 22를 설치하고 OpenClaw를 설치·onboard한 뒤 API 키나 로컬 Ollama 모델을 연결하고, Gateway·doctor·dashboard·세션 연속성으로 첫 대화를 검증합니다.",
+      "duration": 90,
+      "level": "입문",
+      "tools": [
+        "playground"
+      ],
+      "requires": [
+        "c01",
+        "b02"
+      ]
+    },
+    "c04": {
+      "title": "첫 에이전트 만들기: 워크스페이스 규약과 도구 권한",
+      "summary": "AGENTS.md·SOUL.md·USER.md·IDENTITY.md·TOOLS.md 워크스페이스 규약과 openclaw.json의 agents.list·systemPrompt·tools.allow/deny로 실행형 에이전트를 정의하고, 작업 분해·진행 보고·최종 정리와 로그 추적으로 검증합니다.",
+      "duration": 120,
+      "level": "중급",
+      "tools": [
+        "playground"
+      ],
+      "requires": [
+        "c02",
+        "c03"
+      ]
+    },
+    "c05": {
+      "title": "스킬 작성과 도구 디버깅",
+      "summary": "SKILL.md(트리거·고정 출력 형식·실행 단계·제약)로 일일 브리핑·날씨 스킬을 처음부터 만들고, 에이전트에 등록해 skills check·재시작·트리거 문구로 합동 디버깅하며 '날조 금지' 규칙을 검증합니다.",
+      "duration": 120,
+      "level": "중급",
+      "tools": [
+        "playground"
+      ],
+      "requires": [
+        "c04"
+      ]
+    },
+    "c06": {
+      "title": "채널 연결: Telegram 봇",
+      "summary": "BotFather로 봇과 토큰을 만들고 OpenClaw Telegram 플러그인·토큰 설정·Gateway 기동·페어링 승인으로 메시지 채널을 연결하며, 토큰 보안과 DM/그룹 접근 정책을 설계합니다.",
+      "duration": 60,
+      "level": "중급",
+      "tools": [
+        "playground"
+      ],
+      "requires": [
+        "c03"
+      ]
+    },
+    "c07": {
+      "title": "실전: 스마트 이메일 에이전트",
+      "summary": "Gmail IMAP/SMTP 앱 비밀번호, 7단계 오케스트레이션 스킬, 이메일 분석 JSON 규칙, 워크플로 라우팅(max_steps·멱등 키), 확인 카드, MEMORY.md 피드백으로 Telegram 이메일 비서를 만들고 배포·통합 시험합니다.",
+      "duration": 180,
+      "level": "고급",
+      "tools": [
+        "playground"
+      ],
+      "requires": [
+        "c05",
+        "c06"
+      ]
+    },
+    "c08": {
+      "title": "로봇 통합: 대화로 MentorPi 제어하기",
+      "summary": "ROS 2 브리지 스크립트를 도구로 감싼 mentorpi-control 스킬을 만들어 Telegram 대화로 상태 조회·저속 이동·사진 촬영·지점 이동을 시키고, 속도 제한·확인 게이트·비상 정지·권한 최소화로 LLM 에이전트를 안전하게 로봇에 연결합니다.",
+      "duration": 180,
+      "level": "고급",
+      "tools": [
+        "sim3d",
+        "playground"
+      ],
+      "requires": [
+        "c05",
+        "c06",
+        "r03",
+        "m03"
       ]
     }
   }

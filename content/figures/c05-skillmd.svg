@@ -1,0 +1,32 @@
+<svg viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SKILL.md의 구조와 각 부분이 언제 쓰이는지">
+  <defs>
+    <marker id="arr-c05-skillmd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <text class="lbl mono" x="20" y="24">skills/daily-briefing-weather/SKILL.md</text>
+  <rect class="box-hi" x="20" y="36" width="330" height="80" rx="6"/>
+  <text class="tag mono" x="35" y="58">---</text>
+  <text class="tag mono" x="35" y="76">name: daily-briefing-weather</text>
+  <text class="tag mono" x="35" y="94">description: 언제 쓰는지 + 무엇을 내는지</text>
+  <text class="tag mono" x="35" y="110">version: "1.0.0"   ---</text>
+
+  <rect class="box" x="20" y="126" width="330" height="140" rx="6"/>
+  <text class="tag mono" x="35" y="150">## When to Activate    트리거 문구</text>
+  <text class="tag mono" x="35" y="176">## Fixed Output Format 출력 틀</text>
+  <text class="tag mono" x="35" y="202">## Execution Steps     도구 호출 순서</text>
+  <text class="tag mono" x="35" y="228">## Constraints         금지·대체 규칙</text>
+  <text class="sub" x="35" y="254">본문: 스킬이 선택된 뒤에 읽힘</text>
+
+  <rect class="box" x="430" y="36" width="270" height="80" rx="6"/>
+  <text class="lbl" x="565" y="62" text-anchor="middle">① 선택 단계</text>
+  <text class="tag" x="565" y="84" text-anchor="middle">모든 요청마다 스킬 목록(이름+설명)만 봄</text>
+  <text class="tag" x="565" y="102" text-anchor="middle">→ name은 agent의 skills 배열과 일치</text>
+
+  <rect class="box" x="430" y="146" width="270" height="100" rx="6"/>
+  <text class="lbl" x="565" y="172" text-anchor="middle">② 실행 단계</text>
+  <text class="tag" x="565" y="194" text-anchor="middle">본문 절차대로 web_fetch / web_search</text>
+  <text class="tag" x="565" y="212" text-anchor="middle">tools.allow에 없으면 호출 불가</text>
+  <text class="tag" x="565" y="230" text-anchor="middle">실패 시 "Not available yet"</text>
+
+  <path class="ln" d="M350 76 L428 76" marker-end="url(#arr-c05-skillmd)"/>
+  <path class="ln" d="M350 196 L428 196" marker-end="url(#arr-c05-skillmd)"/>
+</svg>

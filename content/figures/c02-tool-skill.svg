@@ -1,0 +1,29 @@
+<svg viewBox="0 0 720 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tool과 Skill의 관계: 스킬은 SKILL.md 메타데이터와 여러 도구를 엮은 코드로 구성됨">
+  <defs>
+    <marker id="arr-c02-tool-skill" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <text class="lbl" x="110" y="28" text-anchor="middle">Tool = 하나의 동작</text>
+  <rect class="box" x="30" y="45" width="160" height="36" rx="6"/>
+  <text class="lbl mono" x="110" y="68" text-anchor="middle">web_fetch(url)</text>
+  <rect class="box" x="30" y="95" width="160" height="36" rx="6"/>
+  <text class="lbl mono" x="110" y="118" text-anchor="middle">read(path)</text>
+  <rect class="box" x="30" y="145" width="160" height="36" rx="6"/>
+  <text class="lbl mono" x="110" y="168" text-anchor="middle">exec(cmd)</text>
+
+  <text class="lbl" x="470" y="28" text-anchor="middle">Skill = 재사용 가능한 작업 모듈</text>
+  <rect class="box-hi" x="260" y="40" width="420" height="150" rx="8"/>
+  <rect class="box" x="280" y="58" width="180" height="116" rx="6"/>
+  <text class="lbl mono" x="370" y="80" text-anchor="middle">SKILL.md</text>
+  <text class="tag" x="370" y="102" text-anchor="middle">이름 · 트리거 문구</text>
+  <text class="tag" x="370" y="122" text-anchor="middle">입력 · 고정 출력 형식</text>
+  <text class="tag" x="370" y="142" text-anchor="middle">실행 단계 · 제약</text>
+  <text class="sub" x="370" y="164" text-anchor="middle">언제·어떻게 부를지</text>
+  <rect class="box" x="480" y="58" width="180" height="116" rx="6"/>
+  <text class="lbl mono" x="570" y="80" text-anchor="middle">코드 (index.js)</text>
+  <text class="tag mono" x="570" y="102" text-anchor="middle">run(input)</text>
+  <text class="tag" x="570" y="122" text-anchor="middle">도구 여러 개를 순서대로</text>
+  <text class="tag" x="570" y="142" text-anchor="middle">오류 처리 · 형식 맞춤</text>
+  <text class="sub" x="570" y="164" text-anchor="middle">부른 뒤 무엇을 할지</text>
+  <path class="ln" d="M190 63 L256 90 M190 113 L256 113 M190 163 L256 136" stroke-width="1.4" marker-end="url(#arr-c02-tool-skill)"/>
+  <text class="sub" x="360" y="222" text-anchor="middle">스킬이 도구 권한을 새로 만들지는 않습니다. 에이전트에 허용된 도구만 쓸 수 있습니다.</text>
+</svg>

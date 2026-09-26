@@ -1,0 +1,25 @@
+<svg viewBox="0 0 720 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="자연어 명령이 OpenClaw 스킬과 안전 계층을 거쳐 ROS 2 토픽으로 전달되는 구조 미리보기">
+  <defs>
+    <marker id="arr-c01-robot" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <rect class="box" x="10" y="40" width="130" height="70" rx="6"/>
+  <text class="lbl" x="75" y="68" text-anchor="middle">사용자</text>
+  <text class="tag" x="75" y="90" text-anchor="middle">“30cm 앞으로 가”</text>
+  <rect class="box" x="165" y="40" width="130" height="70" rx="6"/>
+  <text class="lbl" x="230" y="68" text-anchor="middle">OpenClaw</text>
+  <text class="tag" x="230" y="90" text-anchor="middle">Gateway → robot</text>
+  <rect class="box" x="320" y="40" width="130" height="70" rx="6"/>
+  <text class="lbl" x="385" y="68" text-anchor="middle">로봇 스킬</text>
+  <text class="tag mono" x="385" y="90" text-anchor="middle">move(dist=0.3)</text>
+  <rect class="box-hi" x="475" y="40" width="110" height="70" rx="6"/>
+  <text class="lbl" x="530" y="68" text-anchor="middle">안전 계층</text>
+  <text class="tag" x="530" y="90" text-anchor="middle">속도·거리 제한</text>
+  <rect class="box" x="610" y="40" width="100" height="70" rx="6"/>
+  <text class="lbl" x="660" y="68" text-anchor="middle">ROS 2</text>
+  <text class="tag mono" x="660" y="90" text-anchor="middle">cmd_vel</text>
+  <path class="ln" d="M140 75 L161 75 M295 75 L316 75 M450 75 L471 75 M585 75 L606 75" stroke-width="1.6" marker-end="url(#arr-c01-robot)"/>
+  <path class="ln" d="M660 110 L660 170 L75 170 L75 114" stroke-width="1.4" fill="none" stroke-dasharray="6 4" marker-end="url(#arr-c01-robot)"/>
+  <text class="sub" x="368" y="160" text-anchor="middle">결과 보고: “0.30 m 이동 완료, 배터리 7.6 V”</text>
+  <text class="sub" x="360" y="206" text-anchor="middle">LLM은 “무엇을 할지”만 고르고, 속도 한계와 정지는 결정적 코드가 보장합니다.</text>
+  <text class="tag" x="360" y="230" text-anchor="middle">자세한 구현은 C08 로봇 통합에서 다룹니다.</text>
+</svg>

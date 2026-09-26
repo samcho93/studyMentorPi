@@ -51,6 +51,14 @@
 | A10 | 17. Autonomous Driving — L2 Road Sign Detection, L3 Traffic Light Recognition |
 | A11 | 17. Autonomous Driving — L4 Turning Decision, L5 Autonomous Parking, L6 Integrated Application |
 | A12 | 18. Group Control — 01 Master-Slave Configuration, 02 Group Control Startup |
+| C01 | 19. OpenClaw Robotics Integration Course — 1. OpenClaw Overview |
+| C02 | 19. OpenClaw — 2. OpenClaw Core Concepts |
+| C03 | 19. OpenClaw — 3. Environment Setup and Installation |
+| C04 | 19. OpenClaw — 4. Creating the First Agent |
+| C05 | 19. OpenClaw — 5. Tool Debugging from Scratch |
+| C06 | 19. OpenClaw — 6. Telegram Application Configuration |
+| C07 | 19. OpenClaw — 7. Smart Email Agent in Practice |
+| C08 | 로봇 통합(재구성) — 19. OpenClaw 4~7 + 9. Motion Control, 13. Navigation, src/driver/controller, src/navigation |
 | P01 | 통합 프로젝트 — 12. Mapping, 13. Navigation, 10. Lidar(Guarding), src/navigation, src/app/lidar_controller.py |
 | P02 | 통합 프로젝트 — 14. ROS+OpenCV L3 QR, 13. Navigation L4, src/example/qrcode |
 | P03 | 통합 프로젝트 — 17. Autonomous Driving L1~L6, src/example/self_driving, yolov5_ros2 |

@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C04. 첫 에이전트 만들기: 워크스페이스 규약과 도구 권한 · studyMentorPi</title>
+<meta name="description" content="AGENTS.md·SOUL.md·USER.md·IDENTITY.md·TOOLS.md 워크스페이스 규약과 openclaw.json의 agents.list·systemPrompt·tools.allow/deny로 실행형 에이전트를 정의하고, 작업 분해·진행 보고·최종 정리와 로그 추적으로 검증합니다.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css?v=d46755e0">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=d46755e0">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=d46755e0">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js?v=d46755e0"></script>
+</head>
+<body class="lesson-page track-page-agent">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim3d/index.html">3D 시뮬레이터</a><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a><a class="side-tool" href="../tools/depth-lab.html">깊이 카메라 실험실</a><a class="side-tool" href="../tools/urdf-viewer.html">URDF 뷰어</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라 원리와 영상</a></li>
+<li><a href="../lessons/m14.html" data-slug="m14"><span class="nav-no">M14</span>깊이 카메라 실습: 포인트 클라우드·장애물·측정</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="agent">
+<div class="nav-track-title track-agent">AI 에이전트 (OpenClaw)</div>
+<div class="nav-part"><span class="nav-part-no">C-1</span>OpenClaw 이해와 설치</div>
+<ul>
+<li><a href="../lessons/c01.html" data-slug="c01"><span class="nav-no">C01</span>OpenClaw 개요와 아키텍처</a></li>
+<li><a href="../lessons/c02.html" data-slug="c02"><span class="nav-no">C02</span>핵심 개념: 모델·에이전트·도구·메모리·워크플로·스킬</a></li>
+<li><a href="../lessons/c03.html" data-slug="c03"><span class="nav-no">C03</span>환경 구축과 설치: Node.js·OpenClaw·API 키·Ollama</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">C-2</span>에이전트와 스킬</div>
+<ul>
+<li><a href="../lessons/c04.html" class="active" data-slug="c04"><span class="nav-no">C04</span>첫 에이전트 만들기: 워크스페이스 규약과 도구 권한</a></li>
+<li><a href="../lessons/c05.html" data-slug="c05"><span class="nav-no">C05</span>스킬 작성과 도구 디버깅</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">C-3</span>채널과 실전 에이전트</div>
+<ul>
+<li><a href="../lessons/c06.html" data-slug="c06"><span class="nav-no">C06</span>채널 연결: Telegram 봇</a></li>
+<li><a href="../lessons/c07.html" data-slug="c07"><span class="nav-no">C07</span>실전: 스마트 이메일 에이전트</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">C-4</span>로봇 통합</div>
+<ul>
+<li><a href="../lessons/c08.html" data-slug="c08"><span class="nav-no">C08</span>로봇 통합: 대화로 MentorPi 제어하기</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="project">
+<div class="nav-track-title track-project">프로젝트 (중급·고급)</div>
+<div class="nav-part"><span class="nav-part-no">P-1</span>자율 이동 서비스 로봇</div>
+<ul>
+<li><a href="../lessons/p01.html" data-slug="p01"><span class="nav-no">P01</span>자율 순찰 경비 로봇</a></li>
+<li><a href="../lessons/p02.html" data-slug="p02"><span class="nav-no">P02</span>QR 지시형 실내 배송 로봇</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">P-2</span>지능형 주행</div>
+<ul>
+<li><a href="../lessons/p03.html" data-slug="p03"><span class="nav-no">P03</span>미니 시티 자율주행 챌린지</a></li>
+<li><a href="../lessons/p04.html" data-slug="p04"><span class="nav-no">P04</span>사람 추종 카트 (비전+라이다 융합)</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">P-3</span>고급: 자율성 알고리즘 직접 구현</div>
+<ul>
+<li><a href="../lessons/p05.html" data-slug="p05"><span class="nav-no">P05</span>프런티어 자율 탐사와 다중 로봇 작업 할당</a></li>
+<li><a href="../lessons/p06.html" data-slug="p06"><span class="nav-no">P06</span>스캔 매칭 오도메트리와 EKF 센서 융합 직접 구현</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">P-4</span>고급: 학습·의미 기반 지능</div>
+<ul>
+<li><a href="../lessons/p07.html" data-slug="p07"><span class="nav-no">P07</span>강화학습으로 배우는 라이다 주행 정책</a></li>
+<li><a href="../lessons/p08.html" data-slug="p08"><span class="nav-no">P08</span>시맨틱 지도와 자연어 명령 내비게이션</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="c04" data-track="agent">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-agent">AI 에이전트 (OpenClaw)</span> C-2 에이전트와 스킬 &middot; 약 120분 &middot; 중급</div>
+    <h1><span class="lesson-no">C04</span>첫 에이전트 만들기: 워크스페이스 규약과 도구 권한</h1>
+    <p class="lede">AGENTS.md·SOUL.md·USER.md·IDENTITY.md·TOOLS.md 워크스페이스 규약과 openclaw.json의 agents.list·systemPrompt·tools.allow/deny로 실행형 에이전트를 정의하고, 작업 분해·진행 보고·최종 정리와 로그 추적으로 검증합니다.</p>
+    <div class="requires">선수 챕터: <a href="c02.html">C02</a> <a href="c03.html">C03</a></div>
+    <div class="lesson-actions">
+      <a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>에이전트의 <strong>워크스페이스(workspace)</strong>와 <strong>에이전트 전용 디렉터리(agentDir)</strong>가 각각 무엇을 담는지 구분하고 직접 만듭니다.</li><li>AGENTS.md·SOUL.md·USER.md·IDENTITY.md·TOOLS.md 규약 파일의 역할을 설명하고 최소 템플릿을 작성합니다.</li><li><code>openclaw.json</code>의 <code>agents.list</code>에 에이전트를 등록하고 <code>tools.allow</code>/<code>tools.deny</code>로 <strong>최소 권한</strong>을 설계합니다.</li><li>작업 분해 → 단계별 보고(Step/Status/Output/Next) → 최종 정리로 이어지는 실행형 에이전트의 동작을 CLI로 검증합니다.</li><li>Gateway 상태 → 전경 실행 → doctor → 실행 추적 순서로 문제를 좁혀 갑니다.</li></ul>
+<h2 id="채팅봇이-아니라-실행형-에이전트">채팅봇이 아니라 실행형 에이전트<a class="anchor" href="#채팅봇이-아니라-실행형-에이전트">#</a></h2>
+<p>C02에서 모델(Model)은 두뇌, 도구(Tool)는 손, 에이전트(Agent)는 일을 끝까지 끌고 가는 관리자라고 정리했습니다. 이 장에서는 그 관리자를 하나 직접 만듭니다. 이름은 원본 교재를 따라 **<code>test</code><strong>이고, 성격은 "말 잘하는 비서"가 아니라 </strong>실행형 멀티모달 비서(execution-oriented multimodal assistant)<strong>입니다. 파일을 쓰고, 스크립트를 돌리고, 웹 페이지를 읽고, 카메라로 사진을 찍은 뒤, 무엇을 했는지 </strong>추적 가능한 형태로 보고**하는 것이 목표입니다.</p>
+<p><code>test</code>의 행동은 서로 비교적 독립된 일곱 모듈로 나누어 보면 이해하기 쉽습니다.</p>
+<div class="table-wrap"><table><thead><tr><th>#</th><th>모듈</th><th>하는 일</th><th>필요한 도구(tools.allow)</th></tr></thead><tbody><tr><td>1</td><td>작업 분해 (task breakdown)</td><td>큰 목표를 3~7단계로 나누고 단계별 도구를 표시</td><td>— (프롬프트 규칙)</td></tr><tr><td>2</td><td>파일 관리 (file management)</td><td>읽기·생성·수정·보관, 경로를 반드시 남김</td><td><code>read</code>, <code>write</code>, <code>edit</code>, <code>apply_patch</code></td></tr><tr><td>3</td><td>카메라 촬영 (camera capture)</td><td>별칭으로 카메라를 골라 촬영, 저장 경로 보고</td><td><code>image</code>, <code>nodes</code> (환경에 따라)</td></tr><tr><td>4</td><td>브라우저 제어 (browser control)</td><td>페이지 열기·내용 가져오기, 최종 URL 기록</td><td><code>browser</code>, <code>web_fetch</code>, <code>web_search</code></td></tr><tr><td>5</td><td>스크립트 실행 (script execution)</td><td>정해진 디렉터리에서 실행, 로그·산출물 경로 보고</td><td><code>exec</code>, <code>process</code></td></tr><tr><td>6</td><td>능동 피드백 (proactive feedback)</td><td>단계가 끝날 때마다 즉시 진행 상황 보고</td><td>— (프롬프트 규칙)</td></tr><tr><td>7</td><td>정보 정리 (consolidation)</td><td>끝나면 요약·산출물·로그·미해결을 한 번에 정리</td><td>— (프롬프트 규칙)</td></tr></tbody></table></div>
+<p>표를 보면 에이전트의 능력은 두 층으로 이루어져 있습니다. <strong>무엇을 할 수 있는가</strong>는 <code>openclaw.json</code>의 도구 권한이 정하고, <strong>어떻게 행동하는가</strong>는 워크스페이스의 규약 파일과 systemPrompt가 정합니다. 둘 중 하나만 맞아서는 원하는 동작이 나오지 않습니다. 규칙에 "사진을 찍어라"라고 써도 <code>image</code> 권한이 없으면 찍을 수 없고, 권한이 있어도 규칙이 없으면 어디에 저장했는지 말해 주지 않습니다.</p>
+<h2 id="두-개의-폴더-workspace와-agentdir">두 개의 폴더: workspace와 agentDir<a class="anchor" href="#두-개의-폴더-workspace와-agentdir">#</a></h2>
+<figure class="fig" id="fig-c04-layout"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="openclaw.json의 agents.list 항목이 workspace와 agentDir 두 폴더를 가리키는 구조">
+  <defs>
+    <marker id="arr-c04-layout" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <!-- openclaw.json -->
+  <rect class="box-hi" x="10" y="40" width="250" height="220" rx="6"/>
+  <text class="lbl mono" x="135" y="64" text-anchor="middle">~/.openclaw/openclaw.json</text>
+  <text class="sub mono" x="25" y="92">agents.list[ ]</text>
+  <text class="tag mono" x="35" y="114">id: "test"</text>
+  <text class="tag mono" x="35" y="134">workspace: …/workspace/test</text>
+  <text class="tag mono" x="35" y="154">agentDir: …/agents/test/agent</text>
+  <text class="tag mono" x="35" y="174">model: deepseek-reasoner</text>
+  <text class="tag mono" x="35" y="194">tools.allow / tools.deny</text>
+  <text class="tag mono" x="35" y="214">skills: [ … ]  (5장)</text>
+  <text class="sub" x="135" y="246" text-anchor="middle">무엇을 할 수 있는가 (권한)</text>
+
+  <!-- workspace -->
+  <rect class="box" x="290" y="20" width="200" height="190" rx="6"/>
+  <text class="lbl mono" x="390" y="44" text-anchor="middle">workspace/test/</text>
+  <text class="tag mono" x="305" y="70">AGENTS.md   작업 규칙</text>
+  <text class="tag mono" x="305" y="90">SOUL.md     성격·경계</text>
+  <text class="tag mono" x="305" y="110">USER.md     사용자 기본값</text>
+  <text class="tag mono" x="305" y="130">IDENTITY.md 이름·정체성</text>
+  <text class="tag mono" x="305" y="150">TOOLS.md    도구 메모</text>
+  <text class="tag mono" x="305" y="170">skills/  tmp/  memory/</text>
+  <text class="sub" x="390" y="198" text-anchor="middle">어떻게 행동하는가 (규약)</text>
+
+  <!-- agentDir -->
+  <rect class="box" x="290" y="225" width="200" height="60" rx="6"/>
+  <text class="lbl mono" x="390" y="249" text-anchor="middle">agents/test/agent/</text>
+  <text class="tag" x="390" y="270" text-anchor="middle">전용 설정·인증 · 실행 추적</text>
+
+  <path class="ln" d="M260 134 C272 134 276 115 288 115" marker-end="url(#arr-c04-layout)"/>
+  <path class="ln" d="M260 154 C272 154 276 255 288 255" marker-end="url(#arr-c04-layout)"/>
+
+  <!-- model -->
+  <rect class="box" x="555" y="80" width="150" height="110" rx="6"/>
+  <text class="lbl" x="630" y="106" text-anchor="middle">모델 호출</text>
+  <text class="tag" x="630" y="130" text-anchor="middle">systemPrompt</text>
+  <text class="tag" x="630" y="148" text-anchor="middle">+ 규약 파일 내용</text>
+  <text class="tag" x="630" y="166" text-anchor="middle">+ 허용 도구 목록</text>
+  <path class="ln" d="M490 115 L553 125" marker-end="url(#arr-c04-layout)"/>
+  <path class="ln" d="M490 255 C530 255 540 200 580 192" marker-end="url(#arr-c04-layout)"/>
+  <text class="tag" x="560" y="238">추적 기록</text>
+</svg><figcaption>agents.list의 한 항목이 두 폴더를 가리킵니다. workspace는 모델이 읽는 행동 규약과 작업 공간, agentDir는 에이전트 전용 설정과 실행 추적이 쌓이는 곳입니다.</figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th>경로</th><th>이름</th><th>담는 것</th><th>누가 주로 쓰나</th></tr></thead><tbody><tr><td><code>~/.openclaw/workspace/test</code></td><td><strong>workspace</strong></td><td>규약 파일(AGENTS.md 등), <code>skills/</code>, <code>memory/</code>, 작업 산출물(<code>tmp/</code>)</td><td>사람이 규칙을 쓰고, 에이전트가 결과를 씀</td></tr><tr><td><code>~/.openclaw/agents/test/agent</code></td><td><strong>agentDir</strong></td><td>에이전트 전용 설정·인증 정보, 세션·실행 추적 기록</td><td>OpenClaw가 관리, 사람은 주로 읽기만</td></tr></tbody></table></div>
+<p>원본 교재는 사용자 이름이 <code>ubuntu</code>인 환경이라 <code>openclaw.json</code>에 <code>/home/ubuntu/.openclaw/...</code> 같은 <strong>절대 경로</strong>를 적습니다. 여러분의 사용자 이름이 다르면 <code>/home/&lt;사용자&gt;/...</code>로 바꿔야 합니다. <code>echo $HOME</code>으로 확인하세요.</p>
+<div class="callout callout-tip"><div class="callout-title">왜 폴더를 둘로 나누나요?</div><div class="callout-body"><p>워크스페이스는 에이전트가 <strong>읽고 쓰는 작업장</strong>이고, agentDir는 <strong>에이전트를 운영하는 기록실</strong>입니다. 작업장에 인증 정보나 추적 기록이 섞여 있으면, 파일 쓰기 권한을 가진 에이전트가 실수로(또는 악의적인 지시에 속아) 자기 설정을 고칠 수 있습니다. 경계를 나누어 두면 "워크스페이스 밖은 쓰지 않는다"는 한 줄 규칙으로 많은 사고를 막을 수 있습니다.</p></div></div>
+<h2 id="워크스페이스-규약-파일">워크스페이스 규약 파일<a class="anchor" href="#워크스페이스-규약-파일">#</a></h2>
+<p>OpenClaw는 세션을 시작할 때 워크스페이스의 약속된 이름의 Markdown 파일을 읽어 모델의 맥락(context)에 넣습니다. 즉 이 파일들은 <strong>사람이 쓰는 시스템 프롬프트의 조각</strong>입니다. 파일마다 맡는 역할이 정해져 있습니다.</p>
+<div class="table-wrap"><table><thead><tr><th>파일</th><th>역할</th><th>들어갈 내용 예</th></tr></thead><tbody><tr><td><strong>AGENTS.md</strong></td><td>작업 방식(운영 매뉴얼)</td><td>세션 시작 절차, 작업 분해 규칙, 보고 형식, 정리 형식</td></tr><tr><td><strong>SOUL.md</strong></td><td>성격과 경계</td><td>"채팅봇이 아니라 실행자", 모르면 묻기, 비밀 노출 금지</td></tr><tr><td><strong>USER.md</strong></td><td>사용자 기본값</td><td>시간대, 작업 범위, 카메라 별칭, 출력 디렉터리</td></tr><tr><td><strong>IDENTITY.md</strong></td><td>이름·정체성 표시</td><td>이름, 성격 한 줄, 분위기</td></tr><tr><td><strong>TOOLS.md</strong></td><td>도구 사용 메모(권장)</td><td>카메라 별칭, 브라우저 기록 규칙, 스크립트 디렉터리</td></tr></tbody></table></div>
+<p>아래는 원본 템플릿을 한국 환경에 맞게 다시 쓴 <strong>최소 동작 버전</strong>입니다. 처음에는 짧게 시작하고, 실제로 부족한 점이 보일 때 한 줄씩 늘리는 편이 좋습니다. 규칙이 길어질수록 모델이 일부를 무시할 확률도 커지기 때문입니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">markdown</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-markdown"># AGENTS.md — test 실행형 에이전트 작업 방식
+
+## Session Start
+1. SOUL.md, USER.md, IDENTITY.md, TOOLS.md를 읽는다.
+2. memory/ 아래 오늘·어제 노트가 있으면 읽는다.
+
+## Task Breakdown
+- 복잡한 작업은 실행 전에 3~7단계로 분해한다.
+- 각 단계에 목적, 예상 산출물, 사용할 도구를 적는다.
+- 파일 쓰기·스크립트 실행·장치 조작이 있으면 위험과 확인 사항을 먼저 적는다.
+
+## Proactive Feedback
+- 단계가 끝날 때마다 즉시 Step / Status / Output / Next를 보고한다.
+
+## Information Consolidation
+- 마지막에 요약, 산출물 목록, 핵심 로그 요약, 미해결 항목을 출력한다.</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">markdown</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-markdown"># SOUL.md
+나는 채팅봇이 아니라 실행형 에이전트다.
+- 실행 전에 작업을 분해한다.
+- 확실하지 않으면 묻는다.
+- 개인정보나 키를 노출하지 않는다.
+- 파괴적인 작업(삭제·덮어쓰기·장치 이동)은 확인을 받은 뒤 한다.</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">markdown</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-markdown"># USER.md
+- Timezone: Asia/Seoul
+- 작업 범위(기본 쓰기 위치): workspace/test
+- 카메라 별칭: default
+- 스크립트 기본 실행 디렉터리: workspace/test
+- 스크립트 출력 디렉터리: workspace/test/tmp</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">markdown</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-markdown"># IDENTITY.md
+- Name: test 실행형 멀티모달 비서
+- Creature: 실무형 실행 에이전트
+- Vibe: 구조적이고, 감사(audit) 가능하며, 계획 중심</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">markdown</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-markdown"># TOOLS.md
+## Cameras
+- default: 시스템 기본 카메라
+## Browser
+- 최종 URL과 페이지 핵심 요점을 기록한다.
+## Script Execution
+- 기본 작업 디렉터리: workspace/test
+- 출력 디렉터리: workspace/test/tmp
+- 파괴적인 명령은 실행 전에 확인받는다.</code></pre></div>
+<p>규약 파일이 어떻게 하나의 프롬프트로 합쳐지는지 파이썬으로 흉내 내 봅시다. 실제 OpenClaw는 Node.js로 만들어져 브라우저에서 돌릴 수 없으므로, 아래 코드는 <strong>개념 모형</strong>입니다. 일부러 TOOLS.md를 빠뜨려 누락 검사가 어떻게 보이는지도 확인합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><a class="pg-btn" href="../tools/playground.html#code=IyDsm4ztgazsiqTtjpjsnbTsiqQg6rec7JW9IO2MjOydvCjqsIDsg4EpIOKGkiDsi5zsiqTthZwg7ZSE66Gs7ZSE7Yq4IOyhsOumvQp3b3Jrc3BhY2UgPSB7CiAgICAiQUdFTlRTLm1kIjogIiMgQUdFTlRTLm1kXG4jIyBTZXNzaW9uIFN0YXJ0XG4xLiBTT1VML1VTRVIvSURFTlRJVFkvVE9PTFPrpbwg7J2964qU64ukLlxuIgogICAgICAgICAgICAgICAgICIjIyBUYXNrIEJyZWFrZG93blxuLSDrs7XsnqHtlZwg7J6R7JeF7J2AIDN-N-uLqOqzhOuhnCDrqLzsoIAg67aE7ZW07ZWc64ukLlxuIgogICAgICAgICAgICAgICAgICIjIyBQcm9hY3RpdmUgRmVlZGJhY2tcbi0g64uo6rOE66eI64ukIFN0ZXAvU3RhdHVzL091dHB1dC9OZXh066W8IOuztOqzoO2VnOuLpC5cbiIsCiAgICAiU09VTC5tZCI6ICIjIFNPVUwubWRcbuyLpO2Wie2YlSDsl5DsnbTsoITtirjri6QuIOuqqOultOuptCDrrLvqs6AsIO2MjOq0tOyggSDsnpHsl4XsnYAg7ZmV7J2467Cb64qU64ukLlxuIiwKICAgICJVU0VSLm1kIjogIiMgVVNFUi5tZFxuLSBUaW1lem9uZTogQXNpYS9TZW91bFxuLSDstpzroKUg65SU66CJ7YSw66asOiB3b3Jrc3BhY2UvdGVzdC90bXBcbiIsCiAgICAiSURFTlRJVFkubWQiOiAiIyBJREVOVElUWS5tZFxuLSBOYW1lOiB0ZXN0IOyLpO2Wie2YlSDrqYDti7Drqqjri6wg67mE7IScXG4iLAogICAgIyBUT09MUy5tZOuKlCDsnbzrtoDrn6wg67mg65yo66CkIOuzuOuLpAp9Ck9SREVSID0gWyJBR0VOVFMubWQiLCAiU09VTC5tZCIsICJVU0VSLm1kIiwgIklERU5USVRZLm1kIiwgIlRPT0xTLm1kIl0KUkVRVUlSRUQgPSB7IkFHRU5UUy5tZCIsICJTT1VMLm1kIiwgIlVTRVIubWQiLCAiSURFTlRJVFkubWQifQoKZGVmIGhlYWRpbmdzKHRleHQpOgogICAgcmV0dXJuIFtsbi5sc3RyaXAoIiMgIikuc3RyaXAoKSBmb3IgbG4gaW4gdGV4dC5zcGxpdGxpbmVzKCkgaWYgbG4uc3RhcnRzd2l0aCgiIyMgIildCgpkZWYgYXNzZW1ibGUoYmFzZV9ydWxlcywgZmlsZXMpOgogICAgcGFydHMsIHJlcG9ydCA9IFtiYXNlX3J1bGVzXSwgW10KICAgIGZvciBuYW1lIGluIE9SREVSOgogICAgICAgIGlmIG5hbWUgbm90IGluIGZpbGVzOgogICAgICAgICAgICBsZXZlbCA9ICLriITrnb0o7ZWE7IiYKSIgaWYgbmFtZSBpbiBSRVFVSVJFRCBlbHNlICLriITrnb0o6raM7J6lKSIKICAgICAgICAgICAgcmVwb3J0LmFwcGVuZChmIntuYW1lOjEyc30ge2xldmVsfSIpCiAgICAgICAgICAgIGNvbnRpbnVlCiAgICAgICAgYm9keSA9IGZpbGVzW25hbWVdLnN0cmlwKCkKICAgICAgICBwYXJ0cy5hcHBlbmQoZiI8ZmlsZSBuYW1lPSd7bmFtZX0nPlxue2JvZHl9XG48L2ZpbGU-IikKICAgICAgICBocyA9ICIsICIuam9pbihoZWFkaW5ncyhib2R5KSkgb3IgIi0iCiAgICAgICAgcmVwb3J0LmFwcGVuZChmIntuYW1lOjEyc30ge2xlbihib2R5KTozZH3snpAgIOyEueyFmDoge2hzfSIpCiAgICByZXR1cm4gIlxuXG4iLmpvaW4ocGFydHMpLCByZXBvcnQKCmJhc2UgPSAiWW91IGFyZSBhZ2VudCAndGVzdCcuIEZvbGxvdyB0aGUgd29ya3NwYWNlIGZpbGVzIGJlbG93LiIKcHJvbXB0LCByZXBvcnQgPSBhc3NlbWJsZShiYXNlLCB3b3Jrc3BhY2UpCmZvciByIGluIHJlcG9ydDoKICAgIHByaW50KHIpCnByaW50KCLsobDrpr3rkJwg7ZSE66Gs7ZSE7Yq4IOq4uOydtDoiLCBsZW4ocHJvbXB0KSwgIuyekCIpCnByaW50KCJVU0VSLm1kIOuwmOyYgSDsl6zrtoA6IiwgIkFzaWEvU2VvdWwiIGluIHByb21wdCk" target="_blank" rel="noopener" title="Playground에서 열기 (새 탭)">Playground ↗</a><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python"># 워크스페이스 규약 파일(가상) → 시스템 프롬프트 조립
+workspace = {
+    &quot;AGENTS.md&quot;: &quot;# AGENTS.md\n## Session Start\n1. SOUL/USER/IDENTITY/TOOLS를 읽는다.\n&quot;
+                 &quot;## Task Breakdown\n- 복잡한 작업은 3~7단계로 먼저 분해한다.\n&quot;
+                 &quot;## Proactive Feedback\n- 단계마다 Step/Status/Output/Next를 보고한다.\n&quot;,
+    &quot;SOUL.md&quot;: &quot;# SOUL.md\n실행형 에이전트다. 모르면 묻고, 파괴적 작업은 확인받는다.\n&quot;,
+    &quot;USER.md&quot;: &quot;# USER.md\n- Timezone: Asia/Seoul\n- 출력 디렉터리: workspace/test/tmp\n&quot;,
+    &quot;IDENTITY.md&quot;: &quot;# IDENTITY.md\n- Name: test 실행형 멀티모달 비서\n&quot;,
+    # TOOLS.md는 일부러 빠뜨려 본다
+}
+ORDER = [&quot;AGENTS.md&quot;, &quot;SOUL.md&quot;, &quot;USER.md&quot;, &quot;IDENTITY.md&quot;, &quot;TOOLS.md&quot;]
+REQUIRED = {&quot;AGENTS.md&quot;, &quot;SOUL.md&quot;, &quot;USER.md&quot;, &quot;IDENTITY.md&quot;}
+
+def headings(text):
+    return [ln.lstrip(&quot;# &quot;).strip() for ln in text.splitlines() if ln.startswith(&quot;## &quot;)]
+
+def assemble(base_rules, files):
+    parts, report = [base_rules], []
+    for name in ORDER:
+        if name not in files:
+            level = &quot;누락(필수)&quot; if name in REQUIRED else &quot;누락(권장)&quot;
+            report.append(f&quot;{name:12s} {level}&quot;)
+            continue
+        body = files[name].strip()
+        parts.append(f&quot;&lt;file name=&#x27;{name}&#x27;&gt;\n{body}\n&lt;/file&gt;&quot;)
+        hs = &quot;, &quot;.join(headings(body)) or &quot;-&quot;
+        report.append(f&quot;{name:12s} {len(body):3d}자  섹션: {hs}&quot;)
+    return &quot;\n\n&quot;.join(parts), report
+
+base = &quot;You are agent &#x27;test&#x27;. Follow the workspace files below.&quot;
+prompt, report = assemble(base, workspace)
+for r in report:
+    print(r)
+print(&quot;조립된 프롬프트 길이:&quot;, len(prompt), &quot;자&quot;)
+print(&quot;USER.md 반영 여부:&quot;, &quot;Asia/Seoul&quot; in prompt)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">AGENTS.md    166자  섹션: Session Start, Task Breakdown, Proactive Feedback
+SOUL.md       43자  섹션: -
+USER.md       62자  섹션: -
+IDENTITY.md   38자  섹션: -
+TOOLS.md     누락(권장)
+조립된 프롬프트 길이: 498 자
+USER.md 반영 여부: True</code></pre></div>
+<p>핵심은 <strong>규약 파일의 내용이 곧 모델이 보는 글자</strong>라는 점입니다. 파일을 고쳤는데 행동이 바뀌지 않는다면, 먼저 그 글자가 실제로 프롬프트에 들어갔는지(경로가 맞는지, 새 세션인지)를 의심해야 합니다. 또 파일이 길어지면 매 요청마다 토큰 비용이 늘어나므로 규약은 짧고 구체적으로 씁니다.</p>
+<h2 id="openclaw-json에-등록하기">openclaw.json에 등록하기<a class="anchor" href="#openclaw-json에-등록하기">#</a></h2>
+<p>규약 파일만으로는 에이전트가 존재하지 않습니다. <code>~/.openclaw/openclaw.json</code>의 <code>agents.list</code>에 항목을 추가해야 Gateway가 <code>test</code>라는 에이전트를 알게 됩니다. 원본 교재의 항목은 다음과 같습니다(경로의 <code>ubuntu</code>는 여러분의 사용자 이름으로 바꿉니다).</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-json">{
+  &quot;id&quot;: &quot;test&quot;,
+  &quot;name&quot;: &quot;test (execution-oriented multimodal assistant)&quot;,
+  &quot;workspace&quot;: &quot;/home/ubuntu/.openclaw/workspace/test&quot;,
+  &quot;agentDir&quot;: &quot;/home/ubuntu/.openclaw/agents/test/agent&quot;,
+  &quot;model&quot;: &quot;deepseek/deepseek-reasoner&quot;,
+  &quot;identity&quot;: {
+    &quot;name&quot;: &quot;test (execution-oriented multimodal assistant)&quot;
+  },
+  &quot;tools&quot;: {
+    &quot;allow&quot;: [
+      &quot;read&quot;, &quot;write&quot;, &quot;edit&quot;, &quot;apply_patch&quot;,
+      &quot;exec&quot;, &quot;process&quot;,
+      &quot;browser&quot;, &quot;web_search&quot;, &quot;web_fetch&quot;,
+      &quot;memory_search&quot;, &quot;memory_get&quot;,
+      &quot;session_status&quot;, &quot;sessions_list&quot;, &quot;sessions_history&quot;,
+      &quot;message&quot;, &quot;nodes&quot;, &quot;image&quot;
+    ],
+    &quot;deny&quot;: [
+      &quot;sessions_spawn&quot;, &quot;subagents&quot;, &quot;canvas&quot;, &quot;cron&quot;, &quot;gateway&quot;
+    ]
+  }
+}</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>필드</th><th>의미</th><th>주의</th></tr></thead><tbody><tr><td><code>id</code></td><td>CLI·라우팅에서 쓰는 식별자 (<code>--agent test</code>)</td><td>영문 소문자, 다른 에이전트와 겹치지 않게</td></tr><tr><td><code>name</code>, <code>identity.name</code></td><td>사람이 보는 표시 이름</td><td>자유롭게</td></tr><tr><td><code>workspace</code>, <code>agentDir</code></td><td>위에서 만든 두 폴더의 절대 경로</td><td><code>~</code>보다 절대 경로가 안전</td></tr><tr><td><code>model</code></td><td>이 에이전트만 쓸 모델 (<code>provider/model</code>)</td><td>생략하면 <code>agents.defaults.model</code> 사용. 원본은 추론형 <code>deepseek-reasoner</code></td></tr><tr><td><code>tools.allow</code> / <code>tools.deny</code></td><td>호출 가능한/금지된 도구 목록</td><td>아래 절에서 자세히</td></tr></tbody></table></div>
+<p>같은 파일의 <code>agents.defaults</code>에는 기본 모델(<code>deepseek/deepseek-chat</code>)과 기본 워크스페이스가, <code>list</code>의 첫 항목에는 기본 에이전트 <code>main</code>이 이미 있을 것입니다. <code>test</code>는 그 <strong>뒤에 한 항목을 추가</strong>하는 것이지, 파일 전체를 교재 예시로 덮어쓰는 것이 아닙니다.</p>
+<div class="callout callout-danger"><div class="callout-title">openclaw.json을 통째로 복사하거나 공유하지 마세요</div><div class="callout-body"><p><code>openclaw.json</code>에는 모델 API 키 프로필, 채널 앱 비밀값(appSecret, 봇 토큰), <strong>Gateway 인증 토큰</strong>(<code>gateway.auth.token</code>)이 함께 들어 있습니다. 교재·블로그의 예시 파일을 그대로 붙여 넣으면 남의 비밀값이 섞이거나, 반대로 여러분의 파일을 질문 게시판에 올리면서 비밀값이 새어 나갑니다. 공유할 때는 <code>&lt;GATEWAY_TOKEN&gt;</code>, <code>&lt;TELEGRAM_BOT_TOKEN&gt;</code>처럼 반드시 자리표시자로 바꿉니다.</p></div></div>
+<h3 id="systemprompt-실행-규칙">systemPrompt: 실행 규칙<a class="anchor" href="#systemprompt-실행-규칙">#</a></h3>
+<p>원본 교재는 <code>test</code>의 <strong>systemPrompt</strong>에 다음 네 가지 요구를 넣습니다. AGENTS.md와 내용이 겹치는데, 이것은 의도된 이중화입니다. systemPrompt는 모든 요청에 강하게 걸리는 규칙이고, AGENTS.md는 사람이 고치기 쉬운 세부 매뉴얼입니다.</p>
+<ol><li>복잡한 목표는 먼저 <strong>3~7단계 작업 분해</strong>를 출력하고, 단계마다 필요한 도구를 표시한다.</li><li>실행 중에는 <strong>단계가 끝날 때마다 즉시</strong> 상태, 산출물(경로·스크린샷·URL·핵심 로그), 다음 단계 또는 확인 질문을 보고한다.</li><li>끝나면 <strong>정보를 정리</strong>한다: 요약, 산출물 목록, 핵심 로그 요약, 미해결 항목과 다음 단계.</li><li><strong>안전 우선</strong>: 매개변수가 불분명하거나 큰 손실이 날 수 있는 작업은 확인을 받고, 개인정보나 키를 노출하지 않는다.</li></ol>
+<div class="callout callout-info"><div class="callout-title">버전 차이</div><div class="callout-body"><p>원본은 OpenClaw 2026.3.24 기준입니다. systemPrompt를 에이전트 항목의 어느 키에 두는지, <code>tools.profile</code>과 allow/deny가 어떻게 합쳐지는지는 버전마다 달라질 수 있습니다. 설정을 바꾼 뒤에는 <code>openclaw doctor</code>로 알 수 없는 키 경고가 없는지 확인하고, 경고가 나면 같은 규칙을 AGENTS.md에 두는 쪽으로 대체합니다.</p></div></div>
+<h2 id="도구-권한-최소-권한의-원칙">도구 권한: 최소 권한의 원칙<a class="anchor" href="#도구-권한-최소-권한의-원칙">#</a></h2>
+<p><code>test</code>의 권한 전략은 한 문장으로 요약됩니다. <strong>작업 실행과 산출물 생성은 허용하되, 시스템 수준의 고위험 능력은 막는다.</strong></p>
+<div class="table-wrap"><table><thead><tr><th>구분</th><th>도구</th><th>이유</th></tr></thead><tbody><tr><td>허용 — 파일</td><td><code>read</code>, <code>write</code>, <code>edit</code>, <code>apply_patch</code></td><td>산출물을 만들고 고쳐야 함</td></tr><tr><td>허용 — 실행</td><td><code>exec</code>, <code>process</code></td><td>스크립트 실행, 프로세스 관리</td></tr><tr><td>허용 — 웹</td><td><code>browser</code>, <code>web_search</code>, <code>web_fetch</code></td><td>페이지 읽기·검색</td></tr><tr><td>허용 — 기억·세션</td><td><code>memory_search</code>, <code>memory_get</code>, <code>session_status</code>, <code>sessions_list</code>, <code>sessions_history</code></td><td>맥락 참조(읽기 위주)</td></tr><tr><td>허용 — 기타</td><td><code>message</code>, <code>nodes</code>, <code>image</code></td><td>메시지 전송, 연결된 장치, 이미지(카메라)</td></tr><tr><td><strong>거부</strong></td><td><code>sessions_spawn</code>, <code>subagents</code></td><td>에이전트가 <strong>다른 에이전트를 낳아</strong> 일을 넘기면 권한·비용·추적이 흐려짐</td></tr><tr><td><strong>거부</strong></td><td><code>cron</code></td><td>사람이 보지 않는 시간에 <strong>스스로 예약 실행</strong> — 실수가 반복·누적됨</td></tr><tr><td><strong>거부</strong></td><td><code>gateway</code></td><td>Gateway 설정 변경·재시작 = 에이전트가 <strong>자기 권한을 스스로 넓힐 수 있음</strong></td></tr><tr><td><strong>거부</strong></td><td><code>canvas</code></td><td>이 장의 과제에 필요 없는 UI 기능</td></tr></tbody></table></div>
+<p><strong>최소 권한의 원칙(principle of least privilege)</strong>은 "일을 하는 데 꼭 필요한 권한만 준다"는 보안의 기본 원칙입니다. LLM 에이전트에서는 특히 중요합니다. 모델은 확률적으로 동작하고, 웹 페이지나 메일에 숨겨진 문장에 속을 수 있습니다(프롬프트 인젝션, prompt injection). 속았을 때 <strong>할 수 있는 일의 최대치</strong>를 줄여 두는 것이 권한 설계입니다. <code>cron</code>과 <code>gateway</code>를 막는 이유가 바로 이것입니다. 한 번의 잘못된 판단이 "매일 반복"되거나 "권한 확장"으로 번지는 길을 원천적으로 끊습니다.</p>
+<p>allow와 deny가 함께 있을 때는 흔히 다음 규칙으로 판정합니다: <strong>deny가 우선</strong>하고, allow 목록이 있으면 <strong>목록에 없는 도구는 거부</strong>합니다. 아래 모형으로 확인해 봅시다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><a class="pg-btn" href="../tools/playground.html#code=IyB0b29scy5hbGxvdyAvIHRvb2xzLmRlbnkg7YyQ7KCVICjsm5Drs7ggdGVzdCDsl5DsnbTsoITtirgg66qp66GdIOq3uOuMgOuhnCkKQUxMT1cgPSBbInJlYWQiLCAid3JpdGUiLCAiZWRpdCIsICJhcHBseV9wYXRjaCIsICJleGVjIiwgInByb2Nlc3MiLCAiYnJvd3NlciIsCiAgICAgICAgICJ3ZWJfc2VhcmNoIiwgIndlYl9mZXRjaCIsICJtZW1vcnlfc2VhcmNoIiwgIm1lbW9yeV9nZXQiLCAic2Vzc2lvbl9zdGF0dXMiLAogICAgICAgICAic2Vzc2lvbnNfbGlzdCIsICJzZXNzaW9uc19oaXN0b3J5IiwgIm1lc3NhZ2UiLCAibm9kZXMiLCAiaW1hZ2UiXQpERU5ZID0gWyJzZXNzaW9uc19zcGF3biIsICJzdWJhZ2VudHMiLCAiY2FudmFzIiwgImNyb24iLCAiZ2F0ZXdheSJdCgpkZWYgZGVjaWRlKHRvb2wsIGFsbG93PUFMTE9XLCBkZW55PURFTlkpOgogICAgaWYgdG9vbCBpbiBkZW55OgogICAgICAgIHJldHVybiAi6rGw67aAIiwgImRlbnkg66qp66GdIOKAlCBkZW556rCAIGFsbG9367O064ukIOyasOyEoCIKICAgIGlmIGFsbG93IGFuZCB0b29sIG5vdCBpbiBhbGxvdzoKICAgICAgICByZXR1cm4gIuqxsOu2gCIsICJhbGxvdyDrqqnroZ3sl5Ag7JeG7J2MIOKAlCDquLDrs7gg6rGw67aAIgogICAgcmV0dXJuICLtl4jsmqkiLCAiYWxsb3cg66qp66GdIgoKcmVxdWVzdHMgPSBbIndyaXRlIiwgImV4ZWMiLCAiaW1hZ2UiLCAiY3JvbiIsICJnYXRld2F5IiwgInN1YmFnZW50cyIsICJ0dHMiXQpmb3IgdCBpbiByZXF1ZXN0czoKICAgIHZlcmRpY3QsIHdoeSA9IGRlY2lkZSh0KQogICAgcHJpbnQoZiJ7dDoxMHN9IOKGkiB7dmVyZGljdH0gICh7d2h5fSkiKQoKIyDqsJnsnYAg64-E6rWs6rCAIOyWkeyqveyXkCDsnojsnLzrqbQ_IGRlbnnqsIAg7J206ri064ukCnByaW50KCJcbuy2qeuPjCDsmIg6IiwgZGVjaWRlKCJleGVjIiwgYWxsb3c9QUxMT1csIGRlbnk9REVOWSArIFsiZXhlYyJdKSkKCiMg7LWc7IaMIOq2jO2VnCDsoJDqsoA6IOqzvOygnOyXkCDtlYTsmpTtlZwg64-E6rWs66eMIOuCqOq4sOuptCDrqocg6rCc6rCAIOykhOyWtOuTnOuKlOqwgApuZWVkID0geyJyZWFkIiwgIndyaXRlIiwgImV4ZWMiLCAid2ViX2ZldGNoIn0KZXh0cmEgPSBzb3J0ZWQoc2V0KEFMTE9XKSAtIG5lZWQpCnByaW50KGYiXG7qs7zsoJwg7ZWE7JqUIHtsZW4obmVlZCl96rCcIC8g7ZeI7JqpIHtsZW4oQUxMT1cpfeqwnCDihpIg7Jes67aEIHtsZW4oZXh0cmEpfeqwnCIpCnByaW50KCLsl6zrtoQg7JiIOiIsICIsICIuam9pbihleHRyYVs6Nl0pLCAiLi4uIik" target="_blank" rel="noopener" title="Playground에서 열기 (새 탭)">Playground ↗</a><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python"># tools.allow / tools.deny 판정 (원본 test 에이전트 목록 그대로)
+ALLOW = [&quot;read&quot;, &quot;write&quot;, &quot;edit&quot;, &quot;apply_patch&quot;, &quot;exec&quot;, &quot;process&quot;, &quot;browser&quot;,
+         &quot;web_search&quot;, &quot;web_fetch&quot;, &quot;memory_search&quot;, &quot;memory_get&quot;, &quot;session_status&quot;,
+         &quot;sessions_list&quot;, &quot;sessions_history&quot;, &quot;message&quot;, &quot;nodes&quot;, &quot;image&quot;]
+DENY = [&quot;sessions_spawn&quot;, &quot;subagents&quot;, &quot;canvas&quot;, &quot;cron&quot;, &quot;gateway&quot;]
+
+def decide(tool, allow=ALLOW, deny=DENY):
+    if tool in deny:
+        return &quot;거부&quot;, &quot;deny 목록 — deny가 allow보다 우선&quot;
+    if allow and tool not in allow:
+        return &quot;거부&quot;, &quot;allow 목록에 없음 — 기본 거부&quot;
+    return &quot;허용&quot;, &quot;allow 목록&quot;
+
+requests = [&quot;write&quot;, &quot;exec&quot;, &quot;image&quot;, &quot;cron&quot;, &quot;gateway&quot;, &quot;subagents&quot;, &quot;tts&quot;]
+for t in requests:
+    verdict, why = decide(t)
+    print(f&quot;{t:10s} → {verdict}  ({why})&quot;)
+
+# 같은 도구가 양쪽에 있으면? deny가 이긴다
+print(&quot;\n충돌 예:&quot;, decide(&quot;exec&quot;, allow=ALLOW, deny=DENY + [&quot;exec&quot;]))
+
+# 최소 권한 점검: 과제에 필요한 도구만 남기면 몇 개가 줄어드는가
+need = {&quot;read&quot;, &quot;write&quot;, &quot;exec&quot;, &quot;web_fetch&quot;}
+extra = sorted(set(ALLOW) - need)
+print(f&quot;\n과제 필요 {len(need)}개 / 허용 {len(ALLOW)}개 → 여분 {len(extra)}개&quot;)
+print(&quot;여분 예:&quot;, &quot;, &quot;.join(extra[:6]), &quot;...&quot;)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">write      → 허용  (allow 목록)
+exec       → 허용  (allow 목록)
+image      → 허용  (allow 목록)
+cron       → 거부  (deny 목록 — deny가 allow보다 우선)
+gateway    → 거부  (deny 목록 — deny가 allow보다 우선)
+subagents  → 거부  (deny 목록 — deny가 allow보다 우선)
+tts        → 거부  (allow 목록에 없음 — 기본 거부)
+
+충돌 예: (&#x27;거부&#x27;, &#x27;deny 목록 — deny가 allow보다 우선&#x27;)
+
+과제 필요 4개 / 허용 17개 → 여분 13개
+여분 예: apply_patch, browser, edit, image, memory_get, memory_search ...</code></pre></div>
+<p>마지막 두 줄이 주는 교훈이 중요합니다. 교재의 <code>test</code>는 여러 능력을 시연하려고 17개를 열어 두었지만, 실제 업무용 에이전트라면 <strong>그 업무에 필요한 도구만</strong> 남기는 편이 안전합니다. 5장의 브리핑 스킬 예시에서도 원본은 파일 쓰기(<code>write</code>, <code>edit</code>)를 뺀 축소 목록을 함께 보여 줍니다.</p>
+<div class="callout callout-warn"><div class="callout-title">권한을 바꾸면 반드시 재시작</div><div class="callout-body"><p><code>tools.allow</code>/<code>deny</code>를 포함해 <code>openclaw.json</code>을 고친 뒤에는 <code>openclaw gateway restart</code>를 실행해야 반영됩니다. "권한을 줬는데 여전히 못 한다"는 문의의 상당수가 재시작 누락입니다.</p></div></div>
+<h2 id="일곱-모듈-자세히-보기">일곱 모듈 자세히 보기<a class="anchor" href="#일곱-모듈-자세히-보기">#</a></h2>
+<figure class="fig" id="fig-c04-feedback"><svg viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="작업 분해, 단계별 보고, 최종 정리로 이어지는 실행형 에이전트의 흐름">
+  <defs>
+    <marker id="arr-c04-feedback" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <rect class="box" x="15" y="30" width="150" height="120" rx="6"/>
+  <text class="lbl" x="90" y="56" text-anchor="middle">① 작업 분해</text>
+  <text class="tag" x="90" y="80" text-anchor="middle">3~7개 Step</text>
+  <text class="tag" x="90" y="100" text-anchor="middle">목적·예상 산출물·도구</text>
+  <text class="tag" x="90" y="120" text-anchor="middle">위험·확인 사항 먼저</text>
+
+  <rect class="box-hi" x="215" y="30" width="270" height="120" rx="6"/>
+  <text class="lbl" x="350" y="56" text-anchor="middle">② 단계 실행 + 즉시 보고</text>
+  <text class="tag mono" x="235" y="82">Step:   번호·이름</text>
+  <text class="tag mono" x="235" y="100">Status: 완료 / 진행 중 / 실패(이유)</text>
+  <text class="tag mono" x="235" y="118">Output: 경로 · URL · 사진 · 로그</text>
+  <text class="tag mono" x="235" y="136">Next:   다음 행동 / 확인 질문</text>
+
+  <rect class="box" x="535" y="30" width="170" height="120" rx="6"/>
+  <text class="lbl" x="620" y="56" text-anchor="middle">③ 최종 정리</text>
+  <text class="tag" x="620" y="80" text-anchor="middle">요약 3~6줄</text>
+  <text class="tag" x="620" y="98" text-anchor="middle">산출물 목록(능력별)</text>
+  <text class="tag" x="620" y="116" text-anchor="middle">핵심 로그 요약</text>
+  <text class="tag" x="620" y="134" text-anchor="middle">미해결 · 다음 단계</text>
+
+  <path class="ln" d="M165 90 L213 90" marker-end="url(#arr-c04-feedback)"/>
+  <path class="ln" d="M485 90 L533 90" marker-end="url(#arr-c04-feedback)"/>
+  <path class="ln-hi" d="M400 150 C400 190 300 190 300 152" marker-end="url(#arr-c04-feedback)"/>
+  <text class="tag" x="350" y="200" text-anchor="middle">Step마다 반복</text>
+
+  <text class="sub" x="15" y="240">사용된 도구 모듈:</text>
+  <text class="tag" x="130" y="240">파일(read/write/edit/apply_patch) · 카메라(image/nodes) · 브라우저(browser/web_fetch)</text>
+  <text class="tag" x="130" y="260">스크립트(exec/process) — 모두 tools.allow에 있어야 호출 가능</text>
+</svg><figcaption>실행형 에이전트의 한 사이클. 분해한 Step마다 실행과 즉시 보고가 반복되고, 마지막에 추적 가능한 정리 보고서가 나옵니다.</figcaption></figure>
+<h3 id="1-작업-분해">1) 작업 분해<a class="anchor" href="#1-작업-분해">#</a></h3>
+<p>여러 능력이 섞인 목표나 큰 작업이면 실행 전에 <strong>Step 목록</strong>이 먼저 나와야 합니다. 각 Step에는 목적·예상 산출물·도구 종류(파일/카메라/브라우저/스크립트)가 붙고, 파일 쓰기·스크립트·장치 조작이 있으면 <strong>위험과 확인 사항</strong>을 먼저 나열한 뒤 매개변수가 분명해져야 실행합니다. 분해가 나타나지 않으면 대개 요청의 매개변수가 부족했거나, systemPrompt와 AGENTS.md의 Task Breakdown 규칙이 로드되지 않은 것입니다.</p>
+<h3 id="2-파일-관리-읽기-생성-수정-보관">2) 파일 관리 (읽기·생성·수정·보관)<a class="anchor" href="#2-파일-관리-읽기-생성-수정-보관">#</a></h3>
+<div class="table-wrap"><table><thead><tr><th>동작</th><th>도구</th><th>규칙</th></tr></thead><tbody><tr><td>읽기</td><td><code>read</code></td><td>먼저 읽고 판단한다</td></tr><tr><td>생성·수정</td><td><code>write</code>, <code>edit</code>, <code>apply_patch</code></td><td>워크스페이스 안에만, 결과 경로를 남긴다</td></tr><tr><td>보관(archive)</td><td>—</td><td>핵심 결과와 <strong>경로</strong>를 정리 보고서의 산출물 목록에 쓴다</td></tr></tbody></table></div>
+<p>에이전트에게 파일 작업을 맡길 때는 최소한 ① 대상의 상대 경로(예: <code>workspace/test/tmp/notes.txt</code>), ② 내용 요구(형식·필드·개수), ③ 기대 산출물을 분명히 적어 줍니다.</p>
+<h3 id="3-카메라-촬영">3) 카메라 촬영<a class="anchor" href="#3-카메라-촬영">#</a></h3>
+<p>USER.md의 카메라 별칭(<code>default</code> = 시스템 기본 카메라)을 먼저 확인하고, 촬영 대상·각도·연속 촬영 여부가 빠졌으면 묻습니다. 촬영 뒤에는 이미지 경로나 링크를 정리 보고서에 남기고, 실패하면 이유와 다음 행동(별칭 변경, 재시도, 수동 촬영 후 업로드)을 제시합니다. 카메라 기능이 <code>image</code> 도구로 제공되는 환경이라면 <code>tools.allow</code>에 <code>image</code>가 있어야 합니다.</p>
+<h3 id="4-브라우저-제어">4) 브라우저 제어<a class="anchor" href="#4-브라우저-제어">#</a></h3>
+<p>페이지를 열거나 이동하면 <strong>최종 URL</strong>을 기록하고, 내용이 필요하면 <code>web_fetch</code>나 브라우저 도구로 가져와 요점만 정리합니다. 페이지 원문을 길게 옮기지 않는 것은 가독성뿐 아니라 <strong>민감한 내용 노출을 줄이기 위해서</strong>이기도 합니다.</p>
+<h3 id="5-스크립트-실행">5) 스크립트 실행<a class="anchor" href="#5-스크립트-실행">#</a></h3>
+<p>기본 실행 위치는 <code>workspace/test</code>, 산출물은 <code>workspace/test/tmp</code>에 먼저 씁니다. 실행 전에는 명령(또는 스크립트 요약)과 예상 출력 경로를 다시 말하고, 실행 뒤에는 <code>stdout</code>·<code>stderr</code>의 핵심 줄과 출력 경로를 정리합니다. 이 "실행 전 복창"은 사람이 끼어들 수 있는 마지막 기회이므로 로봇 제어로 가면 더욱 중요해집니다.</p>
+<h3 id="6-능동-피드백과-7-정보-정리">6) 능동 피드백과 7) 정보 정리<a class="anchor" href="#6-능동-피드백과-7-정보-정리">#</a></h3>
+<p>단계마다 <strong>Step / Status / Output / Next</strong> 네 줄을 보고하면, 어디서 막혔는지가 대화 기록만 보고도 드러납니다. 모든 단계가 끝나면 정리 보고서에 ① 3~6줄 요약, ② 능력별 산출물 목록(파일·이미지·웹 요점·스크립트 결과), ③ 산출물과 관련된 핵심 로그만, ④ 미해결 항목과 다음 단계를 담습니다. <strong>합격 기준</strong>은 "보고서만 보고 결과물을 찾아갈 수 있는가"입니다. 경로·URL·스크린샷 같은 추적 가능한 정보가 없으면 불합격입니다.</p>
+<p>아래 모형은 이 사이클 전체를 흉내 냅니다. 도구는 <code>read</code>/<code>write</code>/<code>exec</code>만 허용하고, 파일 쓰기는 메모리 속 딕셔너리에 하되 <strong>워크스페이스 밖 경로는 거부</strong>합니다. 4단계는 경로 탈출(<code>../../</code>)을, 5단계는 권한 없는 <code>cron</code>을 일부러 시도합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><a class="pg-btn" href="../tools/playground.html#code=IyDsi6TtlontmJUg7JeQ7J207KCE7Yq4IOuqqOydmDog64uo6rOEIOqzhO2ajSDihpIg64uo6rOE67OEIOuztOqzoCDihpIg7LWc7KKFIOygleumrAppbXBvcnQgcG9zaXhwYXRoCldTID0gIndvcmtzcGFjZS90ZXN0IgpBTExPVyA9IHsicmVhZCIsICJ3cml0ZSIsICJleGVjIn0KZnMsIGxvZyA9IHt9LCBbXSAgICAgICAgICAgICAgICAgICAgICAgIyDrqZTrqqjrpqwg7IaNIO2MjOydvCDsi5zsiqTthZwsIO2VteyLrCDroZzqt7gKCmRlZiBzYWZlX3BhdGgocCk6CiAgICBmdWxsID0gcG9zaXhwYXRoLm5vcm1wYXRoKHBvc2l4cGF0aC5qb2luKFdTLCBwKSkKICAgIGlmIG5vdCBmdWxsLnN0YXJ0c3dpdGgoV1MgKyAiLyIpOgogICAgICAgIHJhaXNlIFBlcm1pc3Npb25FcnJvcihmIuybjO2BrOyKpO2OmOydtOyKpCDrsJYg6rK966GcIOqxsOu2gDoge2Z1bGx9IikKICAgIHJldHVybiBmdWxsCgpkZWYgdG9vbChuYW1lLCAqKmt3KToKICAgIGlmIG5hbWUgbm90IGluIEFMTE9XOgogICAgICAgIHJhaXNlIFBlcm1pc3Npb25FcnJvcihmIuuPhOq1rCAne25hbWV9JyDqtoztlZwg7JeG7J2MIikKICAgIGlmIG5hbWUgPT0gIndyaXRlIjoKICAgICAgICBwYXRoID0gc2FmZV9wYXRoKGt3WyJwYXRoIl0pOyBmc1twYXRoXSA9IGt3WyJ0ZXh0Il07IHJldHVybiBwYXRoCiAgICBpZiBuYW1lID09ICJleGVjIjogICAgICAgICAgICAgICAgICAjIOyKpO2BrOumve2KuCDsi6Ttlokg7Z2J64K0OiA37J287LmYIENTViDsg53shLEKICAgICAgICByb3dzID0gWyJkYXksdGVtcEMiXSArIFtmIkQtezYtaX0sezE4K2l9IiBmb3IgaSBpbiByYW5nZSg3KV0KICAgICAgICBsb2cuYXBwZW5kKGYic3Rkb3V0OiB7bGVuKHJvd3MpLTF9IHJvd3MiKTsgcmV0dXJuICJcbiIuam9pbihyb3dzKQoKcGxhbiA9IFsoIu2VoCDsnbwg66qp66GdIOyekeyEsSIsICJ3cml0ZSIsIHsicGF0aCI6ICJ0bXAvbm90ZXMudHh0IiwgInRleHQiOiAiMjAyNi0wOS0yNiAwOTowMFxuMS4g67Cw7YSw66asIO2ZleyduFxuMi4g7KeA64-EIOuwseyXhVxuMy4g66Gc6re4IOygleumrCJ9KSwKICAgICAgICAoIkNTViDsg53shLEg7Iqk7YGs66a97Yq4IOyLpO2WiSIsICJleGVjIiwge30pLAogICAgICAgICgiQ1NWIOyggOyepSIsICJ3cml0ZSIsIHsicGF0aCI6ICJ0bXAvc21hbGxfcmVwb3J0LmNzdiJ9KSwKICAgICAgICAoIuyLnOyKpO2FnCDshKTsoJUg67Cx7JeFIiwgIndyaXRlIiwgeyJwYXRoIjogIi4uLy4uLy5iYXNocmMiLCAidGV4dCI6ICJ4In0pLAogICAgICAgICgi66ek7J28IOyekOuPmSDsi6Ttlokg7JiI7JW9IiwgImNyb24iLCB7fSldCnByaW50KCJb6rOE7ZqNXSIsICIgLyAiLmpvaW4oZiJ7aSsxfS57cFswXX0oe3BbMV19KSIgZm9yIGksIHAgaW4gZW51bWVyYXRlKHBsYW4pKSkKb3V0cHV0cywgdW5yZXNvbHZlZCwgbGFzdCA9IFtdLCBbXSwgTm9uZQpmb3IgaSwgKHRpdGxlLCBuYW1lLCBrdykgaW4gZW51bWVyYXRlKHBsYW4sIDEpOgogICAgaWYgbmFtZSA9PSAid3JpdGUiIGFuZCAidGV4dCIgbm90IGluIGt3OgogICAgICAgIGt3ID0gZGljdChrdywgdGV4dD1sYXN0KSAgICAgICAgIyDsnbTsoIQg64uo6rOEIOqysOqzvOulvCDsnbTslrTrsJvsnYwKICAgIHRyeToKICAgICAgICBsYXN0ID0gdG9vbChuYW1lLCAqKmt3KTsgc3RhdHVzID0gIuyZhOujjCIKICAgICAgICBvdXQgPSBsYXN0IGlmIG5hbWUgPT0gIndyaXRlIiBlbHNlIGxhc3Quc3BsaXRsaW5lcygpWzFdCiAgICAgICAgaWYgbmFtZSA9PSAid3JpdGUiOiBvdXRwdXRzLmFwcGVuZChsYXN0KQogICAgZXhjZXB0IFBlcm1pc3Npb25FcnJvciBhcyBlOgogICAgICAgIHN0YXR1cywgb3V0ID0gIuyLpO2MqCIsIHN0cihlKTsgdW5yZXNvbHZlZC5hcHBlbmQoZiJTdGVwIHtpfToge2V9IikKICAgIG54dCA9IHBsYW5baV1bMF0gaWYgaSA8IGxlbihwbGFuKSBlbHNlICLstZzsooUg7KCV66asIgogICAgcHJpbnQoZiJTdGVwIHtpfSB8IFN0YXR1czoge3N0YXR1c30gfCBPdXRwdXQ6IHtvdXR9IHwgTmV4dDoge254dH0iKQoKcHJpbnQoIlxuW-y1nOyihSDsoJXrpqxdIikKcHJpbnQoZiLsmpTslb06IHtsZW4ocGxhbil964uo6rOEIOykkSB7bGVuKHBsYW4pLWxlbih1bnJlc29sdmVkKX3ri6jqs4Qg7JmE66OMIikKcHJpbnQoIuyCsOy2nOusvDoiLCAiLCAiLmpvaW4ob3V0cHV0cykpCnByaW50KCLtlbXsi6wg66Gc6re4OiIsICI7ICIuam9pbihsb2cpKQpwcmludCgi66-47ZW06rKwOiIpCmZvciB1IGluIHVucmVzb2x2ZWQ6CiAgICBwcmludCgiICAtIiwgdSk" target="_blank" rel="noopener" title="Playground에서 열기 (새 탭)">Playground ↗</a><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python"># 실행형 에이전트 모의: 단계 계획 → 단계별 보고 → 최종 정리
+import posixpath
+WS = &quot;workspace/test&quot;
+ALLOW = {&quot;read&quot;, &quot;write&quot;, &quot;exec&quot;}
+fs, log = {}, []                       # 메모리 속 파일 시스템, 핵심 로그
+
+def safe_path(p):
+    full = posixpath.normpath(posixpath.join(WS, p))
+    if not full.startswith(WS + &quot;/&quot;):
+        raise PermissionError(f&quot;워크스페이스 밖 경로 거부: {full}&quot;)
+    return full
+
+def tool(name, **kw):
+    if name not in ALLOW:
+        raise PermissionError(f&quot;도구 &#x27;{name}&#x27; 권한 없음&quot;)
+    if name == &quot;write&quot;:
+        path = safe_path(kw[&quot;path&quot;]); fs[path] = kw[&quot;text&quot;]; return path
+    if name == &quot;exec&quot;:                  # 스크립트 실행 흉내: 7일치 CSV 생성
+        rows = [&quot;day,tempC&quot;] + [f&quot;D-{6-i},{18+i}&quot; for i in range(7)]
+        log.append(f&quot;stdout: {len(rows)-1} rows&quot;); return &quot;\n&quot;.join(rows)
+
+plan = [(&quot;할 일 목록 작성&quot;, &quot;write&quot;, {&quot;path&quot;: &quot;tmp/notes.txt&quot;, &quot;text&quot;: &quot;2026-09-26 09:00\n1. 배터리 확인\n2. 지도 백업\n3. 로그 정리&quot;}),
+        (&quot;CSV 생성 스크립트 실행&quot;, &quot;exec&quot;, {}),
+        (&quot;CSV 저장&quot;, &quot;write&quot;, {&quot;path&quot;: &quot;tmp/small_report.csv&quot;}),
+        (&quot;시스템 설정 백업&quot;, &quot;write&quot;, {&quot;path&quot;: &quot;../../.bashrc&quot;, &quot;text&quot;: &quot;x&quot;}),
+        (&quot;매일 자동 실행 예약&quot;, &quot;cron&quot;, {})]
+print(&quot;[계획]&quot;, &quot; / &quot;.join(f&quot;{i+1}.{p[0]}({p[1]})&quot; for i, p in enumerate(plan)))
+outputs, unresolved, last = [], [], None
+for i, (title, name, kw) in enumerate(plan, 1):
+    if name == &quot;write&quot; and &quot;text&quot; not in kw:
+        kw = dict(kw, text=last)        # 이전 단계 결과를 이어받음
+    try:
+        last = tool(name, **kw); status = &quot;완료&quot;
+        out = last if name == &quot;write&quot; else last.splitlines()[1]
+        if name == &quot;write&quot;: outputs.append(last)
+    except PermissionError as e:
+        status, out = &quot;실패&quot;, str(e); unresolved.append(f&quot;Step {i}: {e}&quot;)
+    nxt = plan[i][0] if i &lt; len(plan) else &quot;최종 정리&quot;
+    print(f&quot;Step {i} | Status: {status} | Output: {out} | Next: {nxt}&quot;)
+
+print(&quot;\n[최종 정리]&quot;)
+print(f&quot;요약: {len(plan)}단계 중 {len(plan)-len(unresolved)}단계 완료&quot;)
+print(&quot;산출물:&quot;, &quot;, &quot;.join(outputs))
+print(&quot;핵심 로그:&quot;, &quot;; &quot;.join(log))
+print(&quot;미해결:&quot;)
+for u in unresolved:
+    print(&quot;  -&quot;, u)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">[계획] 1.할 일 목록 작성(write) / 2.CSV 생성 스크립트 실행(exec) / 3.CSV 저장(write) / 4.시스템 설정 백업(write) / 5.매일 자동 실행 예약(cron)
+Step 1 | Status: 완료 | Output: workspace/test/tmp/notes.txt | Next: CSV 생성 스크립트 실행
+Step 2 | Status: 완료 | Output: D-6,18 | Next: CSV 저장
+Step 3 | Status: 완료 | Output: workspace/test/tmp/small_report.csv | Next: 시스템 설정 백업
+Step 4 | Status: 실패 | Output: 워크스페이스 밖 경로 거부: .bashrc | Next: 매일 자동 실행 예약
+Step 5 | Status: 실패 | Output: 도구 &#x27;cron&#x27; 권한 없음 | Next: 최종 정리
+
+[최종 정리]
+요약: 5단계 중 3단계 완료
+산출물: workspace/test/tmp/notes.txt, workspace/test/tmp/small_report.csv
+핵심 로그: stdout: 7 rows
+미해결:
+  - Step 4: 워크스페이스 밖 경로 거부: .bashrc
+  - Step 5: 도구 &#x27;cron&#x27; 권한 없음</code></pre></div>
+<p><code>safe_path()</code>가 <code>normpath</code>로 <code>..</code>를 먼저 풀어낸 뒤 접두사를 검사한다는 점에 주목하세요. 문자열에 <code>workspace/test</code>가 들어 있는지만 보면 <code>workspace/test/../../.bashrc</code> 같은 경로 탈출(path traversal)을 놓칩니다. 실패한 단계도 숨기지 않고 <strong>미해결 항목</strong>으로 보고서에 남는 것이 실행형 에이전트다운 행동입니다.</p>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">실습 전 확인</div><div class="callout-body"><ul><li>이 장의 실습은 <strong>바퀴를 움직이지 않습니다</strong>. 그래도 <code>exec</code> 권한이 있는 에이전트는 셸 명령을 실행할 수 있으므로, 로봇의 ROS 2 노드가 돌고 있는 컨테이너나 중요한 데이터가 있는 계정에서 처음 시험하지 마세요. 연습용 사용자 계정이나 PC에서 먼저 확인합니다.</li><li><code>openclaw.json</code>을 고치기 전에 반드시 <strong>백업</strong>합니다(<code>cp ~/.openclaw/openclaw.json ~/.openclaw/openclaw.json.bak</code>).</li><li>테스트 메시지에 실제 비밀번호·API 키·개인정보를 넣지 않습니다. 대화 기록은 agentDir 추적 파일에 남습니다.</li><li>에이전트가 워크스페이스 밖 경로를 쓰거나 삭제 명령을 제안하면 승인하지 말고 규약 파일을 보완합니다.</li></ul></div></div>
+<h3 id="1-폴더와-규약-파일-만들기">1) 폴더와 규약 파일 만들기<a class="anchor" href="#1-폴더와-규약-파일-만들기">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">mkdir -p ~/.openclaw/workspace/test
+mkdir -p ~/.openclaw/agents/test/agent
+touch ~/.openclaw/workspace/test/AGENTS.md
+touch ~/.openclaw/workspace/test/SOUL.md
+touch ~/.openclaw/workspace/test/USER.md
+touch ~/.openclaw/workspace/test/IDENTITY.md
+touch ~/.openclaw/workspace/test/TOOLS.md</code></pre></div>
+<p>편집기(<code>nano</code>, <code>gedit</code> 등)로 앞 절의 템플릿을 각 파일에 채웁니다. <code>tmp/</code>는 에이전트가 처음 쓸 때 만들어도 되지만, 미리 <code>mkdir -p ~/.openclaw/workspace/test/tmp</code>로 만들어 두면 권한 문제를 한 가지 줄일 수 있습니다.</p>
+<h3 id="2-에이전트-등록과-재시작">2) 에이전트 등록과 재시작<a class="anchor" href="#2-에이전트-등록과-재시작">#</a></h3>
+<p><code>~/.openclaw/openclaw.json</code>의 <code>agents.list</code> 배열에 앞 절의 <code>test</code> 항목을 추가하고(쉼표 위치 주의), 저장한 뒤 재시작합니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">openclaw gateway restart
+openclaw agents list --json</code></pre></div>
+<p>목록에 <code>&quot;id&quot;: &quot;test&quot;</code>가 보이면 등록 성공입니다.</p>
+<h3 id="3-cli로-시험하기">3) CLI로 시험하기<a class="anchor" href="#3-cli로-시험하기">#</a></h3>
+<p><code>openclaw agent</code> 명령은 채널 없이 터미널에서 특정 에이전트에게 메시지를 보냅니다. <code>--session-id</code>를 같게 주면 같은 대화가 이어지고, 바꾸면 새 대화가 시작됩니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash"># 파일 산출물 + 정리 보고서
+openclaw agent --agent test --session-id test-001 --message &quot;workspace/test/tmp에 notes.txt를 만들어 현재 날짜와 시각, 그리고 3개 항목의 할 일 목록 예시를 적어 줘. 끝나면 정리 보고서를 출력하고 생성한 파일 경로를 분명히 알려 줘.&quot;
+
+# 스크립트 실행 + 분해·실행·정리 검증
+openclaw agent --agent test --session-id test-001 --message &quot;workspace/test/tmp에 small_report.csv를 만드는 스크립트를 작성해 실행해 줘. 열은 day,tempC이고 최근 7일치 행을 넣어 줘. 실행 전에 스크립트 논리와 출력 경로를 먼저 설명하고, 실행 후 CSV 경로와 관련 있는 핵심 로그만 요약해 줘.&quot;
+
+# 브라우저(웹) 요약
+openclaw agent --agent test --session-id test-001 --message &quot;https://www.hiwonder.com.cn/product.html 을 열어 핵심 내용을 5가지 요점으로 요약하고 최종 URL을 알려 줘.&quot;
+
+# 카메라(권한과 장치가 있을 때만)
+openclaw agent --agent test --session-id test-001 --message &quot;카메라로 책상 사진을 찍고 저장 경로를 알려 줘.&quot;</code></pre></div>
+<div class="callout callout-check"><div class="callout-title">합격 기준</div><div class="callout-body"><ul><li>복잡한 요청에서 <strong>Step 목록</strong>이 먼저 나온다.</li><li>단계마다 Step/Status/Output/Next가 보고된다.</li><li>정리 보고서에 <strong>실제로 존재하는 경로</strong>가 있고, <code>ls ~/.openclaw/workspace/test/tmp</code>로 확인된다.</li><li>워크스페이스 밖에 쓰라는 요청에는 확인을 구하거나 거절한다.</li></ul></div></div>
+<h2 id="로그-분석과-문제-해결-순서">로그 분석과 문제 해결 순서<a class="anchor" href="#로그-분석과-문제-해결-순서">#</a></h2>
+<p>분해가 안 나온다, 경로가 비어 있다, 파일이 없다, 정리가 불완전하다, 실행이 실패한다 — 어떤 증상이든 아래 순서로 좁혀 갑니다. 바깥(프로세스)에서 안쪽(모델의 판단)으로 들어가는 순서입니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">openclaw gateway status          # 1. Gateway가 살아 있는가
+openclaw gateway run --verbose   # 2. 전경 실행으로 자세한 오류 보기 (Ctrl+C로 종료)
+openclaw doctor                  # 3. 설정 전반 진단
+ls ~/.openclaw/agents/test/agent # 4. 실행 추적 확인 — 가장 중요</code></pre></div>
+<p>4단계의 agentDir(또는 버전에 따라 그 옆의 세션 디렉터리)에 있는 세션 기록·<code>*.json</code> 추적 파일에는 <strong>어떤 도구를 어떤 인자로 언제 불렀는지</strong>가 시간순으로 남습니다. 여기서 "Step이 실행되지 않은 이유(매개변수 부족, 안전 확인 대기)"나 "출력 경로가 빈 이유(쓰기 권한, 경로 불일치)"를 찾을 수 있습니다. 모델의 말(보고서)과 실제 도구 호출(추적)을 <strong>대조</strong>하는 습관이 에이전트 디버깅의 핵심입니다. 보고서에는 "저장했습니다"라고 쓰여 있는데 추적에 <code>write</code> 호출이 없다면, 그것은 모델이 결과를 지어낸 것입니다.</p>
+<h2 id="로봇-에이전트로-가는-길">로봇 에이전트로 가는 길<a class="anchor" href="#로봇-에이전트로-가는-길">#</a></h2>
+<p>이 장의 <code>test</code>는 C08에서 만들 MentorPi 제어 에이전트의 연습판입니다. 대응 관계를 미리 보아 두면 설계 의도가 분명해집니다.</p>
+<div class="table-wrap"><table><thead><tr><th>이 장 (test)</th><th>C08 로봇 에이전트</th></tr></thead><tbody><tr><td><code>exec</code>로 스크립트 실행</td><td>ROS 2 브리지 스크립트만 실행(허용 명령 목록)</td></tr><tr><td>워크스페이스 밖 쓰기 거부</td><td>속도·거리 상한 밖 명령 거부 (선속도 ≤ 0.2 m/s)</td></tr><tr><td>파괴적 작업 전 확인</td><td>이동 명령 전 확인 게이트, 비상 정지 우선</td></tr><tr><td><code>cron</code>·<code>gateway</code>·<code>subagents</code> 거부</td><td>무인 반복 주행·권한 확장 원천 차단</td></tr><tr><td>Step/Status/Output/Next</td><td>"이동 0.3 m / 완료 / 오도메트리 값 / 다음: 사진"</td></tr></tbody></table></div>
+<p>행동 규약(무엇을 어떻게)과 권한(무엇을 할 수 있나)을 분리하고, 권한은 좁게, 보고는 추적 가능하게 — 이 세 원칙은 대상이 파일이든 로봇이든 같습니다.</p>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td><code>openclaw agent --agent test</code> 가 "unknown agent"</td><td><code>agents.list</code>에 항목이 없거나 JSON 문법 오류, 재시작 누락</td><td>쉼표·괄호 확인, <code>openclaw doctor</code>, <code>openclaw gateway restart</code>, <code>openclaw agents list --json</code></td></tr><tr><td>규약 파일을 고쳤는데 행동이 그대로</td><td><code>workspace</code> 경로가 다른 폴더를 가리킴, 같은 세션 재사용</td><td>경로를 절대 경로로 확인, <code>--session-id</code>를 새 값으로</td></tr><tr><td>작업 분해 없이 바로 실행</td><td>요청이 단순하거나 매개변수 부족, 규칙 미로드</td><td>요청에 경로·형식을 명시, systemPrompt와 AGENTS.md의 Task Breakdown 확인</td></tr><tr><td>"파일을 만들었다"는데 파일이 없음</td><td><code>write</code> 권한 없음 또는 모델의 날조</td><td><code>tools.allow</code>에 <code>write</code> 확인, 추적 파일에서 실제 <code>write</code> 호출 여부 대조</td></tr><tr><td>스크립트가 엉뚱한 폴더에서 실행</td><td>USER.md·TOOLS.md에 기본 디렉터리 미기재</td><td>기본 작업·출력 디렉터리를 두 파일에 명시</td></tr><tr><td>권한을 추가했는데도 도구를 못 씀</td><td>Gateway 재시작 누락, deny 목록에 같은 이름 존재</td><td><code>openclaw gateway restart</code>, deny 우선 규칙 확인</td></tr><tr><td>카메라 촬영 실패</td><td>장치 없음, 별칭 불일치, <code>image</code> 권한 없음</td><td><code>ls /dev/video*</code>, USER.md 별칭 확인, allow 목록 확인</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">과제</div><div class="callout-body"><ol><li><strong>(기본)</strong> 규약 파일 조립 모형에서 TOOLS.md를 추가하고, AGENTS.md에 <code>## Safety</code> 섹션(삭제 명령 금지)을 넣은 뒤 출력이 어떻게 바뀌는지 확인하세요.</li><li><strong>(기본)</strong> "매일 아침 사진 한 장 찍어 요약하기" 업무만 하는 에이전트를 가정해 <code>tools.allow</code>/<code>deny</code>를 최소 권한으로 설계하고, 각 도구를 넣거나 뺀 이유를 한 줄씩 쓰세요.</li><li><strong>(심화)</strong> 실행형 모의 코드에 "확인 게이트"를 추가하세요. 도구가 <code>write</code>이고 이미 존재하는 파일을 덮어쓰는 경우 Status를 <code>확인 필요</code>로 두고 실행을 멈춘 뒤, 정리 보고서의 미해결 항목에 남기도록 합니다.</li><li><strong>(심화)</strong> 실물에서 CSV 과제를 실행한 뒤 agentDir의 추적 기록에서 도구 호출 순서를 찾아, 에이전트의 Step 보고와 1:1로 대조한 표를 만드세요.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>19. OpenClaw Robotics Integration Course</em> — 4. Creating the First Agent (4.1 Workspace Convention Files ~ 4.12 Summary)</li><li>원본 교재: <em>19. OpenClaw Robotics Integration Course</em> — 2. OpenClaw Core Concepts (Agent, Tool, 도구 권한이 적용되지 않을 때 점검 순서)</li><li>원본 교재 기준 버전은 OpenClaw 2026.3.24입니다. CLI 옵션과 설정 키는 버전에 따라 다를 수 있으니 <code>openclaw --help</code>, <code>openclaw doctor</code>로 확인하세요.</li><li>OWASP, <em>Top 10 for Large Language Model Applications</em> (프롬프트 인젝션·과도한 권한 위임): https://owasp.org/www-project-top-10-for-large-language-model-applications/</li></ul>
+      <nav class="pager"><a class="pager-prev" href="c03.html"><span>이전 · C03</span>환경 구축과 설치: Node.js·OpenClaw·API 키·Ollama</a><a class="pager-next" href="c05.html"><span>다음 · C05</span>스킬 작성과 도구 디버깅</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#채팅봇이-아니라-실행형-에이전트">채팅봇이 아니라 실행형 에이전트</a><a class="toc-l2" href="#두-개의-폴더-workspace와-agentdir">두 개의 폴더: workspace와 agentDir</a><a class="toc-l2" href="#워크스페이스-규약-파일">워크스페이스 규약 파일</a><a class="toc-l2" href="#openclaw-json에-등록하기">openclaw.json에 등록하기</a><a class="toc-l3" href="#systemprompt-실행-규칙">systemPrompt: 실행 규칙</a><a class="toc-l2" href="#도구-권한-최소-권한의-원칙">도구 권한: 최소 권한의 원칙</a><a class="toc-l2" href="#일곱-모듈-자세히-보기">일곱 모듈 자세히 보기</a><a class="toc-l3" href="#1-작업-분해">1) 작업 분해</a><a class="toc-l3" href="#2-파일-관리-읽기-생성-수정-보관">2) 파일 관리 (읽기·생성·수정·보관)</a><a class="toc-l3" href="#3-카메라-촬영">3) 카메라 촬영</a><a class="toc-l3" href="#4-브라우저-제어">4) 브라우저 제어</a><a class="toc-l3" href="#5-스크립트-실행">5) 스크립트 실행</a><a class="toc-l3" href="#6-능동-피드백과-7-정보-정리">6) 능동 피드백과 7) 정보 정리</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l3" href="#1-폴더와-규약-파일-만들기">1) 폴더와 규약 파일 만들기</a><a class="toc-l3" href="#2-에이전트-등록과-재시작">2) 에이전트 등록과 재시작</a><a class="toc-l3" href="#3-cli로-시험하기">3) CLI로 시험하기</a><a class="toc-l2" href="#로그-분석과-문제-해결-순서">로그 분석과 문제 해결 순서</a><a class="toc-l2" href="#로봇-에이전트로-가는-길">로봇 에이전트로 가는 길</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js?v=d46755e0"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=d46755e0"></script>
+</body>
+</html>

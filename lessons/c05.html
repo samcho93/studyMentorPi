@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C05. 스킬 작성과 도구 디버깅 · studyMentorPi</title>
+<meta name="description" content="SKILL.md(트리거·고정 출력 형식·실행 단계·제약)로 일일 브리핑·날씨 스킬을 처음부터 만들고, 에이전트에 등록해 skills check·재시작·트리거 문구로 합동 디버깅하며 &#x27;날조 금지&#x27; 규칙을 검증합니다.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css?v=d46755e0">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=d46755e0">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=d46755e0">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js?v=d46755e0"></script>
+</head>
+<body class="lesson-page track-page-agent">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim3d/index.html">3D 시뮬레이터</a><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a><a class="side-tool" href="../tools/depth-lab.html">깊이 카메라 실험실</a><a class="side-tool" href="../tools/urdf-viewer.html">URDF 뷰어</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라 원리와 영상</a></li>
+<li><a href="../lessons/m14.html" data-slug="m14"><span class="nav-no">M14</span>깊이 카메라 실습: 포인트 클라우드·장애물·측정</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="agent">
+<div class="nav-track-title track-agent">AI 에이전트 (OpenClaw)</div>
+<div class="nav-part"><span class="nav-part-no">C-1</span>OpenClaw 이해와 설치</div>
+<ul>
+<li><a href="../lessons/c01.html" data-slug="c01"><span class="nav-no">C01</span>OpenClaw 개요와 아키텍처</a></li>
+<li><a href="../lessons/c02.html" data-slug="c02"><span class="nav-no">C02</span>핵심 개념: 모델·에이전트·도구·메모리·워크플로·스킬</a></li>
+<li><a href="../lessons/c03.html" data-slug="c03"><span class="nav-no">C03</span>환경 구축과 설치: Node.js·OpenClaw·API 키·Ollama</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">C-2</span>에이전트와 스킬</div>
+<ul>
+<li><a href="../lessons/c04.html" data-slug="c04"><span class="nav-no">C04</span>첫 에이전트 만들기: 워크스페이스 규약과 도구 권한</a></li>
+<li><a href="../lessons/c05.html" class="active" data-slug="c05"><span class="nav-no">C05</span>스킬 작성과 도구 디버깅</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">C-3</span>채널과 실전 에이전트</div>
+<ul>
+<li><a href="../lessons/c06.html" data-slug="c06"><span class="nav-no">C06</span>채널 연결: Telegram 봇</a></li>
+<li><a href="../lessons/c07.html" data-slug="c07"><span class="nav-no">C07</span>실전: 스마트 이메일 에이전트</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">C-4</span>로봇 통합</div>
+<ul>
+<li><a href="../lessons/c08.html" data-slug="c08"><span class="nav-no">C08</span>로봇 통합: 대화로 MentorPi 제어하기</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="project">
+<div class="nav-track-title track-project">프로젝트 (중급·고급)</div>
+<div class="nav-part"><span class="nav-part-no">P-1</span>자율 이동 서비스 로봇</div>
+<ul>
+<li><a href="../lessons/p01.html" data-slug="p01"><span class="nav-no">P01</span>자율 순찰 경비 로봇</a></li>
+<li><a href="../lessons/p02.html" data-slug="p02"><span class="nav-no">P02</span>QR 지시형 실내 배송 로봇</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">P-2</span>지능형 주행</div>
+<ul>
+<li><a href="../lessons/p03.html" data-slug="p03"><span class="nav-no">P03</span>미니 시티 자율주행 챌린지</a></li>
+<li><a href="../lessons/p04.html" data-slug="p04"><span class="nav-no">P04</span>사람 추종 카트 (비전+라이다 융합)</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">P-3</span>고급: 자율성 알고리즘 직접 구현</div>
+<ul>
+<li><a href="../lessons/p05.html" data-slug="p05"><span class="nav-no">P05</span>프런티어 자율 탐사와 다중 로봇 작업 할당</a></li>
+<li><a href="../lessons/p06.html" data-slug="p06"><span class="nav-no">P06</span>스캔 매칭 오도메트리와 EKF 센서 융합 직접 구현</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">P-4</span>고급: 학습·의미 기반 지능</div>
+<ul>
+<li><a href="../lessons/p07.html" data-slug="p07"><span class="nav-no">P07</span>강화학습으로 배우는 라이다 주행 정책</a></li>
+<li><a href="../lessons/p08.html" data-slug="p08"><span class="nav-no">P08</span>시맨틱 지도와 자연어 명령 내비게이션</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="c05" data-track="agent">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-agent">AI 에이전트 (OpenClaw)</span> C-2 에이전트와 스킬 &middot; 약 120분 &middot; 중급</div>
+    <h1><span class="lesson-no">C05</span>스킬 작성과 도구 디버깅</h1>
+    <p class="lede">SKILL.md(트리거·고정 출력 형식·실행 단계·제약)로 일일 브리핑·날씨 스킬을 처음부터 만들고, 에이전트에 등록해 skills check·재시작·트리거 문구로 합동 디버깅하며 &#x27;날조 금지&#x27; 규칙을 검증합니다.</p>
+    <div class="requires">선수 챕터: <a href="c04.html">C04</a></div>
+    <div class="lesson-actions">
+      <a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>트리거 문구 → 스킬 선택 → 도구 호출 → 고정 형식 응답으로 이어지는 <strong>최소 폐루프(minimum closed loop)</strong>를 설명합니다.</li><li>SKILL.md의 YAML 머리말(name·description·version)과 본문 네 섹션(When to Activate·Fixed Output Format·Execution Steps·Constraints)을 직접 작성합니다.</li><li>스킬을 에이전트에 등록하고 <code>openclaw skills list -v</code>, <code>openclaw skills check --json</code>, 트리거 문구로 합동 디버깅(joint debugging)합니다.</li><li>description 문장이 스킬 선택을 어떻게 좌우하는지 이해하고, 좋은 트리거 설명과 시험 표(testing matrix)를 설계합니다.</li><li>가져오기에 실패했을 때 지어내지 않고 <code>Not available yet</code>을 돌려주는 규칙을 검증합니다.</li></ul>
+<h2 id="최소-폐루프">최소 폐루프<a class="anchor" href="#최소-폐루프">#</a></h2>
+<p>C04에서 만든 <code>test</code> 에이전트는 파일·스크립트·웹을 다룰 수 있지만, 매번 "날씨를 wttr.in에서 가져와서 이런 형식으로…"라고 설명해 주어야 합니다. 자주 하는 일을 <strong>한 번 적어 두고 재사용</strong>하는 단위가 <strong>스킬(Skill)</strong>입니다. 이 장에서는 <code>daily-briefing-weather</code>라는 스킬을 처음부터 만들어, 가장 짧은 폐루프 하나를 완성합니다.</p>
+<figure class="fig" id="fig-c05-loop"><svg viewBox="0 0 720 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="트리거 문구에서 스킬 선택, 도구 호출, 고정 형식 응답까지의 최소 폐루프">
+  <defs>
+    <marker id="arr-c05-loop" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <rect class="box" x="10" y="40" width="130" height="90" rx="6"/>
+  <text class="lbl" x="75" y="66" text-anchor="middle">사용자</text>
+  <text class="tag" x="75" y="90" text-anchor="middle">"오늘의 브리핑"</text>
+  <text class="tag" x="75" y="110" text-anchor="middle">"서울 날씨 어때?"</text>
+
+  <rect class="box" x="180" y="40" width="120" height="90" rx="6"/>
+  <text class="lbl" x="240" y="66" text-anchor="middle">Gateway</text>
+  <text class="tag" x="240" y="90" text-anchor="middle">test 에이전트로</text>
+  <text class="tag" x="240" y="110" text-anchor="middle">라우팅</text>
+
+  <rect class="box-hi" x="340" y="40" width="150" height="90" rx="6"/>
+  <text class="lbl" x="415" y="66" text-anchor="middle">Agent (모델)</text>
+  <text class="tag" x="415" y="90" text-anchor="middle">description과 비교해</text>
+  <text class="tag" x="415" y="110" text-anchor="middle">스킬 선택</text>
+
+  <rect class="box" x="525" y="20" width="190" height="130" rx="6"/>
+  <text class="sub mono" x="620" y="44" text-anchor="middle">daily-briefing-weather</text>
+  <text class="tag" x="545" y="68">When to Activate</text>
+  <text class="tag" x="545" y="88">Fixed Output Format</text>
+  <text class="tag" x="545" y="108">Execution Steps</text>
+  <text class="tag" x="545" y="128">Constraints (날조 금지)</text>
+
+  <path class="ln" d="M140 85 L178 85" marker-end="url(#arr-c05-loop)"/>
+  <path class="ln" d="M300 85 L338 85" marker-end="url(#arr-c05-loop)"/>
+  <path class="ln" d="M490 85 L523 85" marker-end="url(#arr-c05-loop)"/>
+
+  <rect class="box" x="415" y="185" width="135" height="60" rx="6"/>
+  <text class="lbl mono" x="482" y="210" text-anchor="middle">web_fetch</text>
+  <text class="tag" x="482" y="230" text-anchor="middle">wttr.in · 뉴스 홈</text>
+  <rect class="box" x="575" y="185" width="135" height="60" rx="6"/>
+  <text class="lbl mono" x="642" y="210" text-anchor="middle">web_search</text>
+  <text class="tag" x="642" y="230" text-anchor="middle">fetch 실패 시 대체</text>
+  <path class="ln" d="M600 150 L530 183" marker-end="url(#arr-c05-loop)"/>
+  <path class="ln" d="M642 150 L642 183" marker-end="url(#arr-c05-loop)"/>
+
+  <rect class="box-hi" x="5" y="175" width="385" height="70" rx="6"/>
+  <text class="lbl" x="197" y="200" text-anchor="middle">고정 형식 응답</text>
+  <text class="tag mono" x="197" y="222" text-anchor="middle">Daily briefing: 1. Weather: {…}. Hot topics: {…}</text>
+  <path class="ln-hi" d="M415 215 L392 215" marker-end="url(#arr-c05-loop)"/>
+  <path class="ln-hi" d="M75 175 L75 132" marker-end="url(#arr-c05-loop)"/>
+</svg><figcaption>이 장의 최소 폐루프. 트리거 문구가 들어오면 에이전트가 스킬을 고르고, 스킬의 절차대로 web_fetch(실패 시 web_search)를 호출한 뒤 고정 형식으로 답합니다.</figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th>구성 요소</th><th>이 루프에서 하는 일</th></tr></thead><tbody><tr><td><strong>Gateway</strong></td><td>들어온 메시지를 <code>test</code> 에이전트로 라우팅</td></tr><tr><td><strong>Agent</strong></td><td>언제 스킬을 쓸지, 어떤 도구가 필요한지 결정</td></tr><tr><td><strong>Skill</strong></td><td>활성화 조건, 출력 형식, 실행 단계, 제약을 정의</td></tr><tr><td><strong>Tool</strong></td><td>웹에서 날씨와 주요 뉴스를 실제로 가져옴 (<code>web_fetch</code>, <code>web_search</code>)</td></tr></tbody></table></div>
+<p>원본 교재는 날씨를 wttr.in에서, 화제 뉴스를 중국의 인민망(People's Daily Online, <code>people.com.cn</code>) 첫 화면에서 가져옵니다. 이 강의에서는 구조를 그대로 두고 도시를 서울로, 뉴스 사이트를 국내 뉴스 포털로 바꾸어 설명합니다. 어떤 사이트를 쓰든 <strong>폐루프의 모양</strong>은 같습니다.</p>
+<h2 id="준비">준비<a class="anchor" href="#준비">#</a></h2>
+<p>스킬은 에이전트에 묶여야 동작하므로, 먼저 Gateway와 에이전트가 살아 있는지 확인합니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">openclaw gateway status        # 실행 중인지 확인
+openclaw gateway start         # 멈춰 있으면 시작
+openclaw doctor                # 설정 빠른 점검
+openclaw agents list --json    # &quot;id&quot;: &quot;test&quot; 항목이 있어야 함</code></pre></div>
+<p>마지막 명령에서 <code>test</code>가 보이지 않으면 C04의 등록 절차부터 다시 합니다. 스킬 설정은 에이전트 <code>id</code>에 연결되므로, 이 id가 없으면 합동 디버깅을 진행할 수 없습니다. <code>test</code>의 워크스페이스에는 C04에서 만든 AGENTS.md·SOUL.md·USER.md·IDENTITY.md·TOOLS.md가 이미 있어야 합니다. 이 장은 규약 파일이 아니라 <strong>스킬 → 도구 호출 → 합동 디버깅</strong> 흐름에 집중합니다.</p>
+<h2 id="skill-md의-구조">SKILL.md의 구조<a class="anchor" href="#skill-md의-구조">#</a></h2>
+<figure class="fig" id="fig-c05-skillmd"><svg viewBox="0 0 720 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SKILL.md의 구조와 각 부분이 언제 쓰이는지">
+  <defs>
+    <marker id="arr-c05-skillmd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <text class="lbl mono" x="20" y="24">skills/daily-briefing-weather/SKILL.md</text>
+  <rect class="box-hi" x="20" y="36" width="330" height="80" rx="6"/>
+  <text class="tag mono" x="35" y="58">---</text>
+  <text class="tag mono" x="35" y="76">name: daily-briefing-weather</text>
+  <text class="tag mono" x="35" y="94">description: 언제 쓰는지 + 무엇을 내는지</text>
+  <text class="tag mono" x="35" y="110">version: "1.0.0"   ---</text>
+
+  <rect class="box" x="20" y="126" width="330" height="140" rx="6"/>
+  <text class="tag mono" x="35" y="150">## When to Activate    트리거 문구</text>
+  <text class="tag mono" x="35" y="176">## Fixed Output Format 출력 틀</text>
+  <text class="tag mono" x="35" y="202">## Execution Steps     도구 호출 순서</text>
+  <text class="tag mono" x="35" y="228">## Constraints         금지·대체 규칙</text>
+  <text class="sub" x="35" y="254">본문: 스킬이 선택된 뒤에 읽힘</text>
+
+  <rect class="box" x="430" y="36" width="270" height="80" rx="6"/>
+  <text class="lbl" x="565" y="62" text-anchor="middle">① 선택 단계</text>
+  <text class="tag" x="565" y="84" text-anchor="middle">모든 요청마다 스킬 목록(이름+설명)만 봄</text>
+  <text class="tag" x="565" y="102" text-anchor="middle">→ name은 agent의 skills 배열과 일치</text>
+
+  <rect class="box" x="430" y="146" width="270" height="100" rx="6"/>
+  <text class="lbl" x="565" y="172" text-anchor="middle">② 실행 단계</text>
+  <text class="tag" x="565" y="194" text-anchor="middle">본문 절차대로 web_fetch / web_search</text>
+  <text class="tag" x="565" y="212" text-anchor="middle">tools.allow에 없으면 호출 불가</text>
+  <text class="tag" x="565" y="230" text-anchor="middle">실패 시 "Not available yet"</text>
+
+  <path class="ln" d="M350 76 L428 76" marker-end="url(#arr-c05-skillmd)"/>
+  <path class="ln" d="M350 196 L428 196" marker-end="url(#arr-c05-skillmd)"/>
+</svg><figcaption>SKILL.md는 두 단계에서 쓰입니다. 머리말(특히 description)은 스킬을 고를 때, 본문은 스킬이 선택된 뒤 실행할 때 읽힙니다.</figcaption></figure>
+<p>스킬 하나는 폴더 하나이고, 그 안의 <code>SKILL.md</code>가 모델에게 네 가지를 알려 줍니다.</p>
+<ol><li><strong>활성화 조건</strong>: 어떤 문구·요청 표현일 때 이 스킬을 쓰는가</li><li><strong>출력 형식</strong>: 매번 같은 틀로 답하게 하는 고정 템플릿</li><li><strong>실행 단계</strong>: 날씨 먼저, 뉴스 다음, 마지막에 조립</li><li><strong>제약</strong>: 가져오기에 실패하면 지어내지 않는다</li></ol>
+<p>C02에서 본 것처럼 스킬에는 코드 구현(예: <code>index.js</code>)이 붙을 수도 있지만, 이 장의 스킬은 <strong>SKILL.md 하나만으로</strong> 동작합니다. 실제 일은 기존 도구(<code>web_fetch</code>, <code>web_search</code>)가 하고, SKILL.md는 그 도구를 <strong>어떤 순서로, 어떤 규칙으로</strong> 부를지 적은 절차서입니다.</p>
+<h3 id="머리말-선택의-열쇠">머리말: 선택의 열쇠<a class="anchor" href="#머리말-선택의-열쇠">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">markdown</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-markdown">---
+name: daily-briefing-weather
+description: &gt;-
+  &#x27;오늘의 브리핑&#x27;, &#x27;오늘 뭐가 화제야&#x27;, &#x27;화제 뉴스 브리핑&#x27;, &quot;Today&#x27;s briefing&quot; 요청에
+  일일 브리핑을 만든다. &#x27;&lt;도시&gt; 날씨&#x27;, &#x27;오늘 &lt;도시&gt; 날씨 어때&#x27; 같은 도시 날씨 질문에도 답한다.
+  날씨는 웹(wttr.in), 화제 뉴스는 뉴스 사이트 첫 화면에서 가져와 고정 형식
+  &quot;Daily briefing: 1. Weather: {result}. Hot topics: {Title 1: summary, ...}&quot;으로 출력한다.
+version: &quot;1.0.0&quot;
+---</code></pre></div>
+<div class="table-wrap"><table><thead><tr><th>필드</th><th>역할</th><th>규칙</th></tr></thead><tbody><tr><td><code>name</code></td><td>스킬 식별자</td><td>소문자·하이픈. 에이전트의 <code>skills</code> 배열 문자열과 <strong>글자 하나까지 같아야</strong> 함</td></tr><tr><td><code>description</code></td><td>언제 쓰고 무엇을 내는지</td><td>모델이 스킬을 고를 때 보는 <strong>거의 유일한 정보</strong></td></tr><tr><td><code>version</code></td><td>변경 추적</td><td>따옴표로 감싼 문자열 권장 (<code>&quot;1.0.0&quot;</code>)</td></tr></tbody></table></div>
+<p>일반적으로 에이전트는 매 요청마다 <strong>스킬 목록(이름 + description)</strong>만 프롬프트에 받고, 요청이 어떤 스킬과 맞는다고 판단하면 그때 SKILL.md 본문을 읽어 따릅니다. 그래서 본문을 아무리 잘 써도 <strong>description이 요청과 연결되지 않으면 스킬은 영영 선택되지 않습니다</strong>. 원본의 description이 트리거 문구와 출력 형식을 한 문단에 몰아 적은 이유가 이것입니다.</p>
+<h3 id="본문-실행-절차서">본문: 실행 절차서<a class="anchor" href="#본문-실행-절차서">#</a></h3>
+<p>전체 SKILL.md는 다음과 같습니다. 원본 템플릿의 구조를 유지하고 도시·뉴스 사이트·트리거 문구를 한국 환경에 맞게 바꾸었습니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">markdown</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-markdown"># Daily Briefing and City Weather
+
+## When to Activate
+- 요청이 `오늘의 브리핑`, `오늘 뭐가 화제야`, `화제 뉴스 브리핑`, `Today&#x27;s briefing`일 때
+- 요청이 `오늘 &lt;도시&gt; 날씨 어때?`, `&lt;도시&gt; 날씨`, `How is the weather in &lt;city&gt; today?`일 때
+
+## Fixed Output Format
+항상 아래 구조를 유지한다(한 줄 또는 같은 내용의 여러 줄).
+`Daily briefing: 1. Weather: {result}. Hot topics: {Title 1: brief summary, Title 2: brief summary...}`
+
+규칙:
+- 날씨에는 그날의 핵심(날씨 상태, 기온 범위, 강수, 바람 또는 체감 조언)을 넣는다.
+- 화제는 최소 3개, 보통 3~6개. 각 항목은 `제목: 한 문장 요약`.
+- 어떤 항목이든 가져오지 못하면 `Not available yet`이라고 분명히 쓴다. 지어내지 않는다.
+
+## Execution Steps
+1. 의도 파악
+   - `오늘의 브리핑`류: 화제를 기본으로 하고, 세션의 도시를 알면 날씨도 넣는다.
+   - `&lt;도시&gt; 날씨`류: 요청의 도시를 `&lt;city&gt;`로 두고 화제 요약도 함께 넣는다.
+2. 날씨 가져오기
+   - `web_fetch` 우선: `https://wttr.in/&lt;city&gt;?format=j1` (또는 `?lang=ko`)
+   - 실패하면 `web_search`로 `&lt;city&gt; 오늘 날씨`를 검색하고 공신력 있는 출처에서 당일 정보만 뽑는다.
+3. 화제 뉴스 가져오기
+   - `web_fetch`로 뉴스 사이트 첫 화면(예: `https://www.yna.co.kr/`)을 가져온다.
+   - 주요 뉴스·경제·기술·사회·국제 섹션에서 당일 헤드라인을 고른다.
+   - 페이지에 보이는 요약만 근거로 한 문장씩 쓴다. 추측하지 않는다.
+4. 조립과 응답
+   - 고정 형식을 엄격히 따른다. 간결하게, 불필요한 인사말 없이.
+
+## Constraints
+- 사이트에 실제로 보이는 정보를 우선한다. 세부 사항을 지어내지 않는다.
+- 날씨만 물어도 고정 형식을 유지하고 화제를 덧붙인다.
+- 화제만 물어도 날씨 칸을 채운다. 도시를 알 수 없으면 `No city specified. Weather is not available yet`.</code></pre></div>
+<p>네 섹션은 각각 다른 실패를 막습니다. <strong>When to Activate</strong>는 "안 불림"을, <strong>Fixed Output Format</strong>은 "매번 형식이 다름"을, <strong>Execution Steps</strong>는 "도구를 안 쓰고 기억으로 답함"을, <strong>Constraints</strong>는 "실패를 날조로 덮음"을 막습니다. 특히 마지막 규칙은 LLM이 빈칸을 그럴듯한 말로 채우려는 성향이 있기 때문에 <strong>명시적으로</strong> 적어야 합니다.</p>
+<h3 id="모형-skill-md-파싱과-skills-check">모형: SKILL.md 파싱과 skills check<a class="anchor" href="#모형-skill-md-파싱과-skills-check">#</a></h3>
+<p><code>openclaw skills check</code>가 하는 일을 흉내 내 봅시다. 머리말과 섹션을 파싱한 뒤, ① 이름이 에이전트의 <code>skills</code> 배열과 같은지, ② 필수 섹션이 있는지, ③ 본문이 요구하는 도구가 <code>tools.allow</code>에 있는지 검사합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><a class="pg-btn" href="../tools/playground.html#code=IyBTS0lMTC5tZCDtjIzshJwgKyBza2lsbHMgY2hlY2sg7Z2J64K0ClNLSUxMX01EID0gIiIiLS0tCm5hbWU6IGRhaWx5LWJyaWVmaW5nLXdlYXRoZXIKZGVzY3JpcHRpb246ID4tCiAgJ-yYpOuKmOydmCDruIzrpqztlZEnLCAn7Jik64qYIOutkOqwgCDtmZTsoJzslbwnLCAnPOuPhOyLnD4g64Kg7JSoJyDsmpTssq3sl5Ag64u17ZWc64ukLgogIOuCoOyUqOuKlCB3dHRyLmluLCDribTsiqTripQg64m07IqkIOyCrOydtO2KuOyXkOyEnCDqsIDsoLjsmYAg6rOg7KCVIO2YleyLneycvOuhnCDstpzroKXtlZzri6QuCnZlcnNpb246ICIxLjAuMCIKLS0tCiMgRGFpbHkgQnJpZWZpbmcgYW5kIENpdHkgV2VhdGhlcgojIyBXaGVuIHRvIEFjdGl2YXRlCi0g7Jik64qY7J2YIOu4jOumrO2VkQotIOyYpOuKmCDrrZDqsIAg7ZmU7KCc7JW8Ci0gPOuPhOyLnD4g64Kg7JSoCiMjIEZpeGVkIE91dHB1dCBGb3JtYXQKRGFpbHkgYnJpZWZpbmc6IDEuIFdlYXRoZXI6IHtyZXN1bHR9LiBIb3QgdG9waWNzOiB7Li4ufQojIyBFeGVjdXRpb24gU3RlcHMKMS4g7J2Y64-EIO2MjOyVhSAyLiB3ZWJfZmV0Y2gg64Kg7JSoKOyLpO2MqCDsi5wgd2ViX3NlYXJjaCkgMy4gd2ViX2ZldGNoIOuJtOyKpCA0LiDsobDrpr0KIyMgQ29uc3RyYWludHMKLSDqsIDsoLjsmKTsp4Ag66q77ZWY66m0IE5vdCBhdmFpbGFibGUgeWV0LiDsp4DslrTrgrTsp4Ag7JWK64qU64ukLgoiIiIKCmRlZiBwYXJzZV9za2lsbCh0ZXh0KToKICAgIF8sIGZtLCBib2R5ID0gdGV4dC5zcGxpdCgiLS0tXG4iLCAyKQogICAgbWV0YSwga2V5ID0ge30sIE5vbmUKICAgIGZvciBsbiBpbiBmbS5zcGxpdGxpbmVzKCk6CiAgICAgICAgaWYgbG4uc3RhcnRzd2l0aCgiICAiKSBhbmQga2V5OiAgICAgICAgICAgICAgICAgIyDsoJHtnowg7Jes65-sIOykhCDqsJIoPi0pCiAgICAgICAgICAgIG1ldGFba2V5XSA9IChtZXRhW2tleV0gKyAiICIgKyBsbi5zdHJpcCgpKS5zdHJpcCgpCiAgICAgICAgZWxpZiAiOiIgaW4gbG46CiAgICAgICAgICAgIGtleSwgdmFsID0gbG4uc3BsaXQoIjoiLCAxKQogICAgICAgICAgICBtZXRhW2tleV0gPSB2YWwuc3RyaXAoKS5zdHJpcCgnIicpLnJlcGxhY2UoIj4tIiwgIiIpCiAgICBzZWN0aW9ucywgY3VyID0ge30sIE5vbmUKICAgIGZvciBsbiBpbiBib2R5LnNwbGl0bGluZXMoKToKICAgICAgICBpZiBsbi5zdGFydHN3aXRoKCIjIyAiKToKICAgICAgICAgICAgY3VyID0gbG5bMzpdLnN0cmlwKCk7IHNlY3Rpb25zW2N1cl0gPSBbXQogICAgICAgIGVsaWYgY3VyIGFuZCBsbi5zdHJpcCgpOgogICAgICAgICAgICBzZWN0aW9uc1tjdXJdLmFwcGVuZChsbi5zdHJpcCgpKQogICAgcmV0dXJuIG1ldGEsIHNlY3Rpb25zCgpkZWYgc2tpbGxzX2NoZWNrKG1ldGEsIHNlY3Rpb25zLCBhZ2VudCk6CiAgICBlcnJzID0gW10KICAgIGlmIG1ldGEuZ2V0KCJuYW1lIikgbm90IGluIGFnZW50WyJza2lsbHMiXToKICAgICAgICBlcnJzLmFwcGVuZChmIuydtOumhCDrtojsnbzsuZg6IFNLSUxMLm1kICd7bWV0YS5nZXQoJ25hbWUnKX0nIHZzIGFnZW50IHthZ2VudFsnc2tpbGxzJ119IikKICAgIGZvciBuZWVkIGluICgiV2hlbiB0byBBY3RpdmF0ZSIsICJGaXhlZCBPdXRwdXQgRm9ybWF0IiwgIkV4ZWN1dGlvbiBTdGVwcyIsICJDb25zdHJhaW50cyIpOgogICAgICAgIGlmIG5lZWQgbm90IGluIHNlY3Rpb25zOiBlcnJzLmFwcGVuZChmIuyEueyFmCDsl4bsnYw6IHtuZWVkfSIpCiAgICBib2R5ID0gIiAiLmpvaW4oc3VtKHNlY3Rpb25zLnZhbHVlcygpLCBbXSkpCiAgICBmb3IgdCBpbiAoIndlYl9mZXRjaCIsICJ3ZWJfc2VhcmNoIik6CiAgICAgICAgaWYgdCBpbiBib2R5IGFuZCB0IG5vdCBpbiBhZ2VudFsidG9vbHNfYWxsb3ciXToKICAgICAgICAgICAgZXJycy5hcHBlbmQoZiLrj4Tqtawg6raM7ZWcIOyXhuydjDoge3R9IikKICAgIHJldHVybiBlcnJzIG9yIFsiT0siXQoKbWV0YSwgc2VjID0gcGFyc2Vfc2tpbGwoU0tJTExfTUQpCnByaW50KCJuYW1lOiIsIG1ldGFbIm5hbWUiXSwgInwgdmVyc2lvbjoiLCBtZXRhWyJ2ZXJzaW9uIl0pCnByaW50KCJkZXNjcmlwdGlvbjoiLCBtZXRhWyJkZXNjcmlwdGlvbiJdWzo0MF0sICIuLi4iKQpwcmludCgic2VjdGlvbnM6IiwgbGlzdChzZWMpKQpnb29kID0geyJza2lsbHMiOiBbImRhaWx5LWJyaWVmaW5nLXdlYXRoZXIiXSwgInRvb2xzX2FsbG93IjogWyJyZWFkIiwgIndlYl9mZXRjaCIsICJ3ZWJfc2VhcmNoIl19CmJhZCA9IHsic2tpbGxzIjogWyJkYWlseV9icmllZmluZ193ZWF0aGVyIl0sICJ0b29sc19hbGxvdyI6IFsicmVhZCJdfQpwcmludCgiXG5bY2hlY2sgZ29vZF0iLCBza2lsbHNfY2hlY2sobWV0YSwgc2VjLCBnb29kKSkKcHJpbnQoIltjaGVjayBiYWRdIikKZm9yIGUgaW4gc2tpbGxzX2NoZWNrKG1ldGEsIHNlYywgYmFkKToKICAgIHByaW50KCIgIC0iLCBlKQ" target="_blank" rel="noopener" title="Playground에서 열기 (새 탭)">Playground ↗</a><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python"># SKILL.md 파서 + skills check 흉내
+SKILL_MD = &quot;&quot;&quot;---
+name: daily-briefing-weather
+description: &gt;-
+  &#x27;오늘의 브리핑&#x27;, &#x27;오늘 뭐가 화제야&#x27;, &#x27;&lt;도시&gt; 날씨&#x27; 요청에 답한다.
+  날씨는 wttr.in, 뉴스는 뉴스 사이트에서 가져와 고정 형식으로 출력한다.
+version: &quot;1.0.0&quot;
+---
+# Daily Briefing and City Weather
+## When to Activate
+- 오늘의 브리핑
+- 오늘 뭐가 화제야
+- &lt;도시&gt; 날씨
+## Fixed Output Format
+Daily briefing: 1. Weather: {result}. Hot topics: {...}
+## Execution Steps
+1. 의도 파악 2. web_fetch 날씨(실패 시 web_search) 3. web_fetch 뉴스 4. 조립
+## Constraints
+- 가져오지 못하면 Not available yet. 지어내지 않는다.
+&quot;&quot;&quot;
+
+def parse_skill(text):
+    _, fm, body = text.split(&quot;---\n&quot;, 2)
+    meta, key = {}, None
+    for ln in fm.splitlines():
+        if ln.startswith(&quot;  &quot;) and key:                 # 접힌 여러 줄 값(&gt;-)
+            meta[key] = (meta[key] + &quot; &quot; + ln.strip()).strip()
+        elif &quot;:&quot; in ln:
+            key, val = ln.split(&quot;:&quot;, 1)
+            meta[key] = val.strip().strip(&#x27;&quot;&#x27;).replace(&quot;&gt;-&quot;, &quot;&quot;)
+    sections, cur = {}, None
+    for ln in body.splitlines():
+        if ln.startswith(&quot;## &quot;):
+            cur = ln[3:].strip(); sections[cur] = []
+        elif cur and ln.strip():
+            sections[cur].append(ln.strip())
+    return meta, sections
+
+def skills_check(meta, sections, agent):
+    errs = []
+    if meta.get(&quot;name&quot;) not in agent[&quot;skills&quot;]:
+        errs.append(f&quot;이름 불일치: SKILL.md &#x27;{meta.get(&#x27;name&#x27;)}&#x27; vs agent {agent[&#x27;skills&#x27;]}&quot;)
+    for need in (&quot;When to Activate&quot;, &quot;Fixed Output Format&quot;, &quot;Execution Steps&quot;, &quot;Constraints&quot;):
+        if need not in sections: errs.append(f&quot;섹션 없음: {need}&quot;)
+    body = &quot; &quot;.join(sum(sections.values(), []))
+    for t in (&quot;web_fetch&quot;, &quot;web_search&quot;):
+        if t in body and t not in agent[&quot;tools_allow&quot;]:
+            errs.append(f&quot;도구 권한 없음: {t}&quot;)
+    return errs or [&quot;OK&quot;]
+
+meta, sec = parse_skill(SKILL_MD)
+print(&quot;name:&quot;, meta[&quot;name&quot;], &quot;| version:&quot;, meta[&quot;version&quot;])
+print(&quot;description:&quot;, meta[&quot;description&quot;][:40], &quot;...&quot;)
+print(&quot;sections:&quot;, list(sec))
+good = {&quot;skills&quot;: [&quot;daily-briefing-weather&quot;], &quot;tools_allow&quot;: [&quot;read&quot;, &quot;web_fetch&quot;, &quot;web_search&quot;]}
+bad = {&quot;skills&quot;: [&quot;daily_briefing_weather&quot;], &quot;tools_allow&quot;: [&quot;read&quot;]}
+print(&quot;\n[check good]&quot;, skills_check(meta, sec, good))
+print(&quot;[check bad]&quot;)
+for e in skills_check(meta, sec, bad):
+    print(&quot;  -&quot;, e)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">name: daily-briefing-weather | version: 1.0.0
+description: &#x27;오늘의 브리핑&#x27;, &#x27;오늘 뭐가 화제야&#x27;, &#x27;&lt;도시&gt; 날씨&#x27; 요청에 답한 ...
+sections: [&#x27;When to Activate&#x27;, &#x27;Fixed Output Format&#x27;, &#x27;Execution Steps&#x27;, &#x27;Constraints&#x27;]
+
+[check good] [&#x27;OK&#x27;]
+[check bad]
+  - 이름 불일치: SKILL.md &#x27;daily-briefing-weather&#x27; vs agent [&#x27;daily_briefing_weather&#x27;]
+  - 도구 권한 없음: web_fetch
+  - 도구 권한 없음: web_search</code></pre></div>
+<p><code>bad</code> 설정의 오류 두 종류가 실제 현장에서 가장 흔합니다. 하이픈(<code>-</code>)과 밑줄(<code>_</code>) 하나 차이로 스킬이 연결되지 않고, 권한이 없으면 스킬이 선택되어도 <strong>말로만 설명하고 실제로는 가져오지 않습니다</strong>.</p>
+<h2 id="에이전트에-스킬-등록하기">에이전트에 스킬 등록하기<a class="anchor" href="#에이전트에-스킬-등록하기">#</a></h2>
+<h3 id="1-skills-배열-추가">1) skills 배열 추가<a class="anchor" href="#1-skills-배열-추가">#</a></h3>
+<p><code>openclaw.json</code>의 <code>agents.list</code>에서 <code>id: &quot;test&quot;</code> 항목을 찾아 다음 필드를 추가합니다. 배열의 문자열은 SKILL.md 머리말의 <code>name</code>과 정확히 같아야 합니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-json">&quot;skills&quot;: [&quot;daily-briefing-weather&quot;]</code></pre></div>
+<p>추가한 뒤의 <code>test</code> 항목은 대략 다음 모양입니다(C04의 도구 목록은 그대로 두고 <code>skills</code>만 늘어남).</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-json">{
+  &quot;id&quot;: &quot;test&quot;,
+  &quot;name&quot;: &quot;test, execution-focused multimodal assistant&quot;,
+  &quot;workspace&quot;: &quot;/home/ubuntu/.openclaw/workspace/test&quot;,
+  &quot;agentDir&quot;: &quot;/home/ubuntu/.openclaw/agents/test/agent&quot;,
+  &quot;model&quot;: &quot;deepseek/deepseek-reasoner&quot;,
+  &quot;skills&quot;: [&quot;daily-briefing-weather&quot;],
+  &quot;identity&quot;: { &quot;name&quot;: &quot;test, execution-focused multimodal assistant&quot; },
+  &quot;tools&quot;: {
+    &quot;allow&quot;: [&quot;read&quot;, &quot;write&quot;, &quot;edit&quot;, &quot;apply_patch&quot;, &quot;exec&quot;, &quot;process&quot;, &quot;browser&quot;,
+              &quot;web_search&quot;, &quot;web_fetch&quot;, &quot;memory_search&quot;, &quot;memory_get&quot;, &quot;session_status&quot;,
+              &quot;sessions_list&quot;, &quot;sessions_history&quot;, &quot;message&quot;, &quot;nodes&quot;, &quot;image&quot;],
+    &quot;deny&quot;: [&quot;sessions_spawn&quot;, &quot;subagents&quot;, &quot;canvas&quot;, &quot;cron&quot;, &quot;gateway&quot;]
+  }
+}</code></pre></div>
+<h3 id="2-도구-권한-확인">2) 도구 권한 확인<a class="anchor" href="#2-도구-권한-확인">#</a></h3>
+<p>같은 항목의 <code>tools.allow</code>에 **최소한 <code>web_fetch</code>와 <code>web_search</code><strong>가 있어야 합니다. 이 둘이 없으면 잘 쓴 스킬도 "날씨는 wttr.in에서 확인할 수 있습니다" 같은 </strong>설명만** 내놓습니다. 원본 교재는 브리핑 전용이라면 파일 쓰기를 뺀 축소 목록으로도 충분하다는 예를 함께 보여 줍니다. C04에서 배운 최소 권한 원칙과 같은 방향입니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">json</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-json">&quot;allow&quot;: [&quot;read&quot;, &quot;exec&quot;, &quot;process&quot;, &quot;web_search&quot;, &quot;web_fetch&quot;,
+          &quot;memory_search&quot;, &quot;memory_get&quot;, &quot;session_status&quot;,
+          &quot;sessions_list&quot;, &quot;sessions_history&quot;, &quot;message&quot;]</code></pre></div>
+<h3 id="3-systemprompt에-트리거를-못-박기-선택-강력-권장">3) systemPrompt에 트리거를 못 박기 (선택, 강력 권장)<a class="anchor" href="#3-systemprompt에-트리거를-못-박기-선택-강력-권장">#</a></h3>
+<p>스킬 선택을 더 안정적으로 만들려면 <code>test</code>의 systemPrompt에 다음과 같은 <strong>강제 규칙(hard rule)</strong>을 넣습니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">요청에 &quot;오늘의 브리핑&quot;, &quot;오늘 뭐가 화제야&quot;, &quot;오늘 &lt;도시&gt; 날씨 어때?&quot;가 있으면
+daily-briefing-weather 스킬을 먼저 사용한다.</code></pre></div>
+<p>description은 모델이 <strong>스스로 판단</strong>하게 하는 힌트이고, systemPrompt 규칙은 <strong>판단 이전에 거는 명령</strong>입니다. 둘을 함께 쓰면 선택 누락이 크게 줄어듭니다. 다만 스킬이 많아질수록 systemPrompt가 비대해지므로, 꼭 필요한 핵심 스킬에만 씁니다.</p>
+<h2 id="description이-선택을-좌우한다">description이 선택을 좌우한다<a class="anchor" href="#description이-선택을-좌우한다">#</a></h2>
+<p>모델이 스킬을 고르는 과정은 "요청 문장과 각 스킬 설명 사이의 의미적 유사도"를 따지는 일에 가깝습니다. 실제 모델은 의미를 이해하지만, 설명에 <strong>없는 표현</strong>일수록 연결에 실패할 확률이 올라갑니다. 아래 모형은 이 현상을 아주 단순하게(글자 2-gram 겹침 비율로) 흉내 냅니다. 점수가 0.6 이상이면 스킬을 선택합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><a class="pg-btn" href="../tools/playground.html#code=IyDtirjrpqzqsbAg66ek7LmtIO2dieuCtDog66mU7Iuc7KeAIOKGlCDsiqTtgqzsnZgg7Zmc7ISx7ZmUIOusuOq1rCjquIDsnpAgMi1ncmFtIOqyuey5qCkKQ0lUSUVTID0gWyLshJzsmrgiLCAi67aA7IKwIiwgIuuMgOyghCIsICLsoJzso7wiXQpTS0lMTFMgPSB7CiAgICAiZGFpbHktYnJpZWZpbmctd2VhdGhlciI6IFsi7Jik64qY7J2YIOu4jOumrO2VkSIsICLsmKTripgg662Q6rCAIO2ZlOygnOyVvCIsICI864-E7IucPiDrgqDslKgiLCAi7Jik64qYIDzrj4Tsi5w-IOuCoOyUqCDslrTrlYwiXSwKICAgICJtYWlsLXN1bW1hcnkiOiBbIuuplOydvCDsmpTslb0iLCAi67Cb7J2AIO2OuOyngO2VqCDsoJXrpqwiLCAi7IOIIOuplOydvCDtmZXsnbgiXSwKfQpUSFJFU0hPTEQgPSAwLjYKCmRlZiBub3JtYWxpemUobXNnKToKICAgIGNpdHkgPSBuZXh0KChjIGZvciBjIGluIENJVElFUyBpZiBjIGluIG1zZyksIE5vbmUpCiAgICByZXR1cm4gKG1zZy5yZXBsYWNlKGNpdHksICI864-E7IucPiIpIGlmIGNpdHkgZWxzZSBtc2cpLCBjaXR5CgpkZWYgZ3JhbXMocyk6CiAgICBzID0gcy5yZXBsYWNlKCIgIiwgIiIpCiAgICByZXR1cm4ge3NbaTppKzJdIGZvciBpIGluIHJhbmdlKGxlbihzKSAtIDEpfQoKZGVmIGNvdmVyYWdlKHRyaWdnZXIsIG1zZyk6ICAgICAgICAgICAgICMg7Yq466as6rGwIDItZ3JhbSDspJEg66mU7Iuc7KeA7JeQIOyeiOuKlCDruYTsnKgKICAgIHQgPSBncmFtcyh0cmlnZ2VyKQogICAgcmV0dXJuIGxlbih0ICYgZ3JhbXMobXNnKSkgLyBsZW4odCkKCmRlZiByb3V0ZShtc2cpOgogICAgbm9ybSwgY2l0eSA9IG5vcm1hbGl6ZShtc2cpCiAgICBiZXN0ID0gbWF4KCgoY292ZXJhZ2UodHIsIG5vcm0pLCBuYW1lLCB0cikgZm9yIG5hbWUsIHRycyBpbiBTS0lMTFMuaXRlbXMoKSBmb3IgdHIgaW4gdHJzKSkKICAgIHNjb3JlLCBuYW1lLCB0ciA9IGJlc3QKICAgIGNob3NlbiA9IG5hbWUgaWYgc2NvcmUgPj0gVEhSRVNIT0xEIGVsc2UgIijsiqTtgqwg7JeG7J2MIOKGkiDsnbzrsJgg64yA7ZmUKSIKICAgIHJldHVybiBzY29yZSwgY2hvc2VuLCB0ciwgY2l0eQoKdGVzdHMgPSBbIuyYpOuKmOydmCDruIzrpqztlZEg67aA7YOB7ZW0IiwgIuyEnOyauCDrgqDslKgg7Ja065WMPyIsICLsmKTripgg7KCc7KO8IOuCoOyUqCDslrTrlYwiLCAi7IOIIOuplOydvCDtmZXsnbjtlbQg7KSYIiwKICAgICAgICAgIuyalOymmCDtmZTsoJzsnbgg64m07IqkIOyigCIsICLrgqDslKjrnbzripQg64uo7Ja07J2YIOyWtOybkOydgD8iLCAiVG9kYXkncyBicmllZmluZyJdCmZvciBtIGluIHRlc3RzOgogICAgc2NvcmUsIGNob3NlbiwgdHIsIGNpdHkgPSByb3V0ZShtKQogICAgd2h5ID0gZiIne3RyfSciIGlmIHNjb3JlID49IFRIUkVTSE9MRCBlbHNlICItIgogICAgcHJpbnQoZiJ7c2NvcmU6LjJmfSB8IHtjaG9zZW59IHwg6re86rGwIHt3aHl9IHwg64-E7IucPXtjaXR5fSB8IHttfSIp" target="_blank" rel="noopener" title="Playground에서 열기 (새 탭)">Playground ↗</a><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python"># 트리거 매칭 흉내: 메시지 ↔ 스킬의 활성화 문구(글자 2-gram 겹침)
+CITIES = [&quot;서울&quot;, &quot;부산&quot;, &quot;대전&quot;, &quot;제주&quot;]
+SKILLS = {
+    &quot;daily-briefing-weather&quot;: [&quot;오늘의 브리핑&quot;, &quot;오늘 뭐가 화제야&quot;, &quot;&lt;도시&gt; 날씨&quot;, &quot;오늘 &lt;도시&gt; 날씨 어때&quot;],
+    &quot;mail-summary&quot;: [&quot;메일 요약&quot;, &quot;받은 편지함 정리&quot;, &quot;새 메일 확인&quot;],
+}
+THRESHOLD = 0.6
+
+def normalize(msg):
+    city = next((c for c in CITIES if c in msg), None)
+    return (msg.replace(city, &quot;&lt;도시&gt;&quot;) if city else msg), city
+
+def grams(s):
+    s = s.replace(&quot; &quot;, &quot;&quot;)
+    return {s[i:i+2] for i in range(len(s) - 1)}
+
+def coverage(trigger, msg):             # 트리거 2-gram 중 메시지에 있는 비율
+    t = grams(trigger)
+    return len(t &amp; grams(msg)) / len(t)
+
+def route(msg):
+    norm, city = normalize(msg)
+    best = max(((coverage(tr, norm), name, tr) for name, trs in SKILLS.items() for tr in trs))
+    score, name, tr = best
+    chosen = name if score &gt;= THRESHOLD else &quot;(스킬 없음 → 일반 대화)&quot;
+    return score, chosen, tr, city
+
+tests = [&quot;오늘의 브리핑 부탁해&quot;, &quot;서울 날씨 어때?&quot;, &quot;오늘 제주 날씨 어때&quot;, &quot;새 메일 확인해 줘&quot;,
+         &quot;요즘 화제인 뉴스 좀&quot;, &quot;날씨라는 단어의 어원은?&quot;, &quot;Today&#x27;s briefing&quot;]
+for m in tests:
+    score, chosen, tr, city = route(m)
+    why = f&quot;&#x27;{tr}&#x27;&quot; if score &gt;= THRESHOLD else &quot;-&quot;
+    print(f&quot;{score:.2f} | {chosen} | 근거 {why} | 도시={city} | {m}&quot;)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">1.00 | daily-briefing-weather | 근거 &#x27;오늘의 브리핑&#x27; | 도시=None | 오늘의 브리핑 부탁해
+1.00 | daily-briefing-weather | 근거 &#x27;&lt;도시&gt; 날씨&#x27; | 도시=서울 | 서울 날씨 어때?
+1.00 | daily-briefing-weather | 근거 &#x27;오늘 &lt;도시&gt; 날씨 어때&#x27; | 도시=제주 | 오늘 제주 날씨 어때
+1.00 | mail-summary | 근거 &#x27;새 메일 확인&#x27; | 도시=None | 새 메일 확인해 줘
+0.17 | (스킬 없음 → 일반 대화) | 근거 - | 도시=None | 요즘 화제인 뉴스 좀
+0.20 | (스킬 없음 → 일반 대화) | 근거 - | 도시=None | 날씨라는 단어의 어원은?
+0.00 | (스킬 없음 → 일반 대화) | 근거 - | 도시=None | Today&#x27;s briefing</code></pre></div>
+<p>결과에서 세 가지를 읽을 수 있습니다. "요즘 화제인 뉴스 좀"은 사용자 의도로는 브리핑인데 <strong>표현이 달라</strong> 놓쳤습니다(미탐, false negative). "날씨라는 단어의 어원은?"은 '날씨'가 들어 있지만 <strong>선택되지 않아야 맞는</strong> 경우입니다(올바른 거부). "Today's briefing"은 영어 문구가 트리거 목록에 없어서 놓쳤습니다. 실제 LLM은 이보다 훨씬 유연하지만, 같은 방향의 실수를 합니다.</p>
+<p>좋은 description을 쓰는 요령은 다음과 같습니다.</p>
+<ul><li><strong>실제 사용자 표현을 그대로</strong> 넣습니다. 설계자가 상상한 문장보다 채팅 기록에서 본 문장이 낫습니다.</li><li>여러 언어로 부를 가능성이 있으면 <strong>각 언어 표현</strong>을 넣습니다(원본은 영어, 이 강의는 한국어+영어).</li><li><strong>무엇을 출력하는지</strong>를 함께 적습니다. 모델은 "이 스킬을 쓰면 원하는 답이 나오는가"로도 판단합니다.</li><li>헷갈리기 쉬운 <strong>비대상</strong>을 적습니다. 예: "단어 뜻·날씨의 과학적 원리 질문에는 쓰지 않는다."</li><li>다른 스킬과 <strong>겹치는 문구를 피합니다</strong>. <code>mail-summary</code>가 "오늘의 요약"을 트리거로 쓰면 브리핑과 충돌합니다.</li></ul>
+<h2 id="실패를-날조하지-않기">실패를 날조하지 않기<a class="anchor" href="#실패를-날조하지-않기">#</a></h2>
+<p>마지막 모형은 스킬 실행 자체입니다. 네트워크 대신 미리 준비한 응답(wttr.in의 <code>format=j1</code> JSON을 줄인 모양)을 돌려주는 가짜 <code>web_fetch</code>를 쓰고, 응답이 없는 도시와 접속 실패한 뉴스 사이트에서 **<code>Not available yet</code>**이 나오는지 확인합니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><a class="pg-btn" href="../tools/playground.html#code=IyDsiqTtgqwg7Iuk7ZaJIO2dieuCtDogd2ViX2ZldGNoKOqwgOynnCDsnZHri7UpIOKGkiDqs6DsoJUg7ZiV7IudIOyhsOumvSwg7Iuk7YyoIOyLnCAiTm90IGF2YWlsYWJsZSB5ZXQiCmltcG9ydCBqc29uCkNBTk5FRCA9IHsgICAjIOuEpO2KuOybjO2BrCDrjIDsi6Ag66-466asIOykgOu5hO2VnCDsnZHri7UgKHd0dHIuaW4gP2Zvcm1hdD1qMSDrqqjslpHsnYQg7KSE7J24IOqygykKICAgICJodHRwczovL3d0dHIuaW4vU2VvdWw_Zm9ybWF0PWoxIjoganNvbi5kdW1wcyh7ImN1cnJlbnRfY29uZGl0aW9uIjogW3sKICAgICAgICAid2VhdGhlckRlc2MiOiBbeyJ2YWx1ZSI6ICJQYXJ0bHkgY2xvdWR5In1dLCAidGVtcF9DIjogIjI0In1dLAogICAgICAgICJ3ZWF0aGVyIjogW3sibWludGVtcEMiOiAiMTgiLCAibWF4dGVtcEMiOiAiMjciLAogICAgICAgICAgICAgICAgICAgICAiaG91cmx5IjogW3siY2hhbmNlb2ZyYWluIjogIjEwIn0sIHsiY2hhbmNlb2ZyYWluIjogIjMwIn1dfV19KSwKICAgICJodHRwczovL25ld3MuZXhhbXBsZS5rci8iOiBqc29uLmR1bXBzKFsKICAgICAgICB7InRpdGxlIjogIuuhnOu0hyDsoITsi5ztmowg6rCc66eJIiwgInN1bW1hcnkiOiAi7ISc67mE7IqkIOuhnOu0hyAyMDDsl6wg7KKF7J20IOqzteqwnOuQkOuLpCJ9LAogICAgICAgIHsidGl0bGUiOiAi7YOc7ZKNIOu2geyDgSIsICJzdW1tYXJ5IjogIuyjvOunkCDrgqjrtoAg7KeA67Cp7JeQIOqwle2VnCDruYTqsIAg7JiI7IOB65Cc64ukIn0sCiAgICAgICAgeyJ0aXRsZSI6ICLrsJjrj4TssrQg7IiY7LacIOymneqwgCIsICJzdW1tYXJ5IjogIuyghOuFhCDrjIDruYQgMTIlIOuKmOyXiOuLpCJ9XSksCn0KCmRlZiB3ZWJfZmV0Y2godXJsKToKICAgIGlmIHVybCBub3QgaW4gQ0FOTkVEOgogICAgICAgIHJhaXNlIENvbm5lY3Rpb25FcnJvcihmImZldGNoIGZhaWxlZDoge3VybH0iKQogICAgcmV0dXJuIENBTk5FRFt1cmxdCgpkZWYgZ2V0X3dlYXRoZXIoY2l0eSk6CiAgICBpZiBjaXR5IGlzIE5vbmU6CiAgICAgICAgcmV0dXJuICJObyBjaXR5IHNwZWNpZmllZC4gV2VhdGhlciBpcyBub3QgYXZhaWxhYmxlIHlldCIKICAgIHRyeToKICAgICAgICBkID0ganNvbi5sb2Fkcyh3ZWJfZmV0Y2goZiJodHRwczovL3d0dHIuaW4ve2NpdHl9P2Zvcm1hdD1qMSIpKQogICAgICAgIGN1ciwgZGF5ID0gZFsiY3VycmVudF9jb25kaXRpb24iXVswXSwgZFsid2VhdGhlciJdWzBdCiAgICAgICAgcmFpbiA9IG1heChpbnQoaFsiY2hhbmNlb2ZyYWluIl0pIGZvciBoIGluIGRheVsiaG91cmx5Il0pCiAgICAgICAgcmV0dXJuIChmIntjaXR5fSB7Y3VyWyd3ZWF0aGVyRGVzYyddWzBdWyd2YWx1ZSddfSwge2N1clsndGVtcF9DJ119wrBDICIKICAgICAgICAgICAgICAgIGYiKHtkYXlbJ21pbnRlbXBDJ119fntkYXlbJ21heHRlbXBDJ119wrBDKSwg6rCV7IiY7ZmV66WgIOy1nOuMgCB7cmFpbn0lIikKICAgIGV4Y2VwdCAoQ29ubmVjdGlvbkVycm9yLCBLZXlFcnJvciwgVmFsdWVFcnJvcik6CiAgICAgICAgcmV0dXJuICJOb3QgYXZhaWxhYmxlIHlldCIgICAgICAgICAgIyDsp4DslrTrgrTsp4Ag7JWK64qU64ukCgpkZWYgZ2V0X3RvcGljcyh1cmw9Imh0dHBzOi8vbmV3cy5leGFtcGxlLmtyLyIpOgogICAgdHJ5OgogICAgICAgIGl0ZW1zID0ganNvbi5sb2Fkcyh3ZWJfZmV0Y2godXJsKSlbOjZdCiAgICAgICAgcmV0dXJuICIsICIuam9pbihmIntpdFsndGl0bGUnXX06IHtpdFsnc3VtbWFyeSddfSIgZm9yIGl0IGluIGl0ZW1zKQogICAgZXhjZXB0IENvbm5lY3Rpb25FcnJvcjoKICAgICAgICByZXR1cm4gIk5vdCBhdmFpbGFibGUgeWV0IgoKZGVmIGJyaWVmaW5nKGNpdHksIG5ld3NfdXJsPSJodHRwczovL25ld3MuZXhhbXBsZS5rci8iKToKICAgIHJldHVybiBmIkRhaWx5IGJyaWVmaW5nOiAxLiBXZWF0aGVyOiB7Z2V0X3dlYXRoZXIoY2l0eSl9LiBIb3QgdG9waWNzOiB7e3tnZXRfdG9waWNzKG5ld3NfdXJsKX19fSIKCnByaW50KGJyaWVmaW5nKCJTZW91bCIpKQpwcmludChicmllZmluZygiQnVzYW4iKSkgICAgICAgICAgICAgICAgICAgICAgICAjIOuCoOyUqCDsnZHri7Ug7JeG7J2MCnByaW50KGJyaWVmaW5nKE5vbmUsICJodHRwczovL2Rvd24uZXhhbXBsZS8iKSkgICMg64-E7IucIOuvuOyngOyglSArIOuJtOyKpCDsi6TtjKg" target="_blank" rel="noopener" title="Playground에서 열기 (새 탭)">Playground ↗</a><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python"># 스킬 실행 흉내: web_fetch(가짜 응답) → 고정 형식 조립, 실패 시 &quot;Not available yet&quot;
+import json
+CANNED = {   # 네트워크 대신 미리 준비한 응답 (wttr.in ?format=j1 모양을 줄인 것)
+    &quot;https://wttr.in/Seoul?format=j1&quot;: json.dumps({&quot;current_condition&quot;: [{
+        &quot;weatherDesc&quot;: [{&quot;value&quot;: &quot;Partly cloudy&quot;}], &quot;temp_C&quot;: &quot;24&quot;}],
+        &quot;weather&quot;: [{&quot;mintempC&quot;: &quot;18&quot;, &quot;maxtempC&quot;: &quot;27&quot;,
+                     &quot;hourly&quot;: [{&quot;chanceofrain&quot;: &quot;10&quot;}, {&quot;chanceofrain&quot;: &quot;30&quot;}]}]}),
+    &quot;https://news.example.kr/&quot;: json.dumps([
+        {&quot;title&quot;: &quot;로봇 전시회 개막&quot;, &quot;summary&quot;: &quot;서비스 로봇 200여 종이 공개됐다&quot;},
+        {&quot;title&quot;: &quot;태풍 북상&quot;, &quot;summary&quot;: &quot;주말 남부 지방에 강한 비가 예상된다&quot;},
+        {&quot;title&quot;: &quot;반도체 수출 증가&quot;, &quot;summary&quot;: &quot;전년 대비 12% 늘었다&quot;}]),
+}
+
+def web_fetch(url):
+    if url not in CANNED:
+        raise ConnectionError(f&quot;fetch failed: {url}&quot;)
+    return CANNED[url]
+
+def get_weather(city):
+    if city is None:
+        return &quot;No city specified. Weather is not available yet&quot;
+    try:
+        d = json.loads(web_fetch(f&quot;https://wttr.in/{city}?format=j1&quot;))
+        cur, day = d[&quot;current_condition&quot;][0], d[&quot;weather&quot;][0]
+        rain = max(int(h[&quot;chanceofrain&quot;]) for h in day[&quot;hourly&quot;])
+        return (f&quot;{city} {cur[&#x27;weatherDesc&#x27;][0][&#x27;value&#x27;]}, {cur[&#x27;temp_C&#x27;]}°C &quot;
+                f&quot;({day[&#x27;mintempC&#x27;]}~{day[&#x27;maxtempC&#x27;]}°C), 강수확률 최대 {rain}%&quot;)
+    except (ConnectionError, KeyError, ValueError):
+        return &quot;Not available yet&quot;          # 지어내지 않는다
+
+def get_topics(url=&quot;https://news.example.kr/&quot;):
+    try:
+        items = json.loads(web_fetch(url))[:6]
+        return &quot;, &quot;.join(f&quot;{it[&#x27;title&#x27;]}: {it[&#x27;summary&#x27;]}&quot; for it in items)
+    except ConnectionError:
+        return &quot;Not available yet&quot;
+
+def briefing(city, news_url=&quot;https://news.example.kr/&quot;):
+    return f&quot;Daily briefing: 1. Weather: {get_weather(city)}. Hot topics: {{{get_topics(news_url)}}}&quot;
+
+print(briefing(&quot;Seoul&quot;))
+print(briefing(&quot;Busan&quot;))                        # 날씨 응답 없음
+print(briefing(None, &quot;https://down.example/&quot;))  # 도시 미지정 + 뉴스 실패</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">Daily briefing: 1. Weather: Seoul Partly cloudy, 24°C (18~27°C), 강수확률 최대 30%. Hot topics: {로봇 전시회 개막: 서비스 로봇 200여 종이 공개됐다, 태풍 북상: 주말 남부 지방에 강한 비가 예상된다, 반도체 수출 증가: 전년 대비 12% 늘었다}
+Daily briefing: 1. Weather: Not available yet. Hot topics: {로봇 전시회 개막: 서비스 로봇 200여 종이 공개됐다, 태풍 북상: 주말 남부 지방에 강한 비가 예상된다, 반도체 수출 증가: 전년 대비 12% 늘었다}
+Daily briefing: 1. Weather: No city specified. Weather is not available yet. Hot topics: {Not available yet}</code></pre></div>
+<p>파이썬 코드에서는 예외 처리로 날조를 <strong>구조적으로</strong> 막을 수 있지만, LLM 스킬에서는 SKILL.md의 Constraints 문장이 그 역할을 대신합니다. 그래서 실물 시험에서는 <strong>일부러 실패를 만들어</strong> 이 규칙이 지켜지는지 확인해야 합니다(아래 시험 표의 5번).</p>
+<h2 id="실습-실물">실습 (실물)<a class="anchor" href="#실습-실물">#</a></h2>
+<div class="callout callout-safety"><div class="callout-title">실습 전 확인</div><div class="callout-body"><ul><li>이 실습은 로봇을 움직이지 않지만, 에이전트가 <strong>외부 웹사이트에 접속</strong>합니다. 짧은 시간에 같은 요청을 반복해 사이트에 부담을 주지 마세요. 시험은 몇 번으로 충분합니다.</li><li>뉴스 사이트를 바꿀 때는 그 사이트의 이용 약관과 <code>robots.txt</code>를 확인합니다. 가져온 기사 내용은 요약만 쓰고 원문을 재배포하지 않습니다.</li><li><code>openclaw.json</code>을 고치기 전에 백업하고, 설정 파일이나 로그를 공유할 때는 API 키·토큰을 <code>&lt;GATEWAY_TOKEN&gt;</code> 같은 자리표시자로 바꿉니다.</li></ul></div></div>
+<h3 id="1-스킬-폴더와-skill-md-만들기">1) 스킬 폴더와 SKILL.md 만들기<a class="anchor" href="#1-스킬-폴더와-skill-md-만들기">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">mkdir -p ~/.openclaw/workspace/test/skills/daily-briefing-weather
+nano ~/.openclaw/workspace/test/skills/daily-briefing-weather/SKILL.md   # 위 템플릿 붙여 넣기</code></pre></div>
+<h3 id="2-등록-재시작-자가-점검">2) 등록, 재시작, 자가 점검<a class="anchor" href="#2-등록-재시작-자가-점검">#</a></h3>
+<p><code>openclaw.json</code>에 <code>skills</code> 배열과 도구 권한을 넣었으면 재시작하고, 스킬이 <strong>발견되고 사용 가능한지</strong> 확인합니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">openclaw gateway restart
+openclaw skills list -v          # 스킬 목록과 상세(출처 경로 등)
+openclaw skills check --json     # 사용 가능 여부·누락 요건 점검</code></pre></div>
+<p><code>skills list</code>에 <code>daily-briefing-weather</code>가 없으면 폴더 위치(워크스페이스의 <code>skills/</code> 아래인지)와 머리말 형식(<code>---</code>로 시작하고 끝나는지)을 확인합니다. <code>check</code>가 문제를 보고하면 메시지대로 고칩니다.</p>
+<h3 id="3-트리거-문구로-합동-디버깅">3) 트리거 문구로 합동 디버깅<a class="anchor" href="#3-트리거-문구로-합동-디버깅">#</a></h3>
+<div class="code-block"><div class="code-head"><span class="code-lang">bash</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-bash">openclaw agent --agent test --session-id test-002 --message &quot;Today&#x27;s briefing.&quot;
+openclaw agent --agent test --session-id test-002 --message &quot;오늘 서울 날씨 어때?&quot;</code></pre></div>
+<p>응답이 <code>Daily briefing: 1. Weather: ... Hot topics: {...}</code> 구조를 지키는지, 날씨와 뉴스 제목이 <strong>실제 사이트 내용과 맞는지</strong> 브라우저로 직접 대조합니다.</p>
+<h3 id="4-시험-표-만들기">4) 시험 표 만들기<a class="anchor" href="#4-시험-표-만들기">#</a></h3>
+<p>스킬 하나를 "된다"고 말하려면 성공 사례 한 번이 아니라 아래 같은 <strong>시험 표</strong>를 통과해야 합니다. 새 세션 id(<code>test-003</code>, <code>test-004</code>…)로 하나씩 실행하고 결과를 기록하세요.</p>
+<div class="table-wrap"><table><thead><tr><th>#</th><th>입력</th><th>기대 결과</th><th>확인할 것</th></tr></thead><tbody><tr><td>1</td><td><code>오늘의 브리핑</code></td><td>스킬 선택, 뉴스 3~6개</td><td>도시 없음 → <code>No city specified…</code></td></tr><tr><td>2</td><td><code>오늘 부산 날씨 어때?</code></td><td>부산 날씨 + 뉴스</td><td><code>&lt;city&gt;</code> 추출</td></tr><tr><td>3</td><td><code>How is the weather in Seoul today?</code></td><td>영어 트리거도 선택</td><td>다국어 description</td></tr><tr><td>4</td><td><code>날씨라는 단어의 어원이 뭐야?</code></td><td>스킬 <strong>미선택</strong></td><td>과잉 선택(false positive) 없음</td></tr><tr><td>5</td><td><code>오늘 없는도시123 날씨</code></td><td>Weather: <code>Not available yet</code></td><td>날조 금지</td></tr><tr><td>6</td><td>권한에서 <code>web_fetch</code>를 잠시 뺀 뒤 1번</td><td><code>web_search</code>로 대체 또는 명시적 실패</td><td>도구 대체 경로</td></tr></tbody></table></div>
+<p>6번처럼 <strong>설정을 일부러 망가뜨려 보는 시험</strong>은 운영 중 문제가 생겼을 때 증상을 알아보는 눈을 길러 줍니다. 시험이 끝나면 설정을 원래대로 돌리고 다시 재시작하는 것을 잊지 마세요.</p>
+<h2 id="문제-해결-가이드">문제 해결 가이드<a class="anchor" href="#문제-해결-가이드">#</a></h2>
+<p>원본 교재가 정리한 네 가지 상황을 증상별로 다시 정리합니다.</p>
+<ol><li><strong>스킬이 선택되지 않음</strong> — description에 실제로 쓰는 트리거 문구가 들어 있는지, <code>test</code>의 systemPrompt가 이 스킬 이름을 부르는지 확인합니다.</li><li><strong>선택은 되는데 가져오지 않음</strong> — <code>tools.allow</code>에 <code>web_fetch</code>, <code>web_search</code>가 있는지 확인합니다. 추적 기록에서 실제 도구 호출이 있었는지도 봅니다.</li><li><strong>고쳤는데 반영이 안 됨</strong> — <code>openclaw.json</code>을 수정했으면 반드시 <code>openclaw gateway restart</code>. 같은 세션 id는 이전 맥락을 끌고 오므로 새 세션 id로 시험합니다.</li><li><strong>가져오기 실패를 날조로 덮음</strong> — Execution Steps와 Constraints를 다시 읽고, "실패 시 <code>Not available yet</code>" 문장이 모호하지 않은지 확인합니다. 필요하면 Fixed Output Format 규칙에도 같은 문장을 반복합니다.</li></ol>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td><code>skills list</code>에 스킬이 없음</td><td>폴더 위치가 워크스페이스 <code>skills/</code> 밖, 파일명이 <code>skill.md</code></td><td>경로와 대소문자 <code>SKILL.md</code> 확인</td></tr><tr><td>목록에는 있는데 <code>test</code>가 안 씀</td><td><code>skills</code> 배열 문자열과 <code>name</code> 불일치(<code>_</code> vs <code>-</code>)</td><td>두 문자열을 복사해 붙여 일치시킴</td></tr><tr><td>머리말 파싱 오류</td><td><code>---</code> 누락, 들여쓰기 오류, <code>version: 1.0.0</code>을 숫자로 해석</td><td>YAML 형식 확인, 버전은 따옴표</td></tr><tr><td>"wttr.in에서 확인하세요"라는 설명만 옴</td><td><code>web_fetch</code>/<code>web_search</code> 권한 없음</td><td><code>tools.allow</code>에 추가 후 재시작</td></tr><tr><td>형식이 매번 다름</td><td>Fixed Output Format이 모호, 모델이 인사말 추가</td><td>템플릿을 백틱으로 감싸고 "인사말 없이" 명시</td></tr><tr><td>없는 뉴스·날씨가 나옴</td><td>제약 문구 약함, 실패 경로 미시험</td><td>Constraints 강화, 시험 표 5번 반복</td></tr><tr><td>영어 요청에만 반응</td><td>description에 한국어 트리거 없음</td><td>실제 사용 언어 표현 추가</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">과제</div><div class="callout-body"><ol><li><strong>(기본)</strong> 트리거 매칭 모형에서 "요즘 화제인 뉴스 좀"과 "Today's briefing"이 선택되도록 <code>SKILLS</code>의 트리거 문구를 보완하되, "날씨라는 단어의 어원은?"은 여전히 선택되지 않게 하세요.</li><li><strong>(기본)</strong> skills check 모형에 "description이 200자를 넘으면 경고", "version이 없으면 오류" 규칙을 추가하세요.</li><li><strong>(심화)</strong> 스킬 실행 모형에 <code>web_search</code> 대체 경로를 넣으세요. wttr.in 응답이 없을 때 가짜 검색 결과에서 기온을 뽑고, 그것도 실패할 때만 <code>Not available yet</code>을 돌려주도록 합니다.</li><li><strong>(심화)</strong> 실물에서 시험 표 6개 항목을 실행해 결과(선택 여부·형식 준수·날조 여부)를 표로 정리하고, 실패한 항목마다 SKILL.md 또는 설정의 어느 줄을 고쳤는지 기록하세요.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>19. OpenClaw Robotics Integration Course</em> — 5. Tool Debugging from Scratch (5.1 Minimum Closed Loop ~ 5.7 Troubleshooting Guide)</li><li>원본 교재: <em>19. OpenClaw Robotics Integration Course</em> — 2. OpenClaw Core Concepts (2.6 Skills), 4. Creating the First Agent</li><li>원본의 뉴스 출처는 People's Daily Online(<code>https://www.people.com.cn/</code>)이며, 이 강의에서는 국내 뉴스 사이트로 바꾸어 예시했습니다.</li><li>wttr.in (콘솔 친화 날씨 서비스, <code>format=j1</code> JSON 출력): https://github.com/chubin/wttr.in</li><li>원본 기준 버전은 OpenClaw 2026.3.24입니다. <code>openclaw skills</code> 하위 명령과 옵션은 버전에 따라 다를 수 있으니 <code>openclaw skills --help</code>로 확인하세요.</li></ul>
+      <nav class="pager"><a class="pager-prev" href="c04.html"><span>이전 · C04</span>첫 에이전트 만들기: 워크스페이스 규약과 도구 권한</a><a class="pager-next" href="c06.html"><span>다음 · C06</span>채널 연결: Telegram 봇</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#최소-폐루프">최소 폐루프</a><a class="toc-l2" href="#준비">준비</a><a class="toc-l2" href="#skill-md의-구조">SKILL.md의 구조</a><a class="toc-l3" href="#머리말-선택의-열쇠">머리말: 선택의 열쇠</a><a class="toc-l3" href="#본문-실행-절차서">본문: 실행 절차서</a><a class="toc-l3" href="#모형-skill-md-파싱과-skills-check">모형: SKILL.md 파싱과 skills check</a><a class="toc-l2" href="#에이전트에-스킬-등록하기">에이전트에 스킬 등록하기</a><a class="toc-l3" href="#1-skills-배열-추가">1) skills 배열 추가</a><a class="toc-l3" href="#2-도구-권한-확인">2) 도구 권한 확인</a><a class="toc-l3" href="#3-systemprompt에-트리거를-못-박기-선택-강력-권장">3) systemPrompt에 트리거를 못 박기 (선택, 강력 권장)</a><a class="toc-l2" href="#description이-선택을-좌우한다">description이 선택을 좌우한다</a><a class="toc-l2" href="#실패를-날조하지-않기">실패를 날조하지 않기</a><a class="toc-l2" href="#실습-실물">실습 (실물)</a><a class="toc-l3" href="#1-스킬-폴더와-skill-md-만들기">1) 스킬 폴더와 SKILL.md 만들기</a><a class="toc-l3" href="#2-등록-재시작-자가-점검">2) 등록, 재시작, 자가 점검</a><a class="toc-l3" href="#3-트리거-문구로-합동-디버깅">3) 트리거 문구로 합동 디버깅</a><a class="toc-l3" href="#4-시험-표-만들기">4) 시험 표 만들기</a><a class="toc-l2" href="#문제-해결-가이드">문제 해결 가이드</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js?v=d46755e0"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=d46755e0"></script>
+</body>
+</html>

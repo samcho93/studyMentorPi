@@ -1,0 +1,35 @@
+<svg viewBox="0 0 720 290" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="설치 흐름: nvm, Node 22, openclaw 설치, onboard, gateway 시작, 첫 메시지, 검증과 ~/.openclaw 폴더 구조">
+  <defs>
+    <marker id="arr-c03-install" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <rect class="box" x="10" y="30" width="120" height="60" rx="6"/>
+  <text class="lbl" x="70" y="55" text-anchor="middle">① nvm</text>
+  <text class="tag mono" x="70" y="75" text-anchor="middle">v0.40.1</text>
+  <rect class="box" x="150" y="30" width="120" height="60" rx="6"/>
+  <text class="lbl" x="210" y="55" text-anchor="middle">② Node 22</text>
+  <text class="tag mono" x="210" y="75" text-anchor="middle">nvm install 22</text>
+  <rect class="box" x="290" y="30" width="140" height="60" rx="6"/>
+  <text class="lbl" x="360" y="55" text-anchor="middle">③ OpenClaw</text>
+  <text class="tag mono" x="360" y="75" text-anchor="middle">npm install -g</text>
+  <rect class="box-hi" x="450" y="30" width="120" height="60" rx="6"/>
+  <text class="lbl" x="510" y="55" text-anchor="middle">④ onboard</text>
+  <text class="tag" x="510" y="75" text-anchor="middle">API 키 · 모델</text>
+  <rect class="box" x="590" y="30" width="120" height="60" rx="6"/>
+  <text class="lbl" x="650" y="55" text-anchor="middle">⑤ gateway</text>
+  <text class="tag mono" x="650" y="75" text-anchor="middle">start</text>
+  <path class="ln" d="M130 60 L146 60 M270 60 L286 60 M430 60 L446 60 M570 60 L586 60" stroke-width="1.6" marker-end="url(#arr-c03-install)"/>
+  <rect class="box" x="450" y="120" width="260" height="60" rx="6"/>
+  <text class="lbl" x="580" y="145" text-anchor="middle">⑥ 첫 메시지</text>
+  <text class="tag mono" x="580" y="165" text-anchor="middle">openclaw agent --agent main</text>
+  <rect class="box" x="450" y="205" width="260" height="60" rx="6"/>
+  <text class="lbl" x="580" y="230" text-anchor="middle">⑦ 검증</text>
+  <text class="tag mono" x="580" y="250" text-anchor="middle">status · doctor · dashboard</text>
+  <path class="ln" d="M650 90 L650 116 M580 180 L580 201" stroke-width="1.6" marker-end="url(#arr-c03-install)"/>
+  <rect class="box" x="10" y="120" width="410" height="145" rx="8"/>
+  <text class="lbl mono" x="26" y="144">~/.openclaw/</text>
+  <text class="sub mono" x="40" y="168">openclaw.json      ← 전체 설정 (편집 전 백업)</text>
+  <text class="sub mono" x="40" y="190">workspace/main/    ← 규약 파일 (C04)</text>
+  <text class="sub mono" x="40" y="212">agents/main/agent/ ← 에이전트 상태</text>
+  <text class="sub" x="40" y="234">버전에 따라 폴더가 더 있을 수 있음</text>
+  <text class="tag" x="26" y="256">④ onboard가 이 구조를 만듭니다</text>
+</svg>

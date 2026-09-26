@@ -1,0 +1,48 @@
+<svg viewBox="0 0 720 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="OpenClaw 전체 구조: 채널에서 Gateway, Agent, Tools/Skills, 모델과 외부 기능을 거쳐 채널로 응답">
+  <defs>
+    <marker id="arr-c01-architecture" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-c01-architecture-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <text class="tag" x="70" y="22" text-anchor="middle">채널 (Channel)</text>
+  <rect class="box" x="10" y="32" width="120" height="40" rx="6"/>
+  <text class="lbl" x="70" y="57" text-anchor="middle">Telegram</text>
+  <rect class="box" x="10" y="82" width="120" height="40" rx="6"/>
+  <text class="lbl" x="70" y="107" text-anchor="middle">Lark / WeCom</text>
+  <rect class="box" x="10" y="132" width="120" height="40" rx="6"/>
+  <text class="lbl" x="70" y="157" text-anchor="middle">Web · TUI · CLI</text>
+
+  <rect class="box-hi" x="170" y="32" width="150" height="140" rx="8"/>
+  <text class="lbl" x="245" y="58" text-anchor="middle">Gateway</text>
+  <text class="sub" x="245" y="84" text-anchor="middle">① 인증 (token)</text>
+  <text class="sub" x="245" y="106" text-anchor="middle">② 라우팅 (bindings)</text>
+  <text class="sub" x="245" y="128" text-anchor="middle">③ 세션 (Session)</text>
+  <text class="tag mono" x="245" y="156" text-anchor="middle">127.0.0.1:18789</text>
+
+  <text class="tag" x="425" y="22" text-anchor="middle">에이전트 (Agent)</text>
+  <rect class="box" x="360" y="32" width="130" height="40" rx="6"/>
+  <text class="lbl" x="425" y="57" text-anchor="middle">main (기본)</text>
+  <rect class="box" x="360" y="82" width="130" height="40" rx="6"/>
+  <text class="lbl" x="425" y="107" text-anchor="middle">life</text>
+  <rect class="box" x="360" y="132" width="130" height="40" rx="6"/>
+  <text class="lbl" x="425" y="157" text-anchor="middle">robot</text>
+
+  <rect class="box" x="530" y="32" width="180" height="62" rx="6"/>
+  <text class="lbl" x="620" y="57" text-anchor="middle">모델 호출 (Model)</text>
+  <text class="tag" x="620" y="79" text-anchor="middle">OpenAI · DeepSeek · Ollama</text>
+  <rect class="box" x="530" y="110" width="180" height="62" rx="6"/>
+  <text class="lbl" x="620" y="135" text-anchor="middle">Tools / Skills</text>
+  <text class="tag" x="620" y="157" text-anchor="middle">파일 · 웹 · API · (C08) ROS 2</text>
+
+  <path class="ln" d="M130 52 L166 70 M130 102 L166 102 M130 152 L166 134" stroke-width="1.5" marker-end="url(#arr-c01-architecture)"/>
+  <path class="ln" d="M320 70 L356 52 M320 102 L356 102 M320 134 L356 152" stroke-width="1.5" marker-end="url(#arr-c01-architecture)"/>
+  <path class="ln" d="M490 70 L526 63 M490 120 L526 141" stroke-width="1.5" marker-end="url(#arr-c01-architecture)"/>
+  <path class="ln" d="M620 94 L620 110" stroke-width="1.2" stroke-dasharray="4 3"/>
+
+  <rect class="box" x="130" y="206" width="460" height="68" rx="8"/>
+  <text class="lbl" x="360" y="230" text-anchor="middle">에이전트 = 워크스페이스 + 프롬프트 + 도구 권한 + 스킬 + 메모리</text>
+  <text class="sub" x="360" y="254" text-anchor="middle">AGENTS.md · SOUL.md · tools.allow / tools.deny · SKILL.md · MEMORY.md</text>
+  <path class="ln" d="M425 172 L425 206" stroke-width="1.2" stroke-dasharray="4 3"/>
+
+  <path class="ln-hi" d="M690 172 L690 310 L40 310 L40 176" stroke-width="1.8" fill="none" marker-end="url(#arr-c01-architecture-hi)"/>
+  <text class="sub" x="360" y="300" text-anchor="middle">최종 응답을 같은 채널·세션으로 돌려보냄</text>
+</svg>

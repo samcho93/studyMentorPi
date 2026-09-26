@@ -1,0 +1,45 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="openclaw.json의 agents.list 항목이 workspace와 agentDir 두 폴더를 가리키는 구조">
+  <defs>
+    <marker id="arr-c04-layout" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <!-- openclaw.json -->
+  <rect class="box-hi" x="10" y="40" width="250" height="220" rx="6"/>
+  <text class="lbl mono" x="135" y="64" text-anchor="middle">~/.openclaw/openclaw.json</text>
+  <text class="sub mono" x="25" y="92">agents.list[ ]</text>
+  <text class="tag mono" x="35" y="114">id: "test"</text>
+  <text class="tag mono" x="35" y="134">workspace: …/workspace/test</text>
+  <text class="tag mono" x="35" y="154">agentDir: …/agents/test/agent</text>
+  <text class="tag mono" x="35" y="174">model: deepseek-reasoner</text>
+  <text class="tag mono" x="35" y="194">tools.allow / tools.deny</text>
+  <text class="tag mono" x="35" y="214">skills: [ … ]  (5장)</text>
+  <text class="sub" x="135" y="246" text-anchor="middle">무엇을 할 수 있는가 (권한)</text>
+
+  <!-- workspace -->
+  <rect class="box" x="290" y="20" width="200" height="190" rx="6"/>
+  <text class="lbl mono" x="390" y="44" text-anchor="middle">workspace/test/</text>
+  <text class="tag mono" x="305" y="70">AGENTS.md   작업 규칙</text>
+  <text class="tag mono" x="305" y="90">SOUL.md     성격·경계</text>
+  <text class="tag mono" x="305" y="110">USER.md     사용자 기본값</text>
+  <text class="tag mono" x="305" y="130">IDENTITY.md 이름·정체성</text>
+  <text class="tag mono" x="305" y="150">TOOLS.md    도구 메모</text>
+  <text class="tag mono" x="305" y="170">skills/  tmp/  memory/</text>
+  <text class="sub" x="390" y="198" text-anchor="middle">어떻게 행동하는가 (규약)</text>
+
+  <!-- agentDir -->
+  <rect class="box" x="290" y="225" width="200" height="60" rx="6"/>
+  <text class="lbl mono" x="390" y="249" text-anchor="middle">agents/test/agent/</text>
+  <text class="tag" x="390" y="270" text-anchor="middle">전용 설정·인증 · 실행 추적</text>
+
+  <path class="ln" d="M260 134 C272 134 276 115 288 115" marker-end="url(#arr-c04-layout)"/>
+  <path class="ln" d="M260 154 C272 154 276 255 288 255" marker-end="url(#arr-c04-layout)"/>
+
+  <!-- model -->
+  <rect class="box" x="555" y="80" width="150" height="110" rx="6"/>
+  <text class="lbl" x="630" y="106" text-anchor="middle">모델 호출</text>
+  <text class="tag" x="630" y="130" text-anchor="middle">systemPrompt</text>
+  <text class="tag" x="630" y="148" text-anchor="middle">+ 규약 파일 내용</text>
+  <text class="tag" x="630" y="166" text-anchor="middle">+ 허용 도구 목록</text>
+  <path class="ln" d="M490 115 L553 125" marker-end="url(#arr-c04-layout)"/>
+  <path class="ln" d="M490 255 C530 255 540 200 580 192" marker-end="url(#arr-c04-layout)"/>
+  <text class="tag" x="560" y="238">추적 기록</text>
+</svg>

@@ -1,0 +1,32 @@
+<svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="도구 호출 루프: 모델이 도구 호출을 요청하면 런타임이 실행하고 결과를 대화에 붙여 다시 모델을 부르며 최종 답이 나오거나 최대 반복에 도달하면 끝남">
+  <defs>
+    <marker id="arr-c02-loop" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-c02-loop-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <rect class="box" x="10" y="40" width="140" height="70" rx="6"/>
+  <text class="lbl" x="80" y="68" text-anchor="middle">메시지 목록</text>
+  <text class="tag" x="80" y="90" text-anchor="middle">system · user · tool</text>
+  <rect class="box-hi" x="190" y="40" width="140" height="70" rx="6"/>
+  <text class="lbl" x="260" y="68" text-anchor="middle">모델 (Model)</text>
+  <text class="tag" x="260" y="90" text-anchor="middle">다음 행동 결정</text>
+  <polygon class="box" points="440,35 510,75 440,115 370,75"/>
+  <text class="lbl" x="440" y="72" text-anchor="middle">응답 종류?</text>
+  <text class="tag" x="440" y="90" text-anchor="middle">i ≤ max?</text>
+  <rect class="box" x="560" y="40" width="150" height="70" rx="6"/>
+  <text class="lbl" x="635" y="68" text-anchor="middle">최종 답 → 채널</text>
+  <text class="tag" x="635" y="90" text-anchor="middle">루프 종료</text>
+  <rect class="box" x="370" y="175" width="160" height="70" rx="6"/>
+  <text class="lbl" x="450" y="203" text-anchor="middle">런타임이 도구 실행</text>
+  <text class="tag" x="450" y="225" text-anchor="middle">allow/deny 검사 → 실행</text>
+  <rect class="box" x="120" y="175" width="190" height="70" rx="6"/>
+  <text class="lbl" x="215" y="203" text-anchor="middle">결과를 tool 메시지로 추가</text>
+  <text class="tag mono" x="215" y="225" text-anchor="middle">{"role": "tool", ...}</text>
+  <path class="ln" d="M150 75 L186 75 M330 75 L366 75" stroke-width="1.6" marker-end="url(#arr-c02-loop)"/>
+  <path class="ln-hi" d="M510 75 L556 75" stroke-width="1.8" marker-end="url(#arr-c02-loop-hi)"/>
+  <text class="tag" x="533" y="66" text-anchor="middle">final</text>
+  <path class="ln" d="M440 115 L440 171" stroke-width="1.6" marker-end="url(#arr-c02-loop)"/>
+  <text class="tag mono" x="450" y="148">tool_call {name, arguments}</text>
+  <path class="ln" d="M370 210 L314 210" stroke-width="1.6" marker-end="url(#arr-c02-loop)"/>
+  <path class="ln" d="M120 210 L80 210 L80 114" stroke-width="1.6" fill="none" marker-end="url(#arr-c02-loop)"/>
+  <text class="sub" x="360" y="280" text-anchor="middle">모델은 도구를 “요청”만 하고, 실제 실행과 권한 검사는 런타임(에이전트)이 맡습니다.</text>
+</svg>

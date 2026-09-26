@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C02. 핵심 개념: 모델·에이전트·도구·메모리·워크플로·스킬 · studyMentorPi</title>
+<meta name="description" content="Model(두뇌)·Agent(작업 관리자)·Tool(손)·Memory(맥락)·Workflow(실행 계획)·Skill(재사용 모듈)이 한 요청 안에서 어떻게 맞물리는지, 도구 호출 루프를 파이썬 모의 모델로 직접 돌려 봅니다.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect x=%2215%22 y=%2225%22 width=%2270%22 height=%2250%22 rx=%2212%22 fill=%22%2322c55e%22/><circle cx=%2250%22 cy=%2250%22 r=%2212%22 fill=%22%23052e16%22/></svg>">
+<link rel="stylesheet" href="../assets/css/main.css?v=d46755e0">
+<link rel="stylesheet" href="../assets/css/mentorpi.css?v=d46755e0">
+<link rel="stylesheet" href="../assets/css/ml-theme.css?v=d46755e0">
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<link rel="stylesheet" crossorigin="anonymous" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&display=swap">
+<script src="../assets/js/theme.js?v=d46755e0"></script>
+</head>
+<body class="lesson-page track-page-agent">
+<button class="nav-toggle" id="navToggle" aria-label="목차 열기">&#9776;</button>
+<aside class="sidebar" id="sidebar">
+<nav class="sidebar-nav">
+<div class="brand-row"><a class="brand" href="../index.html"><span class="brand-mark">&#9673;</span><span class="brand-text">studyMentorPi<small>이동로봇 강의</small></span></a><button class="theme-icon" type="button" data-theme-toggle data-theme-icon aria-label="테마 전환"></button></div>
+<div class="side-tools"><a class="side-tool" href="../sim3d/index.html">3D 시뮬레이터</a><a class="side-tool" href="../sim/index.html">2D 시뮬레이터</a><a class="side-tool" href="../tools/playground.html">ROS 2 Playground</a><a class="side-tool" href="../tools/kinematics-lab.html">기구학 실험실</a><a class="side-tool" href="../tools/color-lab.html">HSV 색 실험실</a><a class="side-tool" href="../tools/depth-lab.html">깊이 카메라 실험실</a><a class="side-tool" href="../tools/urdf-viewer.html">URDF 뷰어</a></div>
+<div class="nav-track" data-track="base">
+<div class="nav-track-title track-base">기초·하드웨어</div>
+<div class="nav-part"><span class="nav-part-no">B-1</span>MentorPi 시작하기</div>
+<ul>
+<li><a href="../lessons/b01.html" data-slug="b01"><span class="nav-no">B01</span>MentorPi 소개와 하드웨어 구성</a></li>
+<li><a href="../lessons/b02.html" data-slug="b02"><span class="nav-no">B02</span>첫 구동: 앱과 무선 조이패드 제어</a></li>
+<li><a href="../lessons/b03.html" data-slug="b03"><span class="nav-no">B03</span>개발 환경: VNC·버전 설정·시스템 구조</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-2</span>리눅스·파이썬</div>
+<ul>
+<li><a href="../lessons/b04.html" data-slug="b04"><span class="nav-no">B04</span>리눅스 기초: 설치·명령어·권한</a></li>
+<li><a href="../lessons/b05.html" data-slug="b05"><span class="nav-no">B05</span>파이썬 기초: 문법·제어문·함수</a></li>
+<li><a href="../lessons/b06.html" data-slug="b06"><span class="nav-no">B06</span>파이썬 심화: 클래스·예외·스레드·NumPy</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-3</span>라즈베리파이 5와 확장보드</div>
+<ul>
+<li><a href="../lessons/b07.html" data-slug="b07"><span class="nav-no">B07</span>라즈베리파이 5: 하드웨어와 시스템</a></li>
+<li><a href="../lessons/b08.html" data-slug="b08"><span class="nav-no">B08</span>GPIO·UART·I2C와 확장보드 입출력</a></li>
+<li><a href="../lessons/b09.html" data-slug="b09"><span class="nav-no">B09</span>서보와 DC 모터 제어</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">B-4</span>컨테이너</div>
+<ul>
+<li><a href="../lessons/b10.html" data-slug="b10"><span class="nav-no">B10</span>Docker 기초와 ROS 2 컨테이너</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ros">
+<div class="nav-track-title track-ros">ROS 2·OpenCV 기초</div>
+<div class="nav-part"><span class="nav-part-no">R-1</span>ROS 2 통신</div>
+<ul>
+<li><a href="../lessons/r01.html" data-slug="r01"><span class="nav-no">R01</span>ROS 2 개요·설치·명령행 도구</a></li>
+<li><a href="../lessons/r02.html" data-slug="r02"><span class="nav-no">R02</span>워크스페이스·패키지·노드</a></li>
+<li><a href="../lessons/r03.html" data-slug="r03"><span class="nav-no">R03</span>토픽: 발행과 구독</a></li>
+<li><a href="../lessons/r04.html" data-slug="r04"><span class="nav-no">R04</span>서비스·액션·커스텀 인터페이스</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-2</span>ROS 2 시스템</div>
+<ul>
+<li><a href="../lessons/r05.html" data-slug="r05"><span class="nav-no">R05</span>파라미터·launch·DDS·분산 통신</a></li>
+<li><a href="../lessons/r06.html" data-slug="r06"><span class="nav-no">R06</span>TF2 좌표계와 URDF 모델링</a></li>
+<li><a href="../lessons/r07.html" data-slug="r07"><span class="nav-no">R07</span>RViz2·RQT·Gazebo 도구</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">R-3</span>OpenCV 영상 처리</div>
+<ul>
+<li><a href="../lessons/r08.html" data-slug="r08"><span class="nav-no">R08</span>OpenCV 시작: 이미지·영상·그리기</a></li>
+<li><a href="../lessons/r09.html" data-slug="r09"><span class="nav-no">R09</span>색 공간·기하 변환·스무딩</a></li>
+<li><a href="../lessons/r10.html" data-slug="r10"><span class="nav-no">R10</span>엣지·모폴로지·임계값 처리</a></li>
+<li><a href="../lessons/r11.html" data-slug="r11"><span class="nav-no">R11</span>윤곽선·특징 매칭·코너 검출</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="mobile">
+<div class="nav-track-title track-mobile">이동로봇 핵심</div>
+<div class="nav-part"><span class="nav-part-no">M-1</span>섀시와 모션 제어</div>
+<ul>
+<li><a href="../lessons/m01.html" data-slug="m01"><span class="nav-no">M01</span>메카넘 휠 섀시 기구학</a></li>
+<li><a href="../lessons/m02.html" data-slug="m02"><span class="nav-no">M02</span>애커만 조향 섀시 기구학</a></li>
+<li><a href="../lessons/m03.html" data-slug="m03"><span class="nav-no">M03</span>IMU·오도메트리 보정과 발행</a></li>
+<li><a href="../lessons/m04.html" data-slug="m04"><span class="nav-no">M04</span>cmd_vel 속도 제어 프로그래밍</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-2</span>센서: 라이다·깊이 카메라</div>
+<ul>
+<li><a href="../lessons/m05.html" data-slug="m05"><span class="nav-no">M05</span>라이다 원리와 LaserScan</a></li>
+<li><a href="../lessons/m06.html" data-slug="m06"><span class="nav-no">M06</span>라이다 응용: 회피·추종·경비</a></li>
+<li><a href="../lessons/m07.html" data-slug="m07"><span class="nav-no">M07</span>깊이 카메라 원리와 영상</a></li>
+<li><a href="../lessons/m14.html" data-slug="m14"><span class="nav-no">M14</span>깊이 카메라 실습: 포인트 클라우드·장애물·측정</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-3</span>SLAM 지도 작성</div>
+<ul>
+<li><a href="../lessons/m08.html" data-slug="m08"><span class="nav-no">M08</span>MentorPi URDF 모델</a></li>
+<li><a href="../lessons/m09.html" data-slug="m09"><span class="nav-no">M09</span>SLAM 원리와 slam_toolbox 지도 작성</a></li>
+<li><a href="../lessons/m10.html" data-slug="m10"><span class="nav-no">M10</span>RTAB-Map 3D 비주얼 SLAM</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">M-4</span>자율 내비게이션</div>
+<ul>
+<li><a href="../lessons/m11.html" data-slug="m11"><span class="nav-no">M11</span>Nav2 자율 내비게이션과 AMCL</a></li>
+<li><a href="../lessons/m12.html" data-slug="m12"><span class="nav-no">M12</span>경로 계획: 전역 A*와 지역 DWA</a></li>
+<li><a href="../lessons/m13.html" data-slug="m13"><span class="nav-no">M13</span>다중 지점 내비게이션과 3D 내비게이션</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="ai">
+<div class="nav-track-title track-ai">비전 AI·자율주행</div>
+<div class="nav-part"><span class="nav-part-no">A-1</span>ROS 2 + OpenCV 응용</div>
+<ul>
+<li><a href="../lessons/a01.html" data-slug="a01"><span class="nav-no">A01</span>색 임계값 조정과 색 인식</a></li>
+<li><a href="../lessons/a02.html" data-slug="a02"><span class="nav-no">A02</span>QR 코드 생성과 인식</a></li>
+<li><a href="../lessons/a03.html" data-slug="a03"><span class="nav-no">A03</span>자율 라인 트레이싱</a></li>
+<li><a href="../lessons/a04.html" data-slug="a04"><span class="nav-no">A04</span>색 추적</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-2</span>MediaPipe 상호작용</div>
+<ul>
+<li><a href="../lessons/a05.html" data-slug="a05"><span class="nav-no">A05</span>MediaPipe 소개와 손끝 궤적 인식</a></li>
+<li><a href="../lessons/a06.html" data-slug="a06"><span class="nav-no">A06</span>손 추종·자세 제어·포즈 감지</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-3</span>머신러닝·YOLOv5</div>
+<ul>
+<li><a href="../lessons/a07.html" data-slug="a07"><span class="nav-no">A07</span>머신러닝과 YOLOv5 이해</a></li>
+<li><a href="../lessons/a08.html" data-slug="a08"><span class="nav-no">A08</span>YOLOv5 데이터셋·학습·배포</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">A-4</span>자율주행과 군집</div>
+<ul>
+<li><a href="../lessons/a09.html" data-slug="a09"><span class="nav-no">A09</span>자율주행 준비와 차선 유지</a></li>
+<li><a href="../lessons/a10.html" data-slug="a10"><span class="nav-no">A10</span>표지판·신호등 인식</a></li>
+<li><a href="../lessons/a11.html" data-slug="a11"><span class="nav-no">A11</span>회전 판단·자율 주차·통합 주행</a></li>
+<li><a href="../lessons/a12.html" data-slug="a12"><span class="nav-no">A12</span>군집 제어: 마스터-슬레이브</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="agent">
+<div class="nav-track-title track-agent">AI 에이전트 (OpenClaw)</div>
+<div class="nav-part"><span class="nav-part-no">C-1</span>OpenClaw 이해와 설치</div>
+<ul>
+<li><a href="../lessons/c01.html" data-slug="c01"><span class="nav-no">C01</span>OpenClaw 개요와 아키텍처</a></li>
+<li><a href="../lessons/c02.html" class="active" data-slug="c02"><span class="nav-no">C02</span>핵심 개념: 모델·에이전트·도구·메모리·워크플로·스킬</a></li>
+<li><a href="../lessons/c03.html" data-slug="c03"><span class="nav-no">C03</span>환경 구축과 설치: Node.js·OpenClaw·API 키·Ollama</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">C-2</span>에이전트와 스킬</div>
+<ul>
+<li><a href="../lessons/c04.html" data-slug="c04"><span class="nav-no">C04</span>첫 에이전트 만들기: 워크스페이스 규약과 도구 권한</a></li>
+<li><a href="../lessons/c05.html" data-slug="c05"><span class="nav-no">C05</span>스킬 작성과 도구 디버깅</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">C-3</span>채널과 실전 에이전트</div>
+<ul>
+<li><a href="../lessons/c06.html" data-slug="c06"><span class="nav-no">C06</span>채널 연결: Telegram 봇</a></li>
+<li><a href="../lessons/c07.html" data-slug="c07"><span class="nav-no">C07</span>실전: 스마트 이메일 에이전트</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">C-4</span>로봇 통합</div>
+<ul>
+<li><a href="../lessons/c08.html" data-slug="c08"><span class="nav-no">C08</span>로봇 통합: 대화로 MentorPi 제어하기</a></li>
+</ul>
+</div>
+<div class="nav-track" data-track="project">
+<div class="nav-track-title track-project">프로젝트 (중급·고급)</div>
+<div class="nav-part"><span class="nav-part-no">P-1</span>자율 이동 서비스 로봇</div>
+<ul>
+<li><a href="../lessons/p01.html" data-slug="p01"><span class="nav-no">P01</span>자율 순찰 경비 로봇</a></li>
+<li><a href="../lessons/p02.html" data-slug="p02"><span class="nav-no">P02</span>QR 지시형 실내 배송 로봇</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">P-2</span>지능형 주행</div>
+<ul>
+<li><a href="../lessons/p03.html" data-slug="p03"><span class="nav-no">P03</span>미니 시티 자율주행 챌린지</a></li>
+<li><a href="../lessons/p04.html" data-slug="p04"><span class="nav-no">P04</span>사람 추종 카트 (비전+라이다 융합)</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">P-3</span>고급: 자율성 알고리즘 직접 구현</div>
+<ul>
+<li><a href="../lessons/p05.html" data-slug="p05"><span class="nav-no">P05</span>프런티어 자율 탐사와 다중 로봇 작업 할당</a></li>
+<li><a href="../lessons/p06.html" data-slug="p06"><span class="nav-no">P06</span>스캔 매칭 오도메트리와 EKF 센서 융합 직접 구현</a></li>
+</ul>
+<div class="nav-part"><span class="nav-part-no">P-4</span>고급: 학습·의미 기반 지능</div>
+<ul>
+<li><a href="../lessons/p07.html" data-slug="p07"><span class="nav-no">P07</span>강화학습으로 배우는 라이다 주행 정책</a></li>
+<li><a href="../lessons/p08.html" data-slug="p08"><span class="nav-no">P08</span>시맨틱 지도와 자연어 명령 내비게이션</a></li>
+</ul>
+</div>
+</nav>
+</aside>
+<div class="sidebar-scrim" id="scrim"></div>
+<main class="main">
+
+<article class="lesson" data-slug="c02" data-track="agent">
+  <div class="lesson-head">
+    <div class="crumbs"><span class="track-pill track-agent">AI 에이전트 (OpenClaw)</span> C-1 OpenClaw 이해와 설치 &middot; 약 90분 &middot; 입문</div>
+    <h1><span class="lesson-no">C02</span>핵심 개념: 모델·에이전트·도구·메모리·워크플로·스킬</h1>
+    <p class="lede">Model(두뇌)·Agent(작업 관리자)·Tool(손)·Memory(맥락)·Workflow(실행 계획)·Skill(재사용 모듈)이 한 요청 안에서 어떻게 맞물리는지, 도구 호출 루프를 파이썬 모의 모델로 직접 돌려 봅니다.</p>
+    <div class="requires">선수 챕터: <a href="c01.html">C01</a></div>
+    <div class="lesson-actions">
+      <a class="ghost-btn" href="../tools/playground.html">ROS 2 Playground</a>
+    </div>
+  </div>
+  <div class="lesson-grid">
+    <div class="lesson-body">
+<h2 id="학습-목표">학습 목표<a class="anchor" href="#학습-목표">#</a></h2>
+<ul><li>모델(Model)과 에이전트(Agent)의 역할을 "두뇌"와 "작업 관리자"로 구분해 설명합니다.</li><li>도구 호출 루프(모델의 도구 호출 요청 → 런타임 실행 → 결과 추가 → 반복)를 파이썬 모의 모델로 직접 돌리고 <code>max_iterations</code>의 의미를 말합니다.</li><li>도구가 호출되지 않을 때 모델보다 먼저 확인할 설정(<code>tools.allow</code>/<code>tools.deny</code>, 재시작)을 나열합니다.</li><li>단기·장기 메모리가 대화 맥락을 어떻게 유지하는지 보이고, 컨텍스트 창이 넘칠 때 생기는 문제를 재현합니다.</li><li>워크플로와 스킬(<code>SKILL.md</code> + 코드)의 차이, 그리고 Tool과 Skill의 관계를 예로 설명합니다.</li></ul>
+<h2 id="한눈에-보는-여섯-개념">한눈에 보는 여섯 개념<a class="anchor" href="#한눈에-보는-여섯-개념">#</a></h2>
+<p>C01에서 본 구성 요소 가운데 에이전트가 <strong>일을 처리하는 방식</strong>에 관여하는 여섯 개념을 이 장에서 하나씩 뜯어 봅니다.</p>
+<div class="table-wrap"><table><thead><tr><th>개념</th><th>한 줄 정의</th><th>비유</th><th>OpenClaw에서 보이는 곳</th></tr></thead><tbody><tr><td><strong>Model</strong></td><td>이해하고 생성하는 두뇌</td><td>두뇌</td><td><code>models.providers</code>, <code>agents.defaults.model</code></td></tr><tr><td><strong>Agent</strong></td><td>목표를 향해 다음 행동을 정하는 작업 관리자</td><td>담당 직원</td><td><code>agents.list</code>, 워크스페이스 파일</td></tr><tr><td><strong>Tool</strong></td><td>외부 세계와 상호작용하는 단일 기능</td><td>손</td><td><code>tools.allow</code> / <code>tools.deny</code></td></tr><tr><td><strong>Memory</strong></td><td>맥락과 선호를 유지</td><td>수첩</td><td>세션 기록, <code>MEMORY.md</code> 같은 파일</td></tr><tr><td><strong>Workflow</strong></td><td>여러 단계를 순서·분기·오류 처리와 함께 배열</td><td>업무 절차서</td><td>스킬 안의 단계, 워크플로 파일(C07)</td></tr><tr><td><strong>Skill</strong></td><td>자주 쓰는 능력을 묶은 재사용 모듈</td><td>업무 매뉴얼 + 전용 도구 세트</td><td><code>SKILL.md</code> + 코드(C05)</td></tr></tbody></table></div>
+<h2 id="모델model-두뇌">모델(Model): 두뇌<a class="anchor" href="#모델model-두뇌">#</a></h2>
+<p>모델은 두 가지 일을 합니다. <strong>이해</strong>(요청의 의도와 맥락 파악)와 <strong>생성</strong>(답, 단계, 형식 있는 출력 만들기)입니다. "제품 소개 글을 써 줘"라는 요청을 받으면 제품의 위치, 대상 독자, 어조를 먼저 파악하고 글을 만듭니다. 입력(메시지와 맥락)을 받아 출력(텍스트)을 돌려주는 함수라고 생각하면 됩니다.</p>
+<p>모델마다 강점이 다릅니다. 복잡한 추론에 강한 모델, 빠르고 저렴해서 잦은 질의응답에 맞는 모델, 코드나 JSON 같은 구조화 출력에 강한 모델이 있습니다. 하지만 이 단계에서 "최고의 모델"을 고를 필요는 없습니다. <strong>모델을 바꾸면 답의 품질이 달라지지만, AI가 어떤 역할을 하고 어떻게 쓰이는지는 에이전트와 설정이 정합니다.</strong></p>
+<p>OpenClaw는 여러 공급자의 모델을 가능한 한 통일된 방식으로 연결하므로, 모델을 바꿔도 프로젝트 전체를 다시 짤 필요가 없습니다. 설정 파일의 모델 항목에는 보통 다음 정보가 들어갑니다(필드 이름은 버전에 따라 조금씩 다릅니다).</p>
+<div class="table-wrap"><table><thead><tr><th>필드</th><th>의미</th><th>예</th></tr></thead><tbody><tr><td><code>provider</code></td><td>모델 공급자</td><td><code>deepseek</code>, <code>openai</code>, <code>ollama</code></td></tr><tr><td><code>baseUrl</code></td><td>API 엔드포인트(필요할 때)</td><td><code>https://api.deepseek.com</code></td></tr><tr><td><code>apiKey</code></td><td>비공개 API 키</td><td><code>sk-...</code> (절대 공개 저장소에 올리지 않음)</td></tr><tr><td>model id</td><td>모델 이름</td><td><code>deepseek-chat</code></td></tr></tbody></table></div>
+<p>에이전트는 모델을 <code>공급자/모델ID</code> 형태로 참조합니다. 예를 들어 원본 교재의 설정은 기본 모델을 <code>deepseek/deepseek-chat</code>, 특정 에이전트의 모델을 <code>deepseek/deepseek-reasoner</code>로 지정합니다.</p>
+<h2 id="에이전트agent-작업-관리자">에이전트(Agent): 작업 관리자<a class="anchor" href="#에이전트agent-작업-관리자">#</a></h2>
+<p>모델이 두뇌라면 에이전트는 <strong>다음에 무엇을 할지 결정하고, 도구가 필요한지 판단하고, 작업을 끝까지 밀고 가는 비서</strong>입니다. 답 한 번을 돌려주고 끝나는 것이 아니라 목표를 기준으로 행동을 이어 갑니다.</p>
+<p>"오늘 뉴욕 날씨 보고 우산 챙겨야 하는지 알려 줘"라는 요청을 에이전트는 이렇게 처리합니다.</p>
+<ol><li>요청에 <strong>날씨 정보</strong>와 <strong>추천</strong> 두 부분이 있음을 파악합니다.</li><li>날씨는 추측하면 안 되고 외부에서 가져와야 한다고 판단합니다.</li><li>날씨 도구(또는 스킬)를 호출합니다.</li><li>강수확률과 기온 같은 결과를 받습니다.</li><li>결과를 "우산을 챙기세요" 같은 분명한 추천으로 바꿔 답합니다.</li></ol>
+<p>에이전트가 무엇을 할지는 <strong>프롬프트, 워크스페이스 규칙 파일, 도구·스킬 권한</strong>에 달려 있습니다(C04).</p>
+<h3 id="실행-스타일">실행 스타일<a class="anchor" href="#실행-스타일">#</a></h3>
+<p>구현은 버전마다 다르지만 에이전트의 행동은 대략 세 가지 스타일로 볼 수 있습니다. 외울 필요는 없고, "에이전트는 질문에 답하는 것이 아니라 일을 끝내는 것"이 핵심입니다.</p>
+<div class="table-wrap"><table><thead><tr><th>스타일</th><th>동작</th><th>장점</th><th>단점</th><th>로봇 예</th></tr></thead><tbody><tr><td><strong>생각하며 행동</strong>(think-and-act, ReAct)</td><td>추론 → 도구 호출 → 결과 관찰 → 다시 추론을 반복</td><td>결과를 보고 유연하게 방향 수정</td><td>호출 횟수·비용 예측이 어려움</td><td>"장애물 거리 보고 괜찮으면 전진"</td></tr><tr><td><strong>계획 후 실행</strong>(plan-then-execute)</td><td>먼저 3~7단계 계획을 세우고 차례로 실행</td><td>진행 상황이 투명, 사람이 계획을 검토 가능</td><td>중간에 상황이 바뀌면 계획이 낡음</td><td>"순찰: 거실→주방→현관, 각 지점 사진"</td></tr><tr><td><strong>대화형</strong>(chat-oriented)</td><td>여러 턴의 대화, 되묻기에 적합</td><td>모호한 요청을 질문으로 좁힘</td><td>스스로 행동을 덜 함</td><td>"어디로 가라는 건가요?" 되묻기</td></tr></tbody></table></div>
+<p>C04의 <code>test</code> 에이전트는 시스템 프롬프트로 "복잡한 목표는 먼저 3~7단계로 분해하고 단계마다 쓸 도구를 적으라"고 지시해, 계획 후 실행 스타일을 유도합니다.</p>
+<h2 id="도구tool-손">도구(Tool): 손<a class="anchor" href="#도구tool-손">#</a></h2>
+<p>모델은 아무리 똑똑해도 혼자서는 <strong>텍스트만</strong> 만들 수 있습니다. 실제로 행동하려면 도구가 필요합니다. 흔한 도구 능력은 다음과 같습니다.</p>
+<ul><li>실시간 정보 조회(날씨, 시간), 웹 검색·페이지 가져오기</li><li>파일·규칙·문서 읽기, 허가된 경우 파일 쓰기</li><li>업무 시스템 API 호출</li><li>계산(모델의 암산보다 정확한 수치·규칙 처리)</li></ul>
+<p>"지금 뉴욕은 몇 시야?"를 모델 혼자 답하면 틀리기 쉽습니다. 모델이 학습된 시점과 지금이 다르고, 모델에는 시계가 없기 때문입니다. 에이전트는 시간 도구를 불러 실제 값을 받고, 그 값을 문장으로 다듬어야 합니다. <strong>도구는 추측을 줄이고, 외부 정보 접근과 행동을 가능하게 합니다.</strong></p>
+<h3 id="도구-호출-루프">도구 호출 루프<a class="anchor" href="#도구-호출-루프">#</a></h3>
+<p>도구가 실제로 어떻게 불리는지 알아 두면 디버깅이 쉬워집니다. 대부분의 LLM API(OpenAI, Anthropic, DeepSeek 등)와 에이전트 런타임은 같은 원리를 씁니다.</p>
+<figure class="fig" id="fig-c02-loop"><svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="도구 호출 루프: 모델이 도구 호출을 요청하면 런타임이 실행하고 결과를 대화에 붙여 다시 모델을 부르며 최종 답이 나오거나 최대 반복에 도달하면 끝남">
+  <defs>
+    <marker id="arr-c02-loop" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+    <marker id="arr-c02-loop-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--accent)"/></marker>
+  </defs>
+  <rect class="box" x="10" y="40" width="140" height="70" rx="6"/>
+  <text class="lbl" x="80" y="68" text-anchor="middle">메시지 목록</text>
+  <text class="tag" x="80" y="90" text-anchor="middle">system · user · tool</text>
+  <rect class="box-hi" x="190" y="40" width="140" height="70" rx="6"/>
+  <text class="lbl" x="260" y="68" text-anchor="middle">모델 (Model)</text>
+  <text class="tag" x="260" y="90" text-anchor="middle">다음 행동 결정</text>
+  <polygon class="box" points="440,35 510,75 440,115 370,75"/>
+  <text class="lbl" x="440" y="72" text-anchor="middle">응답 종류?</text>
+  <text class="tag" x="440" y="90" text-anchor="middle">i ≤ max?</text>
+  <rect class="box" x="560" y="40" width="150" height="70" rx="6"/>
+  <text class="lbl" x="635" y="68" text-anchor="middle">최종 답 → 채널</text>
+  <text class="tag" x="635" y="90" text-anchor="middle">루프 종료</text>
+  <rect class="box" x="370" y="175" width="160" height="70" rx="6"/>
+  <text class="lbl" x="450" y="203" text-anchor="middle">런타임이 도구 실행</text>
+  <text class="tag" x="450" y="225" text-anchor="middle">allow/deny 검사 → 실행</text>
+  <rect class="box" x="120" y="175" width="190" height="70" rx="6"/>
+  <text class="lbl" x="215" y="203" text-anchor="middle">결과를 tool 메시지로 추가</text>
+  <text class="tag mono" x="215" y="225" text-anchor="middle">{"role": "tool", ...}</text>
+  <path class="ln" d="M150 75 L186 75 M330 75 L366 75" stroke-width="1.6" marker-end="url(#arr-c02-loop)"/>
+  <path class="ln-hi" d="M510 75 L556 75" stroke-width="1.8" marker-end="url(#arr-c02-loop-hi)"/>
+  <text class="tag" x="533" y="66" text-anchor="middle">final</text>
+  <path class="ln" d="M440 115 L440 171" stroke-width="1.6" marker-end="url(#arr-c02-loop)"/>
+  <text class="tag mono" x="450" y="148">tool_call {name, arguments}</text>
+  <path class="ln" d="M370 210 L314 210" stroke-width="1.6" marker-end="url(#arr-c02-loop)"/>
+  <path class="ln" d="M120 210 L80 210 L80 114" stroke-width="1.6" fill="none" marker-end="url(#arr-c02-loop)"/>
+  <text class="sub" x="360" y="280" text-anchor="middle">모델은 도구를 “요청”만 하고, 실제 실행과 권한 검사는 런타임(에이전트)이 맡습니다.</text>
+</svg><figcaption>도구 호출 루프. 모델은 도구를 직접 실행하지 않고 "이 도구를 이 인자로 불러 달라"는 구조화된 요청(JSON)만 돌려줍니다.</figcaption></figure>
+<ol><li>런타임이 대화 기록과 <strong>사용 가능한 도구 목록(이름, 설명, 인자 형식)</strong>을 모델에 보냅니다.</li><li>모델은 둘 중 하나를 돌려줍니다. <strong>최종 답(텍스트)</strong> 또는 <strong>도구 호출 요청</strong> <code>{&quot;name&quot;: &quot;get_weather&quot;, &quot;arguments&quot;: &quot;{\&quot;city\&quot;: \&quot;뉴욕\&quot;}&quot;}</code>.</li><li>도구 호출이면 런타임이 <strong>권한을 검사</strong>하고 실제 함수를 실행합니다.</li><li>실행 결과를 <code>tool</code> 역할의 메시지로 대화에 <strong>덧붙이고</strong> 다시 모델을 부릅니다.</li><li>최종 답이 나오거나 <strong>최대 반복 횟수(max iterations)</strong>에 닿을 때까지 2~4를 반복합니다.</li></ol>
+<p>최대 반복 횟수는 안전장치입니다. 도구가 계속 실패하는데 모델이 같은 호출을 되풀이하면 비용이 끝없이 늘고, 로봇이라면 같은 동작을 반복할 수 있습니다. 아래 모의 코드에서 두 경우를 모두 봅시다. <code>MockModel</code>은 실제 LLM 대신 규칙으로 동작하지만, 주고받는 메시지 형식은 실제와 같은 구조입니다.</p>
+<p class="cta-row"><a class="ghost-btn cta" href="../tools/playground.html">Playground 열기</a></p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><a class="pg-btn" href="../tools/playground.html#code=IyDrj4Tqtawg7Zi47LacIOujqO2UhDog66qo64247J20IOuPhOq1rCDtmLjstpwoSlNPTinsnYQg64K066m0IOufsO2DgOyehOydtCDsi6TtlontlZjqs6Ag6rKw6rO866W8IOu2meyXrCDri6Tsi5wg66y77Iq164uI64ukLgppbXBvcnQganNvbgoKZGVmIGdldF93ZWF0aGVyKGNpdHkpOgogICAgdGFibGUgPSB7IuuJtOyalSI6IHsicmFpbl9wcm9iIjogNzAsICJ0ZW1wX2MiOiAxOH0sICLshJzsmrgiOiB7InJhaW5fcHJvYiI6IDEwLCAidGVtcF9jIjogMjR9fQogICAgcmV0dXJuIHRhYmxlLmdldChjaXR5LCB7ImVycm9yIjogInVua25vd24gY2l0eSJ9KQoKZGVmIGNhbGMoZXhwcik6CiAgICBhLCBvcCwgYiA9IGV4cHIuc3BsaXQoKQogICAgcmV0dXJuIHsidmFsdWUiOiBmbG9hdChhKSAqIGZsb2F0KGIpIGlmIG9wID09ICIqIiBlbHNlIGZsb2F0KGEpICsgZmxvYXQoYil9CgpUT09MUyA9IHsiZ2V0X3dlYXRoZXIiOiBnZXRfd2VhdGhlciwgImNhbGMiOiBjYWxjfQoKY2xhc3MgTW9ja01vZGVsOgogICAgIiIi6rec7LmZIOq4sOuwmCDqsIDsp5wgTExNLiDsi6TsoJwg66qo642464-EICfrj4Tqtawg7Zi47LacJyDrmJDripQgJ-y1nOyihSDri7UnIOuRmCDspJEg7ZWY64KY66W8IOuPjOugpOykjeuLiOuLpC4iIiIKICAgIGRlZiBjb21wbGV0ZShzZWxmLCBtZXNzYWdlcyk6CiAgICAgICAgbGFzdCA9IG1lc3NhZ2VzWy0xXQogICAgICAgIGlmIGxhc3RbInJvbGUiXSA9PSAidXNlciI6CiAgICAgICAgICAgIGNpdHkgPSAi64m07JqVIiBpZiAi64m07JqVIiBpbiBsYXN0WyJjb250ZW50Il0gZWxzZSAi7ISc7Jq4IgogICAgICAgICAgICByZXR1cm4geyJ0b29sX2NhbGwiOiB7Im5hbWUiOiAiZ2V0X3dlYXRoZXIiLCAiYXJndW1lbnRzIjoganNvbi5kdW1wcyh7ImNpdHkiOiBjaXR5fSl9fQogICAgICAgIGlmIGxhc3RbInJvbGUiXSA9PSAidG9vbCI6CiAgICAgICAgICAgIGRhdGEgPSBqc29uLmxvYWRzKGxhc3RbImNvbnRlbnQiXSkKICAgICAgICAgICAgaWYgImVycm9yIiBpbiBkYXRhOiAgICAgICMg6rOg7KeRIOyEvCDrqqjrjbg6IOyLpO2MqO2VnCDtmLjstpzsnYQg6re464yA66GcIOuLpOyLnCDsi5zrj4QKICAgICAgICAgICAgICAgIHJldHVybiB7InRvb2xfY2FsbCI6IG1lc3NhZ2VzWy0yXVsidG9vbF9jYWxsIl19CiAgICAgICAgICAgIGlmICJyYWluX3Byb2IiIGluIGRhdGE6CiAgICAgICAgICAgICAgICB0aXAgPSAi7Jqw7IKw7J2EIOyxmeq4sOyEuOyalCIgaWYgZGF0YVsicmFpbl9wcm9iIl0gPj0gNTAgZWxzZSAi7Jqw7IKw7J2AIO2VhOyalCDsl4bsirXri4jri6QiCiAgICAgICAgICAgICAgICByZXR1cm4geyJmaW5hbCI6ICLqsJXsiJjtmZXrpaAgJWQlJSwgJWTCsEMgLSAlcy4iICUgKGRhdGFbInJhaW5fcHJvYiJdLCBkYXRhWyJ0ZW1wX2MiXSwgdGlwKX0KCmRlZiBydW5fYWdlbnQobW9kZWwsIHVzZXJfdGV4dCwgYWxsb3csIG1heF9pdGVyYXRpb25zPTQpOgogICAgbWVzc2FnZXMgPSBbeyJyb2xlIjogInVzZXIiLCAiY29udGVudCI6IHVzZXJfdGV4dH1dCiAgICBmb3IgaSBpbiByYW5nZSgxLCBtYXhfaXRlcmF0aW9ucyArIDEpOgogICAgICAgIG91dCA9IG1vZGVsLmNvbXBsZXRlKG1lc3NhZ2VzKQogICAgICAgIGlmICJmaW5hbCIgaW4gb3V0OgogICAgICAgICAgICBwcmludCgiICBbJWRdIOy1nOyihSDri7U6ICVzIiAlIChpLCBvdXRbImZpbmFsIl0pKQogICAgICAgICAgICByZXR1cm4gb3V0WyJmaW5hbCJdCiAgICAgICAgY2FsbCA9IG91dFsidG9vbF9jYWxsIl0KICAgICAgICBhcmdzID0ganNvbi5sb2FkcyhjYWxsWyJhcmd1bWVudHMiXSkKICAgICAgICBwcmludCgiICBbJWRdIOuPhOq1rCDtmLjstpwg7JqU7LKtOiAlcyglcykiICUgKGksIGNhbGxbIm5hbWUiXSwgYXJncykpCiAgICAgICAgaWYgY2FsbFsibmFtZSJdIG5vdCBpbiBhbGxvdzoKICAgICAgICAgICAgcmVzdWx0ID0geyJlcnJvciI6ICJ0b29sICclcycgbm90IGFsbG93ZWQiICUgY2FsbFsibmFtZSJdfQogICAgICAgIGVsc2U6CiAgICAgICAgICAgIHJlc3VsdCA9IFRPT0xTW2NhbGxbIm5hbWUiXV0oKiphcmdzKQogICAgICAgIHByaW50KCIgICAgICDqsrDqs7w6ICVzIiAlIHJlc3VsdCkKICAgICAgICBtZXNzYWdlcy5hcHBlbmQoeyJyb2xlIjogImFzc2lzdGFudCIsICJ0b29sX2NhbGwiOiBjYWxsfSkKICAgICAgICBtZXNzYWdlcy5hcHBlbmQoeyJyb2xlIjogInRvb2wiLCAiY29udGVudCI6IGpzb24uZHVtcHMocmVzdWx0LCBlbnN1cmVfYXNjaWk9RmFsc2UpfSkKICAgIHByaW50KCIgIOy1nOuMgCDrsJjrs7UoJWQpIOuPhOuLrCAtIOykkeuLqCIgJSBtYXhfaXRlcmF0aW9ucykKCnByaW50KCLsp4jrrLggMSAo64-E6rWsIO2XiOyaqSkiKQpydW5fYWdlbnQoTW9ja01vZGVsKCksICLsmKTripgg64m07JqVIOuCoOyUqCDrs7Tqs6Ag7Jqw7IKwIO2VhOyalO2VnOyngCDslYzroKTspJgiLCBhbGxvdz17ImdldF93ZWF0aGVyIiwgImNhbGMifSkKcHJpbnQoIuyniOusuCAyIChnZXRfd2VhdGhlciDquIjsp4ApIikKcnVuX2FnZW50KE1vY2tNb2RlbCgpLCAi7ISc7Jq4IOyasOyCsCDtlYTsmpTtlbQ_IiwgYWxsb3c9eyJjYWxjIn0sIG1heF9pdGVyYXRpb25zPTMp" target="_blank" rel="noopener" title="Playground에서 열기 (새 탭)">Playground ↗</a><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python"># 도구 호출 루프: 모델이 도구 호출(JSON)을 내면 런타임이 실행하고 결과를 붙여 다시 묻습니다.
+import json
+
+def get_weather(city):
+    table = {&quot;뉴욕&quot;: {&quot;rain_prob&quot;: 70, &quot;temp_c&quot;: 18}, &quot;서울&quot;: {&quot;rain_prob&quot;: 10, &quot;temp_c&quot;: 24}}
+    return table.get(city, {&quot;error&quot;: &quot;unknown city&quot;})
+
+def calc(expr):
+    a, op, b = expr.split()
+    return {&quot;value&quot;: float(a) * float(b) if op == &quot;*&quot; else float(a) + float(b)}
+
+TOOLS = {&quot;get_weather&quot;: get_weather, &quot;calc&quot;: calc}
+
+class MockModel:
+    &quot;&quot;&quot;규칙 기반 가짜 LLM. 실제 모델도 &#x27;도구 호출&#x27; 또는 &#x27;최종 답&#x27; 둘 중 하나를 돌려줍니다.&quot;&quot;&quot;
+    def complete(self, messages):
+        last = messages[-1]
+        if last[&quot;role&quot;] == &quot;user&quot;:
+            city = &quot;뉴욕&quot; if &quot;뉴욕&quot; in last[&quot;content&quot;] else &quot;서울&quot;
+            return {&quot;tool_call&quot;: {&quot;name&quot;: &quot;get_weather&quot;, &quot;arguments&quot;: json.dumps({&quot;city&quot;: city})}}
+        if last[&quot;role&quot;] == &quot;tool&quot;:
+            data = json.loads(last[&quot;content&quot;])
+            if &quot;error&quot; in data:      # 고집 센 모델: 실패한 호출을 그대로 다시 시도
+                return {&quot;tool_call&quot;: messages[-2][&quot;tool_call&quot;]}
+            if &quot;rain_prob&quot; in data:
+                tip = &quot;우산을 챙기세요&quot; if data[&quot;rain_prob&quot;] &gt;= 50 else &quot;우산은 필요 없습니다&quot;
+                return {&quot;final&quot;: &quot;강수확률 %d%%, %d°C - %s.&quot; % (data[&quot;rain_prob&quot;], data[&quot;temp_c&quot;], tip)}
+
+def run_agent(model, user_text, allow, max_iterations=4):
+    messages = [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: user_text}]
+    for i in range(1, max_iterations + 1):
+        out = model.complete(messages)
+        if &quot;final&quot; in out:
+            print(&quot;  [%d] 최종 답: %s&quot; % (i, out[&quot;final&quot;]))
+            return out[&quot;final&quot;]
+        call = out[&quot;tool_call&quot;]
+        args = json.loads(call[&quot;arguments&quot;])
+        print(&quot;  [%d] 도구 호출 요청: %s(%s)&quot; % (i, call[&quot;name&quot;], args))
+        if call[&quot;name&quot;] not in allow:
+            result = {&quot;error&quot;: &quot;tool &#x27;%s&#x27; not allowed&quot; % call[&quot;name&quot;]}
+        else:
+            result = TOOLS[call[&quot;name&quot;]](**args)
+        print(&quot;      결과: %s&quot; % result)
+        messages.append({&quot;role&quot;: &quot;assistant&quot;, &quot;tool_call&quot;: call})
+        messages.append({&quot;role&quot;: &quot;tool&quot;, &quot;content&quot;: json.dumps(result, ensure_ascii=False)})
+    print(&quot;  최대 반복(%d) 도달 - 중단&quot; % max_iterations)
+
+print(&quot;질문 1 (도구 허용)&quot;)
+run_agent(MockModel(), &quot;오늘 뉴욕 날씨 보고 우산 필요한지 알려줘&quot;, allow={&quot;get_weather&quot;, &quot;calc&quot;})
+print(&quot;질문 2 (get_weather 금지)&quot;)
+run_agent(MockModel(), &quot;서울 우산 필요해?&quot;, allow={&quot;calc&quot;}, max_iterations=3)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">질문 1 (도구 허용)
+  [1] 도구 호출 요청: get_weather({&#x27;city&#x27;: &#x27;뉴욕&#x27;})
+      결과: {&#x27;rain_prob&#x27;: 70, &#x27;temp_c&#x27;: 18}
+  [2] 최종 답: 강수확률 70%, 18°C - 우산을 챙기세요.
+질문 2 (get_weather 금지)
+  [1] 도구 호출 요청: get_weather({&#x27;city&#x27;: &#x27;서울&#x27;})
+      결과: {&#x27;error&#x27;: &quot;tool &#x27;get_weather&#x27; not allowed&quot;}
+  [2] 도구 호출 요청: get_weather({&#x27;city&#x27;: &#x27;서울&#x27;})
+      결과: {&#x27;error&#x27;: &quot;tool &#x27;get_weather&#x27; not allowed&quot;}
+  [3] 도구 호출 요청: get_weather({&#x27;city&#x27;: &#x27;서울&#x27;})
+      결과: {&#x27;error&#x27;: &quot;tool &#x27;get_weather&#x27; not allowed&quot;}
+  최대 반복(3) 도달 - 중단</code></pre></div>
+<p>질문 2에서 <code>get_weather</code>는 허용 목록에 없어 매번 오류가 돌아가고, 고집 센 모델은 같은 호출을 되풀이하다 3회 제한에 걸려 멈춥니다. 실제 모델은 보통 오류 메시지를 읽고 "날씨 도구를 쓸 수 없습니다"라고 답하지만, 그렇지 않은 경우도 있으므로 반복 제한은 반드시 있어야 합니다.</p>
+<h3 id="도구가-호출되지-않을-때">도구가 호출되지 않을 때<a class="anchor" href="#도구가-호출되지-않을-때">#</a></h3>
+<p>모든 도구가 모든 에이전트에 자동으로 열리는 것은 아닙니다. 도구 접근은 설정과 권한으로 제어됩니다(도구 프로필 활성화, <code>tools.allow</code>와 <code>tools.deny</code>). 에이전트가 도구를 안 쓰면 <strong>모델을 탓하기 전에 설정부터</strong> 확인합니다.</p>
+<ol><li>도구가 활성화되어 있는가? (도구 프로필, 플러그인)</li><li>이 에이전트의 권한이 허용하는가? <code>deny</code>에 있으면 <code>allow</code>에 있어도 막힐 수 있습니다.</li><li>설정을 바꾼 뒤 <strong>Gateway를 재시작</strong>해 최신 설정이 적용되었는가?</li><li>(그다음에) 도구 설명이 모호해서 모델이 언제 써야 할지 모르는가?</li></ol>
+<div class="callout callout-warn"><div class="callout-title">deny는 allow보다 강하다고 생각하세요</div><div class="callout-body"><p>같은 도구가 <code>allow</code>와 <code>deny</code>에 모두 있으면 대부분의 권한 시스템은 <strong>거부를 우선</strong>합니다. 설정이 헷갈리면 결과를 추측하지 말고 C03의 점검 실습처럼 겹침부터 찾아 없애세요.</p></div></div>
+<h2 id="메모리memory-맥락">메모리(Memory): 맥락<a class="anchor" href="#메모리memory-맥락">#</a></h2>
+<p>메모리는 대화를 매번 처음부터 시작하지 않게 해 줍니다. "Python을 배우고 싶어" 다음에 "그거 초보자한테 괜찮아?"라고 물으면, "그거"가 Python이라는 것을 알아야 제대로 답할 수 있습니다.</p>
+<div class="table-wrap"><table><thead><tr><th>종류</th><th>담는 것</th><th>수명</th><th>보관 위치(일반적)</th></tr></thead><tbody><tr><td><strong>단기 메모리</strong></td><td>최근 대화 턴, 방금 말한 핵심 정보</td><td>현재 세션</td><td>세션 기록(모델에 매번 함께 전송)</td></tr><tr><td><strong>장기 메모리</strong></td><td>선호, 자주 쓰는 용어, 요약 노트</td><td>세션을 넘어 유지</td><td>파일·장기 기록(예: <code>MEMORY.md</code>, C07)</td></tr></tbody></table></div>
+<p>중요한 사실 하나: 모델 자체는 기억이 없습니다. 런타임이 <strong>이전 메시지를 매번 다시 보내 주기 때문에</strong> 기억하는 것처럼 보입니다. 모델이 한 번에 받을 수 있는 양(컨텍스트 창, context window)에는 한계가 있으므로 오래된 메시지는 잘라 내거나 요약해야 하고, 그러다 필요한 맥락이 사라질 수 있습니다. 아래 예제는 창 크기에 따라 "그거"를 이해하는지가 갈리는 모습을 보여 줍니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><a class="pg-btn" href="../tools/playground.html#code=IyDri6jquLAg6riw7Ja1KOy1nOq3vCBO7YS0KSArIOyepeq4sCDquLDslrUo66mU66qoIO2MjOydvCDsl63tlaApIO2dieuCtApsb25nX3Rlcm0gPSB7fSAgICAgICAgICAgICAgIyDsi6TsoJzroZzripQgTUVNT1JZLm1kIOqwmeydgCDtjIzsnbwKVE9QSUNTID0gWyJQeXRob24iLCAiUk9TIDIiLCAi65287J2064ukIl0KCmRlZiBmaW5kX3RvcGljKGhpc3RvcnkpOgogICAgIyAn6re46rGwL-q3uOqygyfsnbQg66y07JeH7J247KeAOiDstZzqt7wg64yA7ZmU7JeQ7IScIOqwgOyepSDrp4jsp4Drp4nsl5Ag64KY7JioIOyjvOygnOulvCDssL7sirXri4jri6QuCiAgICBmb3IgbXNnIGluIHJldmVyc2VkKGhpc3RvcnkpOgogICAgICAgIGZvciB0IGluIFRPUElDUzoKICAgICAgICAgICAgaWYgdCBpbiBtc2c6CiAgICAgICAgICAgICAgICByZXR1cm4gdAogICAgcmV0dXJuIE5vbmUKCmRlZiByZXBseShoaXN0b3J5LCB0ZXh0LCB3aW5kb3cpOgogICAgaWYgdGV4dC5zdGFydHN3aXRoKCLquLDslrXtlbQ6Iik6CiAgICAgICAgaywgdiA9IHRleHRbNDpdLnNwbGl0KCI9IikKICAgICAgICBsb25nX3Rlcm1bay5zdHJpcCgpXSA9IHYuc3RyaXAoKQogICAgICAgIHJldHVybiAi66mU66qo7ZWoICglcykiICUgay5zdHJpcCgpCiAgICBpZiAi6re46rGwIiBpbiB0ZXh0IG9yICLqt7jqsoMiIGluIHRleHQ6CiAgICAgICAgdG9waWMgPSBmaW5kX3RvcGljKGhpc3RvcnlbLXdpbmRvdzpdKSAgICMg7LWc6re8IHdpbmRvd-qwnCDrqZTsi5zsp4Drp4wg7KCE64usCiAgICAgICAgaWYgdG9waWMgaXMgTm9uZToKICAgICAgICAgICAgcmV0dXJuICLrrLTsl4fsnYQg66eQ7JSA7ZWY7Iuc64qU7KeAIOuqqOultOqyoOyKteuLiOuLpC4iCiAgICAgICAgbGV2ZWwgPSBsb25nX3Rlcm0uZ2V0KCLsiJjspIAiLCAi66-47IOBIikKICAgICAgICByZXR1cm4gIiVzIOunkOyUgOydtOyjoD8gKOyCrOyaqeyekCDsiJjspIA6ICVzKSDstIjrs7TsnpDrj4Qg7Iuc7J6R7ZWgIOyImCDsnojsirXri4jri6QuIiAlICh0b3BpYywgbGV2ZWwpCiAgICByZXR1cm4gIuyVjOqyoOyKteuLiOuLpC4iCgpkZWYgY2hhdCh0dXJucywgd2luZG93KToKICAgIGhpc3RvcnkgPSBbXQogICAgZm9yIHQgaW4gdHVybnM6CiAgICAgICAgciA9IHJlcGx5KGhpc3RvcnksIHQsIHdpbmRvdykKICAgICAgICBoaXN0b3J5ICs9IFt0LCByXQogICAgICAgIHByaW50KCIgIOuCmD4gJXMgIC8gIOu5hOyEnD4gJXMiICUgKHQsIHIpKQoKdHVybnMgPSBbIlB5dGhvbuydhCDrsLDsmrDqs6Ag7Iu27Ja0IiwgIuq4sOyWte2VtDog7IiY7KSAID0g7JmE7KCEIOy0iOuztCIsCiAgICAgICAgICLso7zrp5Dsl5Ag7Iuc6rCE7J20IOyeiOyWtCIsICLqt7jqsbAg7LSI67O07J6Q7ZWc7YWMIOq0nOywruyVhD8iXQpwcmludCgi7LC9IO2BrOq4sCA4ICjstqnrtoQpIikKY2hhdCh0dXJucywgd2luZG93PTgpCnByaW50KCLssL0g7YGs6riwIDQgKFB5dGhvbiDslrjquInsnbQg7LC9IOuwluycvOuhnCDrsIDroKTrgqgpIikKY2hhdCh0dXJucywgd2luZG93PTQpCnByaW50KCLsnqXquLAg6riw7Ja1OiIsIGxvbmdfdGVybSk" target="_blank" rel="noopener" title="Playground에서 열기 (새 탭)">Playground ↗</a><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python"># 단기 기억(최근 N턴) + 장기 기억(메모 파일 역할) 흉내
+long_term = {}              # 실제로는 MEMORY.md 같은 파일
+TOPICS = [&quot;Python&quot;, &quot;ROS 2&quot;, &quot;라이다&quot;]
+
+def find_topic(history):
+    # &#x27;그거/그것&#x27;이 무엇인지: 최근 대화에서 가장 마지막에 나온 주제를 찾습니다.
+    for msg in reversed(history):
+        for t in TOPICS:
+            if t in msg:
+                return t
+    return None
+
+def reply(history, text, window):
+    if text.startswith(&quot;기억해:&quot;):
+        k, v = text[4:].split(&quot;=&quot;)
+        long_term[k.strip()] = v.strip()
+        return &quot;메모함 (%s)&quot; % k.strip()
+    if &quot;그거&quot; in text or &quot;그것&quot; in text:
+        topic = find_topic(history[-window:])   # 최근 window개 메시지만 전달
+        if topic is None:
+            return &quot;무엇을 말씀하시는지 모르겠습니다.&quot;
+        level = long_term.get(&quot;수준&quot;, &quot;미상&quot;)
+        return &quot;%s 말씀이죠? (사용자 수준: %s) 초보자도 시작할 수 있습니다.&quot; % (topic, level)
+    return &quot;알겠습니다.&quot;
+
+def chat(turns, window):
+    history = []
+    for t in turns:
+        r = reply(history, t, window)
+        history += [t, r]
+        print(&quot;  나&gt; %s  /  비서&gt; %s&quot; % (t, r))
+
+turns = [&quot;Python을 배우고 싶어&quot;, &quot;기억해: 수준 = 완전 초보&quot;,
+         &quot;주말에 시간이 있어&quot;, &quot;그거 초보자한테 괜찮아?&quot;]
+print(&quot;창 크기 8 (충분)&quot;)
+chat(turns, window=8)
+print(&quot;창 크기 4 (Python 언급이 창 밖으로 밀려남)&quot;)
+chat(turns, window=4)
+print(&quot;장기 기억:&quot;, long_term)</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">창 크기 8 (충분)
+  나&gt; Python을 배우고 싶어  /  비서&gt; 알겠습니다.
+  나&gt; 기억해: 수준 = 완전 초보  /  비서&gt; 메모함 (수준)
+  나&gt; 주말에 시간이 있어  /  비서&gt; 알겠습니다.
+  나&gt; 그거 초보자한테 괜찮아?  /  비서&gt; Python 말씀이죠? (사용자 수준: 완전 초보) 초보자도 시작할 수 있습니다.
+창 크기 4 (Python 언급이 창 밖으로 밀려남)
+  나&gt; Python을 배우고 싶어  /  비서&gt; 알겠습니다.
+  나&gt; 기억해: 수준 = 완전 초보  /  비서&gt; 메모함 (수준)
+  나&gt; 주말에 시간이 있어  /  비서&gt; 알겠습니다.
+  나&gt; 그거 초보자한테 괜찮아?  /  비서&gt; 무엇을 말씀하시는지 모르겠습니다.
+장기 기억: {&#x27;수준&#x27;: &#x27;완전 초보&#x27;}</code></pre></div>
+<p>창이 4일 때 "Python" 언급은 창 밖으로 밀려나 "그거"를 해석하지 못합니다. 반면 "기억해:"로 장기 메모리에 적은 <code>수준 = 완전 초보</code>는 창과 관계없이 남습니다. 오래 유지해야 할 정보는 단기 기록에 기대지 말고 장기 메모리로 옮기는 이유가 여기에 있습니다.</p>
+<h2 id="워크플로workflow-실행-계획">워크플로(Workflow): 실행 계획<a class="anchor" href="#워크플로workflow-실행-계획">#</a></h2>
+<p>한 번에 끝나지 않는 작업은 단계로 나눠 순서대로 실행해야 합니다. "판매 보고서를 준비해 줘"는 데이터 읽기 → 정리 → 통계 분석 → 보고서 생성의 네 단계입니다. 에이전트가 작업 책임자라면 워크플로는 <strong>실행 계획서</strong>로, 다음을 정합니다.</p>
+<ol><li>무엇을 먼저 하는가</li><li>다음에 무엇을 하는가</li><li>오류가 나면 어떻게 하는가</li><li>반복이나 분기가 필요한가</li></ol>
+<p>워크플로의 장점은 단계가 명확하고, 빠뜨리거나 순서가 뒤바뀔 위험이 적고, 한번 안정되면 비슷한 작업에 재사용할 수 있다는 것입니다. 로봇에서는 특히 <strong>"오류가 나면 어떻게 하는가"</strong>가 중요합니다. 센서 하나가 응답하지 않을 때 전체를 멈출지, 그 항목만 "확인 불가"로 둘지 미리 정해 둬야 합니다.</p>
+<h2 id="스킬skill-재사용-모듈">스킬(Skill): 재사용 모듈<a class="anchor" href="#스킬skill-재사용-모듈">#</a></h2>
+<p>스킬은 자주 쓰는 기능을 미리 묶어 둔 <strong>재사용 가능한 능력 모듈</strong>입니다. 문서 처리(읽기·요약·핵심 추출), 코드 처리, 데이터 분석, 검색 요약, 환경이 지원하면 멀티모달 처리 등이 흔한 예입니다.</p>
+<figure class="fig" id="fig-c02-tool-skill"><svg viewBox="0 0 720 240" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tool과 Skill의 관계: 스킬은 SKILL.md 메타데이터와 여러 도구를 엮은 코드로 구성됨">
+  <defs>
+    <marker id="arr-c02-tool-skill" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" style="fill:var(--text-faint)"/></marker>
+  </defs>
+  <text class="lbl" x="110" y="28" text-anchor="middle">Tool = 하나의 동작</text>
+  <rect class="box" x="30" y="45" width="160" height="36" rx="6"/>
+  <text class="lbl mono" x="110" y="68" text-anchor="middle">web_fetch(url)</text>
+  <rect class="box" x="30" y="95" width="160" height="36" rx="6"/>
+  <text class="lbl mono" x="110" y="118" text-anchor="middle">read(path)</text>
+  <rect class="box" x="30" y="145" width="160" height="36" rx="6"/>
+  <text class="lbl mono" x="110" y="168" text-anchor="middle">exec(cmd)</text>
+
+  <text class="lbl" x="470" y="28" text-anchor="middle">Skill = 재사용 가능한 작업 모듈</text>
+  <rect class="box-hi" x="260" y="40" width="420" height="150" rx="8"/>
+  <rect class="box" x="280" y="58" width="180" height="116" rx="6"/>
+  <text class="lbl mono" x="370" y="80" text-anchor="middle">SKILL.md</text>
+  <text class="tag" x="370" y="102" text-anchor="middle">이름 · 트리거 문구</text>
+  <text class="tag" x="370" y="122" text-anchor="middle">입력 · 고정 출력 형식</text>
+  <text class="tag" x="370" y="142" text-anchor="middle">실행 단계 · 제약</text>
+  <text class="sub" x="370" y="164" text-anchor="middle">언제·어떻게 부를지</text>
+  <rect class="box" x="480" y="58" width="180" height="116" rx="6"/>
+  <text class="lbl mono" x="570" y="80" text-anchor="middle">코드 (index.js)</text>
+  <text class="tag mono" x="570" y="102" text-anchor="middle">run(input)</text>
+  <text class="tag" x="570" y="122" text-anchor="middle">도구 여러 개를 순서대로</text>
+  <text class="tag" x="570" y="142" text-anchor="middle">오류 처리 · 형식 맞춤</text>
+  <text class="sub" x="570" y="164" text-anchor="middle">부른 뒤 무엇을 할지</text>
+  <path class="ln" d="M190 63 L256 90 M190 113 L256 113 M190 163 L256 136" stroke-width="1.4" marker-end="url(#arr-c02-tool-skill)"/>
+  <text class="sub" x="360" y="222" text-anchor="middle">스킬이 도구 권한을 새로 만들지는 않습니다. 에이전트에 허용된 도구만 쓸 수 있습니다.</text>
+</svg><figcaption>Tool은 하나의 동작이고, Skill은 "언제·어떻게 부를지"를 적은 <code>SKILL.md</code>와 "부른 뒤 무엇을 할지"를 담은 코드로 여러 도구를 엮은 모듈입니다.</figcaption></figure>
+<div class="table-wrap"><table><thead><tr><th>구분</th><th>Tool</th><th>Skill</th></tr></thead><tbody><tr><td>크기</td><td>단일 기능 (<code>web_fetch</code>, <code>read</code>, <code>exec</code>)</td><td>여러 도구 + 절차 + 출력 형식</td></tr><tr><td>구성</td><td>런타임이 제공하는 함수</td><td><code>SKILL.md</code>(메타데이터) + 코드(예: <code>index.js</code>의 <code>run(input)</code>)</td></tr><tr><td>모델에게 알려 주는 것</td><td>이름, 설명, 인자 형식</td><td>이름, 트리거 상황, 입출력 설명, 단계, 제약</td></tr><tr><td>사용자 정의</td><td>보통 플러그인 수준</td><td>사용자 업무 능력을 만들 때 <strong>우선 선택</strong></td></tr></tbody></table></div>
+<p>정리하면 **<code>SKILL.md</code>는 모델에게 언제, 어떻게 스킬을 부를지 알려 주고, 코드는 부른 뒤 실제로 무엇이 일어나는지 정합니다.** C05에서 일일 브리핑·날씨 스킬을 처음부터 작성합니다. 아래 예제는 로봇 상태 보고 스킬을 흉내 냅니다. 트리거 문구로 스킬이 선택되고, 스킬 내부 워크플로가 도구 세 개를 순서대로 부르며, 실패한 단계는 규칙에 따라 추측 대신 "확인 불가"로 채웁니다.</p>
+<div class="code-block code-run"><div class="code-head"><span class="code-lang">python</span><span class="code-badge badge-run">브라우저 실행</span><span class="code-actions"><button class="run-btn run-inline" type="button" title="오른쪽 패널에서 바로 실행">&#9654; 실행</button><a class="pg-btn" href="../tools/playground.html#code=IyBUb29sKOuLqOydvCDrj5nsnpEpIHZzIFNraWxsKOuplO2DgOuNsOydtO2EsCArIOyXrOufrCDrj4Tqtazrpbwg7Jeu7J2AIOygiOywqCArIOqzoOyglSDstpzroKUg7ZiV7IudKQpkZWYgdG9vbF9yZWFkX2JhdHRlcnkoKTogICByZXR1cm4geyJ2b2x0YWdlIjogNy42fQpkZWYgdG9vbF9yZWFkX3NjYW4oKTogICAgICByZXR1cm4geyJtaW5fcmFuZ2VfbSI6IDAuNDJ9CmRlZiB0b29sX3JlYWRfb2RvbSgpOiAgICAgIHJhaXNlIFRpbWVvdXRFcnJvcigib2RvbSDthqDtlL0g7J2R64u1IOyXhuydjCIpCgpTS0lMTF9NRCA9IHsgICAgICAgICAgICAgICAgICAgICAgICMgU0tJTEwubWTqsIAg66qo64247JeQ6rKMIOyVjOugpCDso7zripQg64K07Jqp7J2YIOyalOyVvQogICAgIm5hbWUiOiAicm9ib3Qtc3RhdHVzLWJyaWVmaW5nIiwKICAgICJ0cmlnZ2VycyI6IFsi7IOB7YOcIOuztOqzoCIsICLsoJDqsoDtlbQiXSwKICAgICJvdXRwdXQiOiAi67Cw7YSw66asOiB7YmF0fSAvIOy1nOq3vOygkSDsnqXslaDrrLw6IHtvYnN9IC8g7JyE7LmYOiB7cG9zfSIsCiAgICAicnVsZXMiOiBbIuqwkuydhCDrqrsg7Ja77Jy866m0ICftmZXsnbgg67aI6rCAJ-uhnCDsk7Dqs6Ag7LaU7Lih7ZWY7KeAIOyViuuKlOuLpCJdLAp9CgpkZWYgcnVuX3NraWxsKF9pbnB1dCk6CiAgICAjIFdvcmtmbG93OiDsoJXtlbTsp4Qg7Iic7ISc66GcIOuLqOqzhCDsi6TtloksIOuLqOqzhOuzhCDsmKTrpZgg7LKY66asCiAgICBzdGVwcyA9IFsoImJhdCIsIHRvb2xfcmVhZF9iYXR0ZXJ5LCBsYW1iZGEgcjogIiUuMWYgViIgJSByWyJ2b2x0YWdlIl0pLAogICAgICAgICAgICAgKCJvYnMiLCB0b29sX3JlYWRfc2NhbiwgICAgbGFtYmRhIHI6ICIlLjJmIG0iICUgclsibWluX3JhbmdlX20iXSksCiAgICAgICAgICAgICAoInBvcyIsIHRvb2xfcmVhZF9vZG9tLCAgICBsYW1iZGEgcjogIiglLjFmLCAlLjFmKSIgJSAoclsieCJdLCByWyJ5Il0pKV0KICAgIGZpbGxlZCA9IHt9CiAgICBmb3IgaSwgKGtleSwgdG9vbCwgZm10KSBpbiBlbnVtZXJhdGUoc3RlcHMsIDEpOgogICAgICAgIHRyeToKICAgICAgICAgICAgZmlsbGVkW2tleV0gPSBmbXQodG9vbCgpKQogICAgICAgICAgICBwcmludCgiICDri6jqs4QgJWQgJS0xOHMg7ISx6rO1IiAlIChpLCB0b29sLl9fbmFtZV9fKSkKICAgICAgICBleGNlcHQgRXhjZXB0aW9uIGFzIGU6CiAgICAgICAgICAgIGZpbGxlZFtrZXldID0gIu2ZleyduCDrtojqsIAiICAgICAgICAjIHJ1bGVzOiDrgqDsobAg6riI7KeACiAgICAgICAgICAgIHByaW50KCIgIOuLqOqzhCAlZCAlLTE4cyDsi6TtjKggKCVzKSIgJSAoaSwgdG9vbC5fX25hbWVfXywgZSkpCiAgICByZXR1cm4gU0tJTExfTURbIm91dHB1dCJdLmZvcm1hdCgqKmZpbGxlZCkKCmRlZiBhZ2VudCh0ZXh0KToKICAgIGZvciB0cmlnIGluIFNLSUxMX01EWyJ0cmlnZ2VycyJdOgogICAgICAgIGlmIHRyaWcgaW4gdGV4dDoKICAgICAgICAgICAgcHJpbnQoIuyKpO2CrCDshKDtg506ICVzICjtirjrpqzqsbAgJyVzJykiICUgKFNLSUxMX01EWyJuYW1lIl0sIHRyaWcpKQogICAgICAgICAgICByZXR1cm4gcnVuX3NraWxsKHRleHQpCiAgICByZXR1cm4gIuyKpO2CrCDsl4bsnbQg7J2867CYIOuLteuzgDogIiArIHRleHQKCnByaW50KGFnZW50KCLroZzrtIcg7IOB7YOcIOuztOqzoCDrtoDtg4HtlbQiKSkKcHJpbnQoYWdlbnQoIuyYpOuKmCDquLDrtoQg7Ja065WMPyIpKQ" target="_blank" rel="noopener" title="Playground에서 열기 (새 탭)">Playground ↗</a><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-python"># Tool(단일 동작) vs Skill(메타데이터 + 여러 도구를 엮은 절차 + 고정 출력 형식)
+def tool_read_battery():   return {&quot;voltage&quot;: 7.6}
+def tool_read_scan():      return {&quot;min_range_m&quot;: 0.42}
+def tool_read_odom():      raise TimeoutError(&quot;odom 토픽 응답 없음&quot;)
+
+SKILL_MD = {                       # SKILL.md가 모델에게 알려 주는 내용의 요약
+    &quot;name&quot;: &quot;robot-status-briefing&quot;,
+    &quot;triggers&quot;: [&quot;상태 보고&quot;, &quot;점검해&quot;],
+    &quot;output&quot;: &quot;배터리: {bat} / 최근접 장애물: {obs} / 위치: {pos}&quot;,
+    &quot;rules&quot;: [&quot;값을 못 얻으면 &#x27;확인 불가&#x27;로 쓰고 추측하지 않는다&quot;],
+}
+
+def run_skill(_input):
+    # Workflow: 정해진 순서로 단계 실행, 단계별 오류 처리
+    steps = [(&quot;bat&quot;, tool_read_battery, lambda r: &quot;%.1f V&quot; % r[&quot;voltage&quot;]),
+             (&quot;obs&quot;, tool_read_scan,    lambda r: &quot;%.2f m&quot; % r[&quot;min_range_m&quot;]),
+             (&quot;pos&quot;, tool_read_odom,    lambda r: &quot;(%.1f, %.1f)&quot; % (r[&quot;x&quot;], r[&quot;y&quot;]))]
+    filled = {}
+    for i, (key, tool, fmt) in enumerate(steps, 1):
+        try:
+            filled[key] = fmt(tool())
+            print(&quot;  단계 %d %-18s 성공&quot; % (i, tool.__name__))
+        except Exception as e:
+            filled[key] = &quot;확인 불가&quot;        # rules: 날조 금지
+            print(&quot;  단계 %d %-18s 실패 (%s)&quot; % (i, tool.__name__, e))
+    return SKILL_MD[&quot;output&quot;].format(**filled)
+
+def agent(text):
+    for trig in SKILL_MD[&quot;triggers&quot;]:
+        if trig in text:
+            print(&quot;스킬 선택: %s (트리거 &#x27;%s&#x27;)&quot; % (SKILL_MD[&quot;name&quot;], trig))
+            return run_skill(text)
+    return &quot;스킬 없이 일반 답변: &quot; + text
+
+print(agent(&quot;로봇 상태 보고 부탁해&quot;))
+print(agent(&quot;오늘 기분 어때?&quot;))</code></pre></div>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">스킬 선택: robot-status-briefing (트리거 &#x27;상태 보고&#x27;)
+  단계 1 tool_read_battery  성공
+  단계 2 tool_read_scan     성공
+  단계 3 tool_read_odom     실패 (odom 토픽 응답 없음)
+배터리: 7.6 V / 최근접 장애물: 0.42 m / 위치: 확인 불가
+스킬 없이 일반 답변: 오늘 기분 어때?</code></pre></div>
+<p>위치를 못 읽었다고 "(0.0, 0.0)"처럼 그럴듯한 값을 지어내지 않는 것, 이것이 C05에서 강조하는 <strong>날조 금지</strong> 규칙입니다. 고정 출력 형식 덕분에 사람도, 다른 프로그램도 결과를 안정적으로 읽을 수 있습니다.</p>
+<h2 id="개념들이-맞물리는-방식">개념들이 맞물리는 방식<a class="anchor" href="#개념들이-맞물리는-방식">#</a></h2>
+<p>여섯 개념은 요청 하나 안에서 다음 파이프라인으로 이어집니다.</p>
+<div class="code-block"><div class="code-head"><span class="code-lang">text</span><span class="code-actions"><button class="copy-btn" type="button">복사</button></span></div><pre><code class="lang-text">요청 도착
+  └─ Agent가 작업을 이해하고 다음 행동 결정 ── Model이 추론/생성
+        ├─ 외부 정보나 행동이 필요한가? ── 예 → Tool 또는 Skill 호출 → 결과를 다시 Model로
+        ├─ 맥락이 필요한가?              ── 예 → Memory 읽기/쓰기
+        ├─ 여러 단계의 복잡한 작업인가?   ── 예 → Workflow로 단계별 실행
+        └─ 모두 아니오 → 최종 결과 반환</code></pre></div>
+<p>OpenClaw는 모델 하나가 아니라, <strong>두뇌(모델)·손(도구)·수첩(메모리)·절차서(워크플로)·매뉴얼(스킬)을 엮어 대화에서 행동으로 넘어가게 하는 시스템</strong>입니다.</p>
+<h2 id="자주-나는-오류와-해결">자주 나는 오류와 해결<a class="anchor" href="#자주-나는-오류와-해결">#</a></h2>
+<div class="table-wrap"><table><thead><tr><th>증상</th><th>원인</th><th>해결</th></tr></thead><tbody><tr><td>에이전트가 도구 없이 날씨·시간을 지어냄</td><td>도구가 비활성·미허용, 또는 규칙에 "조회 필수"가 없음</td><td>도구 권한 확인, 워크스페이스 규칙에 "실시간 정보는 도구로" 명시</td></tr><tr><td>도구를 허용했는데 호출이 안 됨</td><td><code>deny</code>에도 있음, 설정 변경 후 미재시작</td><td>allow/deny 겹침 제거, <code>openclaw gateway restart</code></td></tr><tr><td>같은 도구를 계속 반복 호출</td><td>도구 오류가 해결되지 않음</td><td>최대 반복 제한 확인, 오류 메시지를 명확히, 원인(권한·인자) 수정</td></tr><tr><td>앞에서 한 말을 잊음</td><td>다른 세션이거나 컨텍스트 창 초과</td><td>같은 <code>session-id</code> 사용, 중요한 정보는 장기 메모리로</td></tr><tr><td>스킬이 선택되지 않음</td><td>트리거 문구가 요청과 다름, 스킬 미등록</td><td><code>SKILL.md</code> 트리거 보강, 에이전트에 스킬 등록(C05)</td></tr><tr><td>스킬 결과 형식이 매번 다름</td><td>출력 형식이 고정되지 않음</td><td><code>SKILL.md</code>에 고정 출력 템플릿 명시</td></tr></tbody></table></div>
+<h2 id="과제">과제<a class="anchor" href="#과제">#</a></h2>
+<div class="callout callout-task"><div class="callout-title">과제</div><div class="callout-body"><ol><li><strong>(기본)</strong> 도구 호출 루프 예제에 <code>calc</code> 도구를 쓰는 질문(예: "0.15 m/s로 4초 가면 몇 m?")을 처리하도록 <code>MockModel</code>에 규칙을 추가하고, 추적 출력을 붙이세요.</li><li><strong>(기본)</strong> 메모리 예제에서 창 크기 4로도 "그거"를 이해하게 하는 방법 두 가지(요약, 장기 메모리 기록)를 코드로 구현해 보세요.</li><li><strong>(심화)</strong> 상태 보고 스킬에 "배터리가 7.0 V 미만이면 출력 끝에 <code>⚠ 충전 필요</code>를 붙인다"는 규칙을 추가하고, 이 판단을 모델이 아닌 코드에 둔 이유를 설명하세요.</li><li><strong>(심화)</strong> "순찰 후 사진 3장 보고" 작업을 생각하며 행동(ReAct) 방식과 계획 후 실행 방식으로 각각 설계하고, 로봇에는 어느 쪽이 더 안전한지 논의하세요.</li></ol></div></div>
+<h2 id="참고자료">참고자료<a class="anchor" href="#참고자료">#</a></h2>
+<ul><li>원본 교재: <em>19. OpenClaw Robotics Integration Course</em> — 2. OpenClaw Core Concepts (2.1 Model, 2.2 Agent, 2.3 Tool, 2.4 Memory, 2.5 Workflow, 2.6 Skills, 2.7 How These Concepts Work Together)</li><li>원본 교재: <em>19. OpenClaw Robotics Integration Course</em> — 4. Creating the First Agent (systemPrompt, tools.allow/deny 예)</li><li>설정 필드와 도구 이름은 원본 기준 버전 <code>openclaw@2026.3.24</code>를 따릅니다. 버전에 따라 다를 수 있습니다.</li><li>Yao et al., <em>ReAct: Synergizing Reasoning and Acting in Language Models</em> (2022): https://arxiv.org/abs/2210.03629</li><li>OpenAI 함수 호출(Function calling) 가이드: https://platform.openai.com/docs/guides/function-calling</li><li>Anthropic 도구 사용(Tool use) 문서: https://docs.anthropic.com/en/docs/build-with-claude/tool-use</li></ul>
+      <nav class="pager"><a class="pager-prev" href="c01.html"><span>이전 · C01</span>OpenClaw 개요와 아키텍처</a><a class="pager-next" href="c03.html"><span>다음 · C03</span>환경 구축과 설치: Node.js·OpenClaw·API 키·Ollama</a></nav>
+    </div>
+    <aside class="lesson-toc"><div class="toc-title">이 장의 내용</div><div class="toc-links"><a class="toc-l2" href="#학습-목표">학습 목표</a><a class="toc-l2" href="#한눈에-보는-여섯-개념">한눈에 보는 여섯 개념</a><a class="toc-l2" href="#모델model-두뇌">모델(Model): 두뇌</a><a class="toc-l2" href="#에이전트agent-작업-관리자">에이전트(Agent): 작업 관리자</a><a class="toc-l3" href="#실행-스타일">실행 스타일</a><a class="toc-l2" href="#도구tool-손">도구(Tool): 손</a><a class="toc-l3" href="#도구-호출-루프">도구 호출 루프</a><a class="toc-l3" href="#도구가-호출되지-않을-때">도구가 호출되지 않을 때</a><a class="toc-l2" href="#메모리memory-맥락">메모리(Memory): 맥락</a><a class="toc-l2" href="#워크플로workflow-실행-계획">워크플로(Workflow): 실행 계획</a><a class="toc-l2" href="#스킬skill-재사용-모듈">스킬(Skill): 재사용 모듈</a><a class="toc-l2" href="#개념들이-맞물리는-방식">개념들이 맞물리는 방식</a><a class="toc-l2" href="#자주-나는-오류와-해결">자주 나는 오류와 해결</a><a class="toc-l2" href="#과제">과제</a><a class="toc-l2" href="#참고자료">참고자료</a></div></aside>
+  </div>
+</article>
+
+</main>
+<script src="../assets/js/site.js?v=d46755e0"></script>
+<script type="module" src="../assets/js/lesson-runner.js?v=d46755e0"></script>
+</body>
+</html>

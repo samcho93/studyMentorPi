@@ -6,7 +6,7 @@
 ## 0. 한 줄 요약
 
 GitHub Pages로 배포되는 **정적 강의 사이트**에서
-① Hiwonder MentorPi(메카넘/애커만, Raspberry Pi 5, ROS 2 Humble) 공식 교재 18개 강좌를 4개 트랙 46챕터로 재구성한 한국어 강의,
+① Hiwonder MentorPi(메카넘/애커만, Raspberry Pi 5, ROS 2 Humble) 공식 교재 19개 강좌를 5개 트랙(+프로젝트) 챕터로 재구성한 한국어 강의 (19번 OpenClaw AI 에이전트 → 트랙 agent, C01~C08),
 ② 실제 MentorPi URDF로 움직이는 **3D 시뮬레이터**(`sim3d/`)와 섀시·라이다·SLAM·내비게이션·라인트레이싱을 돌려 보는 **2D 시뮬레이터**(`sim/`) — 둘은 `sim/physics.js`·`behaviors.js`·`nav.js`를 공유한다,
 ③ rclpy 호환 shim으로 ROS 2 노드 코드를 브라우저에서 실행하는 **ROS 2 Playground**(Pyodide, `python/mentorpi_sim`),
 ④ 섀시 기구학 실험실, HSV 색 실험실, URDF 뷰어를 제공한다.
@@ -38,8 +38,8 @@ GitHub Pages로 배포되는 **정적 강의 사이트**에서
 ```
 studyMentorPi/
 ├── build.py                 # content/*.md → lessons/*.html, index.html
-├── content/curriculum.json  # 트랙: base(B) · ros(R) · mobile(M) · ai(A)
-├── content/{base,ros,mobile,ai}/*.md, content/figures/*.svg
+├── content/curriculum.json  # 트랙: base(B) · ros(R) · mobile(M) · ai(A) · agent(C) · project(P)
+├── content/{base,ros,mobile,ai,agent,project}/*.md, content/figures/*.svg
 ├── lessons/ index.html      # 빌드 산출물 — 직접 수정 금지
 ├── sim/                     # 2D 시뮬레이터 (주행·라이다·SLAM·내비·라인)
 ├── tools/                   # playground(+worker), kinematics-lab, color-lab, urdf-viewer
